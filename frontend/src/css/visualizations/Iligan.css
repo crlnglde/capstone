@@ -1,0 +1,111 @@
+
+.choropleth-map-container {
+    max-width: 900px;
+    width: 100%;
+  }
+  
+  .choropleth-map-container > h2 {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    color: #333;              /* Text color */
+  }
+
+  .map{ 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    margin: 0px auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 10px 10px 0 0 ;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    height: 400px;
+  }
+
+  .map-filter{
+    display: flex;
+    padding: 0 20px 0 20px;
+    gap: 10px;
+
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .filters-right {
+    display: flex;
+    align-items: center;
+    gap: 20px; 
+    justify-content: flex-end;
+  }
+
+    .map-filter-container {
+      font-size: 1.1em;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      gap: 10px;
+      padding: 0 10px 0 10px;
+    }
+    
+    .map-filter-container label {
+      font-weight: bold;
+    }
+    
+    .map-filter-container select {
+      padding: 8px 12px;
+      font-size: 15px;
+      border: none;
+      outline: none;
+      background-color: #ffffff00;
+      transition: border-color 0.3s ease;
+    }
+
+    .map-filter-container option {
+      padding: 8px 12px;
+      font-size: 15px;
+      border: none;
+      outline: none;
+      background-color: #fff;
+      transition: border-color 0.3s ease;
+    }
+    
+    
+    .map-filter-container select:focus {
+      border-color: #0056b3;
+    }
+    
+    .map-filter-container select option {
+      padding: 10px;
+    }
+
+  .map-wrapper{
+    width: 100%; 
+    height: 340px; 
+  }
+
+  .map-text-overlay {
+    position: relative;
+    background-color: rgb(10 25 78 / 69%);
+    color: white;
+    padding: 20px;
+    border-radius: 0px 0px 20px 20px;
+    text-align: left;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    height: 100px;
+  }
+
+  .map-text-overlay h2 {
+    margin: 0; 
+    font-size: 15px; 
+    color: white;
+    padding: 0;
+}
+
+.map-text-overlay p {
+    margin: 10px 0 0;
+    font-size: 15px; 
+    color: white;
+}
+  

@@ -1,0 +1,432 @@
+.dstr-dashboard{
+    padding: 20px;
+    flex: 1;
+}
+
+.dstr-dashboard-container{
+    background-color: white;
+    border-collapse: collapse;
+    height: 100%;
+  }
+
+.dstr-dashboard h2 {
+    font-size: 28px;
+    font-weight: bold;
+    color: #333;
+    margin: 0;
+  }
+
+
+
+  .add-form-h2{
+    padding: 20px 20px 0 20px;
+  }
+
+.modal-h2{
+    padding: 20px 20px 20px 0px;
+}
+
+/*Step 1 */
+
+.dstr-rows{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+    
+}
+
+.dstr-image-container {
+    position: relative; /* Allows positioning elements relative to this container */
+    display: inline-block; /* Prevents unwanted stretching */
+    width: 100%; /* Ensures responsiveness */
+    max-width: 500px; /* Adjust as needed for your layout */
+}
+
+.gif-image{
+    width: 100%;
+    height: 500px; 
+    display: block; 
+    margin: 0 auto;
+    position: inherit;
+    border-radius: 0px 20px 0 0;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.ad-text-overlay {
+    position: absolute; 
+    top: 70%; 
+    left: -20px; 
+    background-color: rgb(10 25 78 / 69%);
+    color: white; 
+    padding: 20px 0px 20px 50px; 
+    border-radius: 0px 20px 0 0; 
+    text-align: left; 
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); 
+    max-width: 200px;
+    width: 100%;
+}
+
+.ad-text-overlay h2 {
+    margin: 0; 
+    font-size: 1.5em; 
+    color: white;
+    padding: 0;
+}
+
+.ad-text-overlay p {
+    margin: 5px 0 0;
+    font-size: 1em;
+    color: white;
+}
+
+.dstr-cols1{
+    padding: 20px;
+} 
+
+.dstr-cols2{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    gap: 20px;
+} 
+
+.dstr-pop-form{
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.dstr-pop-form1{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    
+}
+
+.dstr-pop-form .dstr-form-group {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.dstr-pop-form1 .dstr-form-group {
+    display: flex;
+    flex-direction: column;
+    max-width: 1000px;
+    width: 100%;
+}
+
+.ig {
+    display: flex;
+    align-items: center;
+    padding: 10px 10px;
+}
+
+.ig label{
+    font-size: 14px;
+    color: #333;
+    display: block;
+    padding: 0px 0 0 0;
+}
+
+.checkbox-group {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    overflow-y: auto;
+    padding-right: 10px;
+    max-height: 320px;
+    
+}
+
+.checkbox-item label{
+    font-size: 14px;
+}
+
+.dstr-btn{
+    
+    width: 100%;
+}
+
+.dstr-submit-btn {
+    background-color: #0a194e;
+    color: white;
+    padding: 10px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+}
+
+.dstr-submit-btn:hover {
+    background-color: #233c96;
+  }
+
+
+/*Step 2 */
+.barangay-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0px;
+    margin-bottom: 15px;
+}
+
+.barangay-button {
+    padding: 8px 12px;
+    background-color: #0a194ebb;
+    color: rgba(255, 255, 255, 0.837);
+    border: none;
+    border-radius: 10px 10px 0 0;
+    cursor: pointer;
+}
+
+.barangay-button.active{
+    background-color: #0A194E;
+    color: white;
+}
+
+.barangay-button:hover {
+    background-color: #0056b3;
+}
+
+.res-submit-btn {
+    padding: 5px;
+    background-color: #8cb1d700;
+    color: rgb(15, 58, 153);
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 100%;
+  }
+  
+  .res-submit-btn:hover {
+    background-color: #0057b300;
+    color: #0A194E;
+  }
+  
+  .res-submit-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+
+  .dstr-bgay-btn{
+    display:flex;
+    justify-content: flex-end;
+  }
+
+  .bgy-submit-btn {
+    padding: 12px;
+    background-color: #007bff;
+    color: white;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 10%;
+    margin: 20px 0 0 0 ;
+  }
+
+  .bgy-submit-btn i{
+    margin: 0 10px 0 0;
+  }
+  
+  .bgy-submit-btn:hover {
+    background-color: #0056b3;
+  }
+  
+  .bgy-submit-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+
+/*error */
+.error-message {
+    color: red;
+    font-size: 14px;
+    margin:0;
+}
+
+/*Modal*/
+.modal-content {
+    background: white;
+    border-radius: 8px;
+    padding: 30px;
+    width: 600px;
+    max-width: 100%;
+    max-height: 80vh;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    position: relative;
+    animation: fadeIn 0.3s ease;
+    overflow-y: auto;
+}
+
+/*answer modal*/
+
+.dstr-bgy-pop-form {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.dstr-bgy-pop-form1 {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    justify-content: space-between;
+    
+}
+
+.dstr-bgy-form-group{
+    display: flex;
+    flex-direction: column;
+}
+
+.dstr-bgy-form-group label{
+    padding: 10px 0 10px 0;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.form-group-fie{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.form-group-fie label{
+    padding: 10px 0 10px 0;
+}
+
+.form-group-sex{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.form-group-sex label{
+    padding: 10px 0 10px 0;
+}
+
+
+
+
+.dstr-bgy-input-group {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    padding: 5px 10px;
+}
+
+.sex{
+    display: flex;
+    align-items: center;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    padding: 5px 10px;
+    width: 100%;
+}
+
+.dstr-bgy-input-group-sex {
+    display: flex;  
+    justify-content: space-around;
+    gap: 10px;
+    width:100%;
+}
+
+.dstr-bgy-input-group-sex input{
+    border: none;
+    outline: none;
+    flex: 1 1;
+    font-size: 14px;
+    padding: 0px 10px;
+    background: transparent;
+    width:100%;
+}
+
+.dstr-bgy-input-group-fie {
+    display: flex;  
+    justify-content: space-around;
+    gap: 10px;
+    
+    align-items: center;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    padding: 6px 10px;
+}
+
+.dstr-bgy-input-group-fie input{
+    border: none;
+    outline: none;
+    flex: 1 1;
+    font-size: 14px;
+    padding: 0px 10px;
+    background: transparent;
+    margin:0;
+}
+
+.dstr-bgy-input-group-fie label{
+    padding: 10px 0 10px 0;
+    display: flex;
+    flex-direction: row;
+    align-content: center;
+    align-items: center;
+    
+}
+
+
+.dstr-bgy-input-group-sex label{
+    padding: 10px 0 10px 0;
+    display: flex;
+    flex-direction: row;
+    align-content: center;
+    align-items: center;
+
+}
+
+.dstr-bgy-input-group .icon {
+    color: #555;
+    font-size: 16px;
+    margin-right: 10px;
+}
+
+.dstr-input-group select, .dstr-input-group input {
+    border: none;
+    outline: none;
+    flex: 1 1;
+    font-size: 14px;
+    padding: 10px 0px 10px 0px;
+    background: transparent;
+}
+
+.dstr-bgy-input-group select, .dstr-bgy-input-group input{
+    border: none;
+    outline: none;
+    flex: 1 1;
+    font-size: 14px;
+    padding: 10px 10px 10px 10px;
+    background: transparent;
+}
+
+.dstr-bgy-input-group textarea{
+    width: 100%;
+    background-color: transparent;
+    border: none;
+    outline: none;
+}

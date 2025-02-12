@@ -1,0 +1,117 @@
+/* Bar.css */
+
+.bar-graph-container {
+
+  width: 100%;
+}
+.bar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    margin: 0px auto;
+    padding: 20px;
+    background-color: #f9f9f9; /* Light background for contrast */
+    border: 1px solid #ddd;    /* Subtle border */
+    border-radius: 10px 10px 0 0 ;       /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Light shadow */    
+    height: 400px; 
+  }
+
+  .bar-filter{
+    display: flex;
+    padding: 0 20px 0 20px;
+    gap: 10px;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .filters-right {
+    display: flex;
+    align-items: center;
+    gap: 20px; 
+  }
+
+    .bar-filter-container {
+      font-size: 1.1em;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      gap: 10px;
+      padding: 0 10px 0 10px;
+    }
+    
+    .bar-filter-container label {
+      font-weight: bold;
+    }
+    
+    .bar-filter-container select {
+      padding: 8px 12px;
+      font-size: 15px;
+      border: none;
+      outline: none;
+      background-color: #ffffff00;
+      transition: border-color 0.3s ease;
+    }
+
+    .bar-filter-container option {
+      padding: 8px 12px;
+      font-size: 15px;
+      border: none;
+      outline: none;
+      background-color: #fff;
+      transition: border-color 0.3s ease;
+    }
+    
+    
+    .bar-filter-container select:focus {
+      border-color: #0056b3;
+    }
+    
+    .bar-filter-container select option {
+      padding: 10px;
+    }
+
+
+  .bar-wrapper {
+    width: 100%;  /* Set the width of the graph */
+    height: 300px; /* Set the height of the graph */
+  }
+  
+  .bar-graph-container> h2 {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    color: #333;              /* Dark text for contrast */
+    text-align: center;
+  }
+
+  .bar-text-overlay {
+    position: relative;
+    top:1%; 
+    
+    background-color: rgb(10 25 78 / 69%);
+    color: white;
+    padding: 20px;
+    border-radius: 0px 0px 20px 20px;
+    text-align: left;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    height: 100px;
+  }
+
+  .bar-text-overlay h2 {
+    margin: 0; 
+    font-size: 15px;  
+    color: white;
+    padding: 0;
+}
+
+.bar-text-overlay p {
+    margin: 10px 0 0;
+    font-size: 15px; 
+    color: white;
+}
+  
+  canvas {
+    width: 100% !important;   /* Ensure the canvas stretches to container */
+    height: auto !important; /* Maintain aspect ratio */
+  }
+  

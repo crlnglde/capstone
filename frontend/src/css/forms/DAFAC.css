@@ -1,0 +1,188 @@
+.dafac {
+    padding: 20px;
+    flex: 1;
+  }
+
+.dafac-container{
+    background-color: white;
+    border-collapse: collapse;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;   
+    justify-content: space-between; /* Distribute space between form content and the footer */
+    box-sizing: border-box;
+  }
+
+  .dafac input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    accent-color: #0a194e; /* Changes the checkbox color (modern browsers) */
+    margin: 0;
+  }
+
+  .col label{
+    display: flex;
+    justify-content: center;
+  }
+  
+  .relief-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center; 
+  }
+
+  .upper-area{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: column;
+  }
+
+  .form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 5px 0;
+  }
+
+        .form-row-2{
+          display: flex;
+          justify-content: center;
+          flex-direction: column;
+          align-content: space-between;
+          align-items: center;
+        }
+
+        .checkbox-group {
+          display: grid;
+          grid-template-rows: repeat(4, auto);  /* 4 rows */
+          grid-template-columns: repeat(2, 1fr); /* 2 equal columns */
+          grid-auto-flow: column;               /* Fill by columns first */
+          gap: 10px;
+        }
+
+        /*para sa header text sa row*/
+        .form-row h3 {
+          font-size: 18px;
+          font-weight: bold;
+          margin: 0px;
+          display: flex;
+          align-items: center;
+          color: #333;
+        }
+
+        /*para sa duha ka column in 1 row*/
+        .form-col-1{
+          flex-direction: column;
+        }
+
+        .serial{
+          justify-content: flex-end;
+        }
+
+        .form-col-1 label{
+          display: flex;
+          justify-content: space-between;
+        }
+
+        .detail{
+          display: flex;
+          justify-content: flex-start;
+          width: 100%;
+        }
+
+        .col{
+          display: flex;
+
+        }
+
+        .box{
+          padding: 10px;
+          display: flex;
+        }
+
+          .dafac .box label {
+            display: flex;
+            align-items: center;
+            margin:0 15px 0 0 ;
+            gap: 5px;
+          }
+
+    .form-row input[type="text"],
+    .form-row input[type="number"],
+    .form-row input[type="date"],
+    .form-row input[type="date"],
+    .form-row input[type="datetime-local"],
+    .form-row input[type="tel"],
+    .form-row select {
+    border: none;
+    border-bottom: 1px solid #000;
+    outline: none;
+    padding: 0px 0;
+  
+    background: transparent;
+    font-size: 14px;
+    }
+
+    .form-row input[type="text"]:focus,
+    .form-row input[type="number"]:focus,
+    .form-row input[type="date"]:focus,
+    .form-row input[type="date"]:focus,
+    .form-row input[type="tel"]:focus  {
+    border-bottom: 2px solid #007BFF; /* Changes line thickness and color on focus */
+    transition: border-bottom 0.2s ease;
+    }
+
+/* lower part ni sya sa ubos sa table sa fam memberss*/
+.below-table{
+
+  
+}
+  
+.cost-of-damage {
+    flex: 0 1 auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }     
+  .cost-of-damage input {
+    flex: 1;
+  }
+  
+  .signature-section {
+    display: flex;
+    justify-content: space-between;
+    margin: 20px 0;
+  }
+  
+  .signature-box {
+    width: 200px;
+    height: 50px;
+    border: 1px solid #000;
+    background-color: #f9f9f9;
+  }
+  
+  .date-registered {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .date-registered input {
+    padding: 5px;
+  }
+
+  .dafac .custom-table {
+    width: 80%;
+    border-collapse: collapse;
+    margin: 20px 0px;
+    font-size: 16px;
+    text-align: left;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+  }
+
+   
+  

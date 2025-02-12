@@ -1,0 +1,327 @@
+.home {
+
+    flex: 1;
+    height: 100vh;
+    position: relative;
+  }
+
+  .home h2 {
+    font-size: 28px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+
+  .home-container{
+    position: relative;
+    text-align: center;
+
+    border-radius: 0px;
+    height: 600px;
+    padding: 20px;
+    z-index: 1;
+
+    gap: 50px;
+    display: flex;
+    flex-direction: row;
+    height: 600px;
+  }
+  
+
+  .background-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ensures the image covers the container */
+  }
+
+  .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right, white 30%, transparent);
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+
+  }
+
+  .overlay> h1{
+    padding: 50px 50px 0 50px;
+    position: relative;
+    top: 110px;
+  }
+
+  .overlay> h3{
+    padding: 0px 50px 0px 50px;
+    position: relative;
+    top: 110px;
+  }
+  .overlay> p{
+    padding: 0px 50px 50px 50px;
+  }
+
+  .home-row{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    position: relative;
+
+    height: 100px;
+    bottom: 40px;
+    z-index: 1;
+    box-shadow: 4px 20px 20px 6px rgba(255, 255, 255, 0.32), 0px 2px 4px rgba(67, 67, 67, 0.1);
+  }
+  
+  .home-count-card {
+    background-color: #f1f1f1;
+  
+    padding: 20px 30px 20px 30px;
+    text-align: center;
+    font-size: 1.2em;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.3s ease; 
+  }
+
+  .hcc-label{
+    background-color:#0f288400;
+    padding: 10px;
+
+    letter-spacing: 2px;
+  }
+
+  .home-count-card label{
+    color: rgb(0, 0, 0);
+  }
+
+  .home-count-card p{
+    color: #000000;
+    font-size: 30px;
+    margin: 0px 0 0px 0;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .home-count-card i{
+    color: #0f2984;
+    margin: 0px 10px 0px 0px;
+    font-size: 30px;
+  }
+
+  .home-count-card:hover {
+    background-color: #395cb7; /* Change background color on hover */
+    transform: scale(1.05);   /* Slightly zoom the box */
+    cursor: pointer;          /* Add pointer cursor on hover */
+}
+
+.home-count-card:hover i,
+.home-count-card:hover p,
+.home-count-card:hover label{
+  color: white;
+}
+
+
+  .home-container1{
+    position: relative;
+    text-align: center;
+
+    border-radius: 0px;
+    height: 100px;
+    padding: 20px;
+    z-index: 1;
+
+    gap: 50px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    background-color:#0a194e;
+  }
+
+  .home-container2{
+    position: relative;
+    text-align: center;
+
+    border-radius: 0px;
+    height: 100%;
+    padding: 20px;
+    z-index: 1;
+
+    gap: 50px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    background-color:#ffffff;
+  }
+
+  .home-text-overlay {
+    position: relative;
+    top:1%; 
+    
+    background-color: rgb(10 25 78 / 69%);
+    color: white;
+    padding: 20px;
+    border-radius: 0px 0px 20px 20px;
+    text-align: left;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    height: 100px;
+  }
+
+
+  
+ /* wala pani */
+  .home-pic-main{
+    position: relative;
+    width: 300px;
+    height: 400px; /* Adjust as needed */
+  }
+
+  .home-pic1 {
+    position: absolute;
+    top: 0; /* Stick to the top */
+    width: 100%;
+    height: 60%; /* Slightly larger to overlap */
+    z-index: 1; /* Ensure it appears above the second */
+    overflow: hidden;
+    border-radius: 10px;
+    right: 120px;
+    background-color: #bbb;
+  }
+  
+  .home-pic2 {
+      position: absolute;
+    bottom: 0; /* Stick to the bottom */
+    width: 100%;
+    height: 60%; /* Adjust overlap by changing height */
+    z-index: 2; /* Appears below the first container */
+    overflow: hidden;
+    border-radius: 10px; 
+    background-color: #bbb;
+  }
+  
+  .home-pic2 {
+    transform: translate(20px, 20px); /* Adjust overlap position */
+    z-index: 1;
+  }
+
+  .home-pic1 img, .home-pic2 img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ensures the image covers the div without distortion */
+  }
+  
+  .carousel {
+    position: relative;
+  }
+
+  .image-container {
+    width: 50%;
+    height: 300px;
+    margin: 0 auto;
+    overflow: hidden; 
+    position: relative;
+    border-radius: 10px;
+  }
+  
+  .image-container img {
+    width: 100%; 
+    height: 100%;
+    object-fit: cover;
+    
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .image-container::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(52, 152, 219, 0.4); /* Blue with transparency */
+    z-index: 1; /* Ensure it's placed behind the content (image and buttons) */
+    border-radius: 10px;
+  }
+
+  .row1{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    height: 100vh; /* Full viewport height */
+    background-color: #f5f5f5; /* Background for context */
+    position: relative;
+
+  }
+  
+  .prev-button,
+  .next-button {
+    position: absolute;
+    top: 50%;  /* Place the buttons vertically at the center of the image container */
+    transform: translateY(-50%); /* Adjust position to perfectly center them */
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    color: white;
+    border: none;
+    padding: 10px;
+    font-size: 18px;
+    cursor: pointer;
+    border-radius: 50%;
+    width: 35px;
+    height:35px;
+    z-index: 10; /* Ensure buttons are above the image */
+    opacity: 0.7;
+    transition: opacity 0.3s; /* Add a fade effect */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .prev-button:hover,
+  .next-button:hover {
+    opacity: 1; 
+    transform: translateY(-49%);
+  }
+  
+  .prev-button {
+    left: 280px;
+  }
+  
+  .next-button {
+    right: 280px;
+    
+  }
+  
+  .dots-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+  }
+  
+  .dot {
+    height: 10px;
+    width: 10px;
+    margin: 0 5px;
+    background-color: #bbb;
+    border-radius: 50%;
+    display: inline-block;
+    transition: background-color 0.3s;
+    cursor: pointer;
+  }
+  
+  .dot.active {
+    background-color: #3498db;
+  }
+
+
+  
+  
+  
