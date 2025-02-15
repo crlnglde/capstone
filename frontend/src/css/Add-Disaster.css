@@ -33,7 +33,6 @@
     flex-direction: row;
     justify-content: space-evenly;
     align-items: center;
-    
 }
 
 .dstr-image-container {
@@ -258,15 +257,15 @@
 /*Modal*/
 .modal-content {
     background: white;
-    border-radius: 8px;
-    padding: 30px;
-    width: 600px;
+    margin: 10px;
+    width: 1200px;
     max-width: 100%;
-    max-height: 80vh;
+    max-height: 90vh;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     position: relative;
     animation: fadeIn 0.3s ease;
     overflow-y: auto;
+    left: 130px;
 }
 
 /*answer modal*/
