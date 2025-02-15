@@ -89,7 +89,37 @@ const SPORADIC= () => {
                 ))}
                 </tbody>
             </table>
-            </div>
+        </div>
+
+        <div className="table-container">
+            <table className="sporadic-report">
+                <thead>
+                    <tr>
+                        <th rowSpan="2">Name of Agency</th>
+                        <th rowSpan="2">Type of Relief Assistance</th>
+                        <th rowSpan="2">Quantity</th>
+                        <th rowSpan="2">Assistance per Family</th>
+                        <th rowSpan="2">Estimated Cost</th>
+                        <th rowSpan="2">Livelihood</th>
+                    </tr>
+
+                </thead>
+                <tbody>
+                    {[...Array(5)].map((_, index) => (
+                        <tr key={index}>
+                        <td>{index + 1}</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        
+                    
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
 
       </div>
 

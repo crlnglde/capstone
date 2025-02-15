@@ -14,8 +14,8 @@
       "/residents": "List of Residents",
       "/volunteers": "Volunteers",
       "/rds": "Relief Distribution Sheet",
-      "/dafac": "Distribution",
-      "/sporadic": "spodarac",
+      "/dafac": "Disaster Assistance Family Access Card",
+      "/sporadic": "SPORADIC REPORT",
       "/dashboard/add-disaster":"Add Disaster",
     };
 
