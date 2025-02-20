@@ -128,6 +128,16 @@ const Sidebar = ({isMinimized, setIsMinimized}) => {
             </a>
           </li>
 
+          <li>
+            <a
+              href="/fdr"
+              className={isActive("/sporadic") ? "active" : ""}
+            >
+            <i className="fa-solid fa-folder-open"></i>
+            {!isMinimizedState && <span>FDR</span>}
+            </a>
+          </li>
+
           <li >
             <a
               href="/residents"

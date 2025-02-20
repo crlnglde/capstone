@@ -16,6 +16,7 @@
       "/rds": "Relief Distribution Sheet",
       "/dafac": "Disaster Assistance Family Access Card",
       "/sporadic": "SPORADIC REPORT",
+      "/fdr": "Final Disaster Report",
       "/dashboard/add-disaster":"Add Disaster",
     };
 
