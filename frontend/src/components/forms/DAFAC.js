@@ -170,7 +170,7 @@ const DAFAC= () => {
 
               </div>
 
-                <table className="custom-table">
+                <table className="dafac-table">
                       <thead>
                         <tr>
                           <th>Family Members</th>
