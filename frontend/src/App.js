@@ -60,7 +60,10 @@ function App() {
               <Route path="/" element={<Navigate to="/home" />} />
               <Route path="/home" element={<Home />} />
               <Route path="/dashboard" element={<Dashboard />} />  {/* add distribution after this*/}
-              <Route path="/distribution" element={<Distribution />} /> 
+              <Route path="/distribution" element={<Distribution />}>
+                <Route path="rds" element={<RDS/>} />
+              </Route>
+
               <Route path="/residents" element={<Residents />} />
               <Route path="/dashboard/add-disaster" element={<AddDisaster />} />
               <Route path="/reports" element={<Reports />} />
