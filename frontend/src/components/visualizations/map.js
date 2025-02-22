@@ -1,11 +1,9 @@
 import React, { useEffect, useState, useMemo, useCallback  } from "react";
 import { MapContainer, TileLayer, GeoJSON,  CircleMarker, Popup } from 'react-leaflet';
+import axios from "axios";
 import 'leaflet/dist/leaflet.css';
 import iliganData from '../../data/iligan.json'; 
 import "../../css/visualizations/map.css";
-
-import { db } from "../../firebase";
-import { collection, getDocs } from 'firebase/firestore';
 
 const ChoroplethGraph = () => {
   const [disasterTypeFilter, setDisasterTypeFilter] = useState("All");
@@ -16,18 +14,21 @@ const ChoroplethGraph = () => {
   const year= "All";
 
   useEffect(() => {
-      const fetchDisasters = async () => {
-        try {
-          const querySnapshot = await getDocs(collection(db, "disasters"));
-          const disastersData = querySnapshot.docs.map(doc => doc.data());
-          setDisasters(disastersData);  // Store data in state
-        } catch (error) {
-          console.error("Error fetching disasters data:", error);
-        }
-      };
- 
-      fetchDisasters();  // Call the function to fetch data
-    }, []);
+    const fetchDisasters = async () => {
+      try {
+        const response = await axios.get("http://localhost:3003/get-disasters");
+        const disasterData = response.data;
+        setDisasters(disasterData); // Store disasters data in state
+  
+        // Set the total number of disasters
+        setDisasters(disasterData);
+      } catch (error) {
+        console.error("Error fetching disasters data:", error);
+      }
+    };
+  
+    fetchDisasters();
+  }, []);  
 
 
     const allMonths = [
@@ -38,34 +39,36 @@ const ChoroplethGraph = () => {
 
     const filteredDisasters = useMemo(() => {
       return disasters.filter(disaster => {
-        const disasterDate = new Date(disaster.disasterDate);
-        const disasterMonth = allMonths[disasterDate.getMonth()]; // Get month from disaster date
-        // Filter based on the selected barangay, year, disaster type, and month
+        const disasterDate = new Date(disaster.disasterDateTime.$date);
+        const disasterYear = disasterDate.getFullYear().toString();
+        const disasterMonth = allMonths[disasterDate.getMonth()];
+    
         return (
-          (barangay === "All" || disaster.barangays === barangay) &&
-          (year === "All" || disaster.disasterDate.split("-")[0] === year) &&
+          (barangay === "All" || disaster.barangays.some(b => b.name === barangay)) &&
+          (year === "All" || disasterYear === year) &&
           (disasterTypeFilter === "All" || disaster.disasterType === disasterTypeFilter) &&
           (disasterMonthFilter === "All" || disasterMonth === disasterMonthFilter)
         );  
       });
-    }, [disasters, barangay, year, disasterTypeFilter, disasterMonthFilter, allMonths]);
+    }, [disasters, barangay, year, disasterTypeFilter, disasterMonthFilter, allMonths]);    
 
 
     const countFilteredDisastersByBarangayAndType = (filteredDisastersList) => {
       return filteredDisastersList.reduce((acc, disaster) => {
-        const barangay = disaster.barangays;
-        const disasterType = disaster.disasterType;
-       
-        // Initialize the barangay object if it doesn't exist
-        if (!acc[barangay]) {
-          acc[barangay] = {};
-        }
-   
-        // Increment the count for the specific disaster type in the barangay
-        acc[barangay][disasterType] = (acc[barangay][disasterType] || 0) + 1;
+        disaster.barangays.forEach(b => {
+          const barangay = b.name;
+          const disasterType = disaster.disasterType;
+    
+          if (!acc[barangay]) {
+            acc[barangay] = {};
+          }
+    
+          acc[barangay][disasterType] = (acc[barangay][disasterType] || 0) + 1;
+        });
+    
         return acc;
       }, {});
-    };
+    };    
    
     useEffect(() => {
       const countByBarangayAndType = countFilteredDisastersByBarangayAndType(filteredDisasters);

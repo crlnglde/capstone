@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from "react";
-
-import { db } from "../firebase";
-import { collection, addDoc, getDocs } from 'firebase/firestore';
 import Papa from 'papaparse';
-
+import CryptoJS from "crypto-js";
 import axios from "axios";
 import Modal from "./Modal"
 import "../css/Residents.css";
@@ -15,14 +12,21 @@ const Residents = () => {
   const [csvFile, setCsvFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [residents, setResidents] = useState([]);
-
+  const [birthdate, setBdate] = useState([]);
+  const [education, setEducation] = useState([]);
+  const [income, setIncome] = useState([]);
+  const [memId, setMemId] = useState([]);
+  const [familyHeadSex, setSex] = useState([]);
+  const [familyHeadAge, setAge] = useState([]);
   const [barangay, setBarangay] = useState('');
   const [purok, setPurok] = useState('');
   const [familyHeadFirstName, setFamilyHeadFirstName] = useState('');
+  const [familyHeadMiddleName, setFamilyHeadMiddleName] = useState('');
   const [familyHeadLastName, setFamilyHeadLastName] = useState('');
   const [occupation, setOccupation] = useState('');
-  const [contactNumber, setContactNumber] = useState('');
-  const [members, setMembers] = useState([""]);
+  const [phone, setPhone] = useState('');
+  const [esig, setEsig] = useState('');
+  const [dependents, setDependents] = useState([""]);
 
   const [selectedBarangay, setSelectedBarangay] = useState(''); // Filter state
   
@@ -52,158 +56,234 @@ const Residents = () => {
   //CSV Upload
   const handleFileUpload = async (event) => {
     event.preventDefault();
-  
+
     if (!csvFile) {
-      alert("Please select a CSV file to upload.");
-      return;
+        alert("Please select a CSV file to upload.");
+        return;
     }
-  
+
     setIsUploading(true);
-  
+
     const reader = new FileReader();
     reader.onload = async (e) => {
-      const text = e.target.result;
-  
-      // Use PapaParse to parse the CSV content
-      Papa.parse(text, {
-        complete: async (result) => {
-          console.log("Parsed Data:", result); // Log the result of the parsing
-  
-          const data = result.data; // This is the parsed CSV data
-          if (data.length === 0) {
-            console.error("No data found in CSV.");
-            alert("No data found in the CSV.");
-            setIsUploading(false);
-            return;
-          }
-  
-          // Log headers to check if they're being recognized
-          console.log("CSV Headers:", result.meta.fields);
-  
-          // Skip the header row and process data rows
-          const formattedData = data.map((row, index) => {
-            // Log the raw row data for debugging
-            console.log(`Raw Row [${index}]:`, row);
-  
-            // If the row is empty (can happen with bad CSV formatting)
-            if (!row || row.length === 0) {
-              console.log(`Skipping empty row [${index}]`);
-              return null;
-            }
-  
-            const barangay = row['Barangay'] ? row['Barangay'].trim() : '';
-            const purok = row['Purok'] ? row['Purok'].trim() : '';
-            const familyHead = row['Family Head'] ? row['Family Head'].trim() : '';
-            const familyMembers = row['Family Members'] ? row['Family Members'].split(',').map(member => member.trim()) : [];
-  
-            let contactNumber = '';
-            if (row['Contact Number']) {
-              contactNumber = row['Contact Number'].toString().trim(); // Ensure it's a string
-            }
-  
-            const occupation = row['Occupation'] ? row['Occupation'].trim() : '';
-  
-            const formattedItem = {
-              Barangay: barangay,
-              Purok: purok,
-              FamilyHead: familyHead,
-              FamilyMembers: familyMembers,
-              ContactNumber: contactNumber,
-              Occupation: occupation,
-            };
-  
-            // Log formatted item
-            console.log(`Formatted Item [${index}]:`, formattedItem);
-  
-            // Only return the item if it has valid data
-            if (barangay && purok && familyHead && familyMembers.length > 0) {
-              return formattedItem;
-            } else {
-              console.log(`Skipping row [${index}] due to missing data.`);
-              return null;
-            }
-          }).filter(item => item !== null); // Remove null values (invalid rows)
-  
-          console.log("Formatted Data:", formattedData); // Check the final formatted data
-  
-          // Store the formatted data in Firestore
-          try {
-            const batch = formattedData.map(async (item, index) => {
-              const docRef = await addDoc(collection(db, 'bgy-Residents'), item);
-              console.log("Document added with ID:", docRef.id);
-            });
-  
-            await Promise.all(batch);
-            alert('CSV data uploaded successfully!');
-            setIsUploading(false);
-            window.location.reload();
-          } catch (error) {
-            console.error('Error uploading CSV data:', error);
-            setIsUploading(false);
-          }
-        },
-        header: true, 
-        skipEmptyLines: true, // Skips empty lines in the CSV
-        dynamicTyping: true, // Automatically converts numbers, booleans, etc.
-        delimiter: ',',  // Ensure CSV delimiter is correctly set (for comma-separated)
-      });
+        const text = e.target.result;
+
+        // Use PapaParse to parse the CSV content
+        Papa.parse(text, {
+            complete: async (result) => {
+                console.log("Parsed Data:", result);
+
+                const data = result.data;
+                if (!data || data.length === 0) {
+                    console.error("No data found in CSV.");
+                    alert("No data found in the CSV.");
+                    setIsUploading(false);
+                    return;
+                }
+
+                // Formatting CSV data to match the schema
+                const formattedData = data.map((row, index) => {
+                    console.log(`Raw Row [${index}]:`, row);
+
+                    if (!row || Object.values(row).every(val => !val)) {
+                        console.log(`Skipping empty row [${index}]`);
+                        return null;
+                    }
+
+                    // Extract and clean values
+                    const memId = typeof row['memId'] === 'string' 
+                        ? row['memId'].trim() 
+                        : String(row['memId'] || '');
+                    const firstName = row['firstName'] ? row['firstName'].trim() : '';
+                    const middleName = row['middleName'] ? row['middleName'].trim() : '';
+                    const lastName = row['lastName'] ? row['lastName'].trim() : '';
+                    const age = row['age'] ? parseInt(row['age'], 10) : null;
+                    const sex = row['sex'] ? row['sex'].trim().toUpperCase() : ''; // Ensure "M" or "F"
+                    const purok = row['purok'] ? row['purok'].toString().trim() : '';
+                    const barangay = row['barangay'] ? row['barangay'].trim() : '';
+                    const phone = row['phone'] ? row['phone'].toString().trim() : '';
+                    const bdate = row['bdate'] ? new Date(row['bdate']).toISOString() : null;
+                    const occupation = row['occupation'] ? row['occupation'].trim() : '';
+                    const education = row['education'] ? row['education'].trim() : '';
+                    const esig = row['esig'] ? row['esig'].trim() : '';
+                    const income = row['income'] ? parseFloat(row['income']) : 0; // Ensure numeric value
+
+                    // Handling dependents
+                    let dependents = [];
+                    if (row['dependents']) {
+                        try {
+                            dependents = JSON.parse(row['dependents']).map(dep => ({
+                                name: dep.name ? dep.name.trim() : '',
+                                relationToHead: dep.relationToHead ? dep.relationToHead.trim() : '',
+                                age: dep.age ? parseInt(dep.age, 10) : null,
+                                sex: dep.sex ? dep.sex.trim() : '',
+                                education: dep.education ? dep.education.trim() : null,
+                                occupationSkills: dep.occupationSkills ? dep.occupationSkills.trim() : null
+                            }));
+                        } catch (error) {
+                            console.error(`Error parsing dependents for row ${index}:`, error);
+                        }
+                    }
+
+                    const formattedItem = {
+                        memId,
+                        firstName,
+                        middleName,
+                        lastName,
+                        age,
+                        sex,
+                        purok,
+                        barangay,
+                        phone,
+                        bdate,
+                        occupation,
+                        education,
+                        income,
+                        esig,
+                        dependents,
+                    };
+
+                    console.log(`Formatted Item [${index}]:`, formattedItem);
+
+                    return formattedItem;
+                }).filter(item => item !== null);
+
+                console.log("Final Formatted Data:", formattedData);
+
+                try {
+                    // Send data to backend for MongoDB insertion
+                    await axios.post("http://localhost:3003/add-csvresidents", { residents: formattedData });
+
+                    alert('CSV data uploaded successfully!');
+                    setIsUploading(false);
+                    window.location.reload();
+                } catch (error) {
+                    console.error('Error uploading CSV data:', error);
+                    setIsUploading(false);
+                }
+            },
+            header: true,
+            skipEmptyLines: true,
+            dynamicTyping: true,
+            delimiter: ',',
+        });
     };
-  
+
     reader.readAsText(csvFile);
+};
+
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+  
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onloadend = () => {
+      const password = prompt("Enter a password to secure the signature:");
+      if (!password) {
+        alert("Password is required to encrypt the signature.");
+        return;
+      }
+  
+      // Encrypt the signature using AES
+      const encryptedEsig = CryptoJS.AES.encrypt(reader.result, password).toString();
+  
+      // Save the encrypted signature
+      setEsig(encryptedEsig);
+    };
   };
+    
 
   //Add Manually
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    const familyMembersArray = members.map(member => member.trim()).filter(member => member.length > 0);
-
+    if (!esig) {
+      alert("Please upload an eSignature.");
+      return;
+    }
+  
+    // Generate unique memId (can be adjusted)
+    const memId = `MEM${Date.now()}`;
+  
     const formattedData = {
-      Barangay: barangay.trim(),
-      Purok: purok.trim(),
-      FamilyHead: `${familyHeadFirstName.trim()} ${familyHeadLastName.trim()}`,
-      FamilyMembers: familyMembersArray,
-      ContactNumber: contactNumber.trim(),
-      Occupation: occupation.trim(),
+      memId,
+      firstName: familyHeadFirstName.trim(),
+      middleName: familyHeadMiddleName.trim(),
+      lastName: familyHeadLastName.trim(),
+      age: parseInt(familyHeadAge, 10),
+      sex: familyHeadSex,
+      purok: purok.trim(),
+      barangay: barangay.trim(),
+      phone: phone.trim(),
+      bdate: birthdate || null, // Ensure valid date format
+      occupation: occupation.trim() || null,
+      education: education.trim() || null,
+      income: parseInt(income, 10),
+      esig: esig, 
+      dependents: dependents
+        .map(member => ({
+          name: member.name.trim(),
+          relationToHead: member.relation.trim(),
+          age: parseInt(member.age, 10),
+          sex: member.sex,
+          education: member.education.trim() || null,
+          occupationSkills: member.skills.trim() || null,
+        }))
+        .filter(member => member.name.length > 0), // Remove empty entries
     };
-
+  
     console.log("Formatted Data to Store:", formattedData);
-
+  
     try {
-      // Store data in Firestore
-      await addDoc(collection(db, 'bgy-Residents'), formattedData);
-      alert('Resident added successfully!');
+      const response = await axios.post("http://localhost:3003/add-residents", formattedData);
+      alert(response.data.message);
       resetForm();
       handleCloseModal();
       window.location.reload();
     } catch (error) {
-      console.error('Error adding resident:', error);
-      alert('Failed to add resident.');
+      console.error("Error adding resident:", error);
+      alert("Failed to add resident.");
     }
   };
+  
 
   //reset add form
   const resetForm = () => {
+    setMemId(''); 
+    setFamilyHeadFirstName('');
+    setAge('');
+    setSex('');
     setBarangay('');
     setPurok('');
-    setFamilyHeadFirstName('');
-    setFamilyHeadLastName('');
+    setPhone('');
+    setEsig('');
+    setBdate(''); 
     setOccupation('');
-    setContactNumber('');
-    setMembers(['']); 
+    setIncome('');
+    setEducation('');
+    setDependents([{
+      name: '',
+      relationToHead: '',
+      age: '',
+      sex: '',
+      education: '',
+      occupationSkills: ''
+    }]);
   };
   
   //Retrieve Residents
   useEffect(() => {
     const fetchResidents = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, "bgy-Residents"));
-        const residentsData = querySnapshot.docs.map(doc => doc.data());
+        const response = await axios.get("http://localhost:3003/get-residents");
+        const residentsData = response.data;
         setResidents(residentsData); 
 
         // Calculate total residents and total families
         const total = residentsData.reduce((sum, resident) => {
-          return sum + 1 + resident.FamilyMembers.length;
+          return sum + 1 + resident.dependents.length;
         }, 0);
         setTotalResidents(total);
 
@@ -234,7 +314,7 @@ const Residents = () => {
 
   const filteredResidents = residents.filter(resident => {
     if (selectedBarangay) {
-      return resident.Barangay === selectedBarangay;
+      return resident.barangay === selectedBarangay;
     }
     return true; 
   });
@@ -245,7 +325,7 @@ const Residents = () => {
 
   useEffect(() => {
     const totalFilteredResidents = filteredResidents.reduce((sum, resident) => {
-      return sum + 1 + resident.FamilyMembers.length;
+      return sum + 1 + resident.dependents.length;
     }, 0);
     setTotalResidents(totalFilteredResidents);
 
@@ -268,18 +348,20 @@ const Residents = () => {
   );*/}
 
   const handleAddMember = () => {
-    setMembers([...members, ""]); // Add a new empty member field when "Add More Member" is clicked
+    setDependents([...dependents, ""]); // Add a new empty member field when "Add More Member" is clicked
   };
 
-  const handleMemberChange = (index, value) => {
-    const updatedMembers = [...members];
-    updatedMembers[index] = value; // Update the specific member's input value
-    setMembers(updatedMembers);
-  };
+  const handleMemberChange = (index, field, value) => {
+    setDependents((prevDependents) =>
+      prevDependents.map((member, i) =>
+        i === index ? { ...member, [field]: value } : member
+      )
+    );
+  };  
 
   const handleRemoveMember = (index) => {
-    const updatedMembers = members.filter((_, i) => i !== index); // Remove the selected member input
-    setMembers(updatedMembers);
+    const updateddependents= dependents.filter((_, i) => i !== index); // Remove the selected member input
+    setDependents(updateddependents);
   };
 
   const handleAddResidentClick = () => {
@@ -363,27 +445,40 @@ const Residents = () => {
         <div className="residents-table">
           <table>
               <thead>
-                <tr>
-                  <th>Barangay</th>
-                  <th>Purok</th>
-                  <th>Family Head</th>
-                  <th>Occupation</th>
-                  <th>Contact No.</th>
-                  <th>Family Members</th>
-                  
-                </tr>
+              <tr>
+                <th>Barangay</th>
+                <th>Purok</th>
+                <th>Family Head</th>
+                <th>Age</th>
+                <th>Sex</th>
+                <th>Occupation</th>
+                <th>Contact No.</th>
+                <th>Education</th>
+                <th>Dependents</th>
+              </tr>
               </thead>
               <tbody>
                 
-                {displayResidents.length > 0 ? (
+              {displayResidents.length > 0 ? (
                   displayResidents.map((resident, index) => (
                     <tr key={index}>
-                      <td>{resident.Barangay}</td>
-                      <td>{resident.Purok}</td>
-                      <td>{resident.FamilyHead}</td>
-                      <td>{resident.Occupation}</td>
-                      <td>{resident.ContactNumber}</td>
-                      <td>{resident.FamilyMembers.join(", ")}</td>
+                      <td>{resident.barangay}</td> {/* barangay */}
+                      <td>{resident.purok}</td> {/* Purok */}
+                      <td>{resident.firstName} {resident.middleName} {resident.lastName}</td> {/* Family Head (name) */}
+                      <td>{resident.age}</td> {/* Family Head's Age */}
+                      <td>{resident.sex}</td> {/* Family Head's Sex */}
+                      <td>{resident.occupation}</td> {/* Occupation */}
+                      <td>{resident.phone}</td> {/* Contact No. */}
+                      <td>{resident.education || "Not Provided"}</td> {/* Education */}
+                      <td>
+                        {resident.dependents && resident.dependents.length > 0
+                          ? resident.dependents.map((dependent, depIndex) => (
+                              <div key={depIndex}>
+                                {dependent.name} ({dependent.relationToHead})
+                              </div>
+                            ))
+                          : "No dependents"}
+                      </td> {/* Dependents information */}
                     </tr>
                   ))
                 ) : (
@@ -480,8 +575,8 @@ const Residents = () => {
                           <span className="icon"><i className="fa-solid fa-user"></i></span>
                           <input 
                             type="text" 
-                            value={familyHeadLastName} //wala pa na change 
-                            onChange={(e) => setFamilyHeadLastName(e.target.value)} //wala pa na change
+                            value={familyHeadMiddleName} //wala pa na change 
+                            onChange={(e) => setFamilyHeadMiddleName(e.target.value)} //wala pa na change
                             placeholder="Middle Name" 
                             required 
                           />  
@@ -508,10 +603,10 @@ const Residents = () => {
                       <div className="form-group">
                         <div className="input-group">
                           <span className="icon"><i className="fa-solid fa-mars-and-venus"></i></span>
-                          <select  >
+                          <select  value={familyHeadSex} onChange={(e) => setSex(e.target.value)} >
                             <option value="">Select Sex</option>
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
+                            <option value="M">Male</option>
+                            <option value="F">Female</option>
                           </select>
                         </div>
                       </div>
@@ -521,6 +616,8 @@ const Residents = () => {
                           <span className="icon"><i className="fa-solid fa-calendar"></i></span>
                           <input 
                             type="date"  
+                            value={birthdate} 
+                            onChange={(e) => setBdate(e.target.value)}
                             placeholder="Date of Birth" 
                             required 
                           />
@@ -532,7 +629,8 @@ const Residents = () => {
                           <span className="icon"><i className="fa-solid fa-user-graduate"></i></span>
                           <input 
                             type="text" 
-                            
+                            value={education} 
+                            onChange={(e) => setEducation(e.target.value)}
                             placeholder="Educational Attainment" 
                             required 
                           />
@@ -544,13 +642,27 @@ const Residents = () => {
                           <span className="icon"><i className="fa-solid fa-dollar-sign"></i></span>
                           <input 
                             type="number" 
-                            
+                            value={income} 
+                            onChange={(e) => setIncome(e.target.value)}
                             placeholder="Monthly Income" 
                             required 
                           />
                         </div>
                       </div>
                     </div>
+
+                    <div className="form-group">
+                        <div className="input-group">
+                          <span className="icon"><i className="fa-solid fa-dollar-sign"></i></span>
+                          <input 
+                            type="number" 
+                            value={familyHeadAge} 
+                            onChange={(e) => setAge(e.target.value)}
+                            placeholder="Age" 
+                            required 
+                          />
+                        </div>
+                      </div>
 
                     <div className="res-pop-form1"> 
                       <div className="form-group">
@@ -571,9 +683,21 @@ const Residents = () => {
                           <span className="icon"><i className="fa-solid fa-phone"></i></span>
                           <input 
                             type="text"
-                            value={contactNumber} 
-                            onChange={(e) => setContactNumber(e.target.value)} 
+                            value={phone} 
+                            onChange={(e) => setPhone(e.target.value)} 
                             placeholder="Contact Number" 
+                            required 
+                          />
+                        </div>
+                      </div>
+
+                      <div className="form-group">
+                        <div className="input-group">
+                          <span className="icon"><i className="fa-solid fa-upload"></i></span>
+                          <input 
+                            type="file" 
+                            accept="image/png" 
+                            onChange={handleImageChange} 
                             required 
                           />
                         </div>
@@ -582,8 +706,8 @@ const Residents = () => {
                       {/* Member Section */}
                         {/* Member Section */}
                         <div className="form-group1">
-                          <label>Family Members</label>
-                          {members.map((member, index) => (
+                          <label>Family Dependents</label>
+                          {dependents.map((member, index) => (
                             <div key={index} className="member-input-group">
                               <div className="input-group">
                                 <span className="icon">
