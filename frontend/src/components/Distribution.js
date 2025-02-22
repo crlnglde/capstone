@@ -5,6 +5,7 @@ import { db } from "../firebase";
 import { collection, addDoc, getDocs } from 'firebase/firestore';
 import Papa from 'papaparse';
 
+import Modal from "./Modal";
 import Barc from './visualizations/Bar-ch'
 import Piec from './visualizations/Pie-ch'
 import Map from './visualizations/Iligan'
@@ -22,10 +23,12 @@ const Distribution = () => {
   const [selectedDisaster, setSelectedDisaster] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const data = [
-    { id: 1, name: "Item 1" },
-    { id: 2, name: "Item 2" },
-    { id: 3, name: "Item 3" },
+  const disasterData = [
+    { disasterCode: "D001", disasterType: "Flood", disasterDate: "2024-02-10", affectedBarangay: "Barangay 1" },
+    { disasterCode: "D002", disasterType: "Earthquake", disasterDate: "2024-03-15", affectedBarangay: "Barangay 3" },
+    { disasterCode: "D003", disasterType: "Typhoon", disasterDate: "2024-04-20", affectedBarangay: "Barangay 5" },
+    { disasterCode: "D004", disasterType: "Landslide", disasterDate: "2024-05-05", affectedBarangay: "Barangay 2" },
+    { disasterCode: "D005", disasterType: "Fire", disasterDate: "2024-06-12", affectedBarangay: "Barangay 4" }
   ];
 
   const handleSearchChange = (event) => {
@@ -34,17 +37,8 @@ const Distribution = () => {
     console.log("Search Query: ", query); // Debugging the query
   };
 
-  const handleViewMore = (disaster) => {
-    setModalType("viewmore");
-    setSelectedDisaster(disaster); 
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedDisaster(null); 
-    setModalType("");
-  };
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
 
     //page sa disasters
     const handleNext = () => {
@@ -68,70 +62,58 @@ const Distribution = () => {
 
         {/* Current */}
         <div className="distribution-table">
-
           <div className="header-container">
             <h2 className="header-title">Current Disaster</h2>
           </div>
 
-          <table>
-              <thead>
-                <tr>
-                  <th>Disaster Code</th>
-                  <th>Disaster Type</th>
-                  <th>Disaster Date</th>
-                  <th>Affected Barangay</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {data.length > 0 ? (
-                  data.map((item, index) => (
-                    <tr key={index}>
-                      <td>hehe</td>
-                      <td>hehe</td>
-                      <td>hehe</td>
-                      <td>hehe</td>
-                      <td>
-                        <button className="dash-viewmore-btn" onClick={() => handleViewMore()}>
-                          <i className="fa-solid fa-ellipsis"></i> add
-                        </button>
-
-                        <button className="dash-viewmore-btn">
-                          <i className="fa-solid fa-ellipsis"></i> done
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="5">No disasters found.</td>
-                  </tr>
+          <div className="container">
+          {disasterData.length > 0 ? (
+            disasterData.map((disaster, index) => (
+              <div key={index} className="transactionItem">
+                <div className="dateBox">
+                  <span className="date">{new Date(disaster.disasterDate).getDate()}</span>
+                  <span className="month">{new Date(disaster.disasterDate).toLocaleString('default', { month: 'short' })}</span>
+                </div>
+                <div className="details">
+                  <span className="title">{disaster.disasterType}</span>
+                  <span className="subtitle">{disaster.disasterCode}</span>
+                </div>
+                {disaster.affectedBarangay && (
+                  <div className="brgy">
+                    <span className="subtitle">{disaster.affectedBarangay}</span>
+                  </div>
                 )}
-              </tbody>
+                <div className="actions">
+                  <button className="addButton" onClick={openModal}>Add</button>
+                  <button className="doneButton">Done</button>
+                </div>
+              </div>
+              ) )): (
+                <tr>
+                  <td colSpan="5">No disasters found.</td>
+                </tr>
+            )}
+          </div>
 
-            </table>
+          <div className="btn-container">
 
-            <div className="btn-container">
-
-              <button
-                className="nav-button prev"
-                onClick={handlePrev}
-                disabled={currentPage === 1}
-              >
-                  <i className="fa-solid fa-angle-left"></i>
-              </button>
+            <button
+              className="nav-button prev"
+              onClick={handlePrev}
+              disabled={currentPage === 1}
+            >
+                <i className="fa-solid fa-angle-left"></i>
+            </button>
 
 
-              <button
-                className="nav-button next"
-                onClick={handleNext}
-                disabled={currentPage === totalPages}
-              >
-                  <i className="fa-solid fa-angle-right"></i>
-              </button>
-            </div>
-          
+            <button
+              className="nav-button next"
+              onClick={handleNext}
+              disabled={currentPage === totalPages}
+            >
+                <i className="fa-solid fa-angle-right"></i>
+            </button>
+          </div>
         </div>
 
         {/*History */}
@@ -164,8 +146,8 @@ const Distribution = () => {
               </thead>
              
              <tbody>
-              {data.length > 0 ? (
-                data.map((item, index) => (
+              {disasterData.length > 0 ? (
+                disasterData.map((item, index) => (
                   <tr key={index}>
                     <td>hehe</td>
                     <td>hehe</td>
@@ -209,62 +191,13 @@ const Distribution = () => {
 
           </div>
 
-          <div className="container">
-            <div className="transactionItem">
-              <div className="dateBox">
-                <span className="date">22</span>
-                <span className="month">Feb</span>
-              </div>
-              <div className="details">
-                <span className="title">Disaster ni</span>
-                <span className="subtitle">Affected Barangay</span>
-              </div>
-              <div className="actions">
-                <button className="addButton">Add</button>
-                <button className="doneButton">Done</button>
-              </div>
-            </div>
-          </div>
-                
-
       </div>
 
+      <Modal isOpen={isModalOpen} onClose={closeModal} title="Add Disaster">
+        <p>Form or details for adding a disaster goes here.</p>
+      </Modal>
+
       {/* Modal Popup */}
-      {isModalOpen && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-
-            <form>
-              <label>Affected Barangay:</label>
-              <input type="text" placeholder="Enter barangay" />
-
-              <label>Kind Source</label>
-              <input type="text" placeholder="Enter code" />
-
-              <label>Quantity</label>
-              <input type="text" placeholder="Enter type" />
-
-              <label>received from</label>
-              <input type="text" />
-
-              <label>Certified Correct: </label>
-              <input type="text" />
-
-              <label>Submitted by: </label>
-              <input type="text" />
-
-
-
-
-
-              <button type="submit">Submit</button>
-            </form>
-            <button className="close-btn" onClick={handleCloseModal}>
-              Close
-            </button>
-          </div>
-        </div>
-      )}
 
 
 
