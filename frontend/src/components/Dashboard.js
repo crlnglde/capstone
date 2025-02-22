@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate} from 'react-router-dom'; 
-
-import { db } from "../firebase";
-import { collection, addDoc, getDocs } from 'firebase/firestore';
+import axios from "axios";
 import Papa from 'papaparse';
+import moment from "moment";
 
 import Barc from './visualizations/Bar-ch'
 import Piec from './visualizations/Pie-ch'
@@ -89,7 +88,7 @@ const Dashboard = () => {
   const handleFileChange = (event) => {
     setFile(event.target.files[0]);
   };
-
+{/** 
   const handleFileUpload = async (event) => {
     event.preventDefault();
  
@@ -154,17 +153,78 @@ const Dashboard = () => {
     }
   };
 
+*/}
+
   //fetch disaster
-  useEffect(() => {
-    const fetchDisasters = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(db, "disasters"));
-        const disastersData = querySnapshot.docs.map(doc => doc.data());
-        setDisasters(disastersData);  // Store data in state
-      } catch (error) {
-        console.error("Error fetching disasters data:", error);
+//fetch disaster
+useEffect(() => {
+  const fetchDisasters = async () => {
+    try {
+      const response = await axios.get("http://localhost:3003/get-disasters");
+      const disasterData = response.data;
+      console.log("Disasters from DB:", disasterData);
+
+      if (!Array.isArray(disasterData)) {
+        console.error("Error: Expected an array but got", disasterData);
+        return;
       }
-    };
+
+
+      // Transform data so each barangay has its own row
+      const transformedData = disasterData.flatMap((disaster) =>
+        (disaster.barangays || []).map((brgy) => {
+          // Initialize gender counts
+          let maleCount = 0, femaleCount = 0,  is4ps = 0, isPWD = 0, isPreg = 0, isIps = 0, isSolo = 0;;
+
+          // Count males and females in affected families
+          brgy.affectedFamilies.forEach(family => {
+            if (family.sex === "M") maleCount++;
+            if (family.sex === "F") femaleCount++;
+
+            // Count dependents' genders
+            family.dependents?.forEach(dependent => {
+              if (dependent.sex === "Male") maleCount++;
+              if (dependent.sex === "Female") femaleCount++;
+            });
+
+            if (family.is4ps) is4ps++;
+            if (family.isPWD) isPWD++;
+            if (family.isPreg) isPreg++;
+            if (family.isIps) isIps++;
+            if (family.isSolo) isSolo++;
+          });
+
+          console.log ("hehe", is4ps)
+
+          return {
+            disasterCode: disaster.disasterCode,
+            disasterType: disaster.disasterType,
+            disasterDateTime: moment(disaster.disasterDateTime).format("MMMM D, YYYY h:mm A"),
+            barangay: brgy.name || "Unknown",
+            affectedFamilies: Array.isArray(brgy.affectedFamilies) ? brgy.affectedFamilies.length : 0,
+            affectedPersons: brgy.affectedFamilies.reduce(
+              (sum, family) => sum + 1 + (family.dependents ? family.dependents.length : 0),
+              0
+            ),
+            sexBreakdown: {
+              males: maleCount,
+              females: femaleCount
+            },
+            is4ps: is4ps,
+            isPWD: isPWD,
+            isSolo: isSolo,
+            isPreg: isPreg,
+            isIps: isIps,
+          };
+        })
+      );
+
+      console.log("Transformed Disasters (By Barangay):", transformedData);
+      setDisasters(transformedData);
+    } catch (error) {
+      console.error("Error fetching disasters data:", error);
+    }
+  };
 
     fetchDisasters();  // Call the function to fetch data
   }, []);
@@ -209,12 +269,12 @@ const Dashboard = () => {
           <i className="fa-solid fa-file-circle-plus"></i>
           Add Disaster
         </button>
-
+        {/** 
         <button className="upload-csv" onClick={handleUploadCsvClick}>
           <i className="fa-solid fa-upload"></i>
           Upload CSV
         </button>
-
+        */}
       </div>
 
       <div className="dashboard-container">
@@ -312,8 +372,8 @@ const Dashboard = () => {
                     <tr key={index}>
                       <td>{disaster.disasterCode}</td>
                       <td>{disaster.disasterType}</td>
-                      <td>{disaster.disasterDate}</td>
-                      <td>{disaster.barangays}</td>
+                      <td>{disaster.disasterDateTime}</td>
+                      <td>{disaster.barangay}</td>
                       <td>{disaster.affectedFamilies}</td>
                       <td>{disaster.affectedPersons}</td>
                       <td>
@@ -355,14 +415,14 @@ const Dashboard = () => {
         </div>
 
       </div>
-
+    {/** 
       {isModalOpen && modalType === "upload" && (
         <div className="dash-modal-overlay" onClick={handleCloseModal}>
           <div className="dash-modal" onClick={(e) => e.stopPropagation()}>
             <button className="modal-close-btn" onClick={handleCloseModal}>
               ×
             </button>
- 
+          
             <div>
               <h2 className="modal-title">Upload Disaster CSV</h2>
               <form onSubmit={handleFileUpload} className="upload-form">
@@ -372,9 +432,11 @@ const Dashboard = () => {
                 </button>
               </form>
             </div>
+            
           </div>
         </div>
       )}
+    */}
 
       {isModalOpen && modalType === "viewmore" && selectedDisaster && (
         <div className="viewmore-modal-overlay" onClick={handleCloseModal}>
@@ -412,7 +474,7 @@ const Dashboard = () => {
                           <label>Disaster Date</label>
                           <div className="vm-input-group">
                             <span className="icon"><i className="fa-regular fa-calendar-days"></i></span>
-                            <span className="label">{selectedDisaster.disasterDate}</span>
+                            <span className="label">{selectedDisaster.disasterDateTime}</span>
                           </div>
                         </div>
 
@@ -420,7 +482,7 @@ const Dashboard = () => {
                           <label>Affected Barangays</label>
                           <div className="vm-input-group">
                             <span className="icon"><i className="fa-solid fa-person-shelter"></i></span>
-                            <span className="label">{selectedDisaster.barangays}</span>
+                            <span className="label">{selectedDisaster.barangay}</span>
                           </div>
                         </div>
 
@@ -449,18 +511,10 @@ const Dashboard = () => {
                       <div className="viewmore-pop">
 
                         <div className="vm-form-group">
-                          <label>Families in EC</label>
-                          <div className="vm-input-group">
-                            <span className="icon"><i className="fa-solid fa-user"></i></span>
-                            <span className="label">{selectedDisaster.familiesInEC}</span>
-                          </div>
-                        </div>
-
-                        <div className="vm-form-group">
                           <label>Sex Breakdown</label>
                           <div className="vm-input-group">
                             <span className="icon"><i className="fa-solid fa-user"></i></span>
-                            <span className="label">{selectedDisaster.sexBreakdown}</span>
+                            <span className="label">M: {selectedDisaster.sexBreakdown.males} F: {selectedDisaster.sexBreakdown.females}</span>
                           </div>
                         </div>
 
@@ -469,18 +523,18 @@ const Dashboard = () => {
                       <div className="viewmore-pop">
 
                         <div className="vm-form-group">
-                          <label>No. of Pregnant Women</label>
+                          <label>No. of Pregnant Women/Lacticating Mothers</label>
                           <div className="vm-input-group">
                             <span className="icon"><i className="fa-solid fa-hashtag"></i></span>
-                            <span className="label">{selectedDisaster.pregnantWomen}</span>
+                            <span className="label">{selectedDisaster.isPreg}</span>
                           </div>
                         </div>
 
                         <div className="vm-form-group">
-                          <label>No. of Lactating Mothers</label>
+                          <label>No. of 4P's</label>
                           <div className="vm-input-group">
                             <span className="icon"><i className="fa-solid fa-hashtag"></i></span>
-                            <span className="label">{selectedDisaster.lactatingMothers}</span>
+                            <span className="label">{selectedDisaster.is4ps}</span>
                           </div>
                         </div>
 
@@ -488,7 +542,7 @@ const Dashboard = () => {
                           <label>No. of PWDs</label>
                           <div className="vm-input-group">
                             <span className="icon"><i className="fa-solid fa-hashtag"></i></span>
-                            <span className="label">{selectedDisaster.pwds}</span>
+                            <span className="label">{selectedDisaster.isPWD}</span>
                           </div>
                         </div>
 
@@ -502,7 +556,7 @@ const Dashboard = () => {
                           <label>No. of Solo Parents</label>
                           <div className="vm-input-group">
                             <span className="icon"><i className="fa-solid fa-hashtag"></i></span>
-                            <span className="label">{selectedDisaster.soloParents}</span>
+                            <span className="label">{selectedDisaster.isSolo}</span>
                           </div>
                         </div>
 
@@ -510,28 +564,7 @@ const Dashboard = () => {
                           <label>No. of IP</label>
                           <div className="vm-input-group">
                             <span className="icon"><i className="fa-solid fa-hashtag"></i></span>
-                            <span className="label">{selectedDisaster.indigenousPeoples}</span>
-                          </div>
-                        </div>
-
-                      </div>
-
-                      {/*wala pani */}
-                      <div className="viewmore-pop1"> 
-
-                        <div className="vm-form-group">
-                          <label>Services/Assistance Needed</label>
-                          <div className="vm-input-group">
-                            <span className="icon"><i className="fa-solid fa-list-ol"></i></span>
-                            <span className="label">{selectedDisaster.assistanceNeeded}</span>
-                          </div>
-                        </div>
-
-                        <div className="vm-form-group">
-                          <label>Camp Manager Contact No.</label>
-                          <div className="vm-input-group">
-                            <span className="icon"><i className="fa-solid fa-phone"></i></span>
-                            <span className="label">{selectedDisaster.contact}</span>
+                            <span className="label">{selectedDisaster.isIps}</span>
                           </div>
                         </div>
 

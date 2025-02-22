@@ -1,12 +1,212 @@
 import React, { useEffect, useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 
 import "../../css/forms/DAFAC.css";
 import ICImage from '../../pic/IC.png';
 import cswdImage from '../../pic/cswd.jpg';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
-const DAFAC= () => {
+const DAFAC= ({ activeResident, disasterData, setIsModalOpen}) => {
 
+  const [currentDate, setCurrentDate] = useState("");
+  
+  const [formData, setFormData] = useState({
+    firstName: "",
+    middleName: "",
+    lastName: "",
+    age: "",
+    sex: "",
+    phone: "",
+    bdate: "",
+    occupation: "",
+    education: "",
+    income: "",
+    purok: "",
+    barangay: "",
+    dependents: [],
+    is4ps: false,
+    isPWD: false,
+    isPreg:false,
+    isSenior:false,
+    isIps: false,
+    isSolo:false,
+    evacuation:"",
+    extentDamage:"",
+    ocuppancy:"",
+    costDamage:"",
+    casualty:[],
+    regDate: "",
+  });
+
+  useEffect(() => {
+    const today = new Date().toLocaleDateString("en-CA"); // "YYYY-MM-DD" format
+    setCurrentDate(today);
+
+    // Ensure regDate is updated inside formData
+    setFormData((prevData) => ({
+      ...prevData,
+      regDate: today, // Set regDate correctly
+    }));
+  }, []);
+
+  // Update state when activeResident changes
+  useEffect(() => {
+    if (activeResident) {
+      setFormData((prevData) => ({
+        ...prevData, // Keep existing formData values (including regDate)
+        firstName: activeResident.firstName || "",
+        middleName: activeResident.middleName || "",
+        lastName: activeResident.lastName || "",
+        age: activeResident.age || "",
+        sex: activeResident.sex || "",
+        phone: activeResident.phone || "",
+        bdate: activeResident.bdate ? activeResident.bdate.split("T")[0] : "",
+        occupation: activeResident.occupation || "",
+        education: activeResident.education || "",
+        income: activeResident.income || "",
+        purok: activeResident.purok || "",
+        barangay: activeResident.barangay || "",
+        dependents: activeResident.dependents || [],
+        familyMembers: (activeResident.dependents?.length || 0) + 1,
+      }));
+    }
+  }, [activeResident]);  
+
+  const damageCostMap = {
+    Totally: 9000,
+    Partially: 6000,
+    Flooded: 3000,
+  };
+
+  // Handle single selection for "Extent of Damage"
+  const handleExtentChange = (event) => {
+    const { value, checked } = event.target;
+    setFormData({
+      ...formData,
+      extentDamage: checked ? value : "",
+      costDamage: checked ? damageCostMap[value] || "" : "",
+    });
+  };
+
+  // Handle single selection for "Occupancy Status"
+  const handleOccupancyChange = (event) => {
+    setFormData({ ...formData, occupancy: event.target.checked ? event.target.value : "" });
+  };
+
+  const handleCasualtyChange = (event) => {
+    const { value, checked } = event.target;
+  
+    setFormData((prevState) => {
+      const currentCasualty = Array.isArray(prevState.casualty) ? prevState.casualty : [];
+  
+      return {
+        ...prevState,
+        casualty: checked
+          ? [
+              ...currentCasualty,
+              {
+                type: value,
+                names: [""] // Start with one empty name field only
+              },
+            ]
+          : currentCasualty.filter((c) => c.type !== value),
+      };
+    });
+  };  
+  
+  // Function to add a new name input field
+  const handleAddInputField = (casualtyIndex) => {
+    setFormData((prevState) => {
+      const updatedCasualties = [...prevState.casualty];
+      updatedCasualties[casualtyIndex] = {
+        ...updatedCasualties[casualtyIndex],
+        names: [...updatedCasualties[casualtyIndex].names, ""]
+      };      
+  
+      return {
+        ...prevState,
+        casualty: updatedCasualties,
+      };
+    });
+  };
+  
+  const handleRemoveInputField = (casualtyIndex, inputIndex) => {
+    setFormData((prevState) => {
+      const updatedCasualties = [...prevState.casualty];
+      updatedCasualties[casualtyIndex].names.splice(inputIndex, 1); // Remove the selected input field
+  
+      return {
+        ...prevState,
+        casualty: updatedCasualties,
+      };
+    });
+  };  
+    
+  
+  // Handle the input change for the names fields
+  const handleCasualtyInput = (casualtyIndex, inputIndex, event) => {
+    const { value } = event.target;
+    
+    setFormData((prevState) => {
+      const updatedCasualties = [...prevState.casualty];
+      updatedCasualties[casualtyIndex].names[inputIndex] = value;
+  
+      return {
+        ...prevState,
+        casualty: updatedCasualties,
+      };
+    });
+  };
+  
+
+const handleSave = () => {
+  const savedData = JSON.parse(localStorage.getItem("savedForms")) || [];
+  // Generate a unique key using uuidv4() or a relevant identifier
+  const formDataWithId = { id: uuidv4(), ...formData };
+
+  // Add new formData to the existing array
+  savedData.push(formDataWithId);
+
+  // Store the updated array back in localStorage
+  localStorage.setItem("savedForms", JSON.stringify(savedData));
+
+  console.log("hehe", savedData);
+
+  alert("Form data saved successfully!");
+  setIsModalOpen(false); 
+};
+
+//para ni sa IDP aron maka input ug dependents
+/** 
+  const [newDependent, setNewDependent] = useState({
+    name: "",
+    relationToHead: "",
+    age: "",
+    sex: "",
+    education: "",
+    occupationSkills: "",
+  });
+
+  const handleDependentChange = (e) => {
+    setNewDependent({ ...newDependent, [e.target.name]: e.target.value });
+  };
+
+  const addDependent = () => {
+    setFormData({
+      ...formData,
+      dependents: [...formData.dependents, { ...newDependent, _id: Date.now() }],
+    });
+
+    // Reset input fields
+    setNewDependent({
+      name: "",
+      relationToHead: "",
+      age: "",
+      sex: "",
+      education: "",
+      occupationSkills: "",
+    });
+  };*/
 
   return (
     <div className="dafac">
@@ -48,24 +248,53 @@ const DAFAC= () => {
 
               <div className="upper-area">
                 <div className="form-row-1">
-                    <div className="checkbox-group">
-                        <label><input type="checkbox" /> 4Ps</label>
-                        <label><input type="checkbox" /> PWD</label>
-                        <label><input type="checkbox" /> Pregnant/Lactating Mother</label>
-                        <label><input type="checkbox" /> Senior Citizen</label>
-                        <label><input type="checkbox" /> IPs</label>
-                        <label><input type="checkbox" /> Solo Parent</label>
+                <div className="checkbox-group">
+                        <label>
+                        <input type="checkbox" 
+                         checked={formData.is4ps} 
+                         onChange={() => setFormData({ ...formData, is4ps: !formData.is4ps })} 
+                        /> 4Ps</label>
+
+                        <label>
+                        <input type="checkbox" 
+                         checked={formData.isPWD} 
+                         onChange={() => setFormData({ ...formData, isPWD: !formData.isPWD })} 
+                         /> PWD</label>
+
+                        <label>
+                        <input type="checkbox" 
+                         checked={formData.isPreg} 
+                         onChange={() => setFormData({ ...formData, isPreg: !formData.isPreg })} 
+                         /> Pregnant/Lactating Mother</label>
+
+                        <label>
+                          <input type="checkbox" 
+                           checked={formData.isSenior} 
+                           onChange={() => setFormData({ ...formData, isSenior: !formData.isSenior })} 
+                           /> Senior Citizen</label>
+
+                        <label>
+                          <input type="checkbox" 
+                           checked={formData.isIps} 
+                           onChange={() => setFormData({ ...formData, isIps: !formData.isIps })} 
+                           /> IPs</label>
+
+                        <label>
+                          <input type="checkbox" 
+                           checked={formData.isSolo} 
+                           onChange={() => setFormData({ ...formData, isSolo: !formData.isSolo })} 
+                           /> Solo Parent</label>
                     </div>
             
                     <div className="form-row form-col-1">
                         <div className="form-row serial">
-                            <label>Serial No.: <input type="text" /></label>
+                        <label>Serial No.: <input type="text" value = {disasterData.disasterCode || ""} /></label>
                         </div>
 
                         <div className="form-row serial1">
-                          <label>District / Cluster: <input type="text" /></label>
-                          <label>Purok & Barangay: <input type="text" /></label>
-                          <label>Evacuation Center: <input type="text" /></label>
+                          <label>District / Cluster: <input type="text" value="Iligan City"/></label>
+                          <label>Purok & Barangay: <input type="text" value={`${formData.purok}, ${formData.barangay}`|| ""}  /></label>
+                          <label> Evacuation: <input type="text" value={formData.evacuation} onChange={(e) => setFormData({ ...formData, evacuation: e.target.value })}/></label>
                         </div>
 
                     </div>
@@ -76,11 +305,11 @@ const DAFAC= () => {
 
                   <div className="form-row detail firstline">
                       <div className="form-row col">
-                        <label>Name of Calamity: <input type="text" /></label>
+                      <label>Name of Calamity: <input type="text" value = {disasterData.disasterType || ""}/></label>
                       </div>
 
                       <div className="form-row col">
-                        <label>Date & Time of Occurrence: <input type="datetime-local" /></label>
+                      <label>Date & Time of Occurrence: <input type="datetime-local" value = {disasterData.date || ""}/></label>
                       </div>
                   </div>
 
@@ -92,23 +321,23 @@ const DAFAC= () => {
                       </div>
 
                       <div className="form-row col">
-                        <label>Contact No.: <input type="tel" /></label>
+                      <label>Contact No.: <input type="tel" value={formData.phone || ""} disabled={!!formData.phone} /></label>
                       </div>
                     </div>
 
                     <div className="form-row detail tulo">
                       <div className="form-row col"> 
-                        <input type="text" />
+                      <input type="text" value={formData.lastName || ""} disabled={!!formData.lastName} />
                         <label>Surname </label>
                       </div>
 
                       <div className="form-row col"> 
-                        <input type="text" />
+                      <input type="text" value={formData.firstName || ""}  disabled={!!formData.firstName} />
                         <label>First Name </label>
                       </div>
 
                       <div className="form-row col"> 
-                        <input type="text" />
+                      <input type="text" value={formData.middleName || ""} disabled={!!formData.middleName} />
                         <label>Middle Name</label>
                       </div>
     
@@ -116,7 +345,7 @@ const DAFAC= () => {
 
                         <div className="form-row col"> 
                           <label>Gender:
-                              <select>
+                              <select value={formData.sex} disabled>
                               <option value="M">M</option>
                               <option value="F">F</option>
                               </select>
@@ -124,7 +353,7 @@ const DAFAC= () => {
                         </div>
 
                         <div className="form-row age"> 
-                          <label>Age: <input type="number" min="0" /></label>
+                          <label>Age: <input type="number" min="0" value={formData.age || ""} disabled={!!formData.age} /></label>
                         </div>
                         
                     </div>
@@ -132,34 +361,34 @@ const DAFAC= () => {
                     <div className="form-row detail upat">
 
                       <div className="form-row homead"> 
-                        <input type="text" />
+                        <input type="text" value={`${formData.purok}, ${formData.barangay}`}  />
                         <label>Home Address</label>
                       </div>
 
                       <div className="form-row col"> 
-                        <input type="date" />
+                      <input type="date" value={formData.bdate || ""} disabled={!!formData.bdate} />
                         <label>Date of Birth</label>
                       </div>
 
                       <div className="form-row col"> 
-                        <input type="text" />
+                      <input type="text" value={formData.occupation || ""} disabled={!!formData.occupation} />
                         <label>Occupation</label>
                       </div>
 
                       <div className="form-row col"> 
-                        <input type="number" min="0" step="0.01" />
+                      <input type="number" min="0" step="0.01" value={formData.income || ""} disabled={!!formData.income} />
                         <label>Monthly Income</label>
                       </div>
                     </div>
 
                     <div className="form-row detail lima">
                       <div className="form-row homead"> 
-                        <input type="text" />
+                        <input type="text" value={formData.education || ""} disabled={!!formData.education} />
                         <label>Educational Attainment</label>
                       </div>
 
                       <div className="form-row col"> 
-                        <input type="number" min="1" />
+                        <input type="number" min="0" value={formData.familyMembers || ""} disabled={!!formData.familyMembers}/>
                         <label>No. of Family Members</label>
                         </div>
                     </div>
@@ -184,23 +413,39 @@ const DAFAC= () => {
                       </thead>
                       <tbody>
 
-                        <tr>
-                            <td>ddsd</td>
-                            <td>ddsd</td>
-                            <td>ddsd</td>
-                            <td>ddsd</td>
-                            <td>ddsd</td>
-                            <td>ddsd</td>
-                        </tr>
-
-                        <tr>
-                            <td>ddsd</td>
-                            <td>ddsd</td>
-                            <td>ddsd</td>
-                            <td>ddsd</td>
-                            <td>ddsd</td>
-                            <td>ddsd</td>
-                        </tr>
+                      {formData.dependents.length > 0 ? (
+                          formData.dependents.map((dependent) => (
+                              <tr key={dependent._id}>
+                                  <td>{dependent.name}</td>
+                                  <td>{dependent.relationToHead}</td>
+                                  <td>{dependent.age}</td>
+                                  <td>{dependent.sex}</td>
+                                  <td>{dependent.education}</td>
+                                  <td>{dependent.occupationSkills}</td>
+                              </tr>
+                          ))
+                      ) : (
+                          <tr>
+                              <td colSpan="6">No dependents available</td>
+                          </tr>
+                      )}
+                       {/* Show input fields to add a new dependent */}
+                       {/** 
+                      <tr>
+                        <td><input type="text" name="name" value={newDependent.name} onChange={handleDependentChange} placeholder="Name" /></td>
+                        <td><input type="text" name="relationToHead" value={newDependent.relationToHead} onChange={handleDependentChange} placeholder="Relation" /></td>
+                        <td><input type="number" name="age" value={newDependent.age} onChange={handleDependentChange} placeholder="Age" /></td>
+                        <td>
+                          <select name="sex" value={newDependent.sex} onChange={handleDependentChange}>
+                            <option value="">Select</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                          </select>
+                        </td>
+                        <td><input type="text" name="education" value={newDependent.education} onChange={handleDependentChange} placeholder="Education" /></td>
+                        <td><input type="text" name="occupationSkills" value={newDependent.occupationSkills} onChange={handleDependentChange} placeholder="Skills" /></td>
+                        <td><button onClick={addDependent}>Add</button></td>
+                      </tr>*/}
                                               
                       </tbody>
                 </table>
@@ -208,49 +453,119 @@ const DAFAC= () => {
                 <div className="below-table">
                   <div className="form-row box">
                   <h3>Extent of Damage: </h3>
-                    <label><input type="checkbox" /> Totally</label>
-                    <label><input type="checkbox" /> Partially</label>
-                    <label><input type="checkbox" /> Flooded</label>
+                    <label>
+                      <input type="checkbox"  
+                      checked={formData.extentDamage === "Totally"}
+                      value="Totally"
+                      onChange={handleExtentChange}/> Totally</label>
+
+                    <label>
+                      <input type="checkbox" 
+                      checked={formData.extentDamage === "Partially"}
+                      value="Partially"
+                      onChange={handleExtentChange}/> Partially</label>
+
+                    <label>
+                      <input type="checkbox" 
+                      checked={formData.extentDamage === "Flooded"}
+                      value="Flooded"
+                      onChange={handleExtentChange}/> Flooded</label>
 
                     <div className="cost-of-damage">
                       <span>Cost of Damage:</span>
-                      <input type="text" placeholder="Enter amount" />
+                      <input type="text" value={formData.costDamage} />
                     </div>
                   </div>
 
                   <div className="form-row box">
                   <h3>Occupancy Status: </h3>
-                    <label><input type="checkbox" /> Owner</label>
-                    <label><input type="checkbox" /> Renter</label>
-                    <label><input type="checkbox" /> Sharer</label>
-                    <label><input type="checkbox" /> Occupant</label>
-                    <label><input type="checkbox" /> Non-Occupant</label>
+                    <label>
+                      <input type="checkbox" 
+                      checked={formData.occupancy === "Owner"}
+                      value="Owner"
+                      onChange={handleOccupancyChange}/> Owner</label>
+
+                    <label>
+                      <input type="checkbox" 
+                      checked={formData.occupancy === "Renter"}
+                      value="Renter"
+                      onChange={handleOccupancyChange}/> Renter</label>
+
+                    <label>
+                      <input type="checkbox" 
+                      checked={formData.occupancy === "Sharer"}
+                      value="Sharer"
+                      onChange={handleOccupancyChange}/> Sharer</label>
+
+                    <label>
+                      <input type="checkbox" 
+                      checked={formData.occupancy === "Occupant"}
+                      value="Occupant"
+                      onChange={handleOccupancyChange}/> Occupant</label>
+
+                    <label>
+                      <input type="checkbox" 
+                      checked={formData.occupancy === "Non-Occupant"}
+                      value="Non-Occupant"
+                      onChange={handleOccupancyChange}/> Non-Occupant</label>
                   </div>
                   
                   <div className="form-row box">
-                  
                     <div className="form-row col"> 
-                    <h3>Casualty: </h3>
+                      <h3>Casualty:</h3>
                     </div>
 
-                    <div className="form-row casualty"> 
-                      <label><input type="checkbox" /> Dead</label>
-                      <input type="text" />
-                      <input type="text" />
-                    </div>
+                    {["Dead", "Missing", "Injured"].map((casualtyType) => {
+                       const casualtyIndex = formData.casualty?.findIndex((c) => c.type === casualtyType) ?? -1;
+                       const isChecked = casualtyIndex !== -1;
 
-                    <div className="form-row casualty"> 
-                      <label><input type="checkbox" /> Missing</label>
-                      <input type="text" />
-                      <input type="text" />
-                    </div>
+                      return (
+                        <div key={casualtyType} className="form-row casualty"> 
+                          <label>
+                            <input 
+                              type="checkbox" 
+                              value={casualtyType} 
+                              checked={isChecked} 
+                              onChange={handleCasualtyChange} 
+                            /> 
+                            {casualtyType}
+                          </label>
+                          
+                         {/* Show input fields only when checked */}
+                        {isChecked && (
+                          <>
+                            {formData.casualty?.[casualtyIndex]?.names?.map((name, index) => (
+                              <div key={index} style={{ marginBottom: '10px' }}>
+                                <input 
+                                  type="text" 
+                                  value={name || ""} 
+                                  onChange={(event) => handleCasualtyInput(casualtyIndex, index, event)}
+                                />
+                                {/* Add button for more input fields */}
+                                {index === formData.casualty[casualtyIndex]?.names?.length - 1 && (
+                                  <button 
+                                    onClick={() => handleAddInputField(casualtyIndex)} 
+                                    style={{ marginLeft: '5px' }}>
+                                    +
+                                  </button>
+                                )}
+                                {/* Remove button to delete an input field */}
+                                {formData.casualty[casualtyIndex]?.names.length > 1 && (
+                                  <button
+                                    onClick={() => handleRemoveInputField(casualtyIndex, index)}
+                                    style={{ marginLeft: "5px", color: "red" }}
+                                  >
+                                    -
+                                  </button>
+                                )}
+                              </div>
+                            ))}
+                          </>
+                        )}
 
-                    <div className="form-row casualty"> 
-                      <label><input type="checkbox" /> Injured</label>
-                      <input type="text" />
-                      <input type="text" />
-                    </div>
-
+                        </div>
+                      );
+                    })}
                   </div>
 
                 </div>
@@ -288,9 +603,13 @@ const DAFAC= () => {
     
                     <div className="date-registered">
                       <p>Date Registered:</p>
-                      <input type="date" />
+                      <input type="date" value={currentDate} readOnly />
                     </div>
                 </div>
+
+                <button type="submit" className="submit-btn" onClick={handleSave}>
+                                        Save
+                </button>
                
             </form>
         </div>

@@ -1,13 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom'; 
-
-import { db } from "../firebase";
-import { collection, query, where, getDocs, addDoc, setDoc, doc  } from "firebase/firestore";
-
+import axios from "axios";
 
 import "../css/Add-Disaster.css";
 import DstrGif from "../pic/disaster.gif"
 import DAFAC from "./forms/DAFAC";
+
+const disasterTypeMapping = {
+    "Typhoon": "D1",
+    "Fire Incident": "D2",
+    "Earthquake": "D3",
+    "Flood": "D4",
+    "Landslide": "D5"
+  };
 
 const AddDisaster = () => {
     const [step, setStep] = useState(1);
@@ -19,6 +24,7 @@ const AddDisaster = () => {
 
 
     const [disasterType, setDisasterType] = useState("");
+    const [disasterCode, setDisasterCode] = useState("");
     const [date, setDate] = useState("");
     const [selectedBarangays, setSelectedBarangays] = useState([]);
 
@@ -39,11 +45,16 @@ const AddDisaster = () => {
     const rowsPerPage = 10;
     const totalPages = Math.ceil(residents.length / rowsPerPage);
 
-
     //new
-    const [disasterCode] = useState(`D-${Date.now()}`);
+    const generateDisasterCode = (type) => {
+        const prefix = disasterTypeMapping[type] || "DX"; // Default to DX if type is unknown
+        const dateNow = new Date();
+        const formattedDate = `${(dateNow.getMonth() + 1).toString().padStart(2, "0")}${dateNow.getDate().toString().padStart(2, "0")}${dateNow.getFullYear()}`;
+        return `${prefix}-${formattedDate}`;
+        };
     //new
     const [activeResident, setActiveResident] = useState(null);
+
     const handleResidentSelect = (resident) => {
         setActiveResident(resident); // Set the active resident
         handleOpenModal("add"); // Open the modal with "add" type
@@ -99,6 +110,7 @@ const AddDisaster = () => {
 
     const handleDisasterTypeChange = (e) => {
         setDisasterType(e.target.value);
+        setDisasterCode(generateDisasterCode(e.target.value));
         if (hasClickedNext) {
             validateFields();
         }
@@ -114,12 +126,14 @@ const AddDisaster = () => {
     const handleCheckboxChange = (e) => {
         const { value, checked } = e.target;
 
-
-        if (checked) {
-            setSelectedBarangays((prev) => [...prev, value]); // Add to selected list
-        } else {
-            setSelectedBarangays((prev) => prev.filter((barangay) => barangay !== value)); // Remove from selected list
-        }
+        setSelectedBarangays((prev) => {
+            const updatedSelections = checked 
+                ? [...prev, value]  // Add if checked
+                : prev.filter((barangay) => barangay !== value);  // Remove if unchecked
+    
+            console.log("Updated selectedbarangays:", updatedSelections);
+            return updatedSelections;
+        });
         if (hasClickedNext) {
             validateFields();
         }
@@ -214,7 +228,7 @@ const AddDisaster = () => {
                                 <span className="icon"><i className="fa-regular fa-calendar-days"></i></span>
                                
                                 <input
-                                    type="date" placeholder="Date" value={date}
+                                    type="datetime-local" placeholder="Date and Time" value={date}
                                     onChange={handleDateChange} required
                                 />
                             </div>
@@ -282,7 +296,7 @@ const AddDisaster = () => {
      const handleFinalSubmit = async () => {
         // Retrieve disasterData and residentData from localStorage
         const disasterData = JSON.parse(localStorage.getItem("disasterData")) || null;
-        const residentData = JSON.parse(localStorage.getItem("residentData")) || [];
+        const residentData = JSON.parse(localStorage.getItem("savedForms")) || [];
    
         if (!disasterData || residentData.length === 0) {
             alert("No data found in localStorage to save.");
@@ -290,99 +304,102 @@ const AddDisaster = () => {
         }
    
         try {
-   
-            // Extract other disaster-related fields from disasterData
             const { disasterCode, disasterType, date } = disasterData;
-
-            // Group residentData by Barangay
+            
+            // Group resident data by barangay
             const groupedByBarangay = residentData.reduce((acc, resident) => {
-                const barangay = resident.brgy || "Unknown Barangay";
+                const barangay = resident.barangay || "Unknown Barangay";
                 if (!acc[barangay]) {
                     acc[barangay] = [];
                 }
                 acc[barangay].push(resident);
                 return acc;
             }, {});
-
-
-            // Loop through each barangay and save its data
-            for (const barangayName in groupedByBarangay) {
-                const barangayResidents = groupedByBarangay[barangayName];
-   
-                // Calculate summary information for this barangay
-                let affectedFamilies = barangayResidents.length;
-                let affectedPersons = 0;
-                let familiesInEC = 0;
-                let sexBreakdown = { male: 0, female: 0 };
-                let pregnantWomen = 0;
-                let lactatingMothers = 0;
-                let pwds = 0;
-                let soloParents = 0;
-                let indigenousPeoples = 0;
-                let assistanceNeeded = [];
-                let contact = `09${Math.floor(100000000 + Math.random() * 900000000)}`; // Generate random contact number
-   
-                barangayResidents.forEach((resident) => {
-                    affectedPersons += resident.sexBreakdown.male + resident.sexBreakdown.female;
-                    sexBreakdown.male += resident.sexBreakdown.male || 0;
-                    sexBreakdown.female += resident.sexBreakdown.female || 0;
-                    if (resident.familiesInsideECs === "yes") familiesInEC += 1;
-                    pregnantWomen += resident.pregnantWomen || 0;
-                    lactatingMothers += resident.lactatingMothers || 0;
-                    pwds += resident.pwds || 0;
-                    soloParents += resident.soloParents || 0;
-                    indigenousPeoples += resident.indigenousPeoples || 0;
-                    if (resident.servicesNeeded) assistanceNeeded.push(resident.servicesNeeded);
+            
+            // Prepare barangays array
+            let barangays = Object.entries(groupedByBarangay).map(([barangayName, residents]) => ({
+                name: barangayName,
+                affectedFamilies: residents.map(resident => ({
+                    firstName: resident.firstName,
+                    middleName: resident.middleName || "",
+                    lastName: resident.lastName,
+                    age: resident.age,
+                    sex: resident.sex,
+                    phone: resident.phone,
+                    bdate: resident.bdate,
+                    occupation: resident.occupation || "",
+                    education: resident.education || "",
+                    income: resident.income || 0,
+                    purok: resident.purok,
+                    dependents: resident.dependents || [],
+                    is4ps: resident.is4ps || false,
+                    isPWD: resident.isPWD || false,
+                    isPreg: resident.isPreg || false,
+                    isSenior: resident.isSenior || false,
+                    isIps: resident.isIps || false,
+                    isSolo: resident.isSolo || false,
+                    numFam: resident.numFam || 0,
+                    evacuation: resident.evacuation || "",
+                    extentDamage: resident.extentDamage || "",
+                    occupancy: resident.occupancy || "",
+                    costDamage: resident.costDamage || 0,
+                    casualty: resident.casualty || [],
+                    regDate: resident.regDate || "",
+                })),
+                distribution: []
+            }));
+    
+            // Check if disaster already exists
+            const checkResponse = await fetch(`http://localhost:3003/get-disaster/${disasterCode}`);
+            const existingDisaster = await checkResponse.json();
+    
+            if (checkResponse.ok && existingDisaster) {
+                // Disaster exists, update affected families
+                const updatedBarangays = [...existingDisaster.barangays];
+    
+                barangays.forEach(newBarangay => {
+                    const existingBarangay = updatedBarangays.find(b => b.name === newBarangay.name);
+                    if (existingBarangay) {
+                        existingBarangay.affectedFamilies.push(...newBarangay.affectedFamilies);
+                    } else {
+                        updatedBarangays.push(newBarangay);
+                    }
                 });
-                const sexBreakdownSummary = `Male: ${sexBreakdown.male}, Female: ${sexBreakdown.female}`;
-                console.log("sex breakdown", sexBreakdownSummary )
-                // Prepare the document structure for the barangay collection
-                const barangayDocument = {
-                    DisasterCode: disasterCode,
-                    DisasterType: disasterType,
-                    DisasterDate: date,
-                    Residents: barangayResidents, // Save resident data for the barangay
-                };
-   
-                // Save detailed data to the Barangay collection
-                const barangayCollectionRef = collection(db, barangayName);
-                const disasterDocRef = doc(barangayCollectionRef, disasterCode);
-                await setDoc(disasterDocRef, barangayDocument);
-   
-                // Prepare summary data for the data collection
-                const barangaySummaryData = {
+    
+                const updateResponse = await fetch(`http://localhost:3003/update-disaster/${disasterCode}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ barangays: updatedBarangays })
+                });
+    
+                if (!updateResponse.ok) throw new Error("Failed to update disaster data.");
+                alert("Disaster data updated successfully!");
+            } else {
+                // Disaster does not exist, create new disaster
+                const disasterDocument = {
                     disasterCode,
-                    disasterDate: date,
                     disasterType,
-                    barangays: barangayName,
-                    affectedFamilies,
-                    affectedPersons,
-                    familiesInEC,
-                    sexBreakdown: sexBreakdownSummary,
-                    pregnantWomen,
-                    lactatingMothers,
-                    pwds,
-                    soloParents,
-                    indigenousPeoples,
-                    assistanceNeeded: [...new Set(assistanceNeeded)].join(", "), // Remove duplicates
-                    contact,
+                    disasterDateTime: new Date(date),
+                    barangays
                 };
-   
-                // Save the summary data for this barangay to the `data` collection
-                const dataDocRef = doc(collection(db, "disasters"), `${disasterCode}-${barangayName}`);
-                await setDoc(dataDocRef, barangaySummaryData);
+    
+                const createResponse = await fetch("http://localhost:3003/add-disaster", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(disasterDocument)
+                });
+    
+                if (!createResponse.ok) throw new Error("Failed to save data.");
+                alert("New disaster record created successfully!");
             }
-
-
-            alert("All data has been successfully stored in the database!");
-   
-            // Clear localStorage (optional)
-            localStorage.removeItem("residentData");
+    
+            localStorage.removeItem("savedForms");
+            localStorage.removeItem("disasterData");
         } catch (error) {
-            console.error("Error saving data to database:", error);
+            console.error("Error saving/updating disaster data:", error);
             alert("An error occurred while saving data. Please try again.");
         }
-    };
+    };    
 
     const displayResidents = residents.slice(
         (currentPage - 1) * rowsPerPage,
@@ -427,12 +444,15 @@ const AddDisaster = () => {
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Barangay</th>
+                                <th>Barangay</th>
                                     <th>Purok</th>
                                     <th>Family Head</th>
+                                    <th>Age</th>
+                                    <th>Sex</th>
                                     <th>Occupation</th>
                                     <th>Contact No.</th>
-                                    <th>Family Members</th>
+                                    <th>Education</th>
+                                    <th>Dependents</th>
                                     <th>Answer</th>
                                 </tr>
                             </thead>
@@ -441,21 +461,30 @@ const AddDisaster = () => {
                                 {displayResidents.length > 0 ? (
                                     displayResidents.map((resident, index) => (
                                         <tr key={resident.id}>
-                                        <td>{resident.Barangay}</td>
-                                        <td>{resident.Purok}</td>
-                                        <td>{resident.FamilyHead}</td>
-                                        <td>{resident.Occupation}</td>
-                                        <td>{resident.ContactNumber}</td>
-                                        <td>{Array.isArray(resident.FamilyMembers) ? resident.FamilyMembers.join(", ") : "No family members"}</td>
-
-
-                                        <td>
-                                            
-                                        <button className="res-submit-btn" onClick={() => handleResidentSelect(resident)}>
-                                            <i className="fa-solid fa-pen-to-square"></i>
-                                        </button>
-                                        </td>
-                                    </tr>
+                                            <td>{resident.barangay}</td>
+                                            <td>{resident.purok}</td>
+                                            <td>{resident.firstName} {resident.middleName} {resident.lastName}</td> 
+                                            <td>{resident.age}</td> 
+                                            <td>{resident.sex}</td> 
+                                            <td>{resident.occupation}</td>
+                                            <td>{resident.phone}</td> 
+                                            <td>{resident.education || "Not Provided"}</td> 
+                                            <td>
+                                                {resident.dependents && resident.dependents.length > 0
+                                                ? resident.dependents.map((dependent, depIndex) => (
+                                                    <div key={depIndex}>
+                                                        {dependent.name}
+                                                    </div>
+                                                    ))
+                                                : "No dependents"}
+                                            </td> {/* Dependents information */}
+                                            <td>
+                                                
+                                            <button className="res-submit-btn" onClick={() => handleResidentSelect(resident)}>
+                                                <i class="fa-solid fa-pen-to-square"></i>
+                                            </button>
+                                            </td>
+                                        </tr>
                                     ))
                                   ) : (
                                     <tr>
@@ -515,22 +544,13 @@ const AddDisaster = () => {
        
         console.log(barangay);
         try {
-            const q = query(collection(db, "bgy-Residents"), where("Barangay", "==", barangay));
-            const querySnapshot = await getDocs(q);
-   
-            if (querySnapshot.empty) {
+            const response = await axios.get(`http://localhost:3003/get-brgyresidents?barangay=${barangay}`);
+            if (response.data.length === 0) {
                 console.log(`No residents found for '${barangay}'`);
-                setError(`No residents found for '${barangay}'`);
-                return;
             }
    
-            const residentsData = querySnapshot.docs.map((doc) => ({
-                id: doc.id,
-                ...doc.data(),
-            }));
-   
-            console.log("Residents fetched successfully:", residentsData);
-            setResidents(residentsData);
+            console.log("Residents fetched successfully:", response.data);
+            setResidents(response.data);
         } catch (err) {
             console.error("Error fetching residents:", err);
             setError("Failed to fetch residents. Please try again.");
@@ -585,7 +605,7 @@ const AddDisaster = () => {
         // Collect form data
         const newFamilyData = {
             familyId: e.target.familyId?.value || "", // Family ID
-            brgy: e.target.brgy?.value || "", // Family ID
+            barangay: e.target.barangay?.value || "", // Family ID
             familiesInsideECs: e.target.familiesInsideECs?.value || "no", // Yes or No
             sexBreakdown: {
                 male: Number(e.target.maleCount?.value || 0), // Male count
@@ -664,7 +684,7 @@ const AddDisaster = () => {
 
                             {modalType === "add" && (
                                 <div >  
-                                    <DAFAC/> 
+                                    <DAFAC activeResident={activeResident} disasterData={JSON.parse(localStorage.getItem('disasterData'))} setIsModalOpen={setIsModalOpen}/> 
                                 </div>
                             )}
                         </div>
