@@ -17,7 +17,7 @@ const DAFAC= () => {
 
       <div className="dafac-container">
 
-        <div className="rds-header">
+        <div className="dafac-header">
             {/* Left Logo */}
             <div className="header-logo">   
                 <img src={ICImage} alt="Logo" />
@@ -47,7 +47,7 @@ const DAFAC= () => {
             <form className="relief-form">
 
               <div className="upper-area">
-                <div className="form-row">
+                <div className="form-row-1">
                     <div className="checkbox-group">
                         <label><input type="checkbox" /> 4Ps</label>
                         <label><input type="checkbox" /> PWD</label>
@@ -62,16 +62,19 @@ const DAFAC= () => {
                             <label>Serial No.: <input type="text" /></label>
                         </div>
 
-                        <label>District / Cluster: <input type="text" /></label>
-                        <label>Purok & Barangay: <input type="text" /></label>
-                        <label>Evacuation Center: <input type="text" /></label>
+                        <div className="form-row serial1">
+                          <label>District / Cluster: <input type="text" /></label>
+                          <label>Purok & Barangay: <input type="text" /></label>
+                          <label>Evacuation Center: <input type="text" /></label>
+                        </div>
+
                     </div>
 
                 </div>
 
                 <div className="form-row-2">
 
-                  <div className="form-row detail">
+                  <div className="form-row detail firstline">
                       <div className="form-row col">
                         <label>Name of Calamity: <input type="text" /></label>
                       </div>
@@ -81,74 +84,86 @@ const DAFAC= () => {
                       </div>
                   </div>
 
-                  <div className="form-row detail">
-                    <div className="form-row col">
-                      <label>Head of the Family </label>
-                    </div>
+                  <div className="form-row detail secondline">
 
-                    <div className="form-row col">
-                      <label>Contact No.: <input type="tel" /></label>
-                    </div>
-                  </div>
-
-                  <div className="form-row detail">
-                    <div className="form-row col"> 
-                      <input type="text" />
-                      <label>Surname </label>
-                    </div>
-
-                    <div className="form-row col"> 
-                      <input type="text" />
-                      <label>First Name </label>
-                    </div>
-
-                    <div className="form-row col"> 
-                      <input type="text" />
-                      <label>Middle Name</label>
-                    </div>
-  
-                      <label>Gender:
-                          <select>
-                          <option value="M">M</option>
-                          <option value="F">F</option>
-                          </select>
-                      </label>
-                      <label>Age: <input type="number" min="0" /></label>
-                  </div>
-
-                  <div className="form-row detail">
-
-                    <div className="form-row col"> 
-                      <input type="text" />
-                      <label>Home Address</label>
-                    </div>
-
-                    <div className="form-row col"> 
-                      <input type="date" />
-                      <label>Date of Birth</label>
-                    </div>
-
-                    <div className="form-row col"> 
-                      <input type="text" />
-                      <label>Occupation</label>
-                    </div>
-
-                    <div className="form-row col"> 
-                      <input type="number" min="0" step="0.01" />
-                      <label>Monthly Income</label>
-                    </div>
-                  </div>
-
-                  <div className="form-row detail">
-                    <div className="form-row col"> 
-                      <input type="text" />
-                      <label>Educational Attainment</label>
-                    </div>
-
-                    <div className="form-row col"> 
-                      <input type="number" min="1" />
-                      <label>No. of Family Members</label>
+                    <div className="form-row detail duha">
+                      <div className="form-row col">
+                        <label>Head of the Family </label>
                       </div>
+
+                      <div className="form-row col">
+                        <label>Contact No.: <input type="tel" /></label>
+                      </div>
+                    </div>
+
+                    <div className="form-row detail tulo">
+                      <div className="form-row col"> 
+                        <input type="text" />
+                        <label>Surname </label>
+                      </div>
+
+                      <div className="form-row col"> 
+                        <input type="text" />
+                        <label>First Name </label>
+                      </div>
+
+                      <div className="form-row col"> 
+                        <input type="text" />
+                        <label>Middle Name</label>
+                      </div>
+    
+                        
+
+                        <div className="form-row col"> 
+                          <label>Gender:
+                              <select>
+                              <option value="M">M</option>
+                              <option value="F">F</option>
+                              </select>
+                          </label>
+                        </div>
+
+                        <div className="form-row age"> 
+                          <label>Age: <input type="number" min="0" /></label>
+                        </div>
+                        
+                    </div>
+
+                    <div className="form-row detail upat">
+
+                      <div className="form-row homead"> 
+                        <input type="text" />
+                        <label>Home Address</label>
+                      </div>
+
+                      <div className="form-row col"> 
+                        <input type="date" />
+                        <label>Date of Birth</label>
+                      </div>
+
+                      <div className="form-row col"> 
+                        <input type="text" />
+                        <label>Occupation</label>
+                      </div>
+
+                      <div className="form-row col"> 
+                        <input type="number" min="0" step="0.01" />
+                        <label>Monthly Income</label>
+                      </div>
+                    </div>
+
+                    <div className="form-row detail lima">
+                      <div className="form-row homead"> 
+                        <input type="text" />
+                        <label>Educational Attainment</label>
+                      </div>
+
+                      <div className="form-row col"> 
+                        <input type="number" min="1" />
+                        <label>No. of Family Members</label>
+                        </div>
+                    </div>
+
                   </div>
 
                 </div>
@@ -213,32 +228,68 @@ const DAFAC= () => {
                   </div>
                   
                   <div className="form-row box">
-                  <h3>Casualty: </h3>
-                    <label><input type="checkbox" /> Dead</label>
-                    <label><input type="checkbox" /> Missing</label>
-                    <label><input type="checkbox" /> Injured</label>
+                  
+                    <div className="form-row col"> 
+                    <h3>Casualty: </h3>
+                    </div>
+
+                    <div className="form-row casualty"> 
+                      <label><input type="checkbox" /> Dead</label>
+                      <input type="text" />
+                      <input type="text" />
+                    </div>
+
+                    <div className="form-row casualty"> 
+                      <label><input type="checkbox" /> Missing</label>
+                      <input type="text" />
+                      <input type="text" />
+                    </div>
+
+                    <div className="form-row casualty"> 
+                      <label><input type="checkbox" /> Injured</label>
+                      <input type="text" />
+                      <input type="text" />
+                    </div>
+
                   </div>
 
                 </div>
                 
                 <div className="signature-section">
-                  <div>
-                    <p>Name/Signature of Family Head or Thumbmark:</p>
-                    <div className="signature-box"></div>
+
+                  <div className="signature-container">
+                    
+                    <input type="file" className="signature-upload" accept="image/*" />
+                    <input type="text" className="printed-name" placeholder="Printed Name" />
+                    <label>Name/Signature of Family Head <br/> or Thumbmark</label>
+                    
                   </div>
-                  <div>
-                    <p>Name/Signature of Barangay Captain:</p>
-                    <div className="signature-box"></div>
+
+                  <div className="signature-container">
+                    
+                    <input type="file" className="signature-upload" accept="image/*" />
+                    <input type="text" className="printed-name" placeholder="Printed Name" />
+                    <label>Name/Signature of Barangay Captain</label>
                   </div>
-                  <div>
-                    <p>Name/Signature of Social Worker:</p>
-                    <div className="signature-box"></div>
+
+                  <div className="signature-container">
+                    
+                    <input type="file" className="signature-upload" accept="image/*" />
+                    <input type="text" className="printed-name" placeholder="Printed Name" />
+                    <label>Name/Signature of Social Worker</label>
                   </div>
+
                 </div>
 
-                <div className="date-registered">
-                  <p>Date Registered:</p>
-                  <input type="date" />
+                <div className="form-row fd">
+                    <div className="fingerprint">
+                    
+                    </div>
+    
+                    <div className="date-registered">
+                      <p>Date Registered:</p>
+                      <input type="date" />
+                    </div>
                 </div>
                
             </form>
