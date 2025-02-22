@@ -7,6 +7,7 @@ import { collection, query, where, getDocs, addDoc, setDoc, doc  } from "firebas
 
 import "../css/Add-Disaster.css";
 import DstrGif from "../pic/disaster.gif"
+import DAFAC from "./forms/DAFAC";
 
 const AddDisaster = () => {
     const [step, setStep] = useState(1);
@@ -84,14 +85,12 @@ const AddDisaster = () => {
 
     const handleNextClick = (e) => {
         e.preventDefault();
-       
+           
         // On first click, set isSubmitted to true to trigger validation
         setHasClickedNext(true);
 
-
         // Check if all required fields are filled
         const isValid = validateFields();
-
 
         if (isValid) {
             setStep(2);
@@ -657,161 +656,19 @@ const AddDisaster = () => {
                         className="modal-content"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <button className="modal-close-btn" onClick={handleCloseModal}>
-                            ×
-                        </button>
 
-                        {modalType === "add" && (
-                            <div >
+                        <div className="modal-area">
+                            <button className="modal-close-btn" onClick={handleCloseModal}>
+                                ×
+                            </button>
 
-                                <div className="modal-h2">
-                                    <h2>Resident Status</h2>
+                            {modalType === "add" && (
+                                <div >  
+                                    <DAFAC/> 
                                 </div>
-                                
-                                <form className="add-form" onSubmit={handleFamilySubmit}>
-                                   
-
-                                    {/*barangay-purok */}
-                                    <div className="dstr-bgy-pop-form">
-                                        
-                                        <div className="form-group">
-                                        <label>Family ID</label>
-                                            <div className="dstr-bgy-input-group">
-                                                <span className="icon"><i className="fa-solid fa-location-dot"></i></span>
-                                                <input type="text" placeholder="ID" name="familyId" value={activeResident.id} readOnly/>
-
-                                            </div>
-                                        </div>
-
-                                        
-                                        <div className="form-group">
-                                        <label>Barangay</label>
-                                            <div className="dstr-bgy-input-group">
-                                                <span className="icon"><i className="fa-solid fa-road"></i></span>
-                                                <input type="text" placeholder="brgy" name="brgy" value={activeResident.Barangay} readOnly/>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    {/*fam iec-sex */}
-                                    <div className="dstr-bgy-pop-form1">
-
-                                       <div className="form-group-fie">
-                                            <label>Families Inside ECs</label>
-                                            <div className="dstr-bgy-input-group-fie">
-                                                <label>
-                                                    <input type="radio" name="familiesInsideECs" value="yes" required />
-                                                Yes
-                                                </label>
-
-                                                <label>
-                                                    <input type="radio" name="familiesInsideECs" value="no" required />
-                                                No
-                                                </label>
-                                            </div>
-                                        </div>
-
-                                        <div className="form-group-sex">
-                                            <label>Sex Breakdown</label>
-                                            <div className="dstr-bgy-input-group-sex">
-                                                <div className="sex">
-                                                    <label>
-                                                    Male:
-                                                        <input type="number" name="maleCount" placeholder="0" min="0" required />
-                                                    </label>
-                                                </div>
-
-                                                <div className="sex">
-                                                    <label>
-                                                    Female:
-                                                        <input type="number" name="femaleCount" placeholder="0" min="0" required />
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/*preggy-lactating */}
-                                    <div className="dstr-bgy-pop-form">
-                                        <div className="form-group">
-                                            <label>Number of Pregnant Women</label>
-                                            <div className="dstr-bgy-input-group">
-                                                <input type="number" name="pregnantWomen" placeholder="0" min="0" required />
-                                            </div>
-                                        </div>
-
-                                        <div className="form-group">
-                                            <label>Number of Lactating Mothers</label>
-                                            <div className="dstr-bgy-input-group">
-                                                <input type="number" name="lactatingMothers" placeholder="0" min="0" required />
-
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/*pwd-solo */}
-                                    <div className="dstr-bgy-pop-form">
-
-                                        <div className="form-group">
-                                            <label>Number of PWDs</label>
-                                            <div className="dstr-bgy-input-group">
-                                                <input type="number" name="pwds" placeholder="0" min="0" required />
-
-                                            </div>
-                                        </div>
-
-                                        <div className="form-group">
-                                            <label>Number of Solo Parents</label>
-                                            <div className="dstr-bgy-input-group">
-                                                <input type="number" name="soloParents" placeholder="0" min="0" required />
-
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/*ip-idp */}
-                                    <div className="dstr-bgy-pop-form">
-
-                                        <div className="form-group">
-                                            <label>Number of Indigenous Peoples</label>
-                                            <div className="dstr-bgy-input-group">
-                                                <input type="number" name="indigenousPeoples" placeholder="0" min="0" required />
-
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    {/*ip-idp */}
-                                    <div className="dstr-bgy-pop-form">
-                                        <div className="form-group">
-                                            <label>FNI Services Needed</label>
-                                            <div className="dstr-bgy-input-group">
-                                                <textarea name="fniServicesNeeded" placeholder="Describe services needed" rows="3" required></textarea>
-
-                                            </div>
-                                        </div>
-
-                                    </div>
-
-                                    <div className="dstr-bgy-pop-form">
-                                        
-                                        <div className="form-group">
-                                            <label>Camp Manager Contact</label>
-                                            <div className="dstr-bgy-input-group">
-                                                
-                                                <input type="tel" placeholder="Contact Number" required />
-                                            </div>
-                                        </div>
-
-                                        
-                                    </div>
-
-                                    <button type="submit" className="submit-btn">
-                                        Save
-                                    </button>
-                                </form>
-                            </div>
-                        )}
+                            )}
+                        </div>
+                        
                     </div>
                 </div>
             )}
