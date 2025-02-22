@@ -7,6 +7,7 @@ import Navbar from "./components/Navbar";
 import Home from "./components/Home";
 import Residents from "./components/Residents";
 import Dashboard from "./components/Dashboard";
+import Distribution from "./components/Distribution";
 import AddDisaster from "./components/Add-Disaster";
 import Reports from "./components/Reports";
 import RDS from "./components/forms/RDS";
@@ -59,7 +60,7 @@ function App() {
               <Route path="/" element={<Navigate to="/home" />} />
               <Route path="/home" element={<Home />} />
               <Route path="/dashboard" element={<Dashboard />} />  {/* add distribution after this*/}
-             
+              <Route path="/distribution" element={<Distribution />} /> 
               <Route path="/residents" element={<Residents />} />
               <Route path="/dashboard/add-disaster" element={<AddDisaster />} />
               <Route path="/reports" element={<Reports />} />

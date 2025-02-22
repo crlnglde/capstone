@@ -51,7 +51,7 @@ const RDS= () => {
         <p className="rds-text">We hereby acknowledge to have received from _______________ on the date indicated the kind and quality opposite our respective names.</p>
 
 
-        <table className="custom-table">
+        <table className="rds-table">
               <thead>
                 <tr>
                   <th>Name of Family Head</th>
