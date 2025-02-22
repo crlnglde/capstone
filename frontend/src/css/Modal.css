@@ -4,7 +4,7 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.6);
+  background: #00000099;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -12,7 +12,7 @@
   animation: fadeInOverlay 0.3sease;
   }
   
-  .modal-content {
+  .modal-overlay .modal-content {
     background: #fff;
     border-radius: 12px;
     padding: 30px;
@@ -29,9 +29,10 @@
     font-size: 28px;
     font-weight: bold;
     color: #333;
-    padding: 20px 20px 10px 0px;
-    margin: 0;
+    padding: 0px 20px 10px 0px;
+    margin:  0 0 10px 0;
     border-bottom: 4px solid #0A194E;
+    display: flex;
   }
   
   .modal-close {
@@ -44,5 +45,9 @@
     cursor: pointer;
     color: #333;
     transition: color 0.3sease, transform 0.2sease;
+  }
+
+  .children{
+    display: flex;
   }
   

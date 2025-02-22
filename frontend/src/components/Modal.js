@@ -9,9 +9,15 @@ const Modal = ({ isOpen, onClose, title, children }) => {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <button className="modal-close" onClick={onClose}>×</button> 
-        {title && <h2 className="modal-title">{title}</h2>}
 
-        {children}
+        <div > 
+          {title && <h2 className="modal-title">{title}</h2>}
+        </div>
+        
+        <div className="children">
+          
+        </div>
+        {children }
       </div>
     </div>
   );
