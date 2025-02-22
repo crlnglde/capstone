@@ -56,7 +56,7 @@ const Distribution = () => {
   return (
     <div className="distribution">
 
-      <div className="distribution-container">
+      <div className="content-container">
 
         {/* Visualization ni diri */}
 
@@ -193,8 +193,30 @@ const Distribution = () => {
 
       </div>
 
-      <Modal isOpen={isModalOpen} onClose={closeModal} title="Add Disaster">
-        <p>Form or details for adding a disaster goes here.</p>
+      <Modal isOpen={isModalOpen} onClose={closeModal} title="RDS">
+        
+        <form className="modal-form">
+            <label>Affected Barangay:</label>
+            <input type="text" placeholder="Enter barangay" />
+
+            <label>Kind Source:</label>
+            <input type="text" placeholder="Enter code" />
+
+            <label>Quantity:</label>
+            <input type="text" placeholder="Enter type" />
+
+            <label>Received From:</label>
+            <input type="text" />
+
+            <label>Certified Correct:</label>
+            <input type="text" />
+
+            <label>Submitted by:</label>
+            <input type="text" />
+
+            <button type="submit" className="submitButton">Next</button>
+          </form>
+
       </Modal>
 
       {/* Modal Popup */}
