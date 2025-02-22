@@ -1,0 +1,14 @@
+.reports {
+    padding: 20px;
+    flex: 1;
+  }
+
+  .reports .container{
+    background-color: white;
+    border-collapse: collapse;
+    height: 600px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; 
+    box-sizing: border-box;
+  }
