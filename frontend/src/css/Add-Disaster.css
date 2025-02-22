@@ -133,14 +133,23 @@
     padding: 0px 0 0 0;
 }
 
-.checkbox-group {
+    .bgy-input-group {
+        display: flex;
+        align-items: center;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+        padding: 5px 10px;
+    }
+
+.dstr-form-group .checkbox-group {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 15px;
     overflow-y: auto;
     padding-right: 10px;
     max-height: 320px;
-    
+    grid-auto-flow: unset;
 }
 
 .checkbox-item label{
