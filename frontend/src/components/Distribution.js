@@ -56,13 +56,14 @@ const Distribution = () => {
     };
 
     const handleBackClick = () => {
-   
       if (step > 1) {
-          setStep(step - 1);
+        setStep(step - 1);
+        navigate("/distribution"); 
       } else {
-          navigate(-1);  
+        navigate(-1); 
       }
-  };
+    };
+    
     
 
 
