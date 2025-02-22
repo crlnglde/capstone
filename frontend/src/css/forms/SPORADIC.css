@@ -1,17 +1,9 @@
-.spodaric {
+.sporadic {
     padding: 20px;
     flex: 1;
   }
 
-.spodaric-header {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 50px;
-    margin: 30px 0 0 0;
-}
-
-.spodaric-container{
+.sporadic-container{
     background-color: white;
     border-collapse: collapse;
     height: 100%;
@@ -22,41 +14,97 @@
     box-sizing: border-box;
 }
 
-.table-container {
-    padding: 20px;
-    overflow-x: auto;
-  }
-  
-  .sporadic-report {
-    width: 100%;
-    border-collapse: collapse;
-    font-family: 'Arial', sans-serif;
-  }
-  
-  .sporadic-report th,
-  .sporadic-report td {
-    border: 1px solid #000;
-    padding: 8px;
-    text-align: center;
-    font-size: 14px;
-  }
-  
-  .sporadic-report th {
-    background-color: #f4f4f4;
-    font-weight: bold;  
+  .sporadic-container .header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 50px;
+    margin: 30px 0 0 0;
   }
 
-  .sporadic-report thead{
-    background-color: #f4f4f4;
-    color: rgb(0, 0, 0);
-    border-bottom: 1px solid #000000;
+    .sporadic-container .header .text-center .sheet-title{
+      margin: 30px 0 0 0;
+      font-size: smaller;
+    }
+
+  .table-container {
+      padding: 20px 20px 20px 20px;
+      overflow-x: auto ;
+    }
+
+  .table-container1 {
+    padding: 20px 20px 20px 20px;
+    margin: 0 0px 0 50px;
+    overflow-x: auto ;
   }
-  
-  .sporadic-report tbody tr:nth-child(even) {
-    background-color: #f9f9f9;
-  }
-  
-  .sporadic-report tbody tr:nth-child(odd) {
-    background-color: #fff;
-  }
-  
+    
+    .sporadic-report {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: 'Arial', sans-serif;
+    }
+
+    .ifa{
+      width: 80%;
+      border-collapse: collapse;
+      font-family: 'Arial', sans-serif;
+    }
+    
+    .sporadic-report th,
+    .sporadic-report td,
+    .ifa th,
+    .ifa td{
+      border: 1px solid #000;
+      padding: 8px;
+      text-align: center;
+      font-size: 14px;
+    }
+    
+    .sporadic-report th,
+    .ifa th {
+      background-color: #f4f4f4;
+      font-weight: bold;  
+    }
+
+    .sporadic-report thead,
+    .ifa thead{
+      background-color: #f4f4f4;
+      color: rgb(0, 0, 0);
+      border-bottom: 1px solid #000000;
+    }
+    
+    .sporadic-report tbody tr:nth-child(even), 
+    .ifa tbody tr:nth-child(even){
+      background-color: #fff;
+    }
+    
+    .sporadic-report tbody tr:nth-child(odd),
+    .ifa tbody tr:nth-child(odd) {
+      background-color: #fff;
+    }
+
+    .sporadic-container .reco{
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      margin: 0px 0 50px 0px;
+    }
+
+      .sporadic-container .reco .neym{
+        margin: 0px 0 0 150px;
+      }
+
+    .sporadic-container .footer{
+      display: flex;
+      justify-content: flex-start;
+      gap: 100px;
+      margin: 0px 20px 50px 20px;
+    }
+    
+      .sporadic-container .footer .neym{
+        margin: 50px 0 0 20px;
+      }
+
+    .no-margin {
+      margin: 0;
+    }

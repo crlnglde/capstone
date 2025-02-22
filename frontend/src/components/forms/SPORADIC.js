@@ -9,15 +9,15 @@ const SPORADIC= () => {
 
 
   return (
-    <div className="spodaric">
+    <div className="sporadic">
       
       <div className="res-btn">
 
       </div>
 
-      <div className="spodaric-container">
+      <div className="sporadic-container">
 
-        <div className="spodaric-header">
+        <div className="header">
             {/* Left Logo */}
             <div className="header-logo">   
                 <img src={ICImage} alt="Logo" />
@@ -32,7 +32,7 @@ const SPORADIC= () => {
                 </h2>
 
                 <div className= "sheet-title">
-                    <h2>Disaster Assistance Family Access Card (DAFAC)</h2>
+                    <h2>SPORADIC Report</h2>
                 </div>
             </div>
 
@@ -91,34 +91,93 @@ const SPORADIC= () => {
             </table>
         </div>
 
-        <div className="table-container">
-            <table className="sporadic-report">
+        <div className="table-container1">
+            <h5 className="no-margin">Immediate Food Assistance From CSWD: </h5>
+            <table className="ifa">
                 <thead>
                     <tr>
-                        <th rowSpan="2">Name of Agency</th>
-                        <th rowSpan="2">Type of Relief Assistance</th>
-                        <th rowSpan="2">Quantity</th>
-                        <th rowSpan="2">Assistance per Family</th>
-                        <th rowSpan="2">Estimated Cost</th>
-                        <th rowSpan="2">Livelihood</th>
+                        <th >Name of Agency</th>
+                        <th >Type of Relief Assistance</th>
+                        <th >Quantity</th>
+                        <th >Assistance per Family</th>
+                        <th >Estimated Cost</th>
+                        
                     </tr>
 
                 </thead>
                 <tbody>
-                    {[...Array(5)].map((_, index) => (
-                        <tr key={index}>
-                        <td>{index + 1}</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        
-                    
-                        </tr>
-                    ))}
+                   
+                    <tr>
+                        <td rowSpan="3">CSWD</td> 
+                        <td rowSpan="3">Food Assistance</td> 
+                        <td>hehe</td>
+                        <td>hehe</td>
+                        <td>hehe</td>
+                    </tr>
+
+                    <tr>
+                        <td>hehe</td>
+                        <td>hehe</td>
+                        <td>hehe</td>
+                    </tr>
+
+                    <tr>
+                        <td>hehe</td>
+                        <td>hehe</td>
+                        <td>hehe</td>
+                    </tr>
+
+                    <tr>
+                        <td colSpan="3" style={{ textAlign: "right"}} >TOTAL</td>
+                        <td>hehe</td>
+                        <td>hehe</td>
+                    </tr>
+            
                 </tbody>
             </table>
+        </div>
+
+        <div className="reco">
+            <p className="no-margin">Recommendation: </p>
+            <div className="neym"> 
+                <p className="no-margin">Financial Assistance from CSWD</p>
+            </div>
+            
+        </div>
+        
+        <div className="footer">
+
+            <div>
+                <p>Prepared by</p>
+
+                <div className="neym">
+                    <h4 className="no-margin">MARGIE RIZA ANN C. AMARGA</h4>
+                    <p className="no-margin">Social Welfare Officer 1</p>
+                    <p className="no-margin">Emergency Welfare Program Supervisor</p>
+                </div>
+
+            </div>
+
+            <div>
+                <p>Recommending Approval:</p>
+
+                <div className="neym">
+                    <h4 className="no-margin">EVELYN S. MADRIO</h4>
+                    <p className="no-margin">City Gov't. Department Head II</p>
+                    <p className="no-margin">CSWDO</p>
+                </div>
+            </div>
+            
+
+            <div>
+                <p>Approved by</p>
+
+                <div className="neym">
+                    <h4 className="no-margin">FREDERICK W. SIAO</h4>
+                    <p className="no-margin">City Mayor</p>
+                </div>
+            </div>
+
         </div>
 
       </div>
