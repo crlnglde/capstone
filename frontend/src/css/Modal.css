@@ -1,31 +1,48 @@
 .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeInOverlay 0.3sease;
   }
   
   .modal-content {
-    background-color: white;
-    padding: 20px;
-    border-radius: 10px;
-    width: 400px;
+    background: #fff;
+    border-radius: 12px;
+    padding: 30px;
+    width: 500px;
+    max-width: 100%;
+    max-height: 80vh;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
     position: relative;
+    animation: fadeInModal 0.3sease;
+    overflow-y: auto;
+  }
+
+  .modal-title {
+    font-size: 28px;
+    font-weight: bold;
+    color: #333;
+    padding: 20px 20px 10px 0px;
+    margin: 0;
+    border-bottom: 4px solid #0A194E;
   }
   
   .modal-close {
     position: absolute;
-    top: 10px;
-    right: 10px;
-    background-color: transparent;
+    top: 15px;
+    right: 15px;
+    font-size: 30px;
     border: none;
-    font-size: 20px;
+    background: none;
     cursor: pointer;
+    color: #333;
+    transition: color 0.3sease, transform 0.2sease;
   }
   
