@@ -6,30 +6,22 @@ import Papa from 'papaparse';
 
 import axios from "axios";
 import Modal from "./Modal"
-import "../css/Residents.css";
+import "../css/Reports.css";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 const Reports = () => {
 
 
-  return (
-    <div className="residents">
+return (
+  <div className="reports">
       
-      <div className="res-btn">
+    <div className="container">
 
-      </div>
-
-      
-
-      <div className="reports-container">
-
-       
-
-
-      </div>
 
     </div>
-  );
+
+  </div>
+);
 };
 
 export default Reports;

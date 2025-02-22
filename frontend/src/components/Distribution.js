@@ -209,6 +209,24 @@ const Distribution = () => {
 
           </div>
 
+          <div className="container">
+            <div className="transactionItem">
+              <div className="dateBox">
+                <span className="date">22</span>
+                <span className="month">Feb</span>
+              </div>
+              <div className="details">
+                <span className="title">Disaster ni</span>
+                <span className="subtitle">Affected Barangay</span>
+              </div>
+              <div className="actions">
+                <button className="addButton">Add</button>
+                <button className="doneButton">Done</button>
+              </div>
+            </div>
+          </div>
+                
+
       </div>
 
       {/* Modal Popup */}

@@ -1,0 +1,92 @@
+/* Centering the transaction item */
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f4f4f4;
+  }
+
+.transactionItem {
+    display: flex;
+    align-items: center;
+    background: white;
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 300px;
+  }
+  
+  .dateBox {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #dbefff;
+    border-radius: 5px;
+    padding: 5px;
+    margin-right: 10px;
+  }
+  
+  .date {
+    font-size: 16px;
+    font-weight: bold;
+  }
+  
+  .month {
+    font-size: 12px;
+    color: gray;
+  }
+  
+  .details {
+    flex-grow: 1;
+  }
+  
+  .title {
+    font-weight: bold;
+    font-size: 14px;
+  }
+  
+  .subtitle {
+    font-size: 12px;
+    color: gray;
+  }
+  
+  .amount {
+    font-size: 14px;
+    font-weight: bold;
+    color: rgb(62, 49, 236);
+  }
+  
+  .actions {
+    display: flex;
+    gap: 5px;
+  }
+  
+  .addButton,
+  .doneButton {
+    padding: 6px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: bold;
+  }
+  
+  .addButton {
+    background-color: #2d70ce;
+    color: white;
+  }
+  
+  .doneButton {
+    background-color: #2196f3;
+    color: white;
+  }
+  
+  .addButton:hover {
+    background-color: #3345bb;
+  }
+  
+  .doneButton:hover {
+    background-color: #1976d2;
+  }
+  
