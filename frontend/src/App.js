@@ -12,6 +12,7 @@ import Reports from "./components/Reports";
 import RDS from "./components/forms/RDS";
 import DAFAC from "./components/forms/DAFAC";
 import SPORADIC from "./components/forms/SPORADIC";
+import FDR from "./components/forms/FDR";
 import Landing from "./components/landing";
 
 import { motion } from "framer-motion";
@@ -65,6 +66,7 @@ function App() {
               <Route path="/rds" element={<RDS />} />
               <Route path="/dafac" element={<DAFAC />} />
               <Route path="/sporadic" element={<SPORADIC />} />
+              <Route path="/fdr" element={<FDR />} />
             </Routes>
           </ConditionalLayout>
         </Router>
