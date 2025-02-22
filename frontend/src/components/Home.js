@@ -9,9 +9,6 @@ import videoBackground from '../pic/vid.mp4';
 
 import Map from './visualizations/map'
 
-import { db } from "../firebase";
-import { collection, addDoc, getDocs } from 'firebase/firestore';
-
 const Home = () => {
 
   const images = [dswd1, dswd, dswd2, dswd3];
@@ -37,13 +34,15 @@ const Home = () => {
 useEffect(() => {
   const fetchResidents = async () => {
     try {
-      const querySnapshot = await getDocs(collection(db, "bgy-Residents"));
-      const residentsData = querySnapshot.docs.map(doc => doc.data());
-      setResidents(residentsData);
+      const response = await axios.get("http://localhost:3003/get-residents");
+        console.log(response.data);
+        const residentsData = response.data;
+        setResidents(residentsData); 
 
-      // Calculate total residents (1 per resident + the length of their family members)
+
+      // Calculate total residents (1 per resident + the length of their family dependents)
       const total = residentsData.reduce((sum, resident) => {
-        return sum + 1 + (resident.FamilyMembers ? resident.FamilyMembers.length : 0); // Check if FamilyMembers exists
+        return sum + 1 + (resident.dependents ? resident.dependents.length : 0); // Check if Familydependents exists
       }, 0);
       setTotalResidents(total);
 
@@ -56,17 +55,17 @@ useEffect(() => {
   };
 
   fetchResidents();
-}, []); 
+}, []);
 
 useEffect(() => {
   const fetchDisasters = async () => {
     try {
-      const querySnapshot = await getDocs(collection(db, "disasters"));
-      const disastersData = querySnapshot.docs.map(doc => doc.data());
-      setDisasters(disastersData); // Store disasters data in state
+      const response = await axios.get("http://localhost:3003/get-disasters");
+      const disasterData = response.data;
+      setDisasters(disasterData); // Store disasters data in state
 
       // Set the total number of disasters
-      setTotalDisasters(disastersData.length);
+      setTotalDisasters(disasterData.length);
     } catch (error) {
       console.error("Error fetching disasters data:", error);
     }
