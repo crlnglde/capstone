@@ -11,10 +11,15 @@
     height: 100%;
   }
 
+  .content-container .column{
+    display: flex;
+  }
+
 
   .distribution-table {
     padding: 20px;
     height: 100%;
+    width:100%;
   }
 
   .distribution-table > h2{
@@ -188,6 +193,38 @@
             .next:hover {
               background-color: #1976D2;
             }
+
+            .backButton {
+              background-color: #0A194E; 
+              color: white;       
+              border-radius: 5px;      
+              border: none;              
+              padding: 10px 10px;        
+              font-size: 12px;           /* Font size */
+              cursor: pointer;         /* Rounded corners */
+              transition: background-color 0.3s; /* Smooth transition on hover */
+              margin-right: 10px;  
+              box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            }
+
+            .rds-form-container .back{
+              padding: 10px 0 10px 0;
+            }
+
+            .backButton i {
+              margin-right: 10px;
+            }
+            
+            .backButton:hover {
+              background-color: #233c96;
+            }
+
+            .rds-form-container{
+              background-color: none;
+
+            }
+          
+            
 
 
 

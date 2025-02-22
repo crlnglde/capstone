@@ -10,6 +10,8 @@
     const pageNames = {
       "/home": "Home",
       "/dashboard": "Dashboard",
+      "/distribution":"Distribution",
+      "/distribution/rds":"Distribution > RDS",
       "/reports": "Reports",
       "/residents": "List of Residents",
       "/volunteers": "Volunteers",

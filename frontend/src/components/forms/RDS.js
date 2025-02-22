@@ -10,11 +10,7 @@ const RDS= () => {
 
   return (
     <div className="rds">
-      
-      <div className="res-btn">
-
-      </div>
-
+    
       <div className="rds-container">
 
         <div className="rds-header">
