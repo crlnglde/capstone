@@ -45,13 +45,26 @@ const affectedFamilySchema = new mongoose.Schema({
   regDate: { type: Date, required: true }
 });
 
-// Distribution Schema (Updated)
-const distributionSchema = new mongoose.Schema({
+const familySchema = new mongoose.Schema({
   familyHead: { type: String, required: true },
   rationCount: { type: Number, required: true },
-  reliefItems: [{ type: String, required: true }],
-  signature: { type: String, required: true }, // Base64 image for tracking
-  dateDistributed: { type: Date, required: true }
+  signature: { type: String, required: true } // Base64 image
+});
+
+// Relief Items Schema
+const reliefItemSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  quantity: { type: Number, required: true }
+});
+
+// Distribution Schema (Updated)
+const distributionSchema = new mongoose.Schema({
+  reliefItems: [reliefItemSchema], // Stores name & quantity of items
+  dateDistributed: { type: Date, required: true },
+  families: [familySchema], // Stores families receiving relief
+  receivedFrom: { type: String, required: true },
+  certifiedCorrect: { type: String, required: true },
+  submittedBy: { type: String, required: true }
 });
 
 // Barangay Schema

@@ -226,6 +226,49 @@ app.put("/update-disaster/:disasterCode", async (req, res) => {
   }
 });
 
+app.post("/add-distribution/:disasterCode/:barangayName", async (req, res) => {
+  const { disasterCode, barangayName } = req.params;
+  const { reliefItems, dateDistributed, families, receivedFrom, certifiedCorrect, submittedBy } = req.body;
+
+  try {
+    const disaster = await Disaster.findOne({ disasterCode });
+
+    if (!disaster) {
+      return res.status(404).json({ message: "Disaster not found" });
+    }
+
+    // Find the barangay
+    const barangay = disaster.barangays.find(b => b.name === barangayName);
+
+    if (!barangay) {
+      return res.status(404).json({ message: "Barangay not found in this disaster" });
+    }
+
+    // Create new distribution entry
+    const newDistribution = {
+      reliefItems,
+      dateDistributed,
+      families,
+      receivedFrom,
+      certifiedCorrect,
+      submittedBy
+    };
+
+    // Add to distributions array
+    barangay.distribution.push(newDistribution);
+
+    // Save the updated document
+    await disaster.save();
+
+    res.status(201).json({ message: "Distribution added successfully", newDistribution });
+  } catch (error) {
+    console.error("Error adding distribution:", error);  // ✅ Log the full error
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
+
+
+
 
 
 
