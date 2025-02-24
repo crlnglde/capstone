@@ -3,7 +3,7 @@ import { useNavigate} from 'react-router-dom';
 import axios from "axios";
 import Papa from 'papaparse';
 import moment from "moment";
-
+import Ling from './visualizations/Line-gr'
 import Barc from './visualizations/Bar-ch'
 import Piec from './visualizations/Pie-ch'
 import Map from './visualizations/Iligan'
@@ -319,6 +319,9 @@ useEffect(() => {
 
           
           
+          <div className="ch1">
+            <Ling/>
+          </div>
           <div className="ch1">
             <Barc barangay={selectedBarangay} year={selectedYear}/>
           </div>
