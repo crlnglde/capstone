@@ -33,6 +33,32 @@ const Distribution = () => {
     { disasterCode: "D005", disasterType: "Fire", disasterDate: "2024-06-12", affectedBarangay: "Barangay 4" }
   ];
 
+  const barangays = [
+    "Barangay Tibanga",
+    "Barangay Tambacan",
+    "Barangay Dalipuga",
+    "Barangay Suarez",
+    "Barangay Palao",
+  ];
+
+  const [selectedBarangay, setSelectedBarangay] = useState(barangays[0]); // Default to first barangay
+  const [entries, setEntries] = useState([{ kindSource: "", quantity: "" }]);
+
+  const handleAddEntry = () => {
+    setEntries([...entries, { kindSource: "", quantity: "" }]);
+  };
+
+  const handleRemoveEntry = (index) => {
+    const updatedEntries = entries.filter((_, i) => i !== index);
+    setEntries(updatedEntries);
+  };
+
+  const handleChange = (index, field, value) => {
+    const updatedEntries = [...entries];
+    updatedEntries[index][field] = value;
+    setEntries(updatedEntries);
+  };
+
   const handleSearchChange = (event) => {
     const query = event.target.value.toLowerCase();
     setSearchQuery(query);
@@ -296,23 +322,71 @@ const Distribution = () => {
       <Modal isOpen={isModalOpen} onClose={closeModal} title="RDS">
         
         <form className="modal-form">
-            <label>Affected Barangay:</label>
-            <input type="text" placeholder="Enter barangay" />
+            <div className="content">
+              <label>Barangay:</label>
+              <select>
+                <option value="">Select Barangay</option>
+                {barangays.map((barangay, index) => (
+                  <option key={index} value={barangay}>
+                    {barangay}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-            <label>Kind Source:</label>
-            <input type="text" placeholder="Enter code" />
+            <div className="content">
 
-            <label>Quantity:</label>
-            <input type="text" placeholder="Enter type" />
+              <div className="entry">
+                {entries.map((entry, index) => (
+                    <div key={index} className="entry-group">
+                      
 
-            <label>Received From:</label>
-            <input type="text" />
+                      <div className="row-quan"> 
+                        <label>Kind Source:</label>
+                        <input
+                          type="text"
+                          value={entry.kindSource}
+                          onChange={(e) => handleChange(index, "kindSource", e.target.value)}
+                        />
 
-            <label>Certified Correct:</label>
-            <input type="text" />
+                      </div>
 
-            <label>Submitted by:</label>
-            <input type="text" />
+                      <div className="row-quan"> 
+                        <label>Quantity:</label>
+                        <input
+                          type="text"
+                          value={entry.quantity}
+                          onChange={(e) => handleChange(index, "quantity", e.target.value)}
+                        />
+                      </div>
+
+                      {entries.length > 1 && (
+                        <button type="button" className="remove-btn" onClick={() => handleRemoveEntry(index)}>
+                          ×
+                        </button>
+                      )}
+                    </div>
+                  ))}
+
+                  <button type="button" className="add-btn" onClick={handleAddEntry}> <i class="fa-solid fa-plus"></i>  Add More</button>
+              </div>
+            </div>
+
+
+            <div className="content">
+              <label>Received From:</label>
+              <input type="text" />
+            </div>
+
+            <div className="content">
+              <label>Certified Correct:</label>
+              <input type="text" />
+            </div>
+
+            <div className="content">
+              <label>Submitted by:</label>
+              <input type="text" />
+            </div>
 
             <button type="submit" className="submitButton" onClick={handleNextStep}>Next</button>
           </form>
