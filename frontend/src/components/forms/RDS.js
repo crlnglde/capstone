@@ -1,12 +1,46 @@
 import React, { useEffect, useState } from "react";
-
+import axios from "axios";
 import "../../css/forms/RDS.css";
 import ICImage from '../../pic/IC.png';
 import cswdImage from '../../pic/cswd.jpg';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 const RDS= () => {
+  const [families, setFamilies] = useState([]);
+  const barangay= "Tibanga";
+  const disasterId= "D1-02202025";
 
+  useEffect(() => {
+    const fetchFamilies = async () => {
+      try {
+        const response = await axios.get("http://localhost:3003/get-disasters");
+        const disasterData = response.data;
+  
+        // Find the disaster matching the given disasterId
+        const selectedDisaster = disasterData.find(d => d.disasterCode === disasterId);
+        if (!selectedDisaster) {
+          console.error("Disaster not found.");
+          return;
+        }
+  
+        // Find barangay data
+        const selectedBarangay = selectedDisaster.barangays.find(b => b.name === barangay);
+        if (!selectedBarangay) {
+          console.error("Barangay not found.");
+          return;
+        }
+  
+        // Set affected families
+        setFamilies(selectedBarangay.affectedFamilies || []);
+  
+      } catch (error) {
+        console.error("Error fetching disasters data:", error);
+      }
+    };
+  
+    fetchFamilies();
+  }, []);
+  
 
   return (
     <div className="rds">
@@ -59,19 +93,20 @@ const RDS= () => {
               </thead>
               <tbody>
 
-                <tr>
-                    <td>ddsd</td>
-                    <td>ddsd</td>
-                    <td>ddsd</td>
-                    <td>ddsd</td>
+              {families.length > 0 ? (
+              families.map((family, index) => (
+                <tr key={index}>
+                  <td>{`${family.firstName} ${family.middleName || ""} ${family.lastName}`.trim()}</td>
+                  <td>{family.dependents.length + 1}</td>
+                  <td>_________</td>
+                  <td>_________</td>
                 </tr>
-
-                <tr>
-                    <td>ddsd</td>
-                    <td>ddsd</td>
-                    <td>ddsd</td>
-                    <td>ddsd</td>
-                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="4" style={{ textAlign: "center" }}>No data available</td>
+              </tr>
+            )}
                                       
               </tbody>
           </table>

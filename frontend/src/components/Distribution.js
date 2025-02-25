@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate} from 'react-router-dom'; 
 import { Outlet } from "react-router-dom";
-import { db } from "../firebase";
-import { collection, addDoc, getDocs } from 'firebase/firestore';
-import Papa from 'papaparse';
 
 import RDS from "./forms/RDS";
 import Modal from "./Modal";
