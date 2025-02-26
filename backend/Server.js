@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const Resident = require('../backend/models/Resident')
 const Disaster = require('../backend/models/Disaster')
+const Distribution = require ('../backend/models/Distribution')
 
 const app = express();
 const port = 3003;
@@ -267,10 +268,131 @@ app.post("/add-distribution/:disasterCode/:barangayName", async (req, res) => {
   }
 });
 
+app.get("/get-resident-esig", async (req, res) => {
+  const { firstName, middleName, lastName } = req.query;
+  
+  try {
+    let query = { firstName: firstName.trim(), lastName: lastName.trim() };
 
+    // Only include middleName in the query if it's provided
+    if (middleName && middleName.trim() !== "") {
+      query.middleName = middleName.trim();
+    }
 
+    const resident = await Resident.findOne(query);
 
+    if (!resident) {
+      return res.status(404).json({ error: "Resident not found" });
+    }
 
+    res.json({ esig: resident.esig });
+  } catch (error) {
+    console.error("Error fetching resident signature:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+app.post("/save-distribution", async (req, res) => {
+  try {
+      const { disasterCode, disasterDate, barangay, families, reliefItems, receivedFrom, certifiedCorrect, submittedBy, status } = req.body;
+      let existingDistribution = await Distribution.findOne({ disasterCode });
+
+      if (!existingDistribution) {
+          existingDistribution = new Distribution({ disasterCode, status, disasterDate, barangays: [] });
+      }
+
+      let barangayData = existingDistribution.barangays.find(b => b.name === barangay);
+
+      if (!barangayData) {
+          barangayData = { name: barangay, distribution: [] };
+          existingDistribution.barangays.push(barangayData);
+      }
+
+      const newDistribution = {
+          reliefItems: reliefItems.map(item => ({
+              name: item.name,
+              quantity: Number(item.quantity) || 0
+          })),
+          dateDistributed: new Date(),
+          families,
+          receivedFrom,
+          certifiedCorrect,
+          submittedBy
+      };
+
+      // Update the barangay directly
+      existingDistribution.barangays = existingDistribution.barangays.map(b => {
+          if (b.name === barangay) {
+              return {
+                  ...b,
+                  distribution: [...b.distribution, newDistribution]
+              };
+          }
+          return b;
+      });
+
+      existingDistribution.markModified("barangays");
+
+      await existingDistribution.save();
+      res.status(201).json({ message: "Distribution data saved successfully!" });
+
+  } catch (error) {
+      console.error("Error saving distribution data:", error);
+      res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
+app.get("/get-distribution", async (req, res) => {
+  try {
+      const { disasterCode, barangay, status } = req.query;
+
+      let query = {};
+
+      if (disasterCode) query.disasterCode = disasterCode;
+      if (status) query.status = status;
+
+      // Fetch matching distributions
+      let distributions = await Distribution.find(query);
+
+      // If barangay filter is applied, refine the data
+      if (barangay) {
+          distributions = distributions.map(d => ({
+              ...d.toObject(),
+              barangays: d.barangays.filter(b => b.name === barangay)
+          })).filter(d => d.barangays.length > 0); // Remove empty results
+      }
+
+      res.status(200).json(distributions);
+  } catch (error) {
+      console.error("Error fetching distribution data:", error);
+      res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
+// Update status to "Done" for a specific distribution
+app.put("/update-status/:disasterCode", async (req, res) => {
+  try {
+    const { disasterCode } = req.params;
+
+    // Find the distribution by disasterCode
+    const distribution = await Distribution.findOne({ disasterCode });
+
+    if (!distribution) {
+      return res.status(404).json({ message: "Distribution not found for this disaster ID" });
+    }
+
+    // Update the status of the found distribution
+    distribution.status = "Done";
+
+    // Save changes
+    await distribution.save();
+
+    res.json({ message: "Status updated to Done", updatedDistribution: distribution });
+  } catch (error) {
+    console.error("Error updating status:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
 
 app.listen(port,()=>{
     console.log('Example app listening on port ${port}');

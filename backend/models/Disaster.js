@@ -18,6 +18,7 @@ const casualtySchema = new mongoose.Schema({
 
 // Affected Family Schema
 const affectedFamilySchema = new mongoose.Schema({
+  id: { type: String, required: true },
   firstName: { type: String, required: true },
   middleName: { type: String },
   lastName: { type: String, required: true },
@@ -45,33 +46,11 @@ const affectedFamilySchema = new mongoose.Schema({
   regDate: { type: Date, required: true }
 });
 
-const familySchema = new mongoose.Schema({
-  familyHead: { type: String, required: true },
-  rationCount: { type: Number, required: true },
-  signature: { type: String, required: true } // Base64 image
-});
-
-// Relief Items Schema
-const reliefItemSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  quantity: { type: Number, required: true }
-});
-
-// Distribution Schema (Updated)
-const distributionSchema = new mongoose.Schema({
-  reliefItems: [reliefItemSchema], // Stores name & quantity of items
-  dateDistributed: { type: Date, required: true },
-  families: [familySchema], // Stores families receiving relief
-  receivedFrom: { type: String, required: true },
-  certifiedCorrect: { type: String, required: true },
-  submittedBy: { type: String, required: true }
-});
 
 // Barangay Schema
 const barangaySchema = new mongoose.Schema({
   name: { type: String, required: true },
   affectedFamilies: [affectedFamilySchema],
-  distribution: [distributionSchema]
 });
 
 // Disaster Schema
