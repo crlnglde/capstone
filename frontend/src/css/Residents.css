@@ -184,13 +184,13 @@
     border-bottom: 2px solid #ddd;
   }
 
-  th, td {
+  .residents-table th, td {
     padding: 5px;
     text-align: left;
     
   }
 
-  th {
+  .residents-table th {
     text-transform: uppercase;
     font-size: 12px;
     letter-spacing: 1px;
@@ -203,7 +203,7 @@
     background-color: #f2f2f2;
   }
   
-  td {
+  .residents-table td {
     font-size: 12px;
     text-align: center;
     font-weight: 500;
@@ -226,7 +226,7 @@
     display: flex;
     justify-content: center;
     gap: 46px;
-    padding: 0 20px 20px 20px;
+    padding: 20px 20px 20px 20px;
   }
 
   .nav-button {
