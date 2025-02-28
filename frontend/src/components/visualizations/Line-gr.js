@@ -70,38 +70,50 @@ const LineGraph = () => {
 
     return (
         <div className="bar-graph-container">
-            <h2>Disaster Occurrences per Barangay (Past 5 Years)</h2>
 
-            {/* Disaster Type Dropdown */}
-            <div>
-                <label>Select Disaster Type: </label>
-                <select value={selectedDisaster} onChange={(e) => setSelectedDisaster(e.target.value)}>
-                    <option value="">All</option>
-                    {disasterTypes.map(type => (
-                        <option key={type} value={type}>{type}</option>
-                    ))}
-                </select>
-            </div>
+            <div className='bar'>
 
-            {/* Barangay Multi-Select Dropdown */}
-            <div>
-                <label>Select Barangays: </label>
-                <Select
-                    options={barangayList.map(name => ({ value: name, label: name }))}
-                    isMulti
-                    value={selectedBarangays}
-                    onChange={setSelectedBarangays}
-                    placeholder="Select barangays..."
-                />
-            </div>
+                <div className="bar-filter">
+                    <h2>Disaster Occurrences per Barangay (Past 5 Years)</h2>
 
-            {/* Render Line Graph */}
-            <div className="bar">
-                {chartData && chartData.datasets.length > 0 ? (
-                    <Line data={chartData} options={{ responsive: true, maintainAspectRatio: false }} />
-                ) : (
-                    <p>No data available for the selected criteria.</p>
-                )}
+                    <div className="filters-right">
+                        <div className="bar-filter-container">
+                            {/* Disaster Type Dropdown */}
+     
+                            <label>Select Disaster Type: </label>
+                            <select value={selectedDisaster} onChange={(e) => setSelectedDisaster(e.target.value)}>
+                                <option value="">All</option>
+                                {disasterTypes.map(type => (
+                                    <option key={type} value={type}>{type}</option>
+                                ))}
+                            </select>
+       
+                        </div>
+
+                        <div className="bar-filter-container">
+                            <label>Select Barangays: </label>
+                            <Select
+                                options={barangayList.map(name => ({ value: name, label: name }))}
+                                isMulti
+                                value={selectedBarangays}
+                                onChange={setSelectedBarangays}
+                                placeholder="Select barangays..."
+                            />
+                                    
+                        </div>
+                    </div>
+                </div>
+    
+                <div className="bar-wrapper">
+                {/* Render Line Graph */}
+           
+                    {chartData && chartData.datasets.length > 0 ? (
+                        <Line data={chartData} options={{ responsive: true, maintainAspectRatio: false }} />
+                    ) : (
+                        <p>No data available for the selected criteria.</p>
+                    )}
+
+                </div>
             </div>
         </div>
     );

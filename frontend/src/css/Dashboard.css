@@ -163,6 +163,7 @@
     align-items: center; /* Vertically center items */
     position: relative; /* For the line pseudo-element */
     padding-bottom: 10px; /* Add some space for the line */
+    margin: 0 0 20px 0;
   }
   
   .header-title {
@@ -519,8 +520,20 @@
       margin-right: 10px;
     }
 
-.disasters-table table{
-  margin-top: 20px;
+.disasters-table table th {
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-align: center;
+  padding: 10px;
+}
+
+.disasters-table table td {
+  font-size: 12px;
+  text-align: center;
+  font-weight: 500;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
 }
 
 .disasters-table p {
