@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate} from 'react-router-dom'; 
 import { Outlet } from "react-router-dom";
 import axios from "axios";
@@ -84,12 +84,6 @@ const Distribution = () => {
     setforDistribution((prevData) => ({ ...prevData, entries: updatedEntries }));
   };
 
-  const handleSearchChange = (event) => {
-    const query = event.target.value.toLowerCase();
-    setSearchQuery(query);
-    console.log("Search Query: ", query); // Debugging the query
-  };
-
   const openModal = (disaster) => {
 
     const disasterDate = new Date(disaster.disasterDateTime);
@@ -132,9 +126,6 @@ const Distribution = () => {
         navigate(-1); 
       }
     };
-    
-    
-
 
     //page sa disasters
     const handleNext = () => {
@@ -219,6 +210,50 @@ const Distribution = () => {
         alert("Failed to update status.");
       }
     };
+
+  //for search
+  const handleSearchChange = (event) => {
+    const query = event.target.value.toLowerCase();
+    setSearchQuery(query);
+    console.log("Search Query: ", query);
+  };
+
+  const filteredDistribution = useMemo(() => {
+    return doneDistributions.filter((distribution) => {
+      return Object.keys(distribution).some((key) => {
+        const value = distribution[key];
+  
+        // Handle string-based fields (disasterCode, status, disasterDate, etc.)
+        if (typeof value === "string" && value.toLowerCase().includes(searchQuery)) {
+          return true;
+        }
+  
+        // Handle array fields (e.g., barangays)
+        if (Array.isArray(value)) {
+          return value.some((item) => {
+            // Convert object properties to a string and check for searchQuery
+            return Object.values(item).some(
+              (subValue) =>
+                typeof subValue === "string" && subValue.toLowerCase().includes(searchQuery)
+            );
+          });
+        }
+  
+        return false;
+      });
+    });
+  }, [doneDistributions, searchQuery]);
+
+  console.log("Distributions", filteredDistribution)
+
+  const displayDistribution = useMemo(() => {
+    return filteredDistribution.slice(
+      (currentPage - 1) * rowsPerPage,
+      currentPage * rowsPerPage
+    );
+  }, [filteredDistribution, currentPage, rowsPerPage]);
+
+  console.log("Hehe", displayDistribution)
     
 
   return (
@@ -396,8 +431,8 @@ const Distribution = () => {
                 </thead>
               
               <tbody>
-                {doneDistributions.length > 0 ? (
-                  doneDistributions.map((item, index) => (
+                {displayDistribution.length > 0 ? (
+                  displayDistribution.map((item, index) => (
                     <tr key={index}>
                       <td>{item.disasterCode}</td>
                       <td>{new Date(item.disasterDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</td>
