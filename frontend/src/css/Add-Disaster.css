@@ -178,6 +178,14 @@
 
 
 /*Step 2 */
+
+.residents-table th,
+.residents-table td{
+
+  text-align: center;
+ 
+}
+
 .barangay-buttons {
     display: flex;
     flex-wrap: wrap;

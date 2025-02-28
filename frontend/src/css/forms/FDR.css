@@ -27,22 +27,24 @@
       font-size: smaller;
     }
 
-
     .upper-area {
+      padding: 20px 0;
+      margin: 0 0 20px 0;
       display: flex;
-    
     }
 
     .row{
       width: 100%;
-      display: flex;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
     }
+
     .col1{
       display: flex;
     }
 
-    .col2{
-      display: flex;
+    .col1 p{
+      margin: 5px;
     }
 
 
@@ -87,7 +89,7 @@
     .fdr-container .reco{
       display: flex;
       flex-direction: column;
-      padding: 20px;
+      padding: 0 20px;
       margin: 0px 0 50px 0px;
     }
 
