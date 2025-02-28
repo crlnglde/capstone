@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate} from 'react-router-dom'; 
 import { Outlet } from "react-router-dom";
-
+import axios from "axios";
 import RDS from "./forms/RDS";
 import Modal from "./Modal";
 import Barc from './visualizations/Bar-ch'
@@ -18,8 +18,10 @@ const Distribution = () => {
   const totalPages = 20;
   //const totalPages = Math.ceil(disasters.length / rowsPerPage);
   const [step, setStep] = useState(1);
+  const [recentDisasters, setDisasters] = useState([]);
+  const [distribution, setDistribution] = useState([]);
 
-  const [selectedDisaster, setSelectedDisaster] = useState(null);
+
   const [searchQuery, setSearchQuery] = useState("");
 
   const disasterData = [
@@ -39,21 +41,47 @@ const Distribution = () => {
   ];
 
   const [selectedBarangay, setSelectedBarangay] = useState(barangays[0]); // Default to first barangay
-  const [entries, setEntries] = useState([{ kindSource: "", quantity: "" }]);
+  const [entries, setEntries] = useState([{ name: "", quantity: "" }]);
+
+  const disasterCode = localStorage.getItem("selectedDisasterCode") || "";
+
+  const selectedDisaster = recentDisasters.find(
+    (disaster) => disaster.disasterCode === disasterCode
+  );
+  
+  const [forDistribution, setforDistribution] = useState({
+    disasterCode: disasterCode, 
+    disasterMonth:"",
+    barangay: "",
+    entries: [{ name: "", quantity: "" }],
+    receivedFrom: "",
+    certifiedCorrect: "",
+    submittedBy: "",
+  });
 
   const handleAddEntry = () => {
-    setEntries([...entries, { kindSource: "", quantity: "" }]);
+    setforDistribution((prevData) => ({
+      ...prevData,
+      entries: [...prevData.entries, { name: "", quantity: "" }],
+    }));
   };
 
   const handleRemoveEntry = (index) => {
-    const updatedEntries = entries.filter((_, i) => i !== index);
-    setEntries(updatedEntries);
+    const updatedEntries = forDistribution.entries.filter((_, i) => i !== index);
+    setforDistribution((prevData) => ({ ...prevData, entries: updatedEntries }));
   };
 
-  const handleChange = (index, field, value) => {
-    const updatedEntries = [...entries];
+  const handleChange = (field, value) => {
+    setforDistribution((prevData) => ({
+      ...prevData,
+      [field]: value,
+    }));
+  };
+
+  const handleEntryChange = (index, field, value) => {
+    const updatedEntries = [...forDistribution.entries];
     updatedEntries[index][field] = value;
-    setEntries(updatedEntries);
+    setforDistribution((prevData) => ({ ...prevData, entries: updatedEntries }));
   };
 
   const handleSearchChange = (event) => {
@@ -62,16 +90,34 @@ const Distribution = () => {
     console.log("Search Query: ", query); // Debugging the query
   };
 
-  const openModal = () => setIsModalOpen(true);
+  const openModal = (disaster) => {
+
+    const disasterDate = new Date(disaster.disasterDateTime);
+    //const formattedMonth = disasterDate.toLocaleString("default", { month: "long" }); 
+
+    localStorage.setItem("disasterCode", disaster.disasterCode);
+
+    // Ensure state updates immediately
+    setforDistribution(prevState => ({
+        ...prevState,
+        disasterCode: disaster.disasterCode,
+        disasterDate: disasterDate
+    }));
+
+    setIsModalOpen(true);
+};
+
   const closeModal = () => setIsModalOpen(false);
 
-    const handleNextStep = (event) =>{ 
-      event.preventDefault();
-      setIsModalOpen(false);
+  const handleNextStep = (e) => {
+    e.preventDefault(); // Prevent page reload
+    localStorage.setItem("forDistribution", JSON.stringify(forDistribution));
+    alert("Form data saved!");
+    setIsModalOpen(false);
 
-      setStep(2);
-      navigate("/distribution/rds");
-    };
+    setStep(2);
+    navigate("/distribution/rds");
+  };
 
     const handleEdit = () => {
       setStep(2);
@@ -103,6 +149,78 @@ const Distribution = () => {
       }
     };
 
+    useEffect(() => {
+      const fetchDisasters = async () => {
+        try {
+          const response = await axios.get("http://localhost:3003/get-disasters");
+          const disasterData = response.data;
+    
+          // Get the current date and subtract 3 days
+          const threeDaysAgo = new Date();
+          threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+
+    
+          // Filter disasters that happened **after** three days ago
+          const recentDisasters = disasterData.filter(disaster =>
+            new Date(disaster.disasterDateTime) > threeDaysAgo // Excludes disasters older than 3 days
+          );
+    
+          setDisasters(recentDisasters);
+        } catch (error) {
+          console.error("Error fetching disasters data:", error);
+        }
+      };
+    
+      fetchDisasters();
+    }, []);    
+    
+    useEffect(() => {
+      const fetchDistribution = async () => {
+        try {
+          const response = await axios.get("http://localhost:3003/get-distribution");
+          const distributionData = response.data;
+          setDistribution(distributionData);
+        } catch (error) {
+          console.error("Error fetching distribution data:", error);
+        }
+      };
+    
+      fetchDistribution();
+    }, []);  
+
+    const getPendingDistributions = () => {
+      return distribution.filter((dist) => dist.status === "Pending");
+    };
+    
+    const getDoneDistributions = () => {
+      return distribution.filter((dist) => dist.status === "Done");
+    };
+
+    const pendingDistributions = getPendingDistributions();
+    const doneDistributions = getDoneDistributions();
+    
+
+    const handleDoneClick = async (disasterCode) => {
+      try {
+        const response = await axios.put(`http://localhost:3003/update-status/${disasterCode}`);
+
+        alert(response.data.message);
+         // Refresh disaster list
+          setDisasters(prevDisasters =>
+            prevDisasters.map(disaster =>
+              disaster.disasterCode === disasterCode
+                ? { ...disaster, status: "Done" }
+                : disaster
+            )
+          );
+          window.location.reload()
+      } catch (error) {
+        console.error("Error updating status:", error);
+        alert("Failed to update status.");
+      }
+    };
+    
+
   return (
     <div className="distribution">
       {step === 1 ? (
@@ -117,25 +235,37 @@ const Distribution = () => {
               </div>
 
               <div className="container">
-              {disasterData.length > 0 ? (
-                disasterData.map((disaster, index) => (
+              {recentDisasters.length > 0 ? (
+                recentDisasters.map((disaster, index) => (
                   <div key={index} className="transactionItem">
                     <div className="dateBox">
-                      <span className="date">{new Date(disaster.disasterDate).getDate()}</span>
-                      <span className="month">{new Date(disaster.disasterDate).toLocaleString('default', { month: 'short' })}</span>
+                      <span className="date">{new Date(disaster.disasterDateTime).getDate()}</span>
+                      <span className="month">{new Date(disaster.disasterDateTime).toLocaleString('default', { month: 'short' })}</span>
                     </div>
                     <div className="details">
                       <span className="title">{disaster.disasterType}</span>
                       <span className="subtitle">{disaster.disasterCode}</span>
                     </div>
-                    {disaster.affectedBarangay && (
-                      <div className="brgy">
-                        <span className="subtitle">{disaster.affectedBarangay}</span>
-                      </div>
-                    )}
+                     {/* Display affected barangays properly */}
+                      {disaster.barangays && disaster.barangays.length > 0 && (
+                        <div className="brgy">
+                          <span className="subtitle">
+                            {disaster.barangays.map((barangay, bIndex) => (
+                              <span key={bIndex}>{barangay.name}{bIndex !== disaster.barangays.length - 1 ? ", " : ""}</span>
+                            ))}
+                          </span>
+                        </div>
+                      )}
                     <div className="actions">
-                      <button className="addButton" onClick={openModal}>Add</button>
-                      <button className="doneButton">Done</button>
+                    <button className="addButton" onClick={() => {
+                        localStorage.setItem("selectedDisasterCode", disaster.disasterCode);
+                        openModal(disaster);
+                      }}>
+                        Add
+                      </button>
+                      <button className="doneButton" onClick={() => handleDoneClick(disaster.disasterCode)}>
+                        Done
+                      </button>
                     </div>
                   </div>
                   ) )): (
@@ -168,37 +298,52 @@ const Distribution = () => {
           
             {/* Pending */}
             <div className="distribution-table">
-              <div className="header-container">
-                <h2 className="header-title">Pending Distribution</h2>
-              </div>
+            <div className="header-container">
+              <h2 className="header-title">Pending Distribution</h2>
+            </div>
 
-              <div className="container">
-              {disasterData.length > 0 ? (
-                disasterData.map((disaster, index) => (
-                  <div key={index} className="transactionItem">
-                    <div className="dateBox">
-                      <span className="date">{new Date(disaster.disasterDate).getDate()}</span>
-                      <span className="month">{new Date(disaster.disasterDate).toLocaleString('default', { month: 'short' })}</span>
-                    </div>
-                    <div className="details">
-                      <span className="title">{disaster.disasterType}</span>
-                      <span className="subtitle">{disaster.disasterCode}</span>
-                    </div>
-                    {disaster.affectedBarangay && (
-                      <div className="brgy">
-                        <span className="subtitle">{disaster.affectedBarangay}</span>
+            <div className="container">
+              {pendingDistributions.length > 0 ? (
+                pendingDistributions.map((distItem, index) => (
+                  <div key={index} >
+                    {/* Loop through barangays */}
+                    {distItem.barangays.map((barangay, bIndex) => (
+                      <div key={bIndex}>
+                        {barangay.distribution.map((dist, dIndex) => (
+                          <div key={dIndex} className="transactionItem">
+                            {/* Date Box */}
+                            <div className="dateBox">
+                              <span className="date">{new Date(dist.dateDistributed).getDate()}</span>
+                              <span className="month">
+                                {new Date(dist.dateDistributed).toLocaleString("default", { month: "short" })}
+                              </span>
+                            </div>
+
+                            {/* Disaster Code */}
+                            <div className="details">
+                              <span className="title">{distItem.disasterCode}</span>
+                            </div>
+
+                            {/* Barangay Name */}
+                            <div className="brgy">
+                              <span className="subtitle">{barangay.name}</span>
+                            </div>
+
+                            {/* Actions */}
+                            <div className="actions">
+                              <button className="doneButton">Edit</button>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    )}
-                    <div className="actions">
-                      <button className="doneButton" onClick={handleEdit}>Edit</button>
-                    </div>
+                    ))}
                   </div>
-                  ) )): (
-                    <tr>
-                      <td colSpan="5">No disasters found.</td>
-                    </tr>
-                )}
-              </div>
+                ))
+              ) : (
+                <div>No distributions found.</div>
+              )}
+            </div>
+
 
               <div className="btn-container">
 
@@ -244,7 +389,6 @@ const Distribution = () => {
                 <thead>
                   <tr>
                     <th>Disaster Code</th>
-                    <th>Disaster Type</th>
                     <th>Disaster Date</th>
                     <th>Affected Barangay</th>
                     <th>View More</th>
@@ -252,13 +396,14 @@ const Distribution = () => {
                 </thead>
               
               <tbody>
-                {disasterData.length > 0 ? (
-                  disasterData.map((item, index) => (
+                {doneDistributions.length > 0 ? (
+                  doneDistributions.map((item, index) => (
                     <tr key={index}>
-                      <td>hehe</td>
-                      <td>hehe</td>
-                      <td>hehe</td>
-                      <td>hehe</td>
+                      <td>{item.disasterCode}</td>
+                      <td>{new Date(item.disasterDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</td>
+                      <td>
+                        {item.barangays.map(barangay => `${barangay.name}`).join(" | ")}
+                      </td>
                       <td>
                         <button className="dash-viewmore-btn">
                           <i className="fa-solid fa-ellipsis"></i>
@@ -321,11 +466,14 @@ const Distribution = () => {
         <form className="modal-form">
             <div className="content">
               <label>Barangay:</label>
-              <select>
+              <select
+                value={forDistribution.barangay}
+                onChange={(e) => handleChange("barangay", e.target.value)}
+              >
                 <option value="">Select Barangay</option>
-                {barangays.map((barangay, index) => (
-                  <option key={index} value={barangay}>
-                    {barangay}
+                {selectedDisaster?.barangays?.map((barangay, index) => (
+                  <option key={index} value={barangay.name}>
+                    {barangay.name}
                   </option>
                 ))}
               </select>
@@ -334,7 +482,7 @@ const Distribution = () => {
             <div className="content">
 
               <div className="entry">
-                {entries.map((entry, index) => (
+                {forDistribution.entries.map((entry, index) => (
                     <div key={index} className="entry-group">
                       
 
@@ -342,8 +490,8 @@ const Distribution = () => {
                         <label>Kind Source:</label>
                         <input
                           type="text"
-                          value={entry.kindSource}
-                          onChange={(e) => handleChange(index, "kindSource", e.target.value)}
+                          value={entry.name}
+                          onChange={(e) => handleEntryChange(index, "name", e.target.value)}
                         />
 
                       </div>
@@ -353,7 +501,7 @@ const Distribution = () => {
                         <input
                           type="text"
                           value={entry.quantity}
-                          onChange={(e) => handleChange(index, "quantity", e.target.value)}
+                          onChange={(e) => handleEntryChange(index, "quantity", e.target.value)}
                         />
                       </div>
 
@@ -372,17 +520,17 @@ const Distribution = () => {
 
             <div className="content">
               <label>Received From:</label>
-              <input type="text" />
+              <input type="text" value={forDistribution.receivedFrom} onChange={(e) => handleChange("receivedFrom", e.target.value)} />
             </div>
 
             <div className="content">
               <label>Certified Correct:</label>
-              <input type="text" />
+              <input type="text" value={forDistribution.certifiedCorrect} onChange={(e) => handleChange("certifiedCorrect", e.target.value)} />
             </div>
 
             <div className="content">
               <label>Submitted by:</label>
-              <input type="text" />
+              <input type="text" value={forDistribution.submittedBy} onChange={(e) => handleChange("submittedBy", e.target.value)} />
             </div>
 
             <button type="submit" className="submitButton" onClick={handleNextStep}>Next</button>

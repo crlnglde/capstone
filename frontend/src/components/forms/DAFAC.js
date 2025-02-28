@@ -1,5 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef  } from "react";
 import { v4 as uuidv4 } from "uuid";
+import { useReactToPrint } from "react-to-print";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 import "../../css/forms/DAFAC.css";
 import ICImage from '../../pic/IC.png';
@@ -7,6 +10,7 @@ import cswdImage from '../../pic/cswd.jpg';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 const DAFAC= ({ activeResident, disasterData, setIsModalOpen}) => {
+  const formRef = useRef(null);
 
   const [currentDate, setCurrentDate] = useState("");
   
@@ -54,6 +58,7 @@ const DAFAC= ({ activeResident, disasterData, setIsModalOpen}) => {
     if (activeResident) {
       setFormData((prevData) => ({
         ...prevData, // Keep existing formData values (including regDate)
+        id: activeResident.memId || "",
         firstName: activeResident.firstName || "",
         middleName: activeResident.middleName || "",
         lastName: activeResident.lastName || "",
@@ -159,23 +164,51 @@ const DAFAC= ({ activeResident, disasterData, setIsModalOpen}) => {
   };
   
 
-const handleSave = () => {
-  const savedData = JSON.parse(localStorage.getItem("savedForms")) || [];
-  // Generate a unique key using uuidv4() or a relevant identifier
-  const formDataWithId = { id: uuidv4(), ...formData };
-
-  // Add new formData to the existing array
-  savedData.push(formDataWithId);
-
-  // Store the updated array back in localStorage
-  localStorage.setItem("savedForms", JSON.stringify(savedData));
-
-  console.log("hehe", savedData);
-
-  alert("Form data saved successfully!");
-  setIsModalOpen(false); 
-};
-
+  const handleSave = async (event) => {
+    if (event) event.preventDefault(); // Prevent form refresh
+  
+    const savedData = JSON.parse(localStorage.getItem("savedForms")) || [];
+  
+    // Generate a unique key using uuidv4()
+    const formDataWithId = { id: uuidv4(), ...formData };
+  
+    // Add new formData to the existing array
+    savedData.push(formDataWithId);
+  
+    // Store the updated array back in localStorage
+    localStorage.setItem("savedForms", JSON.stringify(savedData));
+  
+    try {
+      if (!formRef.current) {
+        alert("Form reference is not available.");
+        return;
+      }
+  
+      // Convert form to canvas
+      const canvas = await html2canvas(formRef.current, {
+        scale: 2, // Increase resolution
+        useCORS: true, // Prevent cross-origin issues
+      });
+  
+      const imgData = canvas.toDataURL("image/png");
+  
+      // Generate PDF
+      const pdf = new jsPDF("p", "mm", "a4");
+      const imgWidth = 210; // A4 width in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width; // Maintain aspect ratio
+  
+      pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+  
+      console.log("Saving PDF...");
+      pdf.save("DAFAC_Form.pdf"); // Trigger download
+  
+      alert("Form data saved successfully!");
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      alert("An error occurred while generating the PDF.");
+    }
+  };
 //para ni sa IDP aron maka input ug dependents
 /** 
   const [newDependent, setNewDependent] = useState({
@@ -215,7 +248,7 @@ const handleSave = () => {
 
       </div>
 
-      <div className="dafac-container">
+      <div ref={formRef}  className="dafac-container">
 
         <div className="dafac-header">
             {/* Left Logo */}

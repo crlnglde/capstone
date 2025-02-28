@@ -122,7 +122,7 @@ const AddDisaster = () => {
             validateFields();
         }
     };
-
+    {/** 
     const handleCheckboxChange = (e) => {
         const { value, checked } = e.target;
 
@@ -138,6 +138,7 @@ const AddDisaster = () => {
             validateFields();
         }
     };
+    */}
 
     const handleBarangayClick = (barangay) => {
         console.log(`Barangay clicked: ${barangay}`);
@@ -265,7 +266,7 @@ const AddDisaster = () => {
                                         name="barangay"
                                         value={barangay}
                                         checked={selectedBarangays.includes(barangay)} // Check if barangay is selected
-                                        onChange={handleCheckboxChange} // Handle change
+                                        onChange={() => setSelectedBarangays(barangay)}// Handle change
                                         />
                                         <label htmlFor={barangay.replace(/\s+/g, '-').toLowerCase()}>{barangay}</label>
                                     </div>
@@ -292,6 +293,18 @@ const AddDisaster = () => {
         </form>
     );
 
+    const isResidentSaved = (resident) => {
+        const savedData = JSON.parse(localStorage.getItem("savedForms")) || [];
+      
+        return savedData.some(data => 
+          data.firstName === resident.firstName &&
+          data.middleName === resident.middleName &&
+          data.lastName === resident.lastName &&
+          data.barangay === resident.barangay &&
+          data.purok === resident.purok
+        );
+      };
+      
      //modified
      const handleFinalSubmit = async () => {
         // Retrieve disasterData and residentData from localStorage
@@ -320,6 +333,7 @@ const AddDisaster = () => {
             let barangays = Object.entries(groupedByBarangay).map(([barangayName, residents]) => ({
                 name: barangayName,
                 affectedFamilies: residents.map(resident => ({
+                    id: resident.id,
                     firstName: resident.firstName,
                     middleName: resident.middleName || "",
                     lastName: resident.lastName,
@@ -346,7 +360,6 @@ const AddDisaster = () => {
                     casualty: resident.casualty || [],
                     regDate: resident.regDate || "",
                 })),
-                distribution: []
             }));
     
             // Check if disaster already exists
@@ -395,8 +408,8 @@ const AddDisaster = () => {
     
             localStorage.removeItem("savedForms");
             localStorage.removeItem("disasterData");
+            navigate("/dashboard");
         } catch (error) {
-            console.error("Error saving/updating disaster data:", error);
             alert("An error occurred while saving data. Please try again.");
         }
     };    
@@ -422,6 +435,13 @@ const AddDisaster = () => {
     const Step2 = (
         <div className="residents-table">
             <div className="barangay-buttons">
+                    <button
+                        className={`barangay-button ${selectedBarangays === activeBarangay ? 'active' : ''}`}
+                        onClick={() => handleBarangayClick(selectedBarangays)}
+                    >
+                        {selectedBarangays}
+                    </button>
+               { /** 
                 {selectedBarangays.map((barangay, index) => (
                     <button
                         key={index}
@@ -431,6 +451,7 @@ const AddDisaster = () => {
                         {barangay}
                     </button>
                 ))}
+                */}
             </div>
 
 
@@ -480,7 +501,7 @@ const AddDisaster = () => {
                                             </td> {/* Dependents information */}
                                             <td>
                                                 
-                                            <button className="res-submit-btn" onClick={() => handleResidentSelect(resident)}>
+                                            <button className="res-submit-btn" onClick={() => handleResidentSelect(resident)}  disabled={isResidentSaved(resident)}>
                                                 <i class="fa-solid fa-pen-to-square"></i>
                                             </button>
                                             </td>

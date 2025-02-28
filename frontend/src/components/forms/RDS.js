@@ -1,14 +1,31 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from 'react-router-dom'; 
 import axios from "axios";
+import CryptoJS from "crypto-js";
 import "../../css/forms/RDS.css";
 import ICImage from '../../pic/IC.png';
 import cswdImage from '../../pic/cswd.jpg';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 const RDS= () => {
+  const navigate = useNavigate();  
   const [families, setFamilies] = useState([]);
-  const barangay= "Tibanga";
-  const disasterId= "D1-02202025";
+  const [decryptedImages, setDecryptedImages] = useState({});
+  const [forDistribution, setForDistribution] = useState(() => {
+    const storedData = localStorage.getItem("forDistribution");
+    return storedData ? JSON.parse(storedData) : {
+      disasterCode: "",
+      disasterDate:"",
+      barangay: "",
+      entries: [{ name: "", quantity: "" }],
+      receivedFrom: "",
+      certifiedCorrect: "",
+      submittedBy: "",
+    };
+  });
+
+  const disasterDate = new Date(forDistribution.disasterDate);
+  const formattedMonth = disasterDate.toLocaleString("default", { month: "long" }); 
 
   useEffect(() => {
     const fetchFamilies = async () => {
@@ -17,21 +34,36 @@ const RDS= () => {
         const disasterData = response.data;
   
         // Find the disaster matching the given disasterId
-        const selectedDisaster = disasterData.find(d => d.disasterCode === disasterId);
+        const selectedDisaster = disasterData.find(d => d.disasterCode === forDistribution.disasterCode);
         if (!selectedDisaster) {
           console.error("Disaster not found.");
           return;
         }
   
         // Find barangay data
-        const selectedBarangay = selectedDisaster.barangays.find(b => b.name === barangay);
+        const selectedBarangay = selectedDisaster.barangays.find(b => b.name === forDistribution.barangay);
         if (!selectedBarangay) {
           console.error("Barangay not found.");
           return;
         }
   
         // Set affected families
-        setFamilies(selectedBarangay.affectedFamilies || []);
+        let affectedFamilies = selectedBarangay.affectedFamilies || [];
+
+        // Fetch esig for each family head
+        const familiesWithStatus = await Promise.all(
+          affectedFamilies.map(async (family) => {
+            try {
+              const res = await axios.get(`http://localhost:3003/get-resident-esig?firstName=${family.firstName}&middleName=${family.middleName || ""}&lastName=${family.lastName}`);
+              return { ...family, status: "Pending", esig: res.data.esig };
+            } catch (error) {
+              console.error(`Error fetching e-signature for ${family.firstName} ${family.lastName}:`, error);
+              return { ...family, status: "Pending", esig: "" }; // Default to Pending
+            }
+          })
+        );
+        
+        setFamilies(familiesWithStatus);
   
       } catch (error) {
         console.error("Error fetching disasters data:", error);
@@ -40,6 +72,68 @@ const RDS= () => {
   
     fetchFamilies();
   }, []);
+
+  const handleDecryptEsig = (encryptedEsig, index) => {
+    const password = prompt("Enter password to decrypt the thumbmark:");
+    if (!password) {
+      alert("Password is required!");
+      return;
+    }
+
+    try {
+      const bytes = CryptoJS.AES.decrypt(encryptedEsig, password);
+      const decryptedData = bytes.toString(CryptoJS.enc.Utf8);
+
+      if (!decryptedData) {
+        alert("Incorrect password!");
+        return;
+      }
+
+      setFamilies((prevFamilies) => 
+        prevFamilies.map((family, i) =>
+          i === index ? { ...family, status: "Done" } : family
+        )
+      );
+  
+      setDecryptedImages((prev) => ({
+        ...prev,
+        [index]: decryptedData,
+      }));
+    } catch (error) {
+      alert("Decryption failed! Check the password.");
+      console.error(error);
+    }
+  };
+
+  
+
+  const handleSaveDistribution = async () => {
+    try {
+      await axios.post("http://localhost:3003/save-distribution", {
+        disasterCode: forDistribution.disasterCode,
+        disasterDate: forDistribution.disasterDate,
+        barangay: forDistribution.barangay,
+        reliefItems: forDistribution.entries,
+        families: families.map(family => ({
+          familyHead: `${family.firstName} ${family.middleName} ${family.lastName}`,
+          status: family.status,  
+          rationCount: 1 + (family.dependents ? family.dependents.length : 0),
+      })),
+        status: "Pending",
+        receivedFrom: forDistribution.receivedFrom,
+        certifiedCorrect: forDistribution.certifiedCorrect,
+        submittedBy: forDistribution.submittedBy
+      });
+  
+      alert("Distribution data saved successfully!");
+      window.location.reload()
+    } catch (error) {
+      console.error("Error saving distribution data:", error);
+      alert("Failed to save distribution data.");
+    }
+  };
+  
+
   
 
   return (
@@ -64,7 +158,7 @@ const RDS= () => {
                 <h2 className="semi-bold">BUREAU OF ASSISTANCE</h2>
                 <h2 className="light">Region Office No. X</h2>
                 <h2 className="light">Province of Lanao del Norte</h2>
-                <h2 className="light">Month: ____________</h2>
+                <h2 className="light">Month: {formattedMonth}</h2>
             </div>
 
             {/* Right Logo */}
@@ -78,7 +172,7 @@ const RDS= () => {
         </div>
         
 
-        <p className="rds-text">We hereby acknowledge to have received from _______________ on the date indicated the kind and quality opposite our respective names.</p>
+        <p className="rds-text">We hereby acknowledge to have received from <strong>{forDistribution.receivedFrom || "_____________________"}</strong> on the date indicated the kind and quality opposite our respective names.</p>
 
 
         <table className="rds-table">
@@ -98,8 +192,29 @@ const RDS= () => {
                 <tr key={index}>
                   <td>{`${family.firstName} ${family.middleName || ""} ${family.lastName}`.trim()}</td>
                   <td>{family.dependents.length + 1}</td>
-                  <td>_________</td>
-                  <td>_________</td>
+                  <td>
+                      <p>
+                        {forDistribution.entries.map(entry => `${entry.name} - ${entry.quantity}`).join(" | ")}
+                      </p>
+                  </td>
+                  <td>
+                    {decryptedImages[index] ? (
+                      <img
+                        src={decryptedImages[index]}
+                        alt="Thumbmark"
+                        style={{
+                          width: "50px",
+                          height: "50px",
+                          objectFit: "contain",
+                          border: "1px solid #ccc",
+                        }}
+                      />
+                    ) : (
+                      <button onClick={() => handleDecryptEsig(family.esig, index)}>
+                        Signature/Thumbmark
+                      </button>
+                    )}
+                  </td>
                 </tr>
               ))
             ) : (
@@ -115,14 +230,18 @@ const RDS= () => {
 
         <div className="rds-footer">
             <p>CERTIFIED CORRECT: <br/>
-            _________________________</p>
+            <strong> {forDistribution.certifiedCorrect || "_______________________________"}</strong></p>
         
 
 
             <p>SUBMITTED BY <br/>
-            _________________________</p>  
+            <strong> {forDistribution.submittedBy || "______________________________"}</strong></p>  
         </div>
             
+        <button className="save-btn" onClick={handleSaveDistribution}>
+            Save Distribution Data
+        </button>
+
 
       </div>
 
