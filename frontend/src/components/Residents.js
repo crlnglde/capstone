@@ -555,13 +555,18 @@ const Residents = () => {
                       <div className="form-group">
                         <div className="input-group">
                           <span className="icon"><i className="fa-solid fa-location-dot"></i></span>
-                          <input 
-                            type="text" 
-                            value={barangay} 
+                          <select
+                            id="barangayFilter"
+                            value={barangay}
                             onChange={(e) => setBarangay(e.target.value)} 
-                            placeholder="Barangay" 
-                            required 
-                          />
+                          >
+                            <option value="">Barangay</option>
+                            {barangays.map((barangay, index) => (
+                              <option key={index} value={barangay}>
+                                {barangay}
+                              </option>
+                            ))}
+                          </select>
                         </div>
                       </div>
                       <div className="form-group">
@@ -600,7 +605,6 @@ const Residents = () => {
                             value={familyHeadMiddleName} //wala pa na change 
                             onChange={(e) => setFamilyHeadMiddleName(e.target.value)} //wala pa na change
                             placeholder="Middle Name" 
-                            required 
                           />  
                         </div>
                       </div>
@@ -675,7 +679,7 @@ const Residents = () => {
 
                     <div className="form-group">
                         <div className="input-group">
-                          <span className="icon"><i className="fa-solid fa-dollar-sign"></i></span>
+                          <span className="icon"><i className="fa-solid fa-hourglass-half"></i></span>
                           <input 
                             type="number" 
                             value={familyHeadAge} 
@@ -704,7 +708,7 @@ const Residents = () => {
                         <div className="input-group">
                           <span className="icon"><i className="fa-solid fa-phone"></i></span>
                           <input 
-                            type="text"
+                            type="number" 
                             value={phone} 
                             onChange={(e) => setPhone(e.target.value)} 
                             placeholder="Contact Number" 
