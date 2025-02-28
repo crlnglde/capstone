@@ -28,6 +28,8 @@ const Residents = () => {
   const [esig, setEsig] = useState('');
   const [dependents, setDependents] = useState([""]);
 
+  const [searchQuery, setSearchQuery] = useState("");
+
   const [selectedBarangay, setSelectedBarangay] = useState(''); // Filter state
   
   const [currentPage, setCurrentPage] = useState(1); // State for current page
@@ -171,6 +173,12 @@ const Residents = () => {
 
     reader.readAsText(csvFile);
 };
+
+  const handleSearchChange = (event) => {
+    const query = event.target.value.toLowerCase();
+    setSearchQuery(query);
+    console.log("Search Query: ", query); // Debugging the query
+  };
 
 
   const handleImageChange = (e) => {
@@ -399,6 +407,8 @@ const Residents = () => {
 
       </div>
 
+
+
       
 
       <div className="residents-container">
@@ -423,6 +433,18 @@ const Residents = () => {
               <p><i className="fa-solid fa-people-roof"></i>{residentCount}</p>
             </div>
           </div>
+
+        <div className="dstr-search">
+          <div className="dstr-search-container">
+            <i className="fa-solid fa-magnifying-glass"></i>
+            <input 
+              type="text" 
+              placeholder="Search..." 
+              onChange={handleSearchChange} 
+              className="search-bar"
+            />
+          </div>
+        </div>
     
           <div className="res-filter-container">
             <label htmlFor="barangayFilter"><i className="fa-solid fa-filter"></i> Filter: </label>
