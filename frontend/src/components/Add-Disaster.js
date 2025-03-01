@@ -25,6 +25,7 @@ const AddDisaster = () => {
 
     const [disasterType, setDisasterType] = useState("");
     const [disasterCode, setDisasterCode] = useState("");
+    const [disasterStatus, setDisasterStatus] = useState("");
     const [date, setDate] = useState("");
     const [selectedBarangays, setSelectedBarangays] = useState([]);
 
@@ -111,6 +112,7 @@ const AddDisaster = () => {
     const handleDisasterTypeChange = (e) => {
         setDisasterType(e.target.value);
         setDisasterCode(generateDisasterCode(e.target.value));
+        setDisasterStatus("Current")
         if (hasClickedNext) {
             validateFields();
         }
@@ -158,6 +160,7 @@ const AddDisaster = () => {
         // Store all disaster information including the unique disaster code
         const disasterData = {
             disasterCode,
+            disasterStatus,
             disasterType,
             date,
             selectedBarangays
@@ -317,7 +320,7 @@ const AddDisaster = () => {
         }
    
         try {
-            const { disasterCode, disasterType, date } = disasterData;
+            const { disasterCode, disasterStatus, disasterType, date } = disasterData;
             
             // Group resident data by barangay
             const groupedByBarangay = residentData.reduce((acc, resident) => {
@@ -392,6 +395,7 @@ const AddDisaster = () => {
                 const disasterDocument = {
                     disasterCode,
                     disasterType,
+                    disasterStatus,
                     disasterDateTime: new Date(date),
                     barangays
                 };

@@ -3,6 +3,7 @@ import { useNavigate} from 'react-router-dom';
 import { Outlet } from "react-router-dom";
 import axios from "axios";
 import RDS from "./forms/RDS";
+import EditRDS from "./forms/EditRDS"
 import Modal from "./Modal";
 import Barc from './visualizations/Bar-ch'
 import Piec from './visualizations/Pie-ch'
@@ -23,24 +24,6 @@ const Distribution = () => {
 
 
   const [searchQuery, setSearchQuery] = useState("");
-
-  const disasterData = [
-    { disasterCode: "D001", disasterType: "Flood", disasterDate: "2024-02-10", affectedBarangay: "Barangay 1" },
-    { disasterCode: "D002", disasterType: "Earthquake", disasterDate: "2024-03-15", affectedBarangay: "Barangay 3" },
-    { disasterCode: "D003", disasterType: "Typhoon", disasterDate: "2024-04-20", affectedBarangay: "Barangay 5" },
-    { disasterCode: "D004", disasterType: "Landslide", disasterDate: "2024-05-05", affectedBarangay: "Barangay 2" },
-    { disasterCode: "D005", disasterType: "Fire", disasterDate: "2024-06-12", affectedBarangay: "Barangay 4" }
-  ];
-
-  const barangays = [
-    "Barangay Tibanga",
-    "Barangay Tambacan",
-    "Barangay Dalipuga",
-    "Barangay Suarez",
-    "Barangay Palao",
-  ];
-
-  const [selectedBarangay, setSelectedBarangay] = useState(barangays[0]); // Default to first barangay
   const [entries, setEntries] = useState([{ name: "", quantity: "" }]);
 
   const disasterCode = localStorage.getItem("selectedDisasterCode") || "";
@@ -105,18 +88,24 @@ const Distribution = () => {
 
   const handleNextStep = (e) => {
     e.preventDefault(); // Prevent page reload
-    localStorage.setItem("forDistribution", JSON.stringify(forDistribution));
-    alert("Form data saved!");
-    setIsModalOpen(false);
-
-    setStep(2);
-    navigate("/distribution/rds");
-  };
-
-    const handleEdit = () => {
+    if (validateFields()){
+      localStorage.setItem("forDistribution", JSON.stringify(forDistribution));
+      alert("Form data saved!");
+      setIsModalOpen(false);
+      
       setStep(2);
       navigate("/distribution/rds");
-    };
+
+    }
+  };
+
+  const handleEdit = (distributionId) => {
+    setStep(2);
+    localStorage.setItem("distributionId", distributionId);
+    navigate("/editrds");
+
+};
+
 
     const handleBackClick = () => {
       if (step > 1) {
@@ -153,7 +142,7 @@ const Distribution = () => {
     
           // Filter disasters that happened **after** three days ago
           const recentDisasters = disasterData.filter(disaster =>
-            new Date(disaster.disasterDateTime) > threeDaysAgo // Excludes disasters older than 3 days
+            new Date(disaster.disasterDateTime) > threeDaysAgo   && disaster.disasterStatus === "Current" // Excludes disasters older than 3 days
           );
     
           setDisasters(recentDisasters);
@@ -196,18 +185,10 @@ const Distribution = () => {
         const response = await axios.put(`http://localhost:3003/update-status/${disasterCode}`);
 
         alert(response.data.message);
-         // Refresh disaster list
-          setDisasters(prevDisasters =>
-            prevDisasters.map(disaster =>
-              disaster.disasterCode === disasterCode
-                ? { ...disaster, status: "Done" }
-                : disaster
-            )
-          );
           window.location.reload()
       } catch (error) {
         console.error("Error updating status:", error);
-        alert("Failed to update status.");
+        alert("No existing distribution yet.");
       }
     };
 
@@ -244,7 +225,6 @@ const Distribution = () => {
     });
   }, [doneDistributions, searchQuery]);
 
-  console.log("Distributions", filteredDistribution)
 
   const displayDistribution = useMemo(() => {
     return filteredDistribution.slice(
@@ -252,9 +232,51 @@ const Distribution = () => {
       currentPage * rowsPerPage
     );
   }, [filteredDistribution, currentPage, rowsPerPage]);
-
-  console.log("Hehe", displayDistribution)
     
+//input validation
+
+const validateFields = () => {
+  const errors = [];
+
+  // Validate Barangay
+  if (!forDistribution.barangay) {
+    errors.push("Please select a Barangay.");
+  }
+
+  // Validate Entries
+  if (forDistribution.entries.length === 0) {
+    errors.push("At least one relief item entry is required.");
+  } else {
+    forDistribution.entries.forEach((entry, index) => {
+      if (!entry.name.trim()) {
+        errors.push(`Kind Source in entry ${index + 1} is required.`);
+      }
+      if (!entry.quantity.trim() || isNaN(entry.quantity) || Number(entry.quantity) <= 0) {
+        errors.push(`Quantity in entry ${index + 1} must be a valid positive number.`);
+      }
+    });
+  }
+
+  // Validate Other Fields
+  if (!forDistribution.receivedFrom.trim()) {
+    errors.push("Received From is required.");
+  }
+  if (!forDistribution.certifiedCorrect.trim()) {
+    errors.push("Certified Correct is required.");
+  }
+  if (!forDistribution.submittedBy.trim()) {
+    errors.push("Submitted By is required.");
+  }
+
+  // Return errors if any
+  if (errors.length > 0) {
+    alert(errors.join("\n")); // Show errors in an alert (or use a more user-friendly method)
+    return false;
+  }
+
+  return true; // Form is valid
+};
+
 
   return (
     <div className="distribution">
@@ -366,7 +388,7 @@ const Distribution = () => {
 
                             {/* Actions */}
                             <div className="actions">
-                              <button className="doneButton">Edit</button>
+                              <button className="doneButton" onClick={() => handleEdit(dist._id)} >Edit</button>
                             </div>
                           </div>
                         ))}
@@ -503,7 +525,7 @@ const Distribution = () => {
               <label>Barangay:</label>
               <select
                 value={forDistribution.barangay}
-                onChange={(e) => handleChange("barangay", e.target.value)}
+                onChange={(e) => handleChange("barangay", e.target.value)} 
               >
                 <option value="">Select Barangay</option>
                 {selectedDisaster?.barangays?.map((barangay, index) => (

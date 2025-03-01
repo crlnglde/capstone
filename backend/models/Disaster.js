@@ -59,6 +59,7 @@ const disasterSchema = new mongoose.Schema(
     disasterCode: { type: String, required: true, unique: true },
     disasterType: { type: String, required: true },
     disasterDateTime: { type: Date, required: true },
+    disasterStatus: { type: String, required: true, enum: ["Current", "Done"] },
     barangays: [barangaySchema]
   },
   { timestamps: true }

@@ -126,6 +126,7 @@ const RDS= () => {
       });
   
       alert("Distribution data saved successfully!");
+      localStorage.removeItem("forDistribution");
       window.location.reload()
     } catch (error) {
       console.error("Error saving distribution data:", error);

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import Papa from 'papaparse';
 import CryptoJS from "crypto-js";
 import axios from "axios";
@@ -173,13 +173,6 @@ const Residents = () => {
 
     reader.readAsText(csvFile);
 };
-
-  const handleSearchChange = (event) => {
-    const query = event.target.value.toLowerCase();
-    setSearchQuery(query);
-    console.log("Search Query: ", query); // Debugging the query
-  };
-
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -390,6 +383,47 @@ const Residents = () => {
     
   };
 
+
+  //for search
+  const handleSearchChange = (event) => {
+    const query = event.target.value.toLowerCase();
+    setSearchQuery(query);
+    console.log("Search Query: ", query); // Debugging the query
+  };
+
+  const searchResidents = useMemo(() => {
+      return displayResidents.filter((residents) => {
+        return Object.keys(residents).some((key) => {
+          const value = residents[key];
+    
+          // Handle string-based fields (disasterCode, status, disasterDate, etc.)
+          if (typeof value === "string" && value.toLowerCase().includes(searchQuery)) {
+            return true;
+          }
+    
+          // Handle array fields (e.g., barangays)
+          if (Array.isArray(value)) {
+            return value.some((item) => {
+              // Convert object properties to a string and check for searchQuery
+              return Object.values(item).some(
+                (subValue) =>
+                  typeof subValue === "string" && subValue.toLowerCase().includes(searchQuery)
+              );
+            });
+          }
+    
+          return false;
+        });
+      });
+    }, [displayResidents, searchQuery]);
+  
+    const tableResidents = useMemo(() => {
+      return searchResidents.slice(
+        (currentPage - 1) * rowsPerPage,
+        currentPage * rowsPerPage
+      );
+    }, [searchResidents, currentPage, rowsPerPage]);
+
   return (
     <div className="residents">
       
@@ -481,8 +515,8 @@ const Residents = () => {
               </thead>
               <tbody>
                 
-              {displayResidents.length > 0 ? (
-                  displayResidents.map((resident, index) => (
+              {tableResidents.length > 0 ? (
+                  tableResidents.map((resident, index) => (
                     <tr key={index}>
                       <td>{resident.barangay}</td> {/* barangay */}
                       <td>{resident.purok}</td> {/* Purok */}
