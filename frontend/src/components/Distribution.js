@@ -22,6 +22,8 @@ const Distribution = () => {
   const [recentDisasters, setDisasters] = useState([]);
   const [distribution, setDistribution] = useState([]);
 
+  const [isEditMode, setIsEditMode] = useState(false);
+
 
   const [searchQuery, setSearchQuery] = useState("");
   const [entries, setEntries] = useState([{ name: "", quantity: "" }]);
@@ -92,7 +94,7 @@ const Distribution = () => {
       localStorage.setItem("forDistribution", JSON.stringify(forDistribution));
       alert("Form data saved!");
       setIsModalOpen(false);
-      
+      setIsEditMode(false);
       setStep(2);
       navigate("/distribution/rds");
 
@@ -100,10 +102,9 @@ const Distribution = () => {
   };
 
   const handleEdit = (distributionId) => {
+    setIsEditMode(true)
     setStep(2);
     localStorage.setItem("distributionId", distributionId);
-    navigate("/distribution/editrds");
-
 };
 
 
@@ -514,7 +515,7 @@ const validateFields = () => {
           </div>
 
 
-          <RDS />
+         {isEditMode ? <EditRDS /> : <RDS />}
         </div>
       )}
 
