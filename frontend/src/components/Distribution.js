@@ -102,7 +102,7 @@ const Distribution = () => {
   const handleEdit = (distributionId) => {
     setStep(2);
     localStorage.setItem("distributionId", distributionId);
-    navigate("/editrds");
+    navigate("/distribution/editrds");
 
 };
 
@@ -294,7 +294,7 @@ const validateFields = () => {
               <div className="container">
               {recentDisasters.length > 0 ? (
                 recentDisasters.map((disaster, index) => (
-                  <div key={index} className="transactionItem">
+                  <div key={index} className="transactionItem"> 
                     <div className="dateBox">
                       <span className="date">{new Date(disaster.disasterDateTime).getDate()}</span>
                       <span className="month">{new Date(disaster.disasterDateTime).toLocaleString('default', { month: 'short' })}</span>
