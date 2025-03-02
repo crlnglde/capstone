@@ -607,23 +607,20 @@ const DAFAC= ({ activeResident, disasterData, setIsModalOpen}) => {
 
                   <div className="signature-container">
                     
-                    <input type="file" className="signature-upload" accept="image/*" />
-                    <input type="text" className="printed-name" placeholder="Printed Name" />
+                    <input type="text" className="printed-name"  />
                     <label>Name/Signature of Family Head <br/> or Thumbmark</label>
                     
                   </div>
 
                   <div className="signature-container">
                     
-                    <input type="file" className="signature-upload" accept="image/*" />
-                    <input type="text" className="printed-name" placeholder="Printed Name" />
+                    <input type="text" className="printed-name"  />
                     <label>Name/Signature of Barangay Captain</label>
                   </div>
 
                   <div className="signature-container">
                     
-                    <input type="file" className="signature-upload" accept="image/*" />
-                    <input type="text" className="printed-name" placeholder="Printed Name" />
+                    <input type="text" className="printed-name" s />
                     <label>Name/Signature of Social Worker</label>
                   </div>
 
