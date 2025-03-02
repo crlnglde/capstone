@@ -126,6 +126,9 @@ const EditRDS = () => {
           <h2>RELIEF DISTRIBUTION SHEET</h2>
         </div>
 
+        <p className="rds-text">We hereby acknowledge to have received from <strong> _____________________</strong> on the date indicated the kind and quality opposite our respective names.</p>
+
+
         <table className="rds-table">
           <thead>
             <tr>
@@ -160,6 +163,18 @@ const EditRDS = () => {
             )}
           </tbody>
         </table>
+
+        <p className="rds-text">       I HEREBY CERTIFY on the data that according to the records of this office the persons whose names appear above are real and that the persons are the qualified recipients to whom i distributed the above goods.</p>
+
+        <div className="rds-footer">
+            <p>CERTIFIED CORRECT: <br/>
+            <strong> _______________________________</strong></p>
+
+
+
+            <p>SUBMITTED BY <br/>
+            <strong> ______________________________</strong></p>  
+        </div>
 
         <button className="save-btn" onClick={handleSaveDistribution}>
           Save Distribution Data

@@ -63,8 +63,9 @@ function App() {
               <Route path="/dashboard" element={<Dashboard />} />  {/* add distribution after this*/}
               <Route path="/distribution" element={<Distribution />}>
                 <Route path="rds" element={<RDS/>} />
-                <Route path="editrds" element={<EditRDS/>} />
+                
               </Route>
+              <Route path="/distribution/editrds" element={<EditRDS/>} />
               <Route path="/residents" element={<Residents />} />
               <Route path="/dashboard/add-disaster" element={<AddDisaster />} />
               <Route path="/reports" element={<Reports />} />
