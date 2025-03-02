@@ -3,7 +3,7 @@
   flex: 1;
 }
 
-.reports .container{
+.reports .container {
   background-color: white;
   border-collapse: collapse;
   height: 600px;
@@ -16,6 +16,7 @@
   justify-content: center;
 }
 
+/* Report Cards (Step 1) */
 .report-card {
   width: 280px;
   background: #fff;
@@ -23,6 +24,7 @@
   overflow: hidden;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease;
+  cursor: pointer;
 }
 
 .report-card:hover {
@@ -90,4 +92,93 @@ h3 {
 
 .download-icon:hover {
   color: #007bff;
+}
+
+/* -------------------- Step 2: Report Preview -------------------- */
+.report-preview {
+  width: 100%;
+  height: 550px;
+}
+
+/* Tabs for RDS and FDR */
+.tabs {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.tab {
+  background: #6c7180;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px 5px 0 0;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  transition: background 0.3s ease;
+}
+
+.tab.active {
+  background: #555b6a;
+}
+
+/* Report Content Box */
+.report-content-box {
+  width: 100%;
+  height: 520px;
+  background: white;
+  border-radius: 10px;
+
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+
+}
+
+.report-content-box h2 {
+  font-size: 22px;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.report-content-box p {
+  font-size: 16px;
+  color: #555;
+  margin: 5px 0;
+}
+
+.form-container {
+  flex-grow: 1;
+  overflow-y: auto; /* Enables scrolling when content exceeds height */
+  padding-right: 10px; /* Prevents content cutoff */
+}
+
+/* Buttons */
+.download-btn, .back-btn {
+  background: #007bff;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  margin: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.back-btn {
+  background: #6c757d;
+}
+
+.download-btn:hover {
+  background: #0056b3;
+}
+
+.back-btn:hover {
+  background: #545b62;
 }
