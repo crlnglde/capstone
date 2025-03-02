@@ -11,7 +11,7 @@ import Distribution from "./components/Distribution";
 import AddDisaster from "./components/Add-Disaster";
 import Reports from "./components/Reports";
 import RDS from "./components/forms/RDS";
-import EditRDS from "./components/forms/EditRDS"
+import EditRDS from "./components/forms/EditRDS";
 import DAFAC from "./components/forms/DAFAC";
 import SPORADIC from "./components/forms/SPORADIC";
 import FDR from "./components/forms/FDR";
@@ -63,7 +63,7 @@ function App() {
               <Route path="/dashboard" element={<Dashboard />} />  {/* add distribution after this*/}
               <Route path="/distribution" element={<Distribution />}>
                 <Route path="rds" element={<RDS/>} />
-                <Route path="editrds" element={<RDS/>} />
+                <Route path="editrds" element={<EditRDS/>} />
               </Route>
               <Route path="/residents" element={<Residents />} />
               <Route path="/dashboard/add-disaster" element={<AddDisaster />} />
