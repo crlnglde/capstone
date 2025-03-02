@@ -132,7 +132,7 @@ app.get("/get-resident/:memId", async (req, res) => {
 
 app.post("/add-disaster", async (req, res) => {
   try {
-    const { disasterCode, disasterType, disasterDateTime, barangays } = req.body;
+    const { disasterCode, disasterType, disasterStatus, disasterDateTime, barangays } = req.body;
 
     if (!disasterCode || !disasterType || !disasterDateTime || !barangays || !Array.isArray(barangays)) {
       return res.status(400).json({ message: "Missing required fields: disasterCode, disasterType, disasterDateTime, or barangays" });
@@ -141,6 +141,7 @@ app.post("/add-disaster", async (req, res) => {
     // Create and Save New Disaster Record
     const newDisaster = new Disaster({
       disasterCode,
+      disasterStatus,
       disasterType,
       disasterDateTime,
       barangays
@@ -369,7 +370,44 @@ app.get("/get-distribution", async (req, res) => {
   }
 });
 
-// Update status to "Done" for a specific distribution
+app.get("/get-distribution/:distributionId", async (req, res) => {
+  try {
+    const { distributionId } = req.params;
+
+    // Find the specific distribution using nested array filters
+    const distribution = await Distribution.findOne({
+      "barangays.distribution._id": distributionId,
+    });
+
+    if (!distribution) {
+      return res.status(404).json({ message: "Distribution not found" });
+    }
+
+    // Extract the specific barangay that contains the distribution
+    const barangay = distribution.barangays.find(barangay =>
+      barangay.distribution.some(dist => dist._id.toString() === distributionId)
+    );
+
+    if (!barangay) {
+      return res.status(404).json({ message: "Barangay not found" });
+    }
+
+    // Extract the specific distribution
+    const specificDistribution = barangay.distribution.find(dist => dist._id.toString() === distributionId);
+
+    res.json({
+      disasterCode: distribution.disasterCode,
+      barangayName: barangay.name,
+      distribution: specificDistribution
+    });
+  } catch (error) {
+    console.error("Error fetching distribution:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+
+// Update status to "Done" for a specific distribution and its corresponding disaster
 app.put("/update-status/:disasterCode", async (req, res) => {
   try {
     const { disasterCode } = req.params;
@@ -383,16 +421,22 @@ app.put("/update-status/:disasterCode", async (req, res) => {
 
     // Update the status of the found distribution
     distribution.status = "Done";
-
-    // Save changes
     await distribution.save();
 
-    res.json({ message: "Status updated to Done", updatedDistribution: distribution });
+    // Find the corresponding disaster and update its status
+    const disaster = await Disaster.updateOne(
+      { disasterCode },  // Find the disaster by disasterCode
+      { $set: { disasterStatus: "Done" } }  // Only update the status field
+    );
+
+    res.json({ message: "Status updated to Done for both disaster and distribution", updatedDistribution: distribution, updatedDisaster: disaster });
+
   } catch (error) {
     console.error("Error updating status:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
+
 
 app.listen(port,()=>{
     console.log('Example app listening on port ${port}');

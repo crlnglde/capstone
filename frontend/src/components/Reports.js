@@ -1,42 +1,58 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import { FaUsers, FaDownload, FaFire, FaTint, FaFlag } from "react-icons/fa";
 import "../css/Reports.css";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 import fireIncident from "../pic/fire.jpg";
 import flooding from "../pic/rain.jpg";
+import typhoon from "../pic/typhoon.png";
+import landslide from "../pic/landslide.jpg";
+import earthquake from "../pic/earthquake.png";
 import armedConflict from "../pic/armedconflict.png";
 
 const Reports = () => {
-  const reports = [
-    {
-      id: 1,
-      date: "01/01/24",
-      barangay: "Barangay Tibanga",
-      type: "Fire Incident",
-      households: "10 Families",
-    },
-    {
-      id: 2,
-      date: "01/01/24",
-      barangay: "Barangay Tambacan",
-      type: "Flooding",
-      households: "10 Families",
-    },
-    {
-      id: 3,
-      date: "01/01/24",
-      barangay: "Barangay Tibanga",
-      type: "Armed Conflict",
-      households: "10 Families",
-    },
-  ];
+  const [reports, setReports] = useState([]);
+
+  useEffect(() => {
+    const fetchReports = async () => {
+      try {
+        const response = await axios.get("http://localhost:3003/get-disasters");
+        const data = response.data;
+
+        // Aggregate data by disaster
+        const aggregatedReports = data.map(disaster => {
+          const totalFamilies = disaster.barangays.reduce((sum, barangay) => 
+            sum + barangay.affectedFamilies.length, 0
+          );
+          const barangayNames = disaster.barangays.map(barangay => barangay.name).join(", ");
+
+          return {
+            id: disaster.disasterCode,
+            date: new Date(disaster.disasterDateTime).toLocaleDateString(),
+            barangays: barangayNames,
+            type: disaster.disasterType,
+            households: `${totalFamilies} Families`
+          };
+        });
+
+        setReports(aggregatedReports);
+      } catch (error) {
+        console.error("Failed to fetch disaster reports:", error);
+      }
+    };
+
+    fetchReports();
+  }, []);
 
   // Function to assign the correct icon based on type
   const getIcon = (type) => {
     const iconMap = {
       "Fire Incident": <FaFire />,
       "Flooding": <FaTint />,
+      "Typhoon": <FaTint />,
+      "Landslide": <FaTint />,
+      "Earthquake": <FaTint />,
       "Armed Conflict": <FaFlag />,
     };
     return iconMap[type] || null; // Default to null if type is unknown
@@ -46,7 +62,10 @@ const Reports = () => {
   const getLabelColor = (type) => {
     const colorMap = {
       "Fire Incident": "red",
-      "Flooding": "blue",
+      "Flood": "blue",
+      "Typhoon": "orange",
+      "Landslide": "brown",
+      "Earthquake": "black",
       "Armed Conflict": "green",
     };
     return colorMap[type] || "gray"; // Default to gray if type is unknown
@@ -56,7 +75,10 @@ const Reports = () => {
   const getImage = (type) => {
     const imageMap = {
       "Fire Incident": fireIncident,
-      "Flooding": flooding,
+      "Flood": flooding,
+      "Typhoon": typhoon,
+      "Landslide": landslide,
+      "Earthquake": earthquake,
       "Armed Conflict": armedConflict,
     };
     return imageMap[type] || fireIncident; // Default fallback
@@ -68,7 +90,6 @@ const Reports = () => {
         {reports.map((report) => (
           <div key={report.id} className="report-card">
             <div className="report-image" style={{ backgroundImage: `url(${getImage(report.type)})` }}>
-
               <span
                 className="report-label"
                 style={{ backgroundColor: getLabelColor(report.type) }}
@@ -78,7 +99,7 @@ const Reports = () => {
             </div>
             <div className="report-content">
               <h3>{report.date}</h3>
-              <p className="barangay-name">{report.barangay}</p>
+              <p className="barangay-name">Affected Barangays: {report.barangays}</p>
               <p className="report-type">{report.type}</p>
               <div className="report-info">
                 <span>
