@@ -13,7 +13,7 @@ import "../css/Distribution.css";
 const Distribution = () => {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalType, setModalType] = useState("");
+  const [modalType, setModalType] = useState("rds");
   const [currentPage, setCurrentPage] = useState(1); // State for current page
   const rowsPerPage = 10;
   const totalPages = 20;
@@ -69,8 +69,8 @@ const Distribution = () => {
     setforDistribution((prevData) => ({ ...prevData, entries: updatedEntries }));
   };
 
+  //open modal for "add" distribution
   const openModal = (disaster) => {
-
     const disasterDate = new Date(disaster.disasterDateTime);
     //const formattedMonth = disasterDate.toLocaleString("default", { month: "long" }); 
 
@@ -82,9 +82,9 @@ const Distribution = () => {
         disasterCode: disaster.disasterCode,
         disasterDate: disasterDate
     }));
-
+    setModalType("rds");
     setIsModalOpen(true);
-};
+  };
 
   const closeModal = () => setIsModalOpen(false);
 
@@ -105,7 +105,14 @@ const Distribution = () => {
     setIsEditMode(true)
     setStep(2);
     localStorage.setItem("distributionId", distributionId);
+    navigate("/distribution/editrds");
 };
+
+  //for viewmore content sa distribution history 
+  const handleViewMore = () => {
+    setModalType("viewmore");
+    setIsModalOpen(true);
+  };
 
 
     const handleBackClick = () => {
@@ -154,6 +161,8 @@ const Distribution = () => {
     
       fetchDisasters();
     }, []);    
+
+    console.log(recentDisasters);
     
     useEffect(() => {
       const fetchDistribution = async () => {
@@ -463,7 +472,7 @@ const validateFields = () => {
                         {item.barangays.map(barangay => `${barangay.name}`).join(" | ")}
                       </td>
                       <td>
-                        <button className="dash-viewmore-btn">
+                        <button className="dash-viewmore-btn" onClick={() => handleViewMore()}>
                           <i className="fa-solid fa-ellipsis"></i>
                         </button>
                       </td>
@@ -519,9 +528,10 @@ const validateFields = () => {
         </div>
       )}
 
-      <Modal isOpen={isModalOpen} onClose={closeModal} title="RDS">
-        
-        <form className="modal-form">
+      <Modal isOpen={isModalOpen} onClose={closeModal} title={modalType === "rds" ? "RDS" : "Distribution Details"}>
+
+        {modalType === "rds" ? (
+          <form className="modal-form">
             <div className="content">
               <label>Barangay:</label>
               <select
@@ -538,43 +548,39 @@ const validateFields = () => {
             </div>
 
             <div className="content">
-
               <div className="entry">
                 {forDistribution.entries.map((entry, index) => (
-                    <div key={index} className="entry-group">
-                      
-
-                      <div className="row-quan"> 
-                        <label>Kind Source:</label>
-                        <input
-                          type="text"
-                          value={entry.name}
-                          onChange={(e) => handleEntryChange(index, "name", e.target.value)}
-                        />
-
-                      </div>
-
-                      <div className="row-quan"> 
-                        <label>Quantity:</label>
-                        <input
-                          type="text"
-                          value={entry.quantity}
-                          onChange={(e) => handleEntryChange(index, "quantity", e.target.value)}
-                        />
-                      </div>
-
-                      {entries.length > 1 && (
-                        <button type="button" className="remove-btn" onClick={() => handleRemoveEntry(index)}>
-                          ×
-                        </button>
-                      )}
+                  <div key={index} className="entry-group">
+                    <div className="row-quan"> 
+                      <label>Kind Source:</label>
+                      <input
+                        type="text"
+                        value={entry.name}
+                        onChange={(e) => handleEntryChange(index, "name", e.target.value)}
+                      />
                     </div>
-                  ))}
 
-                  <button type="button" className="add-btn" onClick={handleAddEntry}> <i class="fa-solid fa-plus"></i>  Add More</button>
+                    <div className="row-quan"> 
+                      <label>Quantity:</label>
+                      <input
+                        type="text"
+                        value={entry.quantity}
+                        onChange={(e) => handleEntryChange(index, "quantity", e.target.value)}
+                      />
+                    </div>
+
+                    {forDistribution.entries.length > 1 && (
+                      <button type="button" className="remove-btn" onClick={() => handleRemoveEntry(index)}>
+                        ×
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <button type="button" className="add-btn" onClick={handleAddEntry}> 
+                  <i className="fa-solid fa-plus"></i> Add More
+                </button>
               </div>
             </div>
-
 
             <div className="content">
               <label>Received From:</label>
@@ -593,7 +599,36 @@ const validateFields = () => {
 
             <button type="submit" className="submitButton" onClick={handleNextStep}>Next</button>
           </form>
-
+        ) : (
+          // Distribution Details (View More)
+          <div className="view-more-content">
+          <>
+            <p><strong>Disaster Code:</strong> D12345</p>
+            <p><strong>Disaster Date:</strong> {new Date("2024-01-15").toLocaleDateString()}</p>
+            <p><strong>Affected Barangays:</strong> Barangay 1, Barangay 2</p>
+        
+            <div className="barangay-info">
+              <h3>Barangay: Barangay 1</h3>
+              <ul>
+                <li>
+                  <p><strong>Date Distributed:</strong> {new Date("2024-02-01").toLocaleDateString()}</p>
+                  <p><strong>Items:</strong> Rice (50kg), Water Bottles (100)</p>
+                </li>
+              </ul>
+            </div>
+        
+            <div className="barangay-info">
+              <h3>Barangay: Barangay 2</h3>
+              <ul>
+                <li>
+                  <p><strong>Date Distributed:</strong> {new Date("2024-02-02").toLocaleDateString()}</p>
+                  <p><strong>Items:</strong> Canned Goods (200), Blankets (50)</p>
+                </li>
+              </ul>
+            </div>
+          </>
+        </div>
+        )}
       </Modal>
 
       {/* Modal Popup */}

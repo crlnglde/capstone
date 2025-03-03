@@ -710,6 +710,7 @@ const AddDisaster = () => {
                             {modalType === "add" && (
                                 <div >  
                                     <DAFAC activeResident={activeResident} disasterData={JSON.parse(localStorage.getItem('disasterData'))} setIsModalOpen={setIsModalOpen}/> 
+                                    
                                 </div>
                             )}
                         </div>
