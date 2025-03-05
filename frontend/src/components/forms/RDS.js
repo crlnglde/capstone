@@ -50,12 +50,15 @@ const RDS= () => {
         // Set affected families
         let affectedFamilies = selectedBarangay.affectedFamilies || [];
 
+        console.log("hehe",affectedFamilies)
         // Fetch esig for each family head
         const familiesWithStatus = await Promise.all(
           affectedFamilies.map(async (family) => {
             try {
-              const res = await axios.get(`http://localhost:3003/get-resident-esig?firstName=${family.firstName}&middleName=${family.middleName || ""}&lastName=${family.lastName}`);
-              return { ...family, status: "Pending", esig: res.data.esig };
+              console.log("famId", family.id);
+              const res = await axios.get(`http://localhost:3003/get-resident-esig?memId=${family.id}`);
+              console.log("esig", res.data);
+              return { ...family, status: "Pending", esig: res.data.esig};
             } catch (error) {
               console.error(`Error fetching e-signature for ${family.firstName} ${family.lastName}:`, error);
               return { ...family, status: "Pending", esig: "" }; // Default to Pending
@@ -72,6 +75,8 @@ const RDS= () => {
   
     fetchFamilies();
   }, []);
+
+  console.log(families)
 
   const handleDecryptEsig = (encryptedEsig, index) => {
     const password = prompt("Enter password to decrypt the thumbmark:");
@@ -105,7 +110,7 @@ const RDS= () => {
     }
   };
 
-  
+  console.log("hatdog",families)
 
   const handleSaveDistribution = async () => {
     try {
@@ -116,6 +121,7 @@ const RDS= () => {
         reliefItems: forDistribution.entries,
         families: families.map(family => ({
           familyHead: `${family.firstName} ${family.middleName} ${family.lastName}`,
+          memId: family.id,
           status: family.status,  
           rationCount: 1 + (family.dependents ? family.dependents.length : 0),
       })),

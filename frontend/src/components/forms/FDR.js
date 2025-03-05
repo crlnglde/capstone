@@ -5,8 +5,30 @@ import ICImage from '../../pic/IC.png';
 import cswdImage from '../../pic/cswd.jpg';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
-const FDR= () => {
+const FDR= ({ report, distribution }) => {
 
+    console.log("FDR ditribution: ", distribution)
+
+    const [totalDependents, setTotalDependents] = useState(0);
+    const [totalPersonsAffected, setTotalPersonsAffected] = useState(0);
+    const [totalCostDamage, setTotalCostDamage] = useState(0);
+  
+    useEffect(() => {
+      let dependents = 0;
+      let personsAffected = 0;
+      let costDamage = 0;
+  
+      report.families.forEach(family => {
+        dependents += family.dependents.length;
+        personsAffected += 1 + family.dependents.length;
+        costDamage += family.costDamage;
+      });
+  
+      setTotalDependents(dependents);
+      setTotalPersonsAffected(personsAffected);
+      setTotalCostDamage(costDamage);
+    }, [report]);
+  
 
   return (
     <div className="fdr">
@@ -50,7 +72,7 @@ const FDR= () => {
                 </div>
 
                 <div className="col1">
-                    <p>Heavy Rain</p>
+                    <p>{report.type}</p>
                 </div>
             </div>
 
@@ -60,7 +82,7 @@ const FDR= () => {
                 </div>
 
                 <div className="col1">
-                    <p>Heavy Rain</p>
+                    <p>{report.date}</p>
                 </div>
             </div>
 
@@ -80,7 +102,7 @@ const FDR= () => {
                 </div>
 
                 <div className="col1">
-                    <p>Heavy Rain</p>
+                    <p>{report.households} Family/Families</p>
                 </div>
             </div>
 
@@ -90,7 +112,7 @@ const FDR= () => {
                 </div>
 
                 <div className="col1">
-                    <p>Heavy Rain</p>
+                    <p>{totalDependents} Dependents</p>
                 </div>
             </div>
 
@@ -101,7 +123,7 @@ const FDR= () => {
                 </div>
 
                 <div className="col1">
-                    <p>Heavy Rain</p>
+                    <p>{totalPersonsAffected} Persons</p>
                 </div>
                 
             </div>
@@ -113,7 +135,7 @@ const FDR= () => {
                 </div>
 
                 <div className="col1">
-                    <p>Heavy Rain</p>
+                    <p>P{totalCostDamage}</p>
                 </div>
                 
             </div>
