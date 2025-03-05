@@ -532,6 +532,20 @@ const validateFields = () => {
 
         {modalType === "rds" ? (
           <form className="modal-form">
+
+            <div className="content">
+              <label>Type of Assistance:</label>
+              <select
+                value={forDistribution.assistanceType}
+                onChange={(e) => handleChange("assistanceType", e.target.value)}
+              >
+                <option value="">Select Assistance Type</option>
+                <option value="cash">Cash</option>
+                <option value="food">Food</option>
+                <option value="essentials">Essentials</option>
+              </select>
+            </div>
+
             <div className="content">
               <label>Barangay:</label>
               <select
@@ -557,6 +571,13 @@ const validateFields = () => {
                         type="text"
                         value={entry.name}
                         onChange={(e) => handleEntryChange(index, "name", e.target.value)}
+                      />
+                    </div>
+
+                    <div className="row-quan"> 
+                      <label>Price:</label>
+                      <input
+                        type="number"
                       />
                     </div>
 
