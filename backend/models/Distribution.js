@@ -3,12 +3,15 @@ const mongoose = require("mongoose");
 const familySchema = new mongoose.Schema({
   familyHead: { type: String, required: true },
   rationCount: { type: Number, required: true },
+  memId: { type: String },
   status:{ type: String, required: true, enum: ["Done", "Pending"] },
 });
 
 // Relief Items Schema
 const reliefItemSchema = new mongoose.Schema({
   name: { type: String, required: true },
+  assistanceType: { type: String, required: true },
+  assistanceCost:  { type: Number, required: true },
   quantity: { type: Number, required: true }
 });
 

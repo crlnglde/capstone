@@ -5,7 +5,7 @@ import "../css/Reports.css";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 import FDR from  "./forms/FDR";
-import RDS from  "./forms/RDS";
+import SPORADIC from  "./forms/SPORADIC";
 
 import fireIncident from "../pic/fire.jpg";
 import flooding from "../pic/rain.jpg";
@@ -16,40 +16,76 @@ import armedConflict from "../pic/armedconflict.png";
 
 const Reports = () => {
   const [reports, setReports] = useState([]);
+  const [disasters, setDisasters] = useState([]);
+  const [distribution, setDistribution] = useState([]);
   const [selectedReport, setSelectedReport] = useState(null);
-  const [activeTab, setActiveTab] = useState("RDS");
+  const [activeTab, setActiveTab] = useState("SPORADIC");
 
   useEffect(() => {
     const fetchReports = async () => {
       try {
         const response = await axios.get("http://localhost:3003/get-disasters");
         const data = response.data;
-
+  
         // Aggregate data by disaster
         const aggregatedReports = data.map(disaster => {
           const totalFamilies = disaster.barangays.reduce((sum, barangay) => 
             sum + barangay.affectedFamilies.length, 0
           );
           const barangayNames = disaster.barangays.map(barangay => barangay.name).join(", ");
+          const affectedFamilies = disaster.barangays.flatMap(barangay => barangay.affectedFamilies);
 
+          const formattedDate = new Date(disaster.disasterDateTime).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+          });
+          
+          const formattedTime = new Date(disaster.disasterDateTime).toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true,
+          });
+          
+          const dateTime = `${formattedDate} ${formattedTime}`;
+  
           return {
             id: disaster.disasterCode,
-            date: new Date(disaster.disasterDateTime).toLocaleDateString(),
+            date: dateTime,
             barangays: barangayNames,
             type: disaster.disasterType,
-            households: `${totalFamilies} Families`
+            households: totalFamilies,
+            families: affectedFamilies, // Use the flattened array of affected families
           };
         });
-
+  
         setReports(aggregatedReports);
       } catch (error) {
         console.error("Failed to fetch disaster reports:", error);
       }
     };
-
+  
     fetchReports();
   }, []);
 
+  useEffect(() => {
+    const fetchDistribution = async () => {
+      try {
+        const response = await axios.get("http://localhost:3003/get-distribution");
+        const distributionData = response.data;
+        setDistribution(distributionData);
+      } catch (error) {
+        console.error("Error fetching distribution data:", error);
+      }
+    };
+  
+    fetchDistribution();
+  }, []);  
+
+  const getDistributionForReport = (reportId) => {
+    return distribution.filter(item => item.disasterCode === reportId);
+  };  
+  
   // Function to assign the correct icon based on type
   const getIcon = (type) => {
     const iconMap = {
@@ -116,7 +152,7 @@ const Reports = () => {
                 <p className="report-type">{report.type}</p>
                 <div className="report-info">
                   <span>
-                    <FaUsers /> {report.households}
+                    <FaUsers /> {report.households} Families
                   </span>
                   <span className="download-icon">
                     <FaDownload />
@@ -129,8 +165,8 @@ const Reports = () => {
           // Step 2: Display report details (similar to uploaded image)
           <div className="report-preview">
             <div className="tabs">
-              <button className={activeTab === "RDS" ? "tab active" : "tab"} onClick={() => setActiveTab("RDS")}>
-                RDS
+              <button className={activeTab === "SPORADIC" ? "tab active" : "tab"} onClick={() => setActiveTab("SPORADIC")}>
+                SPORADIC
               </button>
               <button className={activeTab === "FDR" ? "tab active" : "tab"} onClick={() => setActiveTab("FDR")}>
                 FDR
@@ -146,7 +182,8 @@ const Reports = () => {
                 </button>
               </div>
               <div className="form-container">
-                {activeTab === "RDS" ? <RDS report={selectedReport} /> : <FDR report={selectedReport} />}
+                {activeTab === "SPORADIC" ? <SPORADIC report={selectedReport} distribution={getDistributionForReport(selectedReport.id)} /> 
+                : <FDR report={selectedReport} distribution={getDistributionForReport(selectedReport.id)} />}
               </div>
             </div>
           </div>
