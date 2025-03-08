@@ -8,6 +8,7 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 
 import FDR from  "./forms/FDR";
 import SPORADIC from  "./forms/SPORADIC";
+import Payroll from "./forms/Payroll";
 
 import fireIncident from "../pic/fire.jpg";
 import flooding from "../pic/rain.jpg";
@@ -190,11 +191,24 @@ const Reports = () => {
   
   return (
     <div className="reports">
+
+    {selectedReport && (
+      <div className="bck-btn">
+        <button className="back-btn" onClick={() => setSelectedReport(null)}>
+        <i className="fa-solid fa-chevron-left"></i>
+          Back
+        </button>
+      </div>
+    )}
+
+
       <div className="container">
 
- {!selectedReport ? (
-          // Step 1: Display report cards
-          reports.map((report) => (
+        {!selectedReport ? (
+          <div className="report-list">
+          
+          {/* }//Step 1: Display report cards*/}
+          {reports.map((report) => (
             <div
               key={report.id}
               className="report-card"
@@ -223,8 +237,12 @@ const Reports = () => {
                 </div>
               </div>
             </div>
-          ))
+          ))}
+          </div>
+     
+          
         ) : (
+
           // Step 2: Display report details (similar to uploaded image)
           <div className="report-preview">
             <div className="tabs">
@@ -234,31 +252,41 @@ const Reports = () => {
               <button className={activeTab === "FDR" ? "tab active" : "tab"} onClick={() => setActiveTab("FDR")}>
                 FDR
               </button>
+              <button className={activeTab === "Payroll" ? "tab active" : "tab"} onClick={() => setActiveTab("Payroll")}>
+                Payroll
+              </button>
             </div>
+            
             <div className="report-content-box">
               <div>
                 <button className="download-btn" onClick={handleDownloadPDF}>
                   <FaDownload /> Download Report
                 </button>
-                <button className="back-btn" onClick={() => setSelectedReport(null)}>
-                  Back
-                </button>
               </div>
+
               <div className="form-container">
+
+              
                 {activeTab === "SPORADIC" ? (
                   <div ref={sporadicRef}>
                     <SPORADIC report={selectedReport} distribution={getDistributionForReport(selectedReport.id)} />
                   </div>
-                ) : (
+                ) : activeTab === "FDR" ? (
                   <div ref={fdrRef}>
                     <FDR report={selectedReport} distribution={getDistributionForReport(selectedReport.id)} />
                   </div>
-                )}
+                ) : activeTab === "Payroll" ? (
+                  <Payroll />
+                ) : null}
+
               </div>
+
             </div>
           </div>
 
         )}
+
+
       </div>
     </div>
   );

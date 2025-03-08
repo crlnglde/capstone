@@ -39,10 +39,6 @@ const SPORADIC= ({ report, distribution }) => {
 
   return (
     <div className="sporadic">
-      
-      <div className="res-btn">
-
-      </div>
 
       <div className="sporadic-container">
 

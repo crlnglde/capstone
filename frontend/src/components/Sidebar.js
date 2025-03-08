@@ -71,8 +71,8 @@ const Sidebar = ({isMinimized, setIsMinimized}) => {
 
           <li>
             <a
-              href="/dashboard"
-              className={isActive("/dashboard") ? "active" : ""}
+              href="/disaster"
+              className={isActive("/disaster") ? "active" : ""}
             >
             <i className="fa-solid fa-square-poll-vertical"></i>
             {!isMinimizedState && <span>Disaster</span>}
@@ -83,7 +83,7 @@ const Sidebar = ({isMinimized, setIsMinimized}) => {
               href="/distribution"
               className={isActive("/distribution") ? "active" : ""}
             >
-            <i className="fa-solid fa-square-poll-vertical"></i>
+            <i class="fa-solid fa-hands-holding"></i>
             {!isMinimizedState && <span>Distribution</span>}
             </a>
           </li>
@@ -95,46 +95,6 @@ const Sidebar = ({isMinimized, setIsMinimized}) => {
             >
             <i className="fa-solid fa-folder-open"></i>
             {!isMinimizedState && <span>Reports</span>}
-            </a>
-          </li>
-
-          <li>
-            <a
-              href="/rds"
-              className={isActive("/rds") ? "active" : ""}
-            >
-            <i className="fa-solid fa-folder-open"></i>
-            {!isMinimizedState && <span>RDS</span>}
-            </a>
-          </li>
-
-          <li>
-            <a
-              href="/dafac"
-              className={isActive("/dafac") ? "active" : ""}
-            >
-            <i className="fa-solid fa-folder-open"></i>
-            {!isMinimizedState && <span>DAFAC</span>}
-            </a>
-          </li>
-
-          <li>
-            <a
-              href="/sporadic"
-              className={isActive("/sporadic") ? "active" : ""}
-            >
-            <i className="fa-solid fa-folder-open"></i>
-            {!isMinimizedState && <span>SPORADIC</span>}
-            </a>
-          </li>
-
-          <li>
-            <a
-              href="/fdr"
-              className={isActive("/fdr") ? "active" : ""}
-            >
-            <i className="fa-solid fa-folder-open"></i>
-            {!isMinimizedState && <span>FDR</span>}
             </a>
           </li>
 

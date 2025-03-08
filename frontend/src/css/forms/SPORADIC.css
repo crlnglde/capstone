@@ -7,9 +7,9 @@
     background-color: white;
     border-collapse: collapse;
     height: 100%;
+    width: min-content;
     display: flex;
     flex-direction: column;
-    padding: 20px;   
     justify-content: space-between; /* Distribute space between form content and the footer */
     box-sizing: border-box;
 }
@@ -36,6 +36,7 @@
     padding: 20px 20px 20px 20px;
     margin: 0 0px 0 50px;
     overflow-x: auto ;
+    text-align: left;
   }
     
     .sporadic-report {
@@ -88,6 +89,7 @@
       flex-direction: column;
       padding: 20px;
       margin: 0px 0 50px 0px;
+      text-align: left;
     }
 
       .sporadic-container .reco .neym{
@@ -104,6 +106,11 @@
       .sporadic-container .footer .neym{
         margin: 50px 0 0 20px;
       }
+
+        .sporadic-container .footer .neym p{
+         text-align: center;
+        }
+
 
     .no-margin {
       margin: 0;

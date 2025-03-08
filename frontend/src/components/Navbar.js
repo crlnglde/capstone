@@ -9,10 +9,11 @@
     // Map paths to page names
     const pageNames = {
       "/home": "Home",
-      "/dashboard": "Dashboard",
+      "/disaster": "Disaster",
+      "/disaster/add-disaster":"Add Disaster",
       "/distribution":"Distribution",
       "/distribution/rds":"Distribution > RDS",
-      "/editrds":"Distribution > RDS",
+      "/distribution/editrds":"Distribution > RDS",
       "/reports": "Reports",
       "/residents": "List of Residents",
       "/volunteers": "Volunteers",
@@ -20,7 +21,6 @@
       "/dafac": "Disaster Assistance Family Access Card",
       "/sporadic": "SPORADIC REPORT",
       "/fdr": "Final Disaster Report",
-      "/dashboard/add-disaster":"Add Disaster",
     };
 
     const currentPageName = pageNames[location.pathname] || "Page Name";

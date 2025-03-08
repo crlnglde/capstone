@@ -57,10 +57,6 @@ const FDR= ({ report, distribution }) => {
 
   return (
     <div className="fdr">
-      
-      <div className="res-btn">
-
-      </div>
 
       <div className="fdr-container">
 

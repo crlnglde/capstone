@@ -79,8 +79,7 @@ const LineGraph = () => {
                     <div className="filters-right">
                         <div className="bar-filter-container">
                             {/* Disaster Type Dropdown */}
-     
-                            <label>Select Disaster Type: </label>
+
                             <select value={selectedDisaster} onChange={(e) => setSelectedDisaster(e.target.value)}>
                                 <option value="">All</option>
                                 {disasterTypes.map(type => (
@@ -91,7 +90,6 @@ const LineGraph = () => {
                         </div>
 
                         <div className="bar-filter-container">
-                            <label>Select Barangays: </label>
                             <Select
                                 options={barangayList.map(name => ({ value: name, label: name }))}
                                 isMulti
