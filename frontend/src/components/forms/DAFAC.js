@@ -243,10 +243,6 @@ const DAFAC= ({ activeResident, disasterData, setIsModalOpen}) => {
 
   return (
     <div className="dafac">
-      
-      <div className="res-btn">
-
-      </div>
 
       <div ref={formRef}  className="dafac-container">
 
@@ -637,13 +633,16 @@ const DAFAC= ({ activeResident, disasterData, setIsModalOpen}) => {
                     </div>
                 </div>
 
-                <button type="submit" className="submit-btn" onClick={handleSave}>
-                                        Save
-                </button>
+                
                
             </form>
         </div>
+                 
+
       </div>
+                <button type="submit" className="submit-btn" onClick={handleSave}>
+                                        Save
+                </button>
 
     </div>
   );

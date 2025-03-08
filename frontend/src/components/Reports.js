@@ -193,6 +193,7 @@ const Reports = () => {
                 Payroll
               </button>
             </div>
+            
             <div className="report-content-box">
               <div>
                 <button className="download-btn">
