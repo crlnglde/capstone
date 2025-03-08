@@ -71,8 +71,8 @@ const Sidebar = ({isMinimized, setIsMinimized}) => {
 
           <li>
             <a
-              href="/dashboard"
-              className={isActive("/dashboard") ? "active" : ""}
+              href="/disaster"
+              className={isActive("/disaster") ? "active" : ""}
             >
             <i className="fa-solid fa-square-poll-vertical"></i>
             {!isMinimizedState && <span>Disaster</span>}

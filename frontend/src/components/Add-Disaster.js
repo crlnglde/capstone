@@ -412,7 +412,7 @@ const AddDisaster = () => {
     
             localStorage.removeItem("savedForms");
             localStorage.removeItem("disasterData");
-            navigate("/dashboard");
+            navigate("/disaster");
         } catch (error) {
             alert("An error occurred while saving data. Please try again.");
         }
