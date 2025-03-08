@@ -110,7 +110,7 @@ const RDS= () => {
     }
   };
 
-  console.log("hatdog",families)
+  console.log("hatdog",forDistribution)
 
   const handleSaveDistribution = async () => {
     try {
@@ -118,6 +118,7 @@ const RDS= () => {
         disasterCode: forDistribution.disasterCode,
         disasterDate: forDistribution.disasterDate,
         barangay: forDistribution.barangay,
+        assistanceType: forDistribution.assistanceType,
         reliefItems: forDistribution.entries,
         families: families.map(family => ({
           familyHead: `${family.firstName} ${family.middleName} ${family.lastName}`,

@@ -37,8 +37,9 @@ const Distribution = () => {
   const [forDistribution, setforDistribution] = useState({
     disasterCode: disasterCode, 
     disasterMonth:"",
+    assistanceType: "",
     barangay: "",
-    entries: [{ name: "", quantity: "" }],
+    entries: [{ name: "", quantity: "", assistanceCost: ""  }],
     receivedFrom: "",
     certifiedCorrect: "",
     submittedBy: "",
@@ -540,9 +541,9 @@ const validateFields = () => {
                 onChange={(e) => handleChange("assistanceType", e.target.value)}
               >
                 <option value="">Select Assistance Type</option>
-                <option value="cash">Cash</option>
-                <option value="food">Food</option>
-                <option value="essentials">Essentials</option>
+                <option value="Cash">Cash</option>
+                <option value="Food">Food</option>
+                <option value="Essentials">Essentials</option>
               </select>
             </div>
 
@@ -578,6 +579,8 @@ const validateFields = () => {
                       <label>Price:</label>
                       <input
                         type="number"
+                        value={entry.assistanceCost}
+                        onChange={(e) => handleEntryChange(index, "assistanceCost", e.target.value)}
                       />
                     </div>
 

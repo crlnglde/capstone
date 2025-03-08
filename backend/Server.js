@@ -293,8 +293,9 @@ app.get("/get-resident-esig", async (req, res) => {
 
 app.post("/save-distribution", async (req, res) => {
   try {
-    const { disasterCode, disasterDate, barangay, families, reliefItems, receivedFrom, certifiedCorrect, submittedBy, status } = req.body;
+    const { disasterCode, disasterDate, assistanceType, barangay, families, reliefItems, receivedFrom, certifiedCorrect, submittedBy, status } = req.body;
 
+    console.log("type:", assistanceType)
     // Validate required fields
     if (!disasterCode || !disasterDate || !barangay || !families || !reliefItems) {
       return res.status(400).json({ message: "Missing required fields" });
@@ -329,8 +330,10 @@ app.post("/save-distribution", async (req, res) => {
     const newDistribution = {
       reliefItems: reliefItems.map(item => ({
         name: item.name,
-        quantity: Number(item.quantity) || 0
+        quantity: Number(item.quantity) || 0,
+        assistanceCost: Number(item.assistanceCost) || 0
       })),
+      assistanceType,
       dateDistributed: new Date(),
       families,  // Use validated families data
       receivedFrom,

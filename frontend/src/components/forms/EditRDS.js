@@ -49,6 +49,7 @@ const EditRDS = () => {
           disasterCode: data.disasterCode || "",
           disasterDate: data.disasterDate || "",
           barangayName: data.barangayName || "",
+          assistanceType: data.assistanceType || "",
           reliefItems: data.distribution?.reliefItems || [],  // Fix: Access as object, not array
           receivedFrom: data.distribution?.receivedFrom || "",
           certifiedCorrect: data.distribution?.certifiedCorrect || "",

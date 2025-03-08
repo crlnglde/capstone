@@ -1,6 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { FaUsers, FaDownload, FaFire, FaTint, FaFlag } from "react-icons/fa";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 import "../css/Reports.css";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
@@ -20,6 +22,9 @@ const Reports = () => {
   const [distribution, setDistribution] = useState([]);
   const [selectedReport, setSelectedReport] = useState(null);
   const [activeTab, setActiveTab] = useState("SPORADIC");
+  const fdrRef = useRef(null);
+  const sporadicRef = useRef(null);
+
 
   useEffect(() => {
     const fetchReports = async () => {
@@ -125,6 +130,64 @@ const Reports = () => {
     return imageMap[type] || fireIncident; // Default fallback
   };
 
+  const handleDownloadPDF = () => {
+    const activeRef = activeTab === "SPORADIC" ? sporadicRef : fdrRef;
+    const orientation = activeTab === "SPORADIC" ? "landscape" : "portrait";
+    const pageWidth = orientation === "landscape" ? 297 : 210;  // A4 width in mm
+    const pageHeight = orientation === "landscape" ? 210 : 297;  // A4 height in mm
+
+    // Define margins (in mm)
+    const topMargin = 20;
+    const bottomMargin = 20;
+    const leftMargin = 15;
+    const rightMargin = 15;
+
+    if (activeRef.current) {
+        html2canvas(activeRef.current, { scale: 2 }).then((canvas) => {
+            const pdf = new jsPDF(orientation, "mm", "a4");
+            const imgData = canvas.toDataURL("image/png");
+
+            // Adjust image size based on margins
+            const imgWidth = pageWidth - leftMargin - rightMargin;
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            const usablePageHeight = pageHeight - topMargin - bottomMargin;
+
+            let position = 0;
+            let pageCount = Math.ceil(imgHeight / usablePageHeight);
+
+            for (let i = 0; i < pageCount; i++) {
+                if (i > 0) pdf.addPage();  // Add a new page if not the first
+
+                // Calculate the part of the canvas to be added on the current page
+                const srcY = i * usablePageHeight * (canvas.height / imgHeight);
+                const sHeight = Math.min(canvas.height - srcY, usablePageHeight * (canvas.height / imgHeight));
+
+                // Create a temporary canvas to crop the current part
+                const tempCanvas = document.createElement("canvas");
+                tempCanvas.width = canvas.width;
+                tempCanvas.height = sHeight;
+
+                const ctx = tempCanvas.getContext("2d");
+                ctx.drawImage(canvas, 0, srcY, canvas.width, sHeight, 0, 0, canvas.width, sHeight);
+
+                const tempImgData = tempCanvas.toDataURL("image/png");
+
+                pdf.addImage(
+                    tempImgData,
+                    "PNG",
+                    leftMargin,
+                    topMargin,
+                    imgWidth,
+                    (sHeight * imgWidth) / canvas.width
+                );
+            }
+
+            pdf.save(`${activeTab}-report.pdf`);
+        });
+        }
+    };
+
+  
   return (
     <div className="reports">
       <div className="container">
@@ -174,7 +237,7 @@ const Reports = () => {
             </div>
             <div className="report-content-box">
               <div>
-                <button className="download-btn">
+                <button className="download-btn" onClick={handleDownloadPDF}>
                   <FaDownload /> Download Report
                 </button>
                 <button className="back-btn" onClick={() => setSelectedReport(null)}>
@@ -182,8 +245,15 @@ const Reports = () => {
                 </button>
               </div>
               <div className="form-container">
-                {activeTab === "SPORADIC" ? <SPORADIC report={selectedReport} distribution={getDistributionForReport(selectedReport.id)} /> 
-                : <FDR report={selectedReport} distribution={getDistributionForReport(selectedReport.id)} />}
+                {activeTab === "SPORADIC" ? (
+                  <div ref={sporadicRef}>
+                    <SPORADIC report={selectedReport} distribution={getDistributionForReport(selectedReport.id)} />
+                  </div>
+                ) : (
+                  <div ref={fdrRef}>
+                    <FDR report={selectedReport} distribution={getDistributionForReport(selectedReport.id)} />
+                  </div>
+                )}
               </div>
             </div>
           </div>
