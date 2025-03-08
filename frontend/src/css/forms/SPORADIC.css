@@ -7,9 +7,9 @@
     background-color: white;
     border-collapse: collapse;
     height: 100%;
+    width: min-content;
     display: flex;
     flex-direction: column;
-    padding: 20px;   
     justify-content: space-between; /* Distribute space between form content and the footer */
     box-sizing: border-box;
 }
@@ -106,6 +106,11 @@
       .sporadic-container .footer .neym{
         margin: 50px 0 0 20px;
       }
+
+        .sporadic-container .footer .neym p{
+         text-align: center;
+        }
+
 
     .no-margin {
       margin: 0;

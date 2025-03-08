@@ -128,6 +128,17 @@ const Reports = () => {
 
   return (
     <div className="reports">
+
+    {selectedReport && (
+      <div className="bck-btn">
+        <button className="back-btn" onClick={() => setSelectedReport(null)}>
+        <i className="fa-solid fa-chevron-left"></i>
+          Back
+        </button>
+      </div>
+    )}
+
+
       <div className="container">
 
         {!selectedReport ? (
@@ -168,6 +179,7 @@ const Reports = () => {
      
           
         ) : (
+
           // Step 2: Display report details (similar to uploaded image)
           <div className="report-preview">
             <div className="tabs">
@@ -185,9 +197,6 @@ const Reports = () => {
               <div>
                 <button className="download-btn">
                   <FaDownload /> Download Report
-                </button>
-                <button className="back-btn" onClick={() => setSelectedReport(null)}>
-                  Back
                 </button>
               </div>
 

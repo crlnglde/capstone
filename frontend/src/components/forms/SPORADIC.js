@@ -11,10 +11,6 @@ const SPORADIC= ({ report, distribution }) => {
     console.log("SPORADIC ditribution: ", distribution)
   return (
     <div className="sporadic">
-      
-      <div className="res-btn">
-
-      </div>
 
       <div className="sporadic-container">
 
