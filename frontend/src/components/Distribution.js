@@ -24,6 +24,10 @@ const Distribution = () => {
 
   const [isEditMode, setIsEditMode] = useState(false);
 
+          // Static list of affected barangays FOR VIEW MORE
+          const [activeBarangay, setActiveBarangay] = useState("ALL");
+          const affectedBarangays = ["Barangay 1", "Barangay 2", "Barangay 3"];
+
 
   const [searchQuery, setSearchQuery] = useState("");
   const [entries, setEntries] = useState([{ name: "", quantity: "" }]);
@@ -623,32 +627,30 @@ const validateFields = () => {
         ) : (
           // Distribution Details (View More)
           <div className="view-more-content">
-          <>
-            <p><strong>Disaster Code:</strong> D12345</p>
-            <p><strong>Disaster Date:</strong> {new Date("2024-01-15").toLocaleDateString()}</p>
-            <p><strong>Affected Barangays:</strong> Barangay 1, Barangay 2</p>
-        
-            <div className="barangay-info">
-              <h3>Barangay: Barangay 1</h3>
-              <ul>
-                <li>
-                  <p><strong>Date Distributed:</strong> {new Date("2024-02-01").toLocaleDateString()}</p>
-                  <p><strong>Items:</strong> Rice (50kg), Water Bottles (100)</p>
-                </li>
-              </ul>
-            </div>
-        
-            <div className="barangay-info">
-              <h3>Barangay: Barangay 2</h3>
-              <ul>
-                <li>
-                  <p><strong>Date Distributed:</strong> {new Date("2024-02-02").toLocaleDateString()}</p>
-                  <p><strong>Items:</strong> Canned Goods (200), Blankets (50)</p>
-                </li>
-              </ul>
-            </div>
-          </>
+        <div className="tabs">
+          <button
+            className={activeBarangay === "ALL" ? "tab active" : "tab"}
+            onClick={() => setActiveBarangay("ALL")}
+          >
+            All
+          </button>
+
+          {affectedBarangays.map((barangay) => (
+            <button
+              key={barangay}
+              className={activeBarangay === barangay ? "tab active" : "tab"}
+              onClick={() => setActiveBarangay(barangay)}
+            >
+              {barangay}
+            </button>
+          ))}
         </div>
+
+        {/* Display RDS Component Based on Selected Barangay */}
+        <RDS selectedBarangay={activeBarangay} />
+
+          </div>
+
         )}
       </Modal>
 

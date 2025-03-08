@@ -327,6 +327,39 @@
               border-color: #007bff;
               box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
             }
+
+            .view-more-content {
+              max-width: 1000px;
+              width: 100%;
+              position: relative;
+            }
+
+              .tabs {
+                display: flex;
+                padding-bottom: 10px;
+              }
+              .tab {
+                padding: 8px 15px;
+                border-radius: 10px 10px 0 0;
+                background: #767b91;
+                color: white;
+                border: none;
+                cursor: pointer;
+                transition: background 0.3s ease;
+              }
+              .tab.active {
+                background: #5b5f78;
+              }
+              
+              .tab:hover {
+                background: #6d7189;
+              }
+              
+            .view-more-content > div {
+              width: 100%;
+              max-width: 100%;
+            }
+            
             
             /* Make the submit button span both columns */
             .submitButton {
