@@ -270,23 +270,21 @@ app.post("/add-distribution/:disasterCode/:barangayName", async (req, res) => {
 });
 
 app.get("/get-resident-esig", async (req, res) => {
-  const { firstName, middleName, lastName } = req.query;
-  
-  try {
-    let query = { firstName: firstName.trim(), lastName: lastName.trim() };
+  const { memId } = req.query;  // Extract memId from query parameters
 
-    // Only include middleName in the query if it's provided
-    if (middleName && middleName.trim() !== "") {
-      query.middleName = middleName.trim();
+  try {
+    if (!memId) {
+      return res.status(400).json({ error: "memId is required" });
     }
 
-    const resident = await Resident.findOne(query);
+    // Find resident by memId
+    const resident = await Resident.findOne({ memId: memId.trim() });
 
     if (!resident) {
       return res.status(404).json({ error: "Resident not found" });
     }
 
-    res.json({ esig: resident.esig });
+    res.json({ esig: resident.esig});
   } catch (error) {
     console.error("Error fetching resident signature:", error);
     res.status(500).json({ error: "Internal Server Error" });
@@ -295,53 +293,72 @@ app.get("/get-resident-esig", async (req, res) => {
 
 app.post("/save-distribution", async (req, res) => {
   try {
-      const { disasterCode, disasterDate, barangay, families, reliefItems, receivedFrom, certifiedCorrect, submittedBy, status } = req.body;
-      let existingDistribution = await Distribution.findOne({ disasterCode });
+    const { disasterCode, disasterDate, barangay, families, reliefItems, receivedFrom, certifiedCorrect, submittedBy, status } = req.body;
 
-      if (!existingDistribution) {
-          existingDistribution = new Distribution({ disasterCode, status, disasterDate, barangays: [] });
+    // Validate required fields
+    if (!disasterCode || !disasterDate || !barangay || !families || !reliefItems) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    // Ensure memId is present for each family
+    for (let family of families) {
+      if (!family.memId) {
+        console.error("Missing memId for family:", family);
+        return res.status(400).json({ message: "memId is required for all families" });
       }
+    }
 
-      let barangayData = existingDistribution.barangays.find(b => b.name === barangay);
+    let existingDistribution = await Distribution.findOne({ disasterCode });
 
-      if (!barangayData) {
-          barangayData = { name: barangay, distribution: [] };
-          existingDistribution.barangays.push(barangayData);
-      }
-
-      const newDistribution = {
-          reliefItems: reliefItems.map(item => ({
-              name: item.name,
-              quantity: Number(item.quantity) || 0
-          })),
-          dateDistributed: new Date(),
-          families,
-          receivedFrom,
-          certifiedCorrect,
-          submittedBy
-      };
-
-      // Update the barangay directly
-      existingDistribution.barangays = existingDistribution.barangays.map(b => {
-          if (b.name === barangay) {
-              return {
-                  ...b,
-                  distribution: [...b.distribution, newDistribution]
-              };
-          }
-          return b;
+    if (!existingDistribution) {
+      existingDistribution = new Distribution({
+        disasterCode,
+        status,
+        disasterDate,
+        barangays: []
       });
+    }
 
-      existingDistribution.markModified("barangays");
+    let barangayData = existingDistribution.barangays.find(b => b.name === barangay);
 
-      await existingDistribution.save();
-      res.status(201).json({ message: "Distribution data saved successfully!" });
+    if (!barangayData) {
+      barangayData = { name: barangay, distribution: [] };
+      existingDistribution.barangays.push(barangayData);
+    }
 
+    const newDistribution = {
+      reliefItems: reliefItems.map(item => ({
+        name: item.name,
+        quantity: Number(item.quantity) || 0
+      })),
+      dateDistributed: new Date(),
+      families,  // Use validated families data
+      receivedFrom,
+      certifiedCorrect,
+      submittedBy
+    };
+
+    // Update barangay distribution
+    existingDistribution.barangays = existingDistribution.barangays.map(b => {
+      if (b.name === barangay) {
+        return {
+          ...b,
+          distribution: [...b.distribution, newDistribution]
+        };
+      }
+      return b;
+    });
+
+    existingDistribution.markModified("barangays");
+    await existingDistribution.save();
+
+    res.status(201).json({ message: "Distribution data saved successfully!" });
   } catch (error) {
-      console.error("Error saving distribution data:", error);
-      res.status(500).json({ message: "Internal Server Error" });
+    console.error("Error saving distribution data:", error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 });
+
 
 app.get("/get-distribution", async (req, res) => {
   try {
@@ -436,6 +453,41 @@ app.put("/update-status/:disasterCode", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
+app.put("/update-distribution/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { families } = req.body;
+
+    console.log("Received PUT request:", req.params.id, req.body);
+
+    // Convert id to a valid ObjectId
+    const objectId = new mongoose.Types.ObjectId(id);
+
+    const updatedDistribution = await Distribution.findOneAndUpdate(
+      { 
+        "barangays.distribution._id": objectId 
+      },
+      { 
+        $set: { "barangays.$[].distribution.$[d].families": families }  
+      },
+      { 
+        new: true,
+        arrayFilters: [{ "d._id": objectId }] 
+      }
+    );
+
+    if (updatedDistribution) {
+      res.status(200).send("Distribution data updated successfully.");
+    } else {
+      res.status(404).send("Distribution not found.");
+    }
+  } catch (error) {
+    console.error("Error updating distribution:", error.message);  // Improved error log
+    res.status(500).send("An error occurred while updating the data.");
+  }
+});
+
 
 
 app.listen(port,()=>{

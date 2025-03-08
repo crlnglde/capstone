@@ -643,16 +643,6 @@ const DAFAC= ({ activeResident, disasterData, setIsModalOpen}) => {
                
             </form>
         </div>
-
-
-       
-
-          
-     
-
-
-            
-
       </div>
 
     </div>

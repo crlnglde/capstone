@@ -5,9 +5,10 @@ import ICImage from '../../pic/IC.png';
 import cswdImage from '../../pic/cswd.jpg';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
-const SPORADIC= () => {
+const SPORADIC= ({ report, distribution }) => {
 
-
+    console.log("report:", report);
+    console.log("SPORADIC ditribution: ", distribution)
   return (
     <div className="sporadic">
       
@@ -68,26 +69,27 @@ const SPORADIC= () => {
                 </tr>
                 </thead>
                 <tbody>
-                {[...Array(5)].map((_, index) => (
-                    <tr key={index}>
-                    <td>{index + 1}</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    </tr>
-                ))}
+                    {report?.families?.map((family, familyIndex) => (
+                        <tr key={familyIndex}>
+                            <td>{familyIndex + 1}</td>
+                            <td>{`${family.firstName} ${family.middleName} ${family.lastName}`}</td>
+                            <td>{family.age}</td>
+                            <td>{family.sex}</td>
+                            <td>{report.barangays}</td>
+                            <td>{family.dependents.length}</td>
+                            <td>{report.type}</td>
+                            <td>{report.date}</td>
+                            <td>{family.is4ps ? "4Ps" : "Non-4Ps"}</td>
+                            <td>{family.isSenior ? "Yes" : "No"}</td>
+                            <td>{family.isPWD ? "Yes" : "No"}</td>
+                            <td>{family.isSolo ? "Yes" : "No"}</td>
+                            <td>{family.isPreg ? "Yes" : "No"}</td>
+                            <td>{family.isIps ? "Yes" : "No"}</td>
+                            <td>{family.occupation || "N/A"}</td>
+                        </tr>
+                    ))}
                 </tbody>
+
             </table>
         </div>
 

@@ -1,18 +1,30 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom'; 
 import axios from "axios";
+import CryptoJS from "crypto-js";
 import "../../css/forms/RDS.css";
 import ICImage from '../../pic/IC.png';
 import cswdImage from '../../pic/cswd.jpg';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
-
 const EditRDS = () => {
   const navigate = useNavigate();  
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [families, setFamilies] = useState([]);
   const [distributionId, setDistributionId] = useState("");
+  const [signature, setSignature] = useState(null);
+  const [isUpdated, setIsUpdated] = useState(false);
+
+  const [distributionData, setDistributionData] = useState({
+    disasterCode: "",
+    disasterDate: "",
+    barangayName: "",
+    reliefItems: [],
+    receivedFrom: "",
+    certifiedCorrect: "",
+    submittedBy: "",
+    families: [],
+  });
 
   useEffect(() => {
     const storedId = localStorage.getItem("distributionId");
@@ -22,27 +34,28 @@ const EditRDS = () => {
     }
   }, []);
 
-  const [distributionData, setDistributionData] = useState({
-    disasterCode: "",
-    disasterDate: "",
-    barangayName: "",
-    distribution: [],
-    receivedFrom: "",
-    certifiedCorrect: "",
-    submittedBy: ""
-  });
-
   // Fetch distribution data
   useEffect(() => {
     const fetchDistribution = async () => {
       try {
         console.log(distributionId);
         const response = await axios.get(`http://localhost:3003/get-distribution/${distributionId}`);
-        setDistributionData(prev => ({
-          ...prev,
-          ...response.data
-        }));
-        console.log("Distribution:", response.data);
+
+        const data = response.data;
+
+        // Extract relief items and families from nested structure
+
+        setDistributionData({
+          disasterCode: data.disasterCode || "",
+          disasterDate: data.disasterDate || "",
+          barangayName: data.barangayName || "",
+          reliefItems: data.distribution?.reliefItems || [],  // Fix: Access as object, not array
+          receivedFrom: data.distribution?.receivedFrom || "",
+          certifiedCorrect: data.distribution?.certifiedCorrect || "",
+          submittedBy: data.distribution?.submittedBy || "",
+          families: data.distribution?.families || []  // Fix: Access as object, not array
+        });
+        console.log("Distribution:", data);
       } catch (err) {
         console.error("Error fetching distribution data:", err);
         setError("Failed to fetch data");
@@ -60,46 +73,76 @@ const EditRDS = () => {
   const disasterDate = distributionData.disasterDate ? new Date(distributionData.disasterDate) : null;
   const formattedMonth = disasterDate ? disasterDate.toLocaleString("default", { month: "long" }) : "";
 
-  // Handle input change for editable fields
-  const handleInputChange = (event, index) => {
-    const { name, value } = event.target;
-    setFamilies(prevFamilies => prevFamilies.map((family, i) =>
-      i === index ? { ...family, [name]: value } : family
-    ));
-  };
 
-  // Handle input change for relief items
-  const handleReliefItemChange = (index, field, value) => {
-    const updatedDistribution = [...distributionData.distribution];
-    updatedDistribution[index][field] = value;
-    setDistributionData(prev => ({ ...prev, distribution: updatedDistribution }));
-  };
-
-  // Save distribution data
-  const handleSaveDistribution = async () => {
+  const handleFetchSignature = async (memId, index) => {
     try {
-      await axios.post("http://localhost:3003/save-distribution", {
-        disasterCode: distributionData.disasterCode,
-        disasterDate: distributionData.disasterDate,
-        barangay: distributionData.barangayName,
-        reliefItems: distributionData.distribution,
-        families: families.map(family => ({
-          familyHead: `${family.firstName} ${family.middleName || ""} ${family.lastName}`,
-          status: family.status || "Pending",
-          rationCount: 1 + (family.dependents ? family.dependents.length : 0),
-        })),
-        receivedFrom: distributionData.receivedFrom,
-        certifiedCorrect: distributionData.certifiedCorrect,
-        submittedBy: distributionData.submittedBy
-      });
-
-      alert("Distribution data saved successfully!");
-      window.location.reload();
+      const response = await axios.get(`http://localhost:3003/get-resident-esig?memId=${memId}`);
+      const resident = response.data;
+      console.log("Resident", resident)
+      if (resident && resident.esig) {
+        handleDecryptEsig(resident.esig, index); // Decrypt and save signature
+      } else {
+        alert("E-signature not found for this resident.");
+      }
     } catch (error) {
-      console.error("Error saving distribution data:", error);
-      alert("Failed to save distribution data.");
+      console.error("Error fetching e-signature:", error);
+      alert("Failed to fetch e-signature.");
     }
   };
+
+  const handleDecryptEsig = (encryptedEsig, index) => {
+    const password = prompt("Enter password to decrypt the thumbmark:");
+    if (!password) {
+      alert("Password is required!");
+      return;
+    }
+  
+    try {
+      const bytes = CryptoJS.AES.decrypt(encryptedEsig, password);
+      const decryptedData = bytes.toString(CryptoJS.enc.Utf8);
+  
+      if (!decryptedData) {
+        alert("Incorrect password!");
+        return;
+      }
+  
+      setDistributionData((prevData) => ({
+        ...prevData,
+        families: prevData.families.map((family, i) =>
+          i === index ? { ...family, status: "Done" } : family
+        )
+      }));
+      
+      setIsUpdated(true);  // Mark as updated when status changes
+  
+    } catch (error) {
+      alert("Decryption failed! Check the password.");
+      console.error(error);
+    }
+  };
+
+  const handleSaveDistribution = async () => {
+    try {
+      // Send only the updated families array to the backend to update their status
+      const updatedFamilies = distributionData.families;
+  
+      const response = await axios.put(`http://localhost:3003/update-distribution/${distributionId}`, {
+        families: updatedFamilies
+      });
+  
+      if (response.status === 200) {
+        alert("Distribution data saved successfully!");
+        setIsUpdated(false);  // Reset the update flag after successful save
+        window.location.reload()
+      } else {
+        alert("Failed to save distribution data.");
+      }
+    } catch (error) {
+      console.error("Error saving distribution data:", error);
+      alert("An error occurred while saving the data.");
+    }
+  };  
+  
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
@@ -126,8 +169,7 @@ const EditRDS = () => {
           <h2>RELIEF DISTRIBUTION SHEET</h2>
         </div>
 
-        <p className="rds-text">We hereby acknowledge to have received from <strong> _____________________</strong> on the date indicated the kind and quality opposite our respective names.</p>
-
+        <p className="rds-text">We hereby acknowledge to have received from <strong>{distributionData.receivedFrom || "_____________________"}</strong> on the date indicated the kind and quality opposite our respective names.</p>
 
         <table className="rds-table">
           <thead>
@@ -139,21 +181,26 @@ const EditRDS = () => {
             </tr>
           </thead>
           <tbody>
-            {distributionData?.distribution?.length > 0 ? (
-              distributionData.distribution.map((distribution, index) => (
-                <tr key={distribution._id}>
-                  <td>{distribution.familyHead || ""}</td>
-                  <td>{distribution.rationCount || ""}</td>
+            {distributionData.families.length > 0 ? (
+              distributionData.families.map((family, index) => (
+                <tr key={family._id}>
+                  <td>{family.familyHead || ""}</td>
+                  <td>{family.rationCount || ""}</td>
                   <td>
                     <p>
-                      {distribution.reliefItems.map(item => `${item.name} - ${item.quantity}`).join(" | ")}
+                      {distributionData.reliefItems.map(item => `${item.name} - ${item.quantity}`).join(" | ")}
                     </p>
                   </td>
                   <td>
-                    <button>
-                      Signature/Thumbmark
+                    {family.status === "Done" ? (
+                      <span>Done</span> 
+                    ) : (
+                    <button onClick={() => handleFetchSignature(family.memId, index)}>
+                      Signature/Thumbmark 
                     </button>
+                    )}
                   </td>
+
                 </tr>
               ))
             ) : (
@@ -164,21 +211,23 @@ const EditRDS = () => {
           </tbody>
         </table>
 
-        <p className="rds-text">       I HEREBY CERTIFY on the data that according to the records of this office the persons whose names appear above are real and that the persons are the qualified recipients to whom i distributed the above goods.</p>
+        <p className="rds-text">I HEREBY CERTIFY on the data that according to the records of this office the persons whose names appear above are real and that the persons are the qualified recipients to whom I distributed the above goods.</p>
 
         <div className="rds-footer">
-            <p>CERTIFIED CORRECT: <br/>
-            <strong> _______________________________</strong></p>
-
-
-
-            <p>SUBMITTED BY <br/>
-            <strong> ______________________________</strong></p>  
+          <p>CERTIFIED CORRECT: <br/>
+            <strong>{distributionData.certifiedCorrect || "_______________________________"}</strong>
+          </p>
+          <p>SUBMITTED BY: <br/>
+            <strong>{distributionData.submittedBy || "_______________________________"}</strong>
+          </p>  
         </div>
 
-        <button className="save-btn" onClick={handleSaveDistribution}>
-          Save Distribution Data
-        </button>
+        {(isUpdated || !distributionData.families.every((family) => family.status === "Done")) && (
+          <button className="save-btn" onClick={handleSaveDistribution}>
+            Save Distribution Data
+          </button>
+        )}
+
       </div>
     </div>
   );
