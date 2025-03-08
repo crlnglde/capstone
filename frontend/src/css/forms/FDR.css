@@ -51,6 +51,7 @@
   .table-container{
     padding: 20px 20px 20px 20px;
     overflow-x: auto ;
+    text-align: left;
   }
 
     .ifa{
@@ -91,6 +92,7 @@
       flex-direction: column;
       padding: 0 20px;
       margin: 0px 0 50px 0px;
+      text-align: left;
     }
 
       .fdr-container .reco .neym{

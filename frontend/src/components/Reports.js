@@ -5,7 +5,7 @@ import "../css/Reports.css";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 import FDR from  "./forms/FDR";
-import RDS from  "./forms/RDS";
+import SPORADIC from  "./forms/SPORADIC";
 import Payroll from "./forms/Payroll";
 
 import fireIncident from "../pic/fire.jpg";
@@ -193,8 +193,8 @@ const Reports = () => {
 
               <div className="form-container">
               
-                {activeTab === "RDS" ? (
-                  <RDS report={selectedReport} distribution={getDistributionForReport(selectedReport.id)}/>
+                {activeTab === "SPORADIC" ? (
+                  <SPORADIC report={selectedReport} distribution={getDistributionForReport(selectedReport.id)}/>
                 ) : activeTab === "FDR" ? (
                   <FDR report={selectedReport} distribution={getDistributionForReport(selectedReport.id)} />
                 ) : activeTab === "Payroll" ? (
