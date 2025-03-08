@@ -7,8 +7,36 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 
 const SPORADIC= ({ report, distribution }) => {
 
-    console.log("report:", report);
-    console.log("SPORADIC ditribution: ", distribution)
+    const [totalAssistance, setTotalAssistance] = useState(0);
+    const [totalEstimatedCost, setTotalEstimatedCost] = useState(0);
+    console.log("Families", report)
+
+    console.log("Distribution", distribution)
+  // Extract barangays array from the distribution prop
+  const barangays = distribution?.[0]?.barangays ?? [];
+
+  useEffect(() => {
+    let assistanceTotal = 0;
+    let estimatedCostTotal = 0;
+  
+    barangays.forEach((barangay) => {
+      barangay.distribution.forEach((dist) => {
+        dist.reliefItems.forEach((reliefItem) => {
+          const assistancePerFamily = (reliefItem.quantity ?? 0) * (reliefItem.assistanceCost ?? 0);
+          const affectedFamilies = dist.families?.length ?? 0;
+          const estimatedCost = assistancePerFamily * affectedFamilies;
+  
+          assistanceTotal += assistancePerFamily;
+          estimatedCostTotal += estimatedCost;
+        });
+      });
+    });
+  
+    setTotalAssistance(assistanceTotal);
+    setTotalEstimatedCost(estimatedCostTotal);
+  }, [distribution]);
+  
+
   return (
     <div className="sporadic">
 
@@ -75,7 +103,7 @@ const SPORADIC= ({ report, distribution }) => {
                             <td>{family.dependents.length}</td>
                             <td>{report.type}</td>
                             <td>{report.date}</td>
-                            <td>{family.is4ps ? "4Ps" : "Non-4Ps"}</td>
+                            <td>{family.extentDamage}</td>
                             <td>{family.isSenior ? "Yes" : "No"}</td>
                             <td>{family.isPWD ? "Yes" : "No"}</td>
                             <td>{family.isSolo ? "Yes" : "No"}</td>
@@ -92,47 +120,49 @@ const SPORADIC= ({ report, distribution }) => {
         <div className="table-container1">
             <h5 className="no-margin">Immediate Food Assistance From CSWD: </h5>
             <table className="ifa">
-                <thead>
-                    <tr>
-                        <th >Name of Agency</th>
-                        <th >Type of Relief Assistance</th>
-                        <th >Quantity</th>
-                        <th >Assistance per Family</th>
-                        <th >Estimated Cost</th>
-                        
-                    </tr>
+            <thead>
+              <tr>
+                <th>Name of Agency</th>
+                <th>Type of Relief Assistance</th>
+                <th>Quantity</th>
+                <th>Assistance per Family</th>
+                <th>Estimated Cost</th>
+              </tr>
+            </thead>
+            <tbody>
+                {barangays.map((barangay) =>
+                    barangay.distribution.map((dist, distIndex) => (
+                        <React.Fragment key={dist._id}>
+                            {dist.reliefItems.map((reliefItem, subIndex) => {
+                                const assistancePerFamily = (reliefItem.quantity ?? 0) * (reliefItem.assistanceCost ?? 0);
+                                const affectedFamilies = dist.families?.length ?? 0;
+                                const estimatedCost = assistancePerFamily * affectedFamilies;
 
-                </thead>
-                <tbody>
-                   
-                    <tr>
-                        <td rowSpan="3">CSWD</td> 
-                        <td rowSpan="3">Food Assistance</td> 
-                        <td>hehe</td>
-                        <td>hehe</td>
-                        <td>hehe</td>
-                    </tr>
+                                return (
+                                    <tr key={reliefItem?._id}>
+                                        {subIndex === 0 && (
+                                            <>
+                                                <td rowSpan={dist.reliefItems.length}>{dist.receivedFrom}</td>
+                                                <td rowSpan={dist.reliefItems.length}>{dist.assistanceType}</td>
+                                            </>
+                                        )}
+                                        <td>{reliefItem?.quantity ?? "N/A"} {reliefItem?.name ?? "N/A"} @ ₱{(reliefItem?.assistanceCost ?? 0).toLocaleString()}</td>
+                                        <td>₱{assistancePerFamily.toLocaleString()}</td>
+                                        <td>₱{assistancePerFamily.toLocaleString()} x {dist.families.length}= ₱{estimatedCost.toLocaleString()}</td>
+                                    </tr>
+                                );
+                            })}
+                        </React.Fragment>
+                    ))
+                )}
+                <tr>
+                    <td colSpan="3" style={{ textAlign: "right" }}>TOTAL</td>
+                    <td>₱{totalAssistance.toLocaleString()}</td>
+                    <td>₱{totalEstimatedCost.toLocaleString()}</td>
+                </tr>
 
-                    <tr>
-                        <td>hehe</td>
-                        <td>hehe</td>
-                        <td>hehe</td>
-                    </tr>
-
-                    <tr>
-                        <td>hehe</td>
-                        <td>hehe</td>
-                        <td>hehe</td>
-                    </tr>
-
-                    <tr>
-                        <td colSpan="3" style={{ textAlign: "right"}} >TOTAL</td>
-                        <td>hehe</td>
-                        <td>hehe</td>
-                    </tr>
-            
-                </tbody>
-            </table>
+            </tbody>
+          </table>
         </div>
 
         <div className="reco">

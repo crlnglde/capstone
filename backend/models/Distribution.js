@@ -10,13 +10,13 @@ const familySchema = new mongoose.Schema({
 // Relief Items Schema
 const reliefItemSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  assistanceType: { type: String, required: true },
-  assistanceCost:  { type: Number, required: true },
+  assistanceCost:  { type: Number},
   quantity: { type: Number, required: true }
 });
 
 // Distribution Schema (Updated)
 const distributionSchema = new mongoose.Schema({
+  assistanceType: { type: String},
   reliefItems: [reliefItemSchema], // Stores name & quantity of items
   dateDistributed: { type: Date, required: true },
   families: [familySchema], // Stores families receiving relief
