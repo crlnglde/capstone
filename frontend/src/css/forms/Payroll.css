@@ -1,0 +1,68 @@
+.payroll {
+    padding: 20px;
+    flex: 1;
+}
+
+.payrolls-container {
+    background-color: white;
+    border-collapse: collapse;
+    height: 600px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; 
+    box-sizing: border-box;
+    flex-wrap: wrap;
+    padding: 20px;
+    justify-content: center;
+  }
+  
+  .payroll-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    background-color: white;
+  }
+  
+  .payroll-table th,
+  .payroll-table td {
+    border: 1px solid black;
+    padding: 8px;
+  }
+  
+  .payroll-table th {
+    background-color: #ddd;
+    font-weight: bold;
+  }
+
+  .payroll-table td {
+    background-color: #ffffff;
+  }
+  
+  tfoot td {
+    font-weight: bold;
+  }
+  
+  /* Formatting for the total row */
+  tfoot {
+    background-color: #f0f0f0;
+  }
+  
+  .fdr {
+    margin: 0 auto;
+    width: 95%;
+  }
+  
+  .res-btn {
+    text-align: right;
+    margin-bottom: 10px;
+  }
+  
+  .footer {
+    margin-top: 20px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 16px;
+  }
+  
