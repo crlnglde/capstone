@@ -101,13 +101,18 @@
 
     .fdr-container .footer{
       display: flex;
-      justify-content: flex-start;
-      gap: 100px;
-      margin: 0px 20px 50px 20px;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      margin: 50px 20px 50px 20px;
     }
     
-      .sporadic-container .footer .neym{
+      .fdr-container .footer .neym{
         margin: 50px 0 0 20px;
+        width: max-content;
+      }
+
+      .fdr-container .footer .neym p{
+        text-align: center;
       }
 
     .no-margin {
