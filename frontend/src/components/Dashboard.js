@@ -3,10 +3,13 @@ import { useNavigate} from 'react-router-dom';
 import axios from "axios";
 import Papa from 'papaparse';
 import moment from "moment";
+import { LuClipboardPlus } from "react-icons/lu";
+import { GiConfirmed } from "react-icons/gi";
 import Ling from './visualizations/Line-gr'
 import Barc from './visualizations/Bar-ch'
 import Piec from './visualizations/Pie-ch'
 import Map from './visualizations/Iligan'
+import Modal from "./Modal";
 import "../css/Dashboard.css";
 
 const Dashboard = () => {
@@ -62,10 +65,8 @@ const Dashboard = () => {
     }
   };
 
-
   const handleAddDisaster = () => {
-    navigate("/dashboard/add-disaster");
-
+    navigate("/disaster/add-disaster"); 
   };
 
   const handleUploadCsvClick = () => {
@@ -73,17 +74,25 @@ const Dashboard = () => {
     setIsModalOpen(true);
   };
 
-  const handleViewMore = (disaster) => {
-    setModalType("viewmore");
+  const handleAddAffFam = (disaster) => {
+    setModalType("addAffectedFamily"); 
     setSelectedDisaster(disaster); 
     setIsModalOpen(true);
   };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedDisaster(null); 
-    setModalType("");
+  
+  const handleConfirm = (disaster) => {
+    setModalType("confirmDamageCategory"); 
+    setSelectedDisaster(disaster); 
+    setIsModalOpen(true); 
   };
+  
+  const handleViewMore = (disaster) => {
+    setModalType("viewmore"); 
+    setSelectedDisaster(disaster); 
+    setIsModalOpen(true); 
+  };
+
+  const closeModal = () => setIsModalOpen(false);
 
   const handleFileChange = (event) => {
     setFile(event.target.files[0]);
@@ -258,8 +267,6 @@ useEffect(() => {
     currentPage * rowsPerPage
   );
 
-
-  
   return (
     <div className="dashboard">
 
@@ -314,10 +321,6 @@ useEffect(() => {
 
           </div>
         </div>
-
-          
-
-          
           
           <div className="ch1">
             <Ling/>
@@ -331,12 +334,6 @@ useEffect(() => {
             <Piec barangay={selectedBarangay} year={selectedYear}/>
           </div>
         </div>
-
-
-
-        
-
-        
 
         <div className="disasters-table">
 
@@ -355,19 +352,24 @@ useEffect(() => {
           </div>
         </div>
 
+            <table>
+            <thead>
+              <tr>
+                <th rowSpan="2" className="wide-column">Disaster Code</th>
+                <th rowSpan="2" className="wide-column">Disaster Type</th>
+                <th rowSpan="2" className="wide-column">Disaster Date</th>
+                <th rowSpan="2" className="wide-column">Affected Barangay</th>
+                <th rowSpan="2" className="wide-column">No. of Affected Families</th>
+                <th rowSpan="2" className="wide-column">No. of Affected People</th>
+                <th colSpan="5" className="action-column">Actions</th>
+              </tr>
+              <tr>
+                <th className="action-column">Add</th>
+                <th className="action-column">Confirm</th>
+                <th className="action-column">View More</th>
+              </tr>
+            </thead>
 
-          <table>
-              <thead>
-                <tr>
-                  <th>Disaster Code</th>
-                  <th>Disaster Type</th>
-                  <th>Disaster Date</th>
-                  <th>Affected Barangay</th>
-                  <th>No. of Affected Families</th>
-                  <th>No. of Affected People</th>
-                  <th>View More</th>
-                </tr>
-              </thead>
               <tbody>
 
               {displayDisasters.length > 0 ? (
@@ -379,11 +381,22 @@ useEffect(() => {
                       <td>{disaster.barangay}</td>
                       <td>{disaster.affectedFamilies}</td>
                       <td>{disaster.affectedPersons}</td>
-                      <td>
+                      <td className="action-column">
+                        <button className="dash-viewmore-btn" onClick={() => handleAddAffFam(disaster)}>
+                          <LuClipboardPlus />
+                        </button>
+                      </td>
+                      <td className="action-column">
+                        <button className="dash-viewmore-btn" onClick={() => handleConfirm(disaster)}>
+                          <GiConfirmed />
+                        </button>
+                      </td>
+                      <td className="action-column">
                         <button className="dash-viewmore-btn" onClick={() => handleViewMore(disaster)}>
                           <i className="fa-solid fa-ellipsis"></i>
                         </button>
                       </td>
+
                     </tr>
                   ))
                 ) : (
@@ -441,147 +454,153 @@ useEffect(() => {
       )}
     */}
 
-      {isModalOpen && modalType === "viewmore" && selectedDisaster && (
-        <div className="viewmore-modal-overlay" onClick={handleCloseModal}>
-          
-          <div className="dash-modal" onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close-btn" onClick={handleCloseModal}>
-              ×
-            </button>
-
-              <form className="viewmore-form">
-                      <h2>Disaster Information</h2>
-
-                      <div className="viewmore-pop">
-
-                        <div className="vm-form-group">
-                          <label>Disaster Code</label>
-                          <div className="vm-input-group">
-                            <span className="icon"><i className="fa-solid fa-barcode"></i></span>
-                            <span className="label"> {selectedDisaster.disasterCode} </span>
-                          </div>
-                        </div>
-
-                        <div className="vm-form-group">
-                          <label>Disaster Type</label>
-                          <div className="vm-input-group">
-                            <span className="icon"><i className="fa-solid fa-list"></i></span>
-                            <span className="label">{selectedDisaster.disasterType}</span>
-                          </div>
-                        </div>
-                      </div>
-            
-                      <div className="viewmore-pop">
-
-                        <div className="vm-form-group">
-                          <label>Disaster Date</label>
-                          <div className="vm-input-group">
-                            <span className="icon"><i className="fa-regular fa-calendar-days"></i></span>
-                            <span className="label">{selectedDisaster.disasterDateTime}</span>
-                          </div>
-                        </div>
-
-                        <div className="vm-form-group">
-                          <label>Affected Barangays</label>
-                          <div className="vm-input-group">
-                            <span className="icon"><i className="fa-solid fa-person-shelter"></i></span>
-                            <span className="label">{selectedDisaster.barangay}</span>
-                          </div>
-                        </div>
-
-                      </div>
-
-                      <div className="viewmore-pop">
-
-                        <div className="vm-form-group">
-                          <label>No. of Affected Families</label>
-                          <div className="vm-input-group">
-                            <span className="icon"><i className="fa-solid fa-hashtag"></i></span>
-                            <span className="label">{selectedDisaster.affectedFamilies}</span>
-                          </div>
-                        </div>
-
-                        <div className="vm-form-group">
-                          <label>No. of Affected People</label>
-                          <div className="vm-input-group">
-                            <span className="icon"><i className="fa-solid fa-hashtag"></i></span>
-                            <span className="label">{selectedDisaster.affectedPersons}</span>
-                          </div>
-                        </div>
-
-                      </div>
-
-                      <div className="viewmore-pop">
-
-                        <div className="vm-form-group">
-                          <label>Sex Breakdown</label>
-                          <div className="vm-input-group">
-                            <span className="icon"><i className="fa-solid fa-user"></i></span>
-                            <span className="label">M: {selectedDisaster.sexBreakdown.males} F: {selectedDisaster.sexBreakdown.females}</span>
-                          </div>
-                        </div>
-
-                      </div>
-
-                      <div className="viewmore-pop">
-
-                        <div className="vm-form-group">
-                          <label>No. of Pregnant Women/Lacticating Mothers</label>
-                          <div className="vm-input-group">
-                            <span className="icon"><i className="fa-solid fa-hashtag"></i></span>
-                            <span className="label">{selectedDisaster.isPreg}</span>
-                          </div>
-                        </div>
-
-                        <div className="vm-form-group">
-                          <label>No. of 4P's</label>
-                          <div className="vm-input-group">
-                            <span className="icon"><i className="fa-solid fa-hashtag"></i></span>
-                            <span className="label">{selectedDisaster.is4ps}</span>
-                          </div>
-                        </div>
-
-                        <div className="vm-form-group">
-                          <label>No. of PWDs</label>
-                          <div className="vm-input-group">
-                            <span className="icon"><i className="fa-solid fa-hashtag"></i></span>
-                            <span className="label">{selectedDisaster.isPWD}</span>
-                          </div>
-                        </div>
-
-                      </div>
-
-                      <div className="viewmore-pop">
-
-                        
-
-                        <div className="vm-form-group">
-                          <label>No. of Solo Parents</label>
-                          <div className="vm-input-group">
-                            <span className="icon"><i className="fa-solid fa-hashtag"></i></span>
-                            <span className="label">{selectedDisaster.isSolo}</span>
-                          </div>
-                        </div>
-
-                        <div className="vm-form-group">
-                          <label>No. of IP</label>
-                          <div className="vm-input-group">
-                            <span className="icon"><i className="fa-solid fa-hashtag"></i></span>
-                            <span className="label">{selectedDisaster.isIps}</span>
-                          </div>
-                        </div>
-
-                      </div>
-
-              </form>
-
+      <Modal isOpen={isModalOpen} onClose={closeModal} title={
+        modalType === "addAffectedFamily" 
+          ? "Add Affected Family" 
+          : modalType === "confirmDamageCategory" 
+          ? "Confirm Damage Category" 
+          : modalType === "viewmore" 
+          ? "Distribution Details" 
+          : ""
+      }>
+        {modalType === "addAffectedFamily" && (
+          <div>
+            <p>Form or details to add affected families go here.</p>
           </div>
-        </div>
-      )}
+        )}
 
+        {modalType === "confirmDamageCategory" && (
+          <div>
+            <p>Confirmation form or details about damage category go here.</p>
+          </div>
+        )}
 
+        {modalType === "viewmore" && (
+          <form className="viewmore-form">
+              <div className="viewmore-pop">
 
+                <div className="vm-form-group">
+                  <label>Disaster Code</label>
+                  <div className="vm-input-group">
+                    <span className="icon"><i className="fa-solid fa-barcode"></i></span>
+                    <span className="label"> {selectedDisaster.disasterCode} </span>
+                  </div>
+                </div>
 
+                <div className="vm-form-group">
+                  <label>Disaster Type</label>
+                  <div className="vm-input-group">
+                    <span className="icon"><i className="fa-solid fa-list"></i></span>
+                    <span className="label">{selectedDisaster.disasterType}</span>
+                  </div>
+                </div>
+              </div>
+    
+              <div className="viewmore-pop">
+
+                <div className="vm-form-group">
+                  <label>Disaster Date</label>
+                  <div className="vm-input-group">
+                    <span className="icon"><i className="fa-regular fa-calendar-days"></i></span>
+                    <span className="label">{selectedDisaster.disasterDateTime}</span>
+                  </div>
+                </div>
+
+                <div className="vm-form-group">
+                  <label>Affected Barangays</label>
+                  <div className="vm-input-group">
+                    <span className="icon"><i className="fa-solid fa-person-shelter"></i></span>
+                    <span className="label">{selectedDisaster.barangay}</span>
+                  </div>
+                </div>
+
+              </div>
+
+              <div className="viewmore-pop">
+
+                <div className="vm-form-group">
+                  <label>No. of Affected Families</label>
+                  <div className="vm-input-group">
+                    <span className="icon"><i className="fa-solid fa-hashtag"></i></span>
+                    <span className="label">{selectedDisaster.affectedFamilies}</span>
+                  </div>
+                </div>
+
+                <div className="vm-form-group">
+                  <label>No. of Affected People</label>
+                  <div className="vm-input-group">
+                    <span className="icon"><i className="fa-solid fa-hashtag"></i></span>
+                    <span className="label">{selectedDisaster.affectedPersons}</span>
+                  </div>
+                </div>
+
+              </div>
+
+              <div className="viewmore-pop">
+
+                <div className="vm-form-group">
+                  <label>Sex Breakdown</label>
+                  <div className="vm-input-group">
+                    <span className="icon"><i className="fa-solid fa-user"></i></span>
+                    <span className="label">M: {selectedDisaster.sexBreakdown.males} F: {selectedDisaster.sexBreakdown.females}</span>
+                  </div>
+                </div>
+
+              </div>
+
+              <div className="viewmore-pop">
+
+                <div className="vm-form-group">
+                  <label>No. of Pregnant Women/Lacticating Mothers</label>
+                  <div className="vm-input-group">
+                    <span className="icon"><i className="fa-solid fa-hashtag"></i></span>
+                    <span className="label">{selectedDisaster.isPreg}</span>
+                  </div>
+                </div>
+
+                <div className="vm-form-group">
+                  <label>No. of 4P's</label>
+                  <div className="vm-input-group">
+                    <span className="icon"><i className="fa-solid fa-hashtag"></i></span>
+                    <span className="label">{selectedDisaster.is4ps}</span>
+                  </div>
+                </div>
+
+                <div className="vm-form-group">
+                  <label>No. of PWDs</label>
+                  <div className="vm-input-group">
+                    <span className="icon"><i className="fa-solid fa-hashtag"></i></span>
+                    <span className="label">{selectedDisaster.isPWD}</span>
+                  </div>
+                </div>
+
+              </div>
+
+              <div className="viewmore-pop">
+
+                
+
+                <div className="vm-form-group">
+                  <label>No. of Solo Parents</label>
+                  <div className="vm-input-group">
+                    <span className="icon"><i className="fa-solid fa-hashtag"></i></span>
+                    <span className="label">{selectedDisaster.isSolo}</span>
+                  </div>
+                </div>
+
+                <div className="vm-form-group">
+                  <label>No. of IP</label>
+                  <div className="vm-input-group">
+                    <span className="icon"><i className="fa-solid fa-hashtag"></i></span>
+                    <span className="label">{selectedDisaster.isIps}</span>
+                  </div>
+                </div>
+
+              </div>
+
+          </form>
+        )}
+      </Modal>
     </div>
   );
 };
