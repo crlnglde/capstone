@@ -4,6 +4,7 @@ import { useLocation } from "react-router-dom";
 import "../css/Sidebar.css";
 import Maxlogo from '../pic/logo-max.png'
 import Minlogo from '../pic/logo-min.png'
+import { SiHomeassistant } from "react-icons/si";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 
@@ -83,7 +84,7 @@ const Sidebar = ({isMinimized, setIsMinimized}) => {
               href="/distribution"
               className={isActive("/distribution") ? "active" : ""}
             >
-            <i class="fa-solid fa-hands-holding"></i>
+            <i> <SiHomeassistant /> </i>
             {!isMinimizedState && <span>Distribution</span>}
             </a>
           </li>
