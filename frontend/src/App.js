@@ -12,6 +12,7 @@ import AddDisaster from "./components/Add-Disaster";
 import Reports from "./components/Reports";
 import RDS from "./components/forms/RDS";
 import EditRDS from "./components/forms/EditRDS";
+import ViewRDS from "./components/forms/ViewRDS";
 import DAFAC from "./components/forms/DAFAC";
 import SPORADIC from "./components/forms/SPORADIC";
 import FDR from "./components/forms/FDR";
@@ -60,14 +61,16 @@ function App() {
             <Routes>
               <Route path="/" element={<Navigate to="/home" />} />
               <Route path="/home" element={<Home />} />
-              <Route path="/disaster" element={<Dashboard />} />  {/* add distribution after this*/}
+              <Route path="/disaster" element={<Dashboard />} /> 
+              <Route path="/disaster/add-disaster" element={<AddDisaster />} />
               <Route path="/distribution" element={<Distribution />}>
                 <Route path="rds" element={<RDS/>} />
-                <Route path="editrds" element={<EditRDS/>} />
+                <Route path="edit-rds" element={<EditRDS/>} />
+                <Route path="view-rds" element={<ViewRDS/>} />
               </Route>
 
               <Route path="/residents" element={<Residents />} />
-              <Route path="/dashboard/add-disaster" element={<AddDisaster />} />
+              
               <Route path="/reports" element={<Reports />} />
               <Route path="/rds" element={<RDS />} />
               <Route path="/dafac" element={<DAFAC />} />
