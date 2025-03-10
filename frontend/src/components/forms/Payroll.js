@@ -14,10 +14,6 @@ const Payroll= () => {
 
     return (
         <div className="payroll">
-        
-        <div className="res-btn">
-
-        </div>
 
         <div className="header">
             {/* Left Logo */}
