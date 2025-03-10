@@ -212,39 +212,6 @@
     background-color: #0A194E; /* Line color */
   }
 
-  .dash-viewmore-btn {
-    background-color: transparent;  /* Using transparent instead of #00000000 */
-    border: 2px solid transparent;  /* Border with no visible color */
-    color: #333;  /* Set a text color for the button */
-    padding: 10px 20px;  /* Adding some padding to make the button more clickable */
-    font-size: 16px;  /* Adjusting font size */
-    border-radius: 5px;  /* Slightly rounded corners */
-    cursor: pointer;  /* Change cursor to pointer to show it's clickable */
-    transition: background-color 0.3s, transform 0.2s ease, border-color 0.2s ease, color 0.3s ease; /* Smoother transition for multiple properties */
-  }
-
-  .dash-viewmore-btn:hover {
-    background-color: rgba(0, 0, 0, 0.1);  /* Light background color on hover */
-    border-color: #666;  /* Add subtle border color when hovered */
-    color: #000;  /* Change text color on hover for better contrast */
-    transform: translateY(-2px);  /* Slight lift effect on hover */
-  }
-
-  
-
-
-
-  .dstr-modal-content {
-    
-    border-radius: 8px;
-    padding: 20px;
-    width: 400px;
-    max-width: 90%;
-    
-    position: relative;
-    animation: fadeIn 0.3s ease;
-  }
-
   .pop-form .dstr-form-group {
     display: flex;
     flex-direction: column;
@@ -339,34 +306,9 @@
   
 
    /* Modals*/
-/* UploadOverlay */
-.dash-modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  animation: fadeInOverlay 0.3s ease;
-}
+
 
 /* UploadModal */
-.dash-modal {
-  background: #fff;
-  border-radius: 12px;
-  padding: 30px;
-  width: 500px;
-  max-width: 100%;
-  max-height: 80vh;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-  position: relative;
-  animation: fadeInModal 0.3s ease;
-  overflow-y: auto;
-}
 
 /* Input and buttons container */
 .upload-form {
@@ -430,6 +372,7 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  width: 800px;
 }
 
 .viewmore-form label {
@@ -524,9 +467,19 @@
   text-transform: uppercase;
   font-size: 12px;
   letter-spacing: 1px;
-  text-align: center;
+  text-align: center; 
   padding: 10px;
+  
 }
+
+  .disasters-table table thead tr{
+    /*background-color: rgb(10 25 78 / 69%);*/
+    color: rgb(0, 0, 0);
+  }
+  .disasters-table table thead tr:nth-child(even) {
+    background-color: #ffffff;
+    color: black;
+  }
 
 .disasters-table table td {
   font-size: 12px;
@@ -535,6 +488,48 @@
   padding: 10px;
   border-bottom: 1px solid #ddd;
 }
+
+      .wide-column {
+        width: 180px;
+      }
+
+      .action-column {
+        width: 50px;
+        text-align: center;
+      }
+        .disasters-table thead tr:first-child th {
+          background-color:rgb(10 25 78 / 69%);
+          color: white;
+        }
+
+        .disasters-table thead tr:first-child .action-column {
+          background-color:rgb(10 25 78 / 69%);
+          color: white;
+        }
+
+        .disasters-table thead tr:nth-child(2) .action-column {
+          font-size: 8px; 
+          text-align: center;
+          background-color: rgb(10 25 78 / 30%);
+        }
+        
+
+      .dash-viewmore-btn {
+        background-color: transparent;  
+        border: 2px solid transparent; 
+        color: #333; 
+        padding: 10px 20px;  
+        font-size: 16px;  
+        border-radius: 5px; 
+        cursor: pointer; 
+      }
+    
+      .dash-viewmore-btn:hover {
+        background-color: rgba(0, 0, 0, 0.1);  /* Light background color on hover */
+        border-color: #00000000;  /* Add subtle border color when hovered */
+        color: #000;  /* Change text color on hover for better contrast */
+        transform: translateY(-2px);  /* Slight lift effect on hover */
+      }
 
 .disasters-table p {
   font-size: 18px;
@@ -548,23 +543,6 @@
 
 
 /* Close button */
-.modal-close-btn {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  font-size: 30px;
-  border: none;
-  background: none;
-  cursor: pointer;
-  color: #333;
-  transition: color 0.3s ease, transform 0.2s ease;
-}
-
-.modal-close-btn:hover {
-  color: #000000;
-  background-color:#00000000;
-  transform: scale(1.1);
-}
 
 /* Animation for fade-in */
 @keyframes fadeInOverlay {

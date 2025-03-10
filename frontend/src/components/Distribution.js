@@ -4,6 +4,7 @@ import { Outlet } from "react-router-dom";
 import axios from "axios";
 import RDS from "./forms/RDS";
 import EditRDS from "./forms/EditRDS"
+import ViewRDS from "./forms/ViewRDS"
 import Modal from "./Modal";
 import Barc from './visualizations/Bar-ch'
 import Piec from './visualizations/Pie-ch'
@@ -110,7 +111,7 @@ const Distribution = () => {
     setIsEditMode(true)
     setStep(2);
     localStorage.setItem("distributionId", distributionId);
-    navigate("/distribution/editrds");
+    navigate("/distribution/edit-rds");
 };
 
   //for viewmore content sa distribution history 
@@ -493,26 +494,6 @@ const validateFields = () => {
 
               </table>
 
-              <div className="btn-container">
-
-                <button
-                  className="nav-button prev"
-                  onClick={handlePrev}
-                  disabled={currentPage === 1}
-                >
-                    <i className="fa-solid fa-angle-left"></i>
-                </button>
-
-
-                <button
-                  className="nav-button next"
-                  onClick={handleNext}
-                  disabled={currentPage === totalPages}
-                >
-                    <i className="fa-solid fa-angle-right"></i>
-                </button>
-              </div>
-
           </div>
 
         </div>
@@ -631,6 +612,7 @@ const validateFields = () => {
         ) : (
           // Distribution Details (View More)
           <div className="view-more-content">
+          
         <div className="tabs">
           {affectedBarangays.map((barangay) => (
             <button
@@ -643,9 +625,20 @@ const validateFields = () => {
           ))}
         </div>
 
-        {/* Display RDS Component Based on Selected Barangay */}
-        <RDS selectedBarangay={activeBarangay} />
+              {affectedBarangays.map((barangay) => (
+                <button
+                  key={barangay}
+                  className={activeBarangay === barangay ? "tab active" : "tab"}
+                  onClick={() => setActiveBarangay(barangay)}
+                >
+                  {barangay}
+                </button>
+              ))}
+            </div>
 
+            {/* Display RDS Component Based on Selected Barangay */}
+            <ViewRDS selectedBarangay={activeBarangay} />
+            
           </div>
 
         )}
