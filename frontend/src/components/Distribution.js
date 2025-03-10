@@ -613,28 +613,17 @@ const validateFields = () => {
           // Distribution Details (View More)
           <div className="view-more-content">
           
-        <div className="tabs">
-          {affectedBarangays.map((barangay) => (
-            <button
-              key={barangay}
-              className={activeBarangay === barangay ? "tab active" : "tab"}
-              onClick={() => setActiveBarangay(barangay)}
-            >
-              {barangay}
-            </button>
-          ))}
-        </div>
-
-              {affectedBarangays.map((barangay) => (
-                <button
-                  key={barangay}
-                  className={activeBarangay === barangay ? "tab active" : "tab"}
-                  onClick={() => setActiveBarangay(barangay)}
-                >
-                  {barangay}
-                </button>
-              ))}
-            </div>
+              <div className="tabs">
+                {affectedBarangays.map((barangay) => (
+                  <button
+                    key={barangay}
+                    className={activeBarangay === barangay ? "tab active" : "tab"}
+                    onClick={() => setActiveBarangay(barangay)}
+                  >
+                    {barangay}
+                  </button>
+                ))}
+              </div>
 
             {/* Display RDS Component Based on Selected Barangay */}
             <ViewRDS selectedBarangay={activeBarangay} />
