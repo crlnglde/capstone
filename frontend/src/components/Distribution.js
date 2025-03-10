@@ -27,7 +27,7 @@ const Distribution = () => {
 
           // Static list of affected barangays FOR VIEW MORE
           const [activeBarangay, setActiveBarangay] = useState("ALL");
-          const affectedBarangays = ["Barangay 1", "Barangay 2", "Barangay 3"];
+          const [affectedBarangays, setAffectedBarangays] = useState([]); 
 
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -115,9 +115,10 @@ const Distribution = () => {
 };
 
   //for viewmore content sa distribution history 
-  const handleViewMore = () => {
+  const handleViewMore = (barangays) => {
     setModalType("viewmore");
     setIsModalOpen(true);
+    setAffectedBarangays(barangays); 
   };
 
 
@@ -478,7 +479,7 @@ const validateFields = () => {
                         {item.barangays.map(barangay => `${barangay.name}`).join(" | ")}
                       </td>
                       <td>
-                        <button className="dash-viewmore-btn" onClick={() => handleViewMore()}>
+                        <button className="dash-viewmore-btn" onClick={() => handleViewMore(item.barangays.map(barangay => barangay.name))}>
                           <i className="fa-solid fa-ellipsis"></i>
                         </button>
                       </td>
@@ -611,13 +612,18 @@ const validateFields = () => {
         ) : (
           // Distribution Details (View More)
           <div className="view-more-content">
-            <div className="tabs">
-              <button
-                className={activeBarangay === "ALL" ? "tab active" : "tab"}
-                onClick={() => setActiveBarangay("ALL")}
-              >
-                All
-              </button>
+          
+        <div className="tabs">
+          {affectedBarangays.map((barangay) => (
+            <button
+              key={barangay}
+              className={activeBarangay === barangay ? "tab active" : "tab"}
+              onClick={() => setActiveBarangay(barangay)}
+            >
+              {barangay}
+            </button>
+          ))}
+        </div>
 
               {affectedBarangays.map((barangay) => (
                 <button
