@@ -197,12 +197,13 @@ app.put("/update-disaster/:disasterCode", async (req, res) => {
       return res.status(404).json({ message: "Disaster not found" });
     }
 
-    // Update only the affectedFamilies in existing barangays
+    // Iterate through new barangays
     barangays.forEach((newBarangay) => {
-      let existingBarangay = existingDisaster.barangays.find((b) => b.name === newBarangay.name);
+      let existingBarangay = existingDisaster.barangays.find(
+        (b) => b.name === newBarangay.name
+      );
 
       if (existingBarangay) {
-        // Add only new families (avoid duplicates)
         newBarangay.affectedFamilies.forEach((newFamily) => {
           const isDuplicate = existingBarangay.affectedFamilies.some(
             (existingFamily) =>
@@ -210,23 +211,33 @@ app.put("/update-disaster/:disasterCode", async (req, res) => {
               existingFamily.lastName === newFamily.lastName &&
               existingFamily.bdate === newFamily.bdate
           );
+
           if (!isDuplicate) {
             existingBarangay.affectedFamilies.push(newFamily);
           }
         });
       } else {
-        // If barangay does not exist, add it
+        // If the barangay does not exist, add it
         existingDisaster.barangays.push(newBarangay);
       }
     });
 
+    // Ensure Mongoose detects the change
+    existingDisaster.markModified("barangays");
+
+    // Save updated disaster record
     await existingDisaster.save();
 
-    res.json({ message: "Disaster data updated successfully", updatedDisaster: existingDisaster });
+    res.json({
+      message: "Disaster data updated successfully",
+      updatedDisaster: existingDisaster,
+    });
   } catch (error) {
+    console.error("Error updating disaster:", error);
     res.status(500).json({ message: "Server error", error });
   }
 });
+
 
 app.post("/add-distribution/:disasterCode/:barangayName", async (req, res) => {
   const { disasterCode, barangayName } = req.params;
@@ -420,6 +431,25 @@ app.get("/get-distribution/:distributionId", async (req, res) => {
       barangayName: barangay.name,
       distribution: specificDistribution
     });
+  } catch (error) {
+    console.error("Error fetching distribution:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+app.get("/get-disdistribution/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Find the entire distribution entry
+    const barangayDistribution = await Distribution.findById(id);
+
+    if (!barangayDistribution) {
+      return res.status(404).json({ message: "Distribution not found" });
+    }
+
+    // Return the entire distribution object
+    res.status(200).json(barangayDistribution);
   } catch (error) {
     console.error("Error fetching distribution:", error);
     res.status(500).json({ message: "Server error" });

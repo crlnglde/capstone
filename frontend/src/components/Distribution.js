@@ -28,6 +28,12 @@ const Distribution = () => {
           // Static list of affected barangays FOR VIEW MORE
           const [activeBarangay, setActiveBarangay] = useState("ALL");
           const [affectedBarangays, setAffectedBarangays] = useState([]); 
+          const [ViewDistribution, setViewDistribution] = useState(""); 
+          useEffect(() => {
+            if (affectedBarangays.length > 0) {
+              setActiveBarangay(affectedBarangays[0]); // Automatically select the first barangay ✅
+            }
+          }, [affectedBarangays]); // Runs when `affectedBarangays` updates
 
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -115,10 +121,11 @@ const Distribution = () => {
 };
 
   //for viewmore content sa distribution history 
-  const handleViewMore = (barangays) => {
+  const handleViewMore = (barangays, id) => {
     setModalType("viewmore");
     setIsModalOpen(true);
-    setAffectedBarangays(barangays); 
+    setAffectedBarangays(barangays.map(barangay => barangay.name)); 
+    setViewDistribution(id); 
   };
 
 
@@ -150,14 +157,9 @@ const Distribution = () => {
           const response = await axios.get("http://localhost:3003/get-disasters");
           const disasterData = response.data;
     
-          // Get the current date and subtract 3 days
-          const threeDaysAgo = new Date();
-          threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
-
-    
           // Filter disasters that happened **after** three days ago
           const recentDisasters = disasterData.filter(disaster =>
-            new Date(disaster.disasterDateTime) > threeDaysAgo   && disaster.disasterStatus === "Current" // Excludes disasters older than 3 days
+            disaster.disasterStatus === "Current"
           );
     
           setDisasters(recentDisasters);
@@ -479,7 +481,7 @@ const validateFields = () => {
                         {item.barangays.map(barangay => `${barangay.name}`).join(" | ")}
                       </td>
                       <td>
-                        <button className="dash-viewmore-btn" onClick={() => handleViewMore(item.barangays.map(barangay => barangay.name))}>
+                        <button className="dash-viewmore-btn" onClick={() => handleViewMore(item.barangays, item._id)}>
                           <i className="fa-solid fa-ellipsis"></i>
                         </button>
                       </td>
@@ -626,7 +628,7 @@ const validateFields = () => {
               </div>
 
             {/* Display RDS Component Based on Selected Barangay */}
-            <ViewRDS selectedBarangay={activeBarangay} />
+            <ViewRDS selectedBarangay={activeBarangay} distributionId= {ViewDistribution} />
             
           </div>
 

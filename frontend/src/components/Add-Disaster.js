@@ -47,12 +47,19 @@ const AddDisaster = () => {
     const totalPages = Math.ceil(residents.length / rowsPerPage);
 
     //new
-    const generateDisasterCode = (type) => {
+    const generateDisasterCode = (type, date) => {
+        if (!(date instanceof Date)) {
+            date = new Date(date); // Convert string to Date object
+        }
+        if (isNaN(date.getTime())) {
+            console.error("Invalid date:", date);
+            return "Invalid-Date";
+        }
+    
         const prefix = disasterTypeMapping[type] || "DX"; // Default to DX if type is unknown
-        const dateNow = new Date();
-        const formattedDate = `${(dateNow.getMonth() + 1).toString().padStart(2, "0")}${dateNow.getDate().toString().padStart(2, "0")}${dateNow.getFullYear()}`;
+        const formattedDate = `${(date.getMonth() + 1).toString().padStart(2, "0")}${date.getDate().toString().padStart(2, "0")}${date.getFullYear()}`;
         return `${prefix}-${formattedDate}`;
-        };
+    };
     //new
     const [activeResident, setActiveResident] = useState(null);
 
@@ -111,7 +118,6 @@ const AddDisaster = () => {
 
     const handleDisasterTypeChange = (e) => {
         setDisasterType(e.target.value);
-        setDisasterCode(generateDisasterCode(e.target.value));
         setDisasterStatus("Current")
         if (hasClickedNext) {
             validateFields();
@@ -120,6 +126,7 @@ const AddDisaster = () => {
 
     const handleDateChange = (e) => {
         setDate(e.target.value);
+        setDisasterCode(generateDisasterCode(disasterType, e.target.value));
         if (hasClickedNext) {
             validateFields();
         }
@@ -364,6 +371,8 @@ const AddDisaster = () => {
                     regDate: resident.regDate || "",
                 })),
             }));
+
+            console.log("Barangays",barangays);
     
             // Check if disaster already exists
             const checkResponse = await fetch(`http://localhost:3003/get-disaster/${disasterCode}`);
