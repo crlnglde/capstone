@@ -10,6 +10,8 @@ import Barc from './visualizations/Bar-ch'
 import Piec from './visualizations/Pie-ch'
 import Map from './visualizations/Iligan'
 import Modal from "./Modal";
+import AddAffFam from "./reusable/AddAffFam";
+import ConAffFam from "./reusable/ConAffFam";
 import "../css/Dashboard.css";
 
 const Dashboard = () => {
@@ -465,13 +467,13 @@ useEffect(() => {
       }>
         {modalType === "addAffectedFamily" && (
           <div>
-            <p>Form or details to add affected families go here.</p>
+            <AddAffFam/>
           </div>
         )}
 
         {modalType === "confirmDamageCategory" && (
           <div>
-            <p>Confirmation form or details about damage category go here.</p>
+            <ConAffFam/>
           </div>
         )}
 
