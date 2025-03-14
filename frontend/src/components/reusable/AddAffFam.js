@@ -6,8 +6,10 @@ import moment from "moment";
 import Modal from "../Modal";
 import "../../css/reusable/AddAffFam.css";
 import DAFAC from "../forms/DAFAC";
+import Modal from "../Modal";
 
-const AddAffFam = () => {
+
+const AddAffFam = ({disBarangay, disCode}) => {
 const [step, setStep] = useState(1);
     const navigate = useNavigate();  
 
@@ -29,13 +31,14 @@ const [step, setStep] = useState(1);
     const [barangayData, setBarangayData] = useState({});// To store all collected data per barangay
 
 
+    const [affectedFamilies, setAffectedFamilies] = useState([]);
     const [residents, setResidents] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
 
     const [currentPage, setCurrentPage] = useState(1); // State for current page
     const rowsPerPage = 10;
-    const totalPages = Math.ceil(residents.length / rowsPerPage);
+    const totalPages = Math.ceil(affectedFamilies.length / rowsPerPage);
 
     const [activeResident, setActiveResident] = useState(null);
     
@@ -53,13 +56,16 @@ const [step, setStep] = useState(1);
             setActiveResident(resident); // Set the active resident
             handleOpenModal("dafac"); // Open the modal with "add" type
         };
+
        
         const handleOpenModal = (type) => {
             setModalType(type);
             setIsModalOpen(true);
         };
+        
         const closeModal = () => setIsModalOpen(false);
-    
+        
+
         const validateFields = () => {
             const missingFields = [];
     
@@ -100,40 +106,6 @@ const [step, setStep] = useState(1);
                 validateFields();
             }
         };
-        
-        const handleBarangayClick = (barangay) => {
-            console.log(`Barangay clicked: ${barangay}`);
-       
-            if (barangay === activeBarangay) {
-                setActiveBarangay(null); // Deselect the active barangay
-                fetchResidents(barangay);
-            } else {
-                setActiveBarangay(barangay); // Set the clicked barangay as active
-                fetchResidents(barangay); // Fetch residents for the active barangay
-            }
-        };
-    
-    // Load saved selections from localStorage on component mount
-        //modified
-        useEffect(() => {
-            // Store all disaster information including the unique disaster code
-            const disasterData = {
-                disasterCode,
-                disasterStatus,
-                disasterType,
-                date,
-                selectedBarangays
-            };
-            localStorage.setItem('disasterData', JSON.stringify(disasterData));  // Store all relevant data
-            console.log('Disaster Data saved to localStorage:', disasterData);
-        }, [disasterCode, disasterType, date, selectedBarangays]);
-    
-    
-        // Save selected barangays to localStorage whenever they change
-        useEffect(() => {
-            localStorage.setItem('selectedBarangays', JSON.stringify(selectedBarangays));
-        }, [selectedBarangays]);
-    
     
         useEffect(() => {
             if (hasClickedNext) validateFields();
@@ -143,16 +115,17 @@ const [step, setStep] = useState(1);
             (currentPage - 1) * rowsPerPage,
             currentPage * rowsPerPage
           );
+        
     
         const isResidentSaved = (resident) => {
-        const savedData = JSON.parse(localStorage.getItem("savedForms")) || [];
-        
-        return savedData.some(data => 
-            data.firstName === resident.firstName &&
-            data.middleName === resident.middleName &&
-            data.lastName === resident.lastName &&
-            data.barangay === resident.barangay &&
-            data.purok === resident.purok
+            const savedData = JSON.parse(localStorage.getItem("savedForms")) || [];
+            
+            return savedData.some(data => 
+                data.firstName === resident.firstName &&
+                data.middleName === resident.middleName &&
+                data.lastName === resident.lastName &&
+                data.barangay === resident.barangay &&
+                data.purok === resident.purok
         );
         };
 
@@ -169,39 +142,168 @@ const [step, setStep] = useState(1);
             }
         };
 
-        const fetchResidents = async (barangay) => {
-            if (!barangay) {
-                console.warn("No barangay provided for fetching residents.");
-                return; // Early exit if no barangay is active
-            }
-       
-            setIsLoading(true);
-            setError(""); // Clear previous errors
-           
-            console.log(barangay);
-            try {
-                const response = await axios.get(`http://localhost:3003/get-brgyresidents?barangay=${barangay}`);
-                if (response.data.length === 0) {
-                    console.log(`No residents found for '${barangay}'`);
+        useEffect(() => {
+            const fetchResidents = async (barangay) => {
+                setIsLoading(true);
+                setError("");
+        
+                if (!barangay) {
+                    console.error("Invalid barangay value:", barangay);
+                    setIsLoading(false);
+                    return;
                 }
-       
-                console.log("Residents fetched successfully:", response.data);
-                setResidents(response.data);
-            } catch (err) {
-                console.error("Error fetching residents:", err);
-                setError("Failed to fetch residents. Please try again.");
-            } finally {
-                setIsLoading(false);
+        
+                try {
+                    const response = await axios.get(`http://localhost:3003/get-brgyresidents?barangay=${barangay}`);
+                    if (!response.data || response.data.length === 0) {
+                        console.warn(`No residents found for '${barangay}'`);
+                        setResidents([]);
+                    } else {
+                        setResidents(response.data);
+                    }
+                } catch (err) {
+                    console.error("Error fetching residents:", err);
+                    setError("Failed to fetch residents. Please try again.");
+                } finally {
+                    setIsLoading(false);
+                }
+            };
+        
+            if (disBarangay) {
+                fetchResidents(disBarangay); // Pass disBarangay correctly
+            }
+        }, [disBarangay]); // Runs only when disBarangay changes  
+        
+        useEffect(() => {
+            const fetchAffectedFamilies = async () => {
+                if (!disCode) return; // Ensure disasterCode is available
+        
+                setIsLoading(true);
+                setError("");
+        
+                try {
+                    const response = await axios.get(`http://localhost:3003/get-disaster/${disCode}`);
+                    const disasterData = response.data;
+
+                    function formatDate(datetime) {
+                        const date = new Date(datetime); // Parse ISO string
+                        const year = date.getFullYear();
+                        const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+                        const day = String(date.getDate()).padStart(2, '0');
+                        const hours = String(date.getHours()).padStart(2, '0'); // 24-hour format
+                        const minutes = String(date.getMinutes()).padStart(2, '0');
+                    
+                        return `${year}-${month}-${day}T${hours}:${minutes}`;
+                    }
+        
+                    setDisasterCode(disasterData.disasterCode)
+                    setDisasterStatus(disasterData.disasterStatus)
+                    setDisasterType(disasterData.disasterType)
+                    setDate(formatDate(disasterData.disasterDateTime))
+
+                    if (!disasterData || !disasterData.barangays) {
+                        console.warn("No barangays data found.");
+                        setAffectedFamilies([]);
+                        return;
+                    }
+        
+                    // Find the specified barangay
+                    const barangayData = disasterData.barangays.find(b => b.name === disBarangay);
+
+                    setSelectedBarangays(barangayData.name) 
+        
+                    if (!barangayData || !barangayData.affectedFamilies) {
+                        console.warn("No affected families found for this barangay.");
+                        setAffectedFamilies([]);
+                        return;
+                    }
+        
+                    // Extract affected families
+                    setAffectedFamilies(barangayData.affectedFamilies);
+        
+                } catch (err) {
+                    console.error("Error fetching affected families:", err);
+                    setError("Failed to fetch affected families. Please try again.");
+                } finally {
+                    setIsLoading(false);
+                }
+            };
+        
+            fetchAffectedFamilies();
+        }, [disCode, disBarangay]);         
+        
+        useEffect(() => {
+            // Store all disaster information including the unique disaster code
+            const disasterData = {
+                disasterCode,
+                disasterStatus,
+                disasterType,
+                date,
+                selectedBarangays
+            };
+            localStorage.setItem('disasterData', JSON.stringify(disasterData));  // Store all relevant data
+            console.log('Disaster Data saved to localStorage:', disasterData);
+        }, [disasterCode, disasterType, date, selectedBarangays]);
+    
+        const handleFinalSubmit = async () => {
+            const disasterData = JSON.parse(localStorage.getItem("disasterData")) || null;
+            const residentData = JSON.parse(localStorage.getItem("savedForms")) || [];
+        
+            if (!disasterData || residentData.length === 0) {
+                alert("No data found in localStorage to save.");
+                return;
+            }
+        
+            try {
+                const { disasterCode } = disasterData;
+        
+                // Group resident data by barangay
+                const groupedByBarangay = residentData.reduce((acc, resident) => {
+                    const barangay = resident.barangay || "Unknown Barangay";
+                    if (!acc[barangay]) acc[barangay] = [];
+                    acc[barangay].push(resident);
+                    return acc;
+                }, {});
+        
+                // Fetch existing disaster data
+                const checkResponse = await fetch(`http://localhost:3003/get-disaster/${disasterCode}`);
+                const existingDisaster = await checkResponse.json();
+        
+                if (checkResponse.ok && existingDisaster) {
+                    const updatedBarangays = existingDisaster.barangays.map(existingBarangay => {
+                        if (groupedByBarangay[existingBarangay.name]) {
+                            // Append new families only if they don't already exist
+                            const newFamilies = groupedByBarangay[existingBarangay.name].filter(newFamily =>
+                                !existingBarangay.affectedFamilies.some(existingFamily =>
+                                    existingFamily.firstName === newFamily.firstName &&
+                                    existingFamily.lastName === newFamily.lastName &&
+                                    existingFamily.bdate === newFamily.bdate
+                                )
+                            );
+                            return { ...existingBarangay, affectedFamilies: [...existingBarangay.affectedFamilies, ...newFamilies] };
+                        }
+                        return existingBarangay;
+                    });
+        
+                    const updateResponse = await fetch(`http://localhost:3003/update-disaster/${disasterCode}`, {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ barangays: updatedBarangays }),
+                    });
+        
+                    if (!updateResponse.ok) throw new Error("Failed to update disaster data.");
+                    alert("Affected families updated successfully!");
+                    localStorage.removeItem("savedForms");
+                    localStorage.removeItem("disasterData");
+                    closeModal();
+                } else {
+                    alert("Disaster not found!");
+                }
+            } catch (error) {
+                alert("An error occurred while saving data. Please try again.");
             }
         };
-       
-        useEffect(() => {
-            if (activeBarangay) {
-                const a= fetchResidents(activeBarangay);
-                console.log(a);
-            }
-        }, [activeBarangay]);
-    
+        
 
   return (
     <div className="AddAffFam">
@@ -209,17 +311,14 @@ const [step, setStep] = useState(1);
       <div className="AddAffFam-container">
 
         <div className="afffam-residents-table">
-            <div className="barangay-buttons">
-                <button
-                    className={`barangay-button ${selectedBarangays === activeBarangay ? 'active' : ''}`}
-                    onClick={() => handleBarangayClick(selectedBarangays)}
-                >
-                    {selectedBarangays}
-                </button>
-            </div>
+            <button
+                className={`barangay-button ${activeBarangay === disBarangay ? 'active' : ''}`}
+                //onClick={() => handleBarangayClick(disBarangay)}
+            >
+                {disBarangay}
+            </button>
 
-
-            {activeBarangay && (
+            {disBarangay && (
                 <div>
                     {isLoading ? (
                         <p>Loading...</p>
@@ -264,11 +363,18 @@ const [step, setStep] = useState(1);
                                                 : "No dependents"}
                                             </td> {/* Dependents information */}
                                             <td>
-                                                
-                                            <button className="res-submit-btn" onClick={() => handleResidentSelect(resident)} >
-                                                <i class="fa-solid fa-pen-to-square"></i>
+
+                                            <button 
+                                                className="res-submit-btn" 
+                                                onClick={() => handleResidentSelect(resident)}
+                                                disabled={affectedFamilies.some(family => family.id === resident.memId) || isResidentSaved(resident)}
+                                            >
+                                                <i className="fa-solid fa-pen-to-square"></i>
+
                                             </button>
+
                                             </td>
+
                                         </tr>
                                     ))
                                   ) : (
@@ -304,7 +410,7 @@ const [step, setStep] = useState(1);
                     {/*new*/}
                     <div className="dstr-bgay-btn">
 
-                        <button className="bgy-submit-btn" >
+                        <button className="bgy-submit-btn" onClick={handleFinalSubmit}>
                             <i class="fa-solid fa-floppy-disk"></i>Submit
                         </button>
 
@@ -320,11 +426,11 @@ const [step, setStep] = useState(1);
       <Modal isOpen={isModalOpen} onClose={closeModal} title={modalType === "dafac"}>
         {modalType === "dafac" && (
           <div>
-            <DAFAC/>
+             <DAFAC activeResident={activeResident} disasterData={JSON.parse(localStorage.getItem('disasterData'))} setIsModalOpen={setIsModalOpen}/> 
           </div>
         )}
       </Modal>
-   
+
     </div>
   );
 };
