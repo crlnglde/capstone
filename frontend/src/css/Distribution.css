@@ -5,6 +5,51 @@
   flex: 1;
 }
 
+          /*para ni sa button duha list and visualization*/
+          .distribution .toggle-container {
+            display: flex;
+            width: 100%;
+            background-color: #7c8396; /* Default background */
+            border-radius: 20px;
+            overflow: hidden;
+            margin: 0 0 20px 0;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2); /* Soft button-like shadow */
+          }
+          
+          .distribution .toggle-container button {
+            flex: 1;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
+            font-size: 16px;
+            font-weight: bold;
+            background: transparent;
+            color: white;
+          }
+          
+          /* Remove border-radius from middle edges */
+          .distribution .toggle-container button:first-child {
+            border-top-left-radius: 20px;
+            border-bottom-left-radius: 20px;
+          }
+          
+          .distribution .toggle-container button:last-child {
+            border-top-right-radius: 20px;
+            border-bottom-right-radius: 20px;
+          }
+          
+          /* Active state */
+          .distribution .toggle-container button.active {
+            background-color: #2f3651; /* Active button background */
+            color: white;
+          }
+          
+          /* Smooth hover effect */
+          .distribution .toggle-container button:hover {
+            background-color: rgba(47, 54, 81, 0.8); 
+          }
+
   .distribution .content-container{
     background-color: white;
     border-collapse: collapse;

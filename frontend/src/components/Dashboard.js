@@ -34,6 +34,8 @@ const Dashboard = () => {
   const [disBarangay, setDisBarangay] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
+  const [activeTab, setActiveTab] = useState("list");
+
   //list of barangays
   const barangays = [
     "Abuno", "Acmac-Mariano Badelles Sr.", "Bagong Silang", "Bonbonon", "Bunawan", "Buru-un", "Dalipuga",
@@ -205,88 +207,56 @@ useEffect(() => {
 
   return (
     <div className="dashboard">
-
-      <div className="dash-btn">
-
-        <button className="add-disaster" onClick={handleAddDisaster}>
-          <i className="fa-solid fa-file-circle-plus"></i>
-          Add Disaster
-        </button>
-        {/** 
-        <button className="upload-csv" onClick={handleUploadCsvClick}>
-          <i className="fa-solid fa-upload"></i>
-          Upload CSV
-        </button>
-        */}
-      </div>
+        
+        <div className="toggle-container">
+          <button
+            className={activeTab === "list" ? "active" : ""}
+            onClick={() => setActiveTab("list")}
+          >
+            List
+          </button>
+          <button
+            className={activeTab === "visualization" ? "active" : ""}
+            onClick={() => setActiveTab("visualization")}
+          >
+            Visualization
+          </button>
+        </div>
 
       <div className="dashboard-container">
 
-        <div className="disasters-visualizations">
+        {activeTab === "list" ? (
 
-        <div className="header-container">
-          <h2 className="header-title">Visualizations</h2>
+          <div className="disasters-table">
 
-          <div className="dis-filter">
-
-            <div className="dis-filter-container">
-              {/*dropdown for barangays*/}
-              <label htmlFor="barangay">Select Barangay: </label>
-              <select id="barangay" name="barangay" value={selectedBarangay} onChange={handleBarangayChange}>
-              <option value="All">All</option>
-                {barangays.map((barangay, index) => (
-                  <option key={index} value={barangay}>
-                    {barangay}
-                  </option>
-                ))}
-              </select>
-            </div>
-            
-            <div className="dis-filter-container">
-              {/*dropdown for years*/}
-              <label htmlFor="year">Select Year: </label>
-              <select id="year" name="year" value={selectedYear} onChange={handleYearChange}>
-              <option value="All">All</option>
-                {years.map((year, index) => (
-                  <option key={index} value={year}>
-                    {year}
-                  </option>
-                ))}
-              </select>
+            <div className="header-container">
+              <h2 className="header-title">List of Disasters</h2>
+              <div className="dstr-search">
+                <div className="dstr-search-container">
+                  <i className="fa-solid fa-magnifying-glass"></i>
+                  <input 
+                    type="text" 
+                    placeholder="Search..." 
+                    onChange={handleSearchChange} 
+                    className="search-bar"
+                  />
+                </div>
+              </div>
             </div>
 
-          </div>
-        </div>
-          
-          <div className="ch1">
-            <Ling/>
-          </div>
-          <div className="ch1">
-            <Barc barangay={selectedBarangay} year={selectedYear}/>
-          </div>
+            <div className="dash-btn">
 
-          <div className="ch2">
-            <Map barangay={selectedBarangay} year={selectedYear}/>
-            <Piec barangay={selectedBarangay} year={selectedYear}/>
-          </div>
-        </div>
-
-        <div className="disasters-table">
-
-        <div className="header-container">
-          <h2 className="header-title">List of Disasters</h2>
-          <div className="dstr-search">
-            <div className="dstr-search-container">
-              <i className="fa-solid fa-magnifying-glass"></i>
-              <input 
-                type="text" 
-                placeholder="Search..." 
-                onChange={handleSearchChange} 
-                className="search-bar"
-              />
+              <button className="add-disaster" onClick={handleAddDisaster}>
+                <i className="fa-solid fa-file-circle-plus"></i>
+                Add Disaster
+              </button>
+              {/** 
+              <button className="upload-csv" onClick={handleUploadCsvClick}>
+                <i className="fa-solid fa-upload"></i>
+                Upload CSV
+              </button>
+              */}
             </div>
-          </div>
-        </div>
 
             <table>
             <thead>
@@ -343,29 +313,85 @@ useEffect(() => {
                                       
               </tbody>
             </table>
-          
-        </div>
+
+            {/*wala pa ni css */}
+            <div className="res-button-container">
+              <button
+                className="nav-button prev"
+                onClick={handlePrev}
+                disabled={currentPage === 1}
+              >
+                  <i className="fa-solid fa-angle-left"></i>
+              </button>
+
+
+              <button
+                className="nav-button next"
+                onClick={handleNext}
+                disabled={currentPage === totalPages}
+              >
+                  <i className="fa-solid fa-angle-right"></i>
+              </button>
+            </div>
+
+          </div>
+        ):(  
+          <div className="disasters-visualizations">
+
+            <div className="header-container">
+              <h2 className="header-title">Visualizations</h2>
+    
+              <div className="dis-filter">
+    
+                <div className="dis-filter-container">
+                  {/*dropdown for barangays*/}
+                  <label htmlFor="barangay">Select Barangay: </label>
+                  <select id="barangay" name="barangay" value={selectedBarangay} onChange={handleBarangayChange}>
+                  <option value="All">All</option>
+                    {barangays.map((barangay, index) => (
+                      <option key={index} value={barangay}>
+                        {barangay}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div className="dis-filter-container">
+                  {/*dropdown for years*/}
+                  <label htmlFor="year">Select Year: </label>
+                  <select id="year" name="year" value={selectedYear} onChange={handleYearChange}>
+                  <option value="All">All</option>
+                    {years.map((year, index) => (
+                      <option key={index} value={year}>
+                        {year}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+    
+              </div>
+            </div>
+            
+            <div className="ch1">
+              <Ling/>
+            </div>
+            <div className="ch1">
+              <Barc barangay={selectedBarangay} year={selectedYear}/>
+            </div>
+  
+            <div className="ch2">
+              <Map barangay={selectedBarangay} year={selectedYear}/>
+              <Piec barangay={selectedBarangay} year={selectedYear}/>
+            </div>
+          </div>
+
+        )}
+
+
+
+
+        
               
-        {/*wala pa ni css */}
-        <div className="res-button-container">
-          <button
-            className="nav-button prev"
-            onClick={handlePrev}
-            disabled={currentPage === 1}
-          >
-              <i className="fa-solid fa-angle-left"></i>
-          </button>
-
-
-          <button
-            className="nav-button next"
-            onClick={handleNext}
-            disabled={currentPage === totalPages}
-          >
-              <i className="fa-solid fa-angle-right"></i>
-          </button>
-        </div>
-
       </div>
     {/** 
       {isModalOpen && modalType === "upload" && (

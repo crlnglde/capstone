@@ -3,9 +3,11 @@ import { useNavigate} from 'react-router-dom';
 import axios from "axios";
 import Papa from 'papaparse';
 import moment from "moment";
+import Modal from "../Modal";
 import "../../css/reusable/AddAffFam.css";
 import DAFAC from "../forms/DAFAC";
 import Modal from "../Modal";
+
 
 const AddAffFam = ({disBarangay, disCode}) => {
 const [step, setStep] = useState(1);
@@ -49,6 +51,12 @@ const [step, setStep] = useState(1);
             navigate(-1);  
         }
     };
+
+        const handleResidentSelect = (resident) => {
+            setActiveResident(resident); // Set the active resident
+            handleOpenModal("dafac"); // Open the modal with "add" type
+        };
+
        
         const handleOpenModal = (type) => {
             setModalType(type);
@@ -57,10 +65,6 @@ const [step, setStep] = useState(1);
         
         const closeModal = () => setIsModalOpen(false);
         
-        const handleResidentSelect = (resident) => {
-            setActiveResident(resident); // Set the active resident
-            handleOpenModal("dafac"); // Open the modal with "add" type
-        };
 
         const validateFields = () => {
             const missingFields = [];
@@ -359,12 +363,14 @@ const [step, setStep] = useState(1);
                                                 : "No dependents"}
                                             </td> {/* Dependents information */}
                                             <td>
+
                                             <button 
                                                 className="res-submit-btn" 
                                                 onClick={() => handleResidentSelect(resident)}
                                                 disabled={affectedFamilies.some(family => family.id === resident.memId) || isResidentSaved(resident)}
                                             >
                                                 <i className="fa-solid fa-pen-to-square"></i>
+
                                             </button>
 
                                             </td>
@@ -416,6 +422,7 @@ const [step, setStep] = useState(1);
         </div>
 
       </div>
+
       <Modal isOpen={isModalOpen} onClose={closeModal} title={modalType === "dafac"}>
         {modalType === "dafac" && (
           <div>
@@ -423,6 +430,7 @@ const [step, setStep] = useState(1);
           </div>
         )}
       </Modal>
+
     </div>
   );
 };

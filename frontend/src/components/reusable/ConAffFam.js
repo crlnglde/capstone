@@ -4,6 +4,8 @@ import axios from "axios";
 import Papa from 'papaparse';
 import moment from "moment";
 import "../../css/reusable/ConAffFam.css";
+import Modal from "../Modal";
+import DAFAC from "../forms/DAFAC";
 
 const ConAffFam = ({disBarangay, disCode}) => {
 const [step, setStep] = useState(1);
@@ -50,14 +52,15 @@ const [step, setStep] = useState(1);
 
         const handleResidentSelect = (resident) => {
             setActiveResident(resident); // Set the active resident
-            handleOpenModal("add"); // Open the modal with "add" type
+            handleOpenModal("dafac"); // Open the modal with "add" type
         };
        
         const handleOpenModal = (type) => {
             setModalType(type);
             setIsModalOpen(true);
         };
-        const handleCloseModal = () => setIsModalOpen(false);
+
+        const closeModal = () => setIsModalOpen(false);
     
         const validateFields = () => {
             const missingFields = [];
@@ -213,8 +216,8 @@ const [step, setStep] = useState(1);
             </button>
             </div>
 
-
             {disBarangay && (
+
                 <div>
                     {isLoading ? (
                         <p>Loading...</p>
@@ -262,7 +265,7 @@ const [step, setStep] = useState(1);
                                             <td>
                                                 
                                             <button className="res-submit-btn">
-                                                <i class="fa-solid fa-pen-to-square"></i>
+                                                <i class="fa-solid fa-pen-to-square" onClick={() => handleResidentSelect(resident)}></i>
                                             </button>
                                             </td>
 
@@ -319,6 +322,14 @@ const [step, setStep] = useState(1);
         </div>
 
       </div>
+
+      <Modal isOpen={isModalOpen} onClose={closeModal} title={modalType === "dafac"}>
+        {modalType === "dafac" && (
+          <div>
+            <DAFAC/>
+          </div>
+        )}
+      </Modal>
    
     </div>
   );

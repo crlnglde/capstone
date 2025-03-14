@@ -22,6 +22,7 @@ const Distribution = () => {
   const [step, setStep] = useState(1);
   const [recentDisasters, setDisasters] = useState([]);
   const [distribution, setDistribution] = useState([]);
+  const [activeTab, setActiveTab] = useState("list");
 
   const [isEditMode, setIsEditMode] = useState(false);
 
@@ -132,6 +133,7 @@ const Distribution = () => {
     const handleBackClick = () => {
       if (step > 1) {
         setStep(step - 1);
+        setIsEditMode(false);
         navigate("/distribution"); 
       } else {
         navigate(-1); 
@@ -299,223 +301,253 @@ const validateFields = () => {
 
   return (
     <div className="distribution">
-      {step === 1 ? (
-      <>
-        <div className="content-container">
 
-          <div className="column">
-            {/* Current */}
-            <div className="distribution-table">
-              <div className="header-container">
-                <h2 className="header-title">Current Disaster</h2>
-              </div>
-
-              <div className="container">
-              {recentDisasters.length > 0 ? (
-                recentDisasters.map((disaster, index) => (
-                  <div key={index} className="transactionItem"> 
-                    <div className="dateBox">
-                      <span className="date">{new Date(disaster.disasterDateTime).getDate()}</span>
-                      <span className="month">{new Date(disaster.disasterDateTime).toLocaleString('default', { month: 'short' })}</span>
-                    </div>
-                    <div className="details">
-                      <span className="title">{disaster.disasterType}</span>
-                      <span className="subtitle">{disaster.disasterCode}</span>
-                    </div>
-                     {/* Display affected barangays properly */}
-                      {disaster.barangays && disaster.barangays.length > 0 && (
-                        <div className="brgy">
-                          <span className="subtitle">
-                            {disaster.barangays.map((barangay, bIndex) => (
-                              <span key={bIndex}>{barangay.name}{bIndex !== disaster.barangays.length - 1 ? ", " : ""}</span>
-                            ))}
-                          </span>
-                        </div>
-                      )}
-                    <div className="actions">
-                    <button className="addButton" onClick={() => {
-                        localStorage.setItem("selectedDisasterCode", disaster.disasterCode);
-                        openModal(disaster);
-                      }}>
-                        Add
-                      </button>
-                      <button className="doneButton" onClick={() => handleDoneClick(disaster.disasterCode)}>
-                        Done
-                      </button>
-                    </div>
-                  </div>
-                  ) )): (
-                    <tr>
-                      <td colSpan="5">No disasters found.</td>
-                    </tr>
-                )}
-              </div>
-
-              <div className="btn-container">
-
-                <button
-                  className="nav-button prev"
-                  onClick={handlePrev}
-                  disabled={currentPage === 1}
-                >
-                    <i className="fa-solid fa-angle-left"></i>
-                </button>
-
-
-                <button
-                  className="nav-button next"
-                  onClick={handleNext}
-                  disabled={currentPage === totalPages}
-                >
-                    <i className="fa-solid fa-angle-right"></i>
-                </button>
-              </div>
-            </div>
-          
-            {/* Pending */}
-            <div className="distribution-table">
-            <div className="header-container">
-              <h2 className="header-title">Pending Distribution</h2>
-            </div>
-
-            <div className="container">
-              {pendingDistributions.length > 0 ? (
-                pendingDistributions.map((distItem, index) => (
-                  <div key={index} >
-                    {/* Loop through barangays */}
-                    {distItem.barangays.map((barangay, bIndex) => (
-                      <div key={bIndex}>
-                        {barangay.distribution.map((dist, dIndex) => (
-                          <div key={dIndex} className="transactionItem">
-                            {/* Date Box */}
-                            <div className="dateBox">
-                              <span className="date">{new Date(dist.dateDistributed).getDate()}</span>
-                              <span className="month">
-                                {new Date(dist.dateDistributed).toLocaleString("default", { month: "short" })}
-                              </span>
-                            </div>
-
-                            {/* Disaster Code */}
-                            <div className="details">
-                              <span className="title">{distItem.disasterCode}</span>
-                            </div>
-
-                            {/* Barangay Name */}
-                            <div className="brgy">
-                              <span className="subtitle">{barangay.name}</span>
-                            </div>
-
-                            {/* Actions */}
-                            <div className="actions">
-                              <button className="doneButton" onClick={() => handleEdit(dist._id)} >Edit</button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ))}
-                  </div>
-                ))
-              ) : (
-                <div>No distributions found.</div>
-              )}
-            </div>
-
-
-              <div className="btn-container">
-
-                <button
-                  className="nav-button prev"
-                  onClick={handlePrev}
-                  disabled={currentPage === 1}
-                >
-                    <i className="fa-solid fa-angle-left"></i>
-                </button>
-
-
-                <button
-                  className="nav-button next"
-                  onClick={handleNext}
-                  disabled={currentPage === totalPages}
-                >
-                    <i className="fa-solid fa-angle-right"></i>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/*History */}
-          <div className="distribution-table">
-
-            <div className="header-container">
-              <h2 className="header-title">Distribution History</h2>
-              <div className="dstr-search">
-                <div className="dstr-search-container">
-                  <i className="fa-solid fa-magnifying-glass"></i>
-                  <input 
-                    type="text" 
-                    placeholder="Search..." 
-                    onChange={handleSearchChange} 
-                    className="search-bar"
-                  />
-                </div>
-              </div>
-            </div>
-
-              <table>
-                <thead>
-                  <tr>
-                    <th>Disaster Code</th>
-                    <th>Disaster Date</th>
-                    <th>Affected Barangay</th>
-                    <th>View More</th>
-                  </tr>
-                </thead>
-              
-              <tbody>
-                {displayDistribution.length > 0 ? (
-                  displayDistribution.map((item, index) => (
-                    <tr key={index}>
-                      <td>{item.disasterCode}</td>
-                      <td>{new Date(item.disasterDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</td>
-                      <td>
-                        {item.barangays.map(barangay => `${barangay.name}`).join(" | ")}
-                      </td>
-                      <td>
-                        <button className="dash-viewmore-btn" onClick={() => handleViewMore(item.barangays, item._id)}>
-                          <i className="fa-solid fa-ellipsis"></i>
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="5">No disasters found.</td>
-                  </tr>
-                )}
-              </tbody>
-
-              </table>
-
-          </div>
-
-        </div>
-
-      </>
-      ) : (
-
-        <div className="rds-form-container">
-
-          <div className="back">
-            <button className="backButton" onClick={handleBackClick}>
-              <i className="fa-solid fa-chevron-left"></i>
-              Back
+        {!isEditMode && (
+          <div className="toggle-container">
+            <button
+              className={activeTab === "list" ? "active" : ""}
+              onClick={() => setActiveTab("list")}
+            >
+              List
+            </button>
+            <button
+              className={activeTab === "visualization" ? "active" : ""}
+              onClick={() => setActiveTab("visualization")}
+            >
+              Visualization
             </button>
           </div>
+        )}
+
+        {activeTab === "list" ? (
+            step === 1 ? (
+            <>
+              <div className="content-container">
+
+                <div className="column">
+                  {/* Current */}
+                  <div className="distribution-table">
+                    <div className="header-container">
+                      <h2 className="header-title">Current Disaster</h2>
+                    </div>
+
+                    <div className="container">
+                    {recentDisasters.length > 0 ? (
+                      recentDisasters.map((disaster, index) => (
+                        <div key={index} className="transactionItem"> 
+                          <div className="dateBox">
+                            <span className="date">{new Date(disaster.disasterDateTime).getDate()}</span>
+                            <span className="month">{new Date(disaster.disasterDateTime).toLocaleString('default', { month: 'short' })}</span>
+                          </div>
+                          <div className="details">
+                            <span className="title">{disaster.disasterType}</span>
+                            <span className="subtitle">{disaster.disasterCode}</span>
+                          </div>
+                          {/* Display affected barangays properly */}
+                            {disaster.barangays && disaster.barangays.length > 0 && (
+                              <div className="brgy">
+                                <span className="subtitle">
+                                  {disaster.barangays.map((barangay, bIndex) => (
+                                    <span key={bIndex}>{barangay.name}{bIndex !== disaster.barangays.length - 1 ? ", " : ""}</span>
+                                  ))}
+                                </span>
+                              </div>
+                            )}
+                          <div className="actions">
+                          <button className="addButton" onClick={() => {
+                              localStorage.setItem("selectedDisasterCode", disaster.disasterCode);
+                              openModal(disaster);
+                            }}>
+                              Add
+                            </button>
+                            <button className="doneButton" onClick={() => handleDoneClick(disaster.disasterCode)}>
+                              Done
+                            </button>
+                          </div>
+                        </div>
+                        ) )): (
+                          <tr>
+                            <td colSpan="5">No disasters found.</td>
+                          </tr>
+                      )}
+                    </div>
+
+                    <div className="btn-container">
+
+                      <button
+                        className="nav-button prev"
+                        onClick={handlePrev}
+                        disabled={currentPage === 1}
+                      >
+                          <i className="fa-solid fa-angle-left"></i>
+                      </button>
 
 
-         {isEditMode ? <EditRDS /> : <RDS />}
-        </div>
-      )}
+                      <button
+                        className="nav-button next"
+                        onClick={handleNext}
+                        disabled={currentPage === totalPages}
+                      >
+                          <i className="fa-solid fa-angle-right"></i>
+                      </button>
+                    </div>
+                  </div>
+                
+                  {/* Pending */}
+                  <div className="distribution-table">
+                  <div className="header-container">
+                    <h2 className="header-title">Pending Distribution</h2>
+                  </div>
+
+                  <div className="container">
+                    {pendingDistributions.length > 0 ? (
+                      pendingDistributions.map((distItem, index) => (
+                        <div key={index} >
+                          {/* Loop through barangays */}
+                          {distItem.barangays.map((barangay, bIndex) => (
+                            <div key={bIndex}>
+                              {barangay.distribution.map((dist, dIndex) => (
+                                <div key={dIndex} className="transactionItem">
+                                  {/* Date Box */}
+                                  <div className="dateBox">
+                                    <span className="date">{new Date(dist.dateDistributed).getDate()}</span>
+                                    <span className="month">
+                                      {new Date(dist.dateDistributed).toLocaleString("default", { month: "short" })}
+                                    </span>
+                                  </div>
+
+                                  {/* Disaster Code */}
+                                  <div className="details">
+                                    <span className="title">{distItem.disasterCode}</span>
+                                  </div>
+
+                                  {/* Barangay Name */}
+                                  <div className="brgy">
+                                    <span className="subtitle">{barangay.name}</span>
+                                  </div>
+
+                                  {/* Actions */}
+                                  <div className="actions">
+                                    <button className="doneButton" onClick={() => handleEdit(dist._id)} >Edit</button>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          ))}
+                        </div>
+                      ))
+                    ) : (
+                      <div>No distributions found.</div>
+                    )}
+                  </div>
+
+
+                    <div className="btn-container">
+
+                      <button
+                        className="nav-button prev"
+                        onClick={handlePrev}
+                        disabled={currentPage === 1}
+                      >
+                          <i className="fa-solid fa-angle-left"></i>
+                      </button>
+
+
+                      <button
+                        className="nav-button next"
+                        onClick={handleNext}
+                        disabled={currentPage === totalPages}
+                      >
+                          <i className="fa-solid fa-angle-right"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/*History */}
+                <div className="distribution-table">
+
+                  <div className="header-container">
+                    <h2 className="header-title">Distribution History</h2>
+                    <div className="dstr-search">
+                      <div className="dstr-search-container">
+                        <i className="fa-solid fa-magnifying-glass"></i>
+                        <input 
+                          type="text" 
+                          placeholder="Search..." 
+                          onChange={handleSearchChange} 
+                          className="search-bar"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Disaster Code</th>
+                          <th>Disaster Date</th>
+                          <th>Affected Barangay</th>
+                          <th>View More</th>
+                        </tr>
+                      </thead>
+                    
+                    <tbody>
+                      {displayDistribution.length > 0 ? (
+                        displayDistribution.map((item, index) => (
+                          <tr key={index}>
+                            <td>{item.disasterCode}</td>
+                            <td>{new Date(item.disasterDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</td>
+                            <td>
+                              {item.barangays.map(barangay => `${barangay.name}`).join(" | ")}
+                            </td>
+                            <td>
+                              <button className="dash-viewmore-btn" onClick={() => handleViewMore(item.barangays, item._id)}>
+                                <i className="fa-solid fa-ellipsis"></i>
+                              </button>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan="5">No disasters found.</td>
+                        </tr>
+                      )}
+                    </tbody>
+
+                    </table>
+
+                </div>
+
+              </div>
+
+            </>
+            ) : (
+
+              <div className="rds-form-container">
+
+                <div className="back">
+                  <button className="backButton" onClick={handleBackClick}>
+                    <i className="fa-solid fa-chevron-left"></i>
+                    Back
+                  </button>
+                </div>
+
+
+              {isEditMode ? <EditRDS /> : <RDS />}
+              </div>
+            )
+
+        ):(
+          <div className="disasters-visualizations">
+            <div className="header-container">
+              <h2 className="header-title">Visualizations</h2>
+
+            </div>
+          </div>
+        )}
+
+      
 
       <Modal isOpen={isModalOpen} onClose={closeModal} title={modalType === "rds" ? "RDS" : "Distribution Details"}>
 
