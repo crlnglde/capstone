@@ -5,7 +5,7 @@ import Papa from 'papaparse';
 import moment from "moment";
 import "../../css/reusable/ConAffFam.css";
 
-const ConAffFam = () => {
+const ConAffFam = ({disBarangay, disCode}) => {
 const [step, setStep] = useState(1);
     const navigate = useNavigate();  
 
@@ -27,6 +27,7 @@ const [step, setStep] = useState(1);
     const [barangayData, setBarangayData] = useState({});// To store all collected data per barangay
 
 
+    const [affectedFamilies, setAffectedFamilies] = useState([]);
     const [residents, setResidents] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
@@ -36,7 +37,7 @@ const [step, setStep] = useState(1);
     const totalPages = Math.ceil(residents.length / rowsPerPage);
 
     const [activeResident, setActiveResident] = useState(null);
-    
+
     const handleBackClick = () => {
 
         if (step > 1) {
@@ -98,18 +99,6 @@ const [step, setStep] = useState(1);
                 validateFields();
             }
         };
-        
-        const handleBarangayClick = (barangay) => {
-            console.log(`Barangay clicked: ${barangay}`);
-       
-            if (barangay === activeBarangay) {
-                setActiveBarangay(null); // Deselect the active barangay
-                fetchResidents(barangay);
-            } else {
-                setActiveBarangay(barangay); // Set the clicked barangay as active
-                fetchResidents(barangay); // Fetch residents for the active barangay
-            }
-        };
     
     // Load saved selections from localStorage on component mount
         //modified
@@ -122,8 +111,7 @@ const [step, setStep] = useState(1);
                 date,
                 selectedBarangays
             };
-            localStorage.setItem('disasterData', JSON.stringify(disasterData));  // Store all relevant data
-            console.log('Disaster Data saved to localStorage:', disasterData);
+            localStorage.setItem('disasterData', JSON.stringify(disasterData));
         }, [disasterCode, disasterType, date, selectedBarangays]);
     
     
@@ -167,38 +155,47 @@ const [step, setStep] = useState(1);
             }
         };
 
-        const fetchResidents = async (barangay) => {
-            if (!barangay) {
-                console.warn("No barangay provided for fetching residents.");
-                return; // Early exit if no barangay is active
-            }
-       
-            setIsLoading(true);
-            setError(""); // Clear previous errors
-           
-            console.log(barangay);
-            try {
-                const response = await axios.get(`http://localhost:3003/get-brgyresidents?barangay=${barangay}`);
-                if (response.data.length === 0) {
-                    console.log(`No residents found for '${barangay}'`);
-                }
-       
-                console.log("Residents fetched successfully:", response.data);
-                setResidents(response.data);
-            } catch (err) {
-                console.error("Error fetching residents:", err);
-                setError("Failed to fetch residents. Please try again.");
-            } finally {
-                setIsLoading(false);
-            }
-        };
-       
         useEffect(() => {
-            if (activeBarangay) {
-                const a= fetchResidents(activeBarangay);
-                console.log(a);
+            const fetchAffectedFamilies = async (disCode, disBarangay) => {
+                if (!disCode || !disBarangay) {
+                    console.warn("No disaster code or barangay provided.");
+                    return;
+                }
+        
+                setIsLoading(true);
+                setError(""); // Clear previous errors
+        
+                try {
+                    const response = await fetch(`http://localhost:3003/get-disaster/${disCode}`);
+                    const data = await response.json();
+        
+                    if (!data || !data.barangays) {
+                        throw new Error("Invalid data received.");
+                    }
+        
+                    // Find the specific barangay
+                    const barangay = data.barangays.find(b => b.name === disBarangay);
+                    if (!barangay) {
+                        console.log(`No residents found for barangay '${disBarangay}'`);
+                        setResidents([]);
+                        return;
+                    }
+        
+                    // Set affected families from the selected barangay
+                    setResidents(barangay.affectedFamilies || []);
+        
+                } catch (err) {
+                    console.error("Error fetching residents:", err);
+                    setError("Failed to fetch residents. Please try again.");
+                } finally {
+                    setIsLoading(false);
+                }
+            };
+        
+            if (disCode && disBarangay) {
+                fetchAffectedFamilies(disCode, disBarangay);
             }
-        }, [activeBarangay]);
+        }, [disCode, disBarangay]);        
     
 
   return (
@@ -208,16 +205,16 @@ const [step, setStep] = useState(1);
 
         <div className="afffam-residents-table">
             <div className="barangay-buttons">
-                <button
-                    className={`barangay-button ${selectedBarangays === activeBarangay ? 'active' : ''}`}
-                    onClick={() => handleBarangayClick(selectedBarangays)}
-                >
-                    {selectedBarangays}
-                </button>
+            <button
+                className={`barangay-button ${activeBarangay === disBarangay ? 'active' : ''}`}
+                //onClick={() => handleBarangayClick(disBarangay)}
+            >
+                {disBarangay}
+            </button>
             </div>
 
 
-            {activeBarangay && (
+            {disBarangay && (
                 <div>
                     {isLoading ? (
                         <p>Loading...</p>
@@ -245,7 +242,7 @@ const [step, setStep] = useState(1);
                                 {displayResidents.length > 0 ? (
                                     displayResidents.map((resident, index) => (
                                         <tr key={resident.id}>
-                                            <td>{resident.barangay}</td>
+                                            <td>{disBarangay}</td>
                                             <td>{resident.purok}</td>
                                             <td>{resident.firstName} {resident.middleName} {resident.lastName}</td> 
                                             <td>{resident.age}</td> 

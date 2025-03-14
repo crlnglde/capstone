@@ -30,6 +30,8 @@ const Dashboard = () => {
   const totalPages = Math.ceil(disasters.length / rowsPerPage);
 
   const [selectedDisaster, setSelectedDisaster] = useState(null);
+  const [disCode, setSelectedDisCode] = useState(null);
+  const [disBarangay, setDisBarangay] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
   //list of barangays
@@ -76,15 +78,17 @@ const Dashboard = () => {
     setIsModalOpen(true);
   };
 
-  const handleAddAffFam = (disaster) => {
+  const handleAddAffFam = (disCode, disBarangay) => {
     setModalType("addAffectedFamily"); 
-    setSelectedDisaster(disaster); 
+    setSelectedDisCode(disCode); 
+    setDisBarangay(disBarangay); 
     setIsModalOpen(true);
   };
   
-  const handleConfirm = (disaster) => {
+  const handleConfirm = (disCode, disBarangay) => {
     setModalType("confirmDamageCategory"); 
-    setSelectedDisaster(disaster); 
+    setSelectedDisCode(disCode); 
+    setDisBarangay(disBarangay); 
     setIsModalOpen(true); 
   };
   
@@ -99,72 +103,6 @@ const Dashboard = () => {
   const handleFileChange = (event) => {
     setFile(event.target.files[0]);
   };
-{/** 
-  const handleFileUpload = async (event) => {
-    event.preventDefault();
- 
-    if (file) {
-      setIsUploading(true);
- 
-      // Parse the CSV file
-      Papa.parse(file, {
-        header: true,
-        complete: async (result) => {
-          const parsedData = result.data;
-          const collectionRef = collection(db, "disasters"); // Replace with your Firestore collection name
- 
-          // Map the CSV fields to single-word keys
-          const mappedData = parsedData.map(row => ({
-            barangays: row["Affected Barangays"],
-            contact: row["Camp Manager Contact"],
-            disasterCode: row["Disaster Code"],
-            disasterDate: row["Disaster Date"],
-            disasterType: row["Disaster Type"],
-            familiesInEC: row["No. Of Families Inside ECs"],
-            affectedFamilies: row["No. of Affected Families"],
-            affectedPersons: row["No. of Affected Persons"],
-            indigenousPeoples: row["Number of Indigenous Peoples"],
-            lactatingMothers: row["Number of Lactating Mothers"],
-            pwds: row["Number of PWDs"],
-            pregnantWomen: row["Number of Pregnant Women"],
-            soloParents: row["Number of Solo Parents"],
-            assistanceNeeded: row["Services/Assistance Needed"],
-            sexBreakdown: row["Sex Breakdown"],
-          }));
- 
-          // Upload each transformed row to Firestore
-          for (const row of mappedData) {
-            try {
-              console.log("Uploading row:", row); // Log row being uploaded
-              await addDoc(collectionRef, row); // Upload row to Firestore
-             
-              console.log("Disaster Code:", row.disasterCode); // Check the disasterCode value
-              if (!row.disasterCode) {
-                console.error("Missing disaster code for row:", row); // Log if disasterCode is missing
-                return; // Skip the row if disasterCode is missing
-              }
-            } catch (error) {
-              console.error("Error uploading row:", row, error); // Log the row that failed
-            }
-          }
-
- 
-          setIsUploading(false);
-          setIsModalOpen(false);
-          alert("File upload process completed!");
-          window.location.reload();
-        },
-        error: (error) => {
-          console.error("Error parsing CSV file:", error);
-          setIsUploading(false);
-          alert("Error parsing CSV file: " + error.message);
-          
-        },
-      });
-    }
-  };
-
-*/}
 
   //fetch disaster
 //fetch disaster
@@ -173,7 +111,6 @@ useEffect(() => {
     try {
       const response = await axios.get("http://localhost:3003/get-disasters");
       const disasterData = response.data;
-      console.log("Disasters from DB:", disasterData);
 
       if (!Array.isArray(disasterData)) {
         console.error("Error: Expected an array but got", disasterData);
@@ -205,8 +142,6 @@ useEffect(() => {
             if (family.isSolo) isSolo++;
           });
 
-          console.log ("hehe", is4ps)
-
           return {
             disasterCode: disaster.disasterCode,
             disasterType: disaster.disasterType,
@@ -230,7 +165,6 @@ useEffect(() => {
         })
       );
 
-      console.log("Transformed Disasters (By Barangay):", transformedData);
       setDisasters(transformedData);
     } catch (error) {
       console.error("Error fetching disasters data:", error);
@@ -384,12 +318,12 @@ useEffect(() => {
                       <td>{disaster.affectedFamilies}</td>
                       <td>{disaster.affectedPersons}</td>
                       <td className="action-column">
-                        <button className="dash-viewmore-btn" onClick={() => handleAddAffFam(disaster)}>
+                        <button className="dash-viewmore-btn" onClick={() => handleAddAffFam(disaster.disasterCode, disaster.barangay)}>
                           <LuClipboardPlus />
                         </button>
                       </td>
                       <td className="action-column">
-                        <button className="dash-viewmore-btn" onClick={() => handleConfirm(disaster)}>
+                        <button className="dash-viewmore-btn" onClick={() => handleConfirm(disaster.disasterCode, disaster.barangay)}>
                           <GiConfirmed />
                         </button>
                       </td>
@@ -467,13 +401,13 @@ useEffect(() => {
       }>
         {modalType === "addAffectedFamily" && (
           <div>
-            <AddAffFam/>
+            <AddAffFam  disBarangay={disBarangay} disCode={disCode}/>
           </div>
         )}
 
         {modalType === "confirmDamageCategory" && (
           <div>
-            <ConAffFam/>
+            <ConAffFam disBarangay={disBarangay} disCode={disCode}/>
           </div>
         )}
 

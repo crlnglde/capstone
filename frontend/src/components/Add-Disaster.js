@@ -313,10 +313,10 @@ const AddDisaster = () => {
           data.barangay === resident.barangay &&
           data.purok === resident.purok
         );
-      };
+    };
       
      //modified
-     const handleFinalSubmit = async () => {
+    const handleFinalSubmit = async () => {
         // Retrieve disasterData and residentData from localStorage
         const disasterData = JSON.parse(localStorage.getItem("disasterData")) || null;
         const residentData = JSON.parse(localStorage.getItem("savedForms")) || [];
