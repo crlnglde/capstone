@@ -26,10 +26,6 @@ const Dashboard = () => {
   const [selectedBarangay, setSelectedBarangay] = useState("All");
   const [selectedYear, setSelectedYear] = useState("All");
 
-  const [currentPage, setCurrentPage] = useState(1); // State for current page
-  const rowsPerPage = 10;
-  const totalPages = Math.ceil(disasters.length / rowsPerPage);
-
   const [selectedDisaster, setSelectedDisaster] = useState(null);
   const [disCode, setSelectedDisCode] = useState(null);
   const [disBarangay, setDisBarangay] = useState("");
@@ -57,19 +53,6 @@ const Dashboard = () => {
   
   const handleYearChange = (event) => {
     setSelectedYear(event.target.value);
-  };
-
-  //page sa disasters
-  const handleNext = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(prev => prev + 1);
-    }
-  };
-
-  const handlePrev = () => {
-    if (currentPage > 1) {
-      setCurrentPage(prev => prev - 1);
-    }
   };
 
   const handleAddDisaster = () => {
@@ -113,7 +96,6 @@ const Dashboard = () => {
     setFile(event.target.files[0]);
   };
 
-  //fetch disaster
 //fetch disaster
 useEffect(() => {
   const fetchDisasters = async () => {
@@ -206,11 +188,35 @@ useEffect(() => {
     });
   });  
 
+  //page sa disasters
+    const [disasterPage, setDisasterPage] = useState(1);
+    const disastersPerPage = 6;
+    const totalPages = Math.ceil(disasters.length / disastersPerPage);
 
-  const displayDisasters = filteredDisasters.slice(
-    (currentPage - 1) * rowsPerPage,
-    currentPage * rowsPerPage
-  );
+    // Sort disastersList by disasterDateTime (latest first)
+    const sortedDisasters = [...disasters].sort(
+      (a, b) => new Date(b.disasterDateTime) - new Date(a.disasterDateTime)
+    );
+
+    const totalDisasterPages = Math.ceil(sortedDisasters.length / disastersPerPage);
+
+    const handleNextDisaster = () => {
+      if (disasterPage < totalDisasterPages) {
+        setDisasterPage(disasterPage + 1);
+      }
+    };
+    
+    const handlePrevDisaster = () => {
+      if (disasterPage > 1) {
+        setDisasterPage(disasterPage - 1);
+      }
+    };
+
+  // Slice the sorted disasters for pagination
+      const displayDisasters = sortedDisasters.slice(
+        (disasterPage - 1) * disastersPerPage,
+        disasterPage * disastersPerPage
+      );
 
   return (
     <div className="dashboard">
@@ -265,33 +271,34 @@ useEffect(() => {
               */}
             </div>
 
-            <table>
-            <thead>
-              <tr>
-                <th rowSpan="2" className="wide-column">Disaster Code</th>
-                <th rowSpan="2" className="wide-column">Disaster Type</th>
-                <th rowSpan="2" className="wide-column">Disaster Date</th>
-                <th rowSpan="2" className="wide-column">Affected Barangay</th>
-                <th colSpan="5" className="action-column">Actions</th>
-              </tr>
-              <tr>
-                <th className="action-column">Add</th>
-                <th className="action-column">Edit</th>
-                <th className="action-column">Confirm</th>
-                <th className="action-column">View More</th>
-              </tr>
-            </thead>
+            <div className="distab">
+              <table>
+                <thead>
+                  <tr>
+                    <th rowSpan="2" className="wide-column">Disaster Code</th>
+                    <th rowSpan="2" className="wide-column">Disaster Type</th>
+                    <th rowSpan="2" className="wide-column">Disaster Date</th>
+                    <th rowSpan="2" className="wide-column">Affected Barangay</th>
+                    <th colSpan="5" className="action-column">Actions</th>
+                  </tr>
+                  <tr>
+                    <th className="action-column">Add</th>
+                    <th className="action-column">Edit</th>
+                    <th className="action-column">Confirm</th>
+                    <th className="action-column">View More</th>
+                  </tr>
+                </thead>
 
-              <tbody>
+                <tbody>
 
-              {displayDisasters.length > 0 ? (
-                  displayDisasters.map((disaster, index) => (
-                    <tr key={index}>
-                      <td>{disaster.disasterCode}</td>
-                      <td>{disaster.disasterType}</td>
-                      <td>{disaster.disasterDateTime}</td>
-                      <td>{disaster.barangay}</td>
-                      <td className="action-column">
+                {displayDisasters.length > 0 ? (
+                    displayDisasters.map((disaster, index) => (
+                      <tr key={index}>
+                        <td>{disaster.disasterCode}</td>
+                        <td>{disaster.disasterType}</td>
+                        <td>{disaster.disasterDateTime}</td>
+                        <td>{disaster.barangay}</td>
+                              <td className="action-column">
                         <button className="dash-viewmore-btn" onClick={() => handleAddAffFam(disaster.disasterCode, disaster.barangay)}>
                           <LuClipboardPlus />
                         </button>
@@ -312,34 +319,34 @@ useEffect(() => {
                         </button>
                       </td>
 
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="7">No disasters found.</td>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="7">No disasters found.</td>
-                  </tr>
-                )}
-                                      
-              </tbody>
-            </table>
-
-            {/*wala pa ni css */}
+                  )}
+                                        
+                </tbody>
+              </table>
+            </div>
+    
+            {/*Pagination*/}
             <div className="res-button-container">
               <button
                 className="nav-button prev"
-                onClick={handlePrev}
-                disabled={currentPage === 1}
+                onClick={handlePrevDisaster}
+                disabled={disasterPage === 1}
               >
-                  <i className="fa-solid fa-angle-left"></i>
+                <i className="fa-solid fa-angle-left"></i>
               </button>
-
 
               <button
                 className="nav-button next"
-                onClick={handleNext}
-                disabled={currentPage === totalPages}
+                onClick={handleNextDisaster}
+                disabled={disasterPage === totalDisasterPages}
               >
-                  <i className="fa-solid fa-angle-right"></i>
+                <i className="fa-solid fa-angle-right"></i>
               </button>
             </div>
 
@@ -394,13 +401,7 @@ useEffect(() => {
             </div>
           </div>
 
-        )}
-
-
-
-
-        
-              
+        )}    
       </div>
     {/** 
       {isModalOpen && modalType === "upload" && (
@@ -433,12 +434,12 @@ useEffect(() => {
           : modalType === "confirmDamageCategory" 
           ? "Confirm Damage Category" 
           : modalType === "viewmore" 
-          ? "Distribution Details" 
+          ? "Disaster Details" 
           : ""
       }>
         {modalType === "addAffectedFamily" && (
           <div>
-            <AddAffFam  disBarangay={disBarangay} disCode={disCode}/>
+            <AddAffFam  disBarangay={disBarangay} disCode={disCode} closeModal={closeModal}/>
           </div>
         )}
 

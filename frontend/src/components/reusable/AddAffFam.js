@@ -5,10 +5,9 @@ import Papa from 'papaparse';
 import moment from "moment";
 import "../../css/reusable/AddAffFam.css";
 import DAFAC from "../forms/DAFAC";
-import Modal from "../Modal";
 
 
-const AddAffFam = ({disBarangay, disCode}) => {
+const AddAffFam = ({disBarangay, disCode, closeModal}) => {
 const [step, setStep] = useState(1);
     const navigate = useNavigate();  
 
@@ -40,6 +39,9 @@ const [step, setStep] = useState(1);
     const totalPages = Math.ceil(affectedFamilies.length / rowsPerPage);
 
     const [activeResident, setActiveResident] = useState(null);
+
+    const [searchQuery, setSearchQuery] = useState("");
+
     
     const handleBackClick = () => {
 
@@ -62,7 +64,6 @@ const [step, setStep] = useState(1);
             setIsModalOpen(true);
         };
         
-        const closeModal = () => setIsModalOpen(false);
         
 
         const validateFields = () => {
@@ -294,14 +295,26 @@ const [step, setStep] = useState(1);
                     alert("Affected families updated successfully!");
                     localStorage.removeItem("savedForms");
                     localStorage.removeItem("disasterData");
-                    closeModal();
+
+                    if (typeof closeModal === "function") {
+                        closeModal(); // Close modal on successful submission
+                    }
                 } else {
                     alert("Disaster not found!");
                 }
             } catch (error) {
                 alert("An error occurred while saving data. Please try again.");
+            }finally{
+               
             }
         };
+
+        //search
+        const handleSearchChange = (event) => {
+            const query = event.target.value.toLowerCase();
+            setSearchQuery(query);
+            console.log("Search Query: ", query); // Debugging the query
+          };
         
 
   return (
@@ -316,6 +329,18 @@ const [step, setStep] = useState(1);
             >
                 {disBarangay}
             </button>
+
+            <div className="dstr-search">
+                <div className="dstr-search-container">
+                  <i className="fa-solid fa-magnifying-glass"></i>
+                  <input 
+                    type="text" 
+                    placeholder="Search..." 
+                    onChange={handleSearchChange} 
+                    className="search-bar"
+                  />
+                </div>
+            </div>
 
             {disBarangay && (
                 <div>
@@ -368,7 +393,11 @@ const [step, setStep] = useState(1);
                                                 onClick={() => handleResidentSelect(resident)}
                                                 disabled={affectedFamilies.some(family => family.id === resident.memId) || isResidentSaved(resident)}
                                             >
-                                                <i className="fa-solid fa-pen-to-square"></i>
+                                                 {affectedFamilies.some(family => family.id === resident.memId) || isResidentSaved(resident) ? (
+                                                    <i className="fa-solid fa-check-circle"></i>
+                                                ) : (
+                                                    <i className="fa-solid fa-pen-to-square"></i> 
+                                                )}
 
                                             </button>
 
@@ -409,7 +438,7 @@ const [step, setStep] = useState(1);
                     {/*new*/}
                     <div className="dstr-bgay-btn">
 
-                        <button className="bgy-submit-btn" onClick={handleFinalSubmit}>
+                        <button className="bgy-submit-btn" onClick={handleFinalSubmit} >
                             <i class="fa-solid fa-floppy-disk"></i>Submit
                         </button>
 

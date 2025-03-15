@@ -11,20 +11,26 @@ import Piec from './visualizations/Pie-ch'
 import Map from './visualizations/Iligan'
 import "../css/Distribution.css";
 
-const Distribution = () => {
+import SignaturePad from "./Signature";
+
+const Distribution = ({ setNavbarTitle }) => {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState("rds");
   const [currentPage, setCurrentPage] = useState(1); // State for current page
   const rowsPerPage = 10;
   const totalPages = 20;
-  //const totalPages = Math.ceil(disasters.length / rowsPerPage);
   const [step, setStep] = useState(1);
   const [recentDisasters, setDisasters] = useState([]);
   const [distribution, setDistribution] = useState([]);
   const [activeTab, setActiveTab] = useState("list");
 
   const [isEditMode, setIsEditMode] = useState(false);
+
+  useEffect(() => {
+    setNavbarTitle(`Distribution > ${activeTab === "list" ? "List" : "Visualization"}`);
+  }, [activeTab, setNavbarTitle]);
+
 
           // Static list of affected barangays FOR VIEW MORE
           const [activeBarangay, setActiveBarangay] = useState("ALL");
@@ -137,19 +143,6 @@ const Distribution = () => {
         navigate("/distribution"); 
       } else {
         navigate(-1); 
-      }
-    };
-
-    //page sa disasters
-    const handleNext = () => {
-      if (currentPage < totalPages) {
-        setCurrentPage(prev => prev + 1);
-      }
-    };
-  
-    const handlePrev = () => {
-      if (currentPage > 1) {
-        setCurrentPage(prev => prev - 1);
       }
     };
 
@@ -299,6 +292,93 @@ const validateFields = () => {
 };
 
 
+//pagination area
+    const [currentDisastersPage, setCurrentDisastersPage] = useState(1);// pagination sa current
+    const [pendingDistributionsPage, setPendingDistributionsPage] = useState(1);///pagination sa pending
+    const [historyPage, setHistoryPage] = useState(1);
+
+    const disastersPerPage = 3;  
+    const pendingPerPage = 3;
+    const historyPerPage = 6;
+
+    // Sort disasters by disasterDateTime (latest first)
+      const sortedDisasters = [...recentDisasters].sort(
+        (a, b) => new Date(b.disasterDateTime) - new Date(a.disasterDateTime)
+      );
+
+    // Sort pending distributions by dateDistributed (latest first)
+      const sortedPending = [...pendingDistributions].sort(
+        (a, b) => {
+          const latestA = Math.max(...a.barangays.flatMap(b => b.distribution.map(d => new Date(d.dateDistributed))));
+          const latestB = Math.max(...b.barangays.flatMap(b => b.distribution.map(d => new Date(d.dateDistributed))));
+          return latestB - latestA;
+        }
+      );
+
+      const sortedHistory = [...displayDistribution].sort(
+        (a, b) => new Date(b.disasterDate) - new Date(a.disasterDate)
+      );
+
+      const totalDisasterPages = Math.ceil(sortedDisasters.length / disastersPerPage);
+      const totalPendingPages = Math.ceil(sortedPending.length / pendingPerPage);
+      const totalDistributionHistoryPages = Math.ceil(sortedHistory.length / historyPerPage);
+
+    // Handle pagination for Current Disasters
+      const handleNextDisasters = () => {
+        if (currentDisastersPage < totalDisasterPages) {
+          setCurrentDisastersPage(currentDisastersPage + 1);
+        }
+      };
+
+      const handlePrevDisasters = () => {
+        if (currentDisastersPage > 1) {
+          setCurrentDisastersPage(currentDisastersPage - 1);
+        }
+      };
+
+    // Handle pagination for Pending Distributions
+      const handleNextPending = () => {
+        if (pendingDistributionsPage < totalPendingPages) {
+          setPendingDistributionsPage(pendingDistributionsPage + 1);
+        }
+      };
+
+      const handlePrevPending = () => {
+        if (pendingDistributionsPage > 1) {
+          setPendingDistributionsPage(pendingDistributionsPage - 1);
+        }
+      };
+
+    // Pagination handlers for History
+      const handleNextHistory = () => {
+        if (historyPage < totalDistributionHistoryPages) {
+          setHistoryPage(historyPage + 1);
+        }
+      };
+
+      const handlePrevHistory = () => {
+        if (historyPage > 1) {
+          setHistoryPage(historyPage - 1);
+        }
+      };
+
+
+    // Slice the data to show only the required page data
+      const displayedDisasters = sortedDisasters.slice(
+        (currentDisastersPage - 1) * disastersPerPage,
+        currentDisastersPage * disastersPerPage
+      );
+      
+      const displayedPending = sortedPending.slice(
+        (pendingDistributionsPage - 1) * pendingPerPage,
+        pendingDistributionsPage * pendingPerPage
+      );
+
+      const displayedHistory = sortedHistory.slice(
+        (historyPage - 1) * historyPerPage,
+        historyPage * historyPerPage
+      );
+
   return (
     <div className="distribution">
 
@@ -332,8 +412,8 @@ const validateFields = () => {
                     </div>
 
                     <div className="container">
-                    {recentDisasters.length > 0 ? (
-                      recentDisasters.map((disaster, index) => (
+                    {displayedDisasters.length > 0 ? (
+                      displayedDisasters.map((disaster, index) => (
                         <div key={index} className="transactionItem"> 
                           <div className="dateBox">
                             <span className="date">{new Date(disaster.disasterDateTime).getDate()}</span>
@@ -374,91 +454,88 @@ const validateFields = () => {
 
                     <div className="btn-container">
 
-                      <button
-                        className="nav-button prev"
-                        onClick={handlePrev}
-                        disabled={currentPage === 1}
+                      <button 
+                        className="nav-button prev" 
+                        onClick={handlePrevDisasters} 
+                        disabled={currentDisastersPage === 1}
                       >
-                          <i className="fa-solid fa-angle-left"></i>
+                        <i className="fa-solid fa-angle-left"></i>
                       </button>
 
 
-                      <button
-                        className="nav-button next"
-                        onClick={handleNext}
-                        disabled={currentPage === totalPages}
+                      <button 
+                        className="nav-button next" 
+                        onClick={handleNextDisasters} 
+                        disabled={currentDisastersPage === totalDisasterPages}
                       >
-                          <i className="fa-solid fa-angle-right"></i>
+                        <i className="fa-solid fa-angle-right"></i>
                       </button>
                     </div>
                   </div>
                 
                   {/* Pending */}
                   <div className="distribution-table">
-                  <div className="header-container">
-                    <h2 className="header-title">Pending Distribution</h2>
-                  </div>
+                    <div className="header-container">
+                      <h2 className="header-title">Pending Distribution</h2>
+                    </div>
 
-                  <div className="container">
-                    {pendingDistributions.length > 0 ? (
-                      pendingDistributions.map((distItem, index) => (
-                        <div key={index} >
-                          {/* Loop through barangays */}
-                          {distItem.barangays.map((barangay, bIndex) => (
-                            <div key={bIndex}>
-                              {barangay.distribution.map((dist, dIndex) => (
-                                <div key={dIndex} className="transactionItem">
-                                  {/* Date Box */}
-                                  <div className="dateBox">
-                                    <span className="date">{new Date(dist.dateDistributed).getDate()}</span>
-                                    <span className="month">
-                                      {new Date(dist.dateDistributed).toLocaleString("default", { month: "short" })}
-                                    </span>
+                    <div className="container">
+                      {displayedPending.length > 0 ? (
+                        displayedPending.map((distItem, index) => (
+                          <div key={index} >
+                            {/* Loop through barangays */}
+                            {distItem.barangays.map((barangay, bIndex) => (
+                              <div key={bIndex}>
+                                {barangay.distribution.map((dist, dIndex) => (
+                                  <div key={dIndex} className="transactionItem">
+                                    {/* Date Box */}
+                                    <div className="dateBox">
+                                      <span className="date">{new Date(dist.dateDistributed).getDate()}</span>
+                                      <span className="month">
+                                        {new Date(dist.dateDistributed).toLocaleString("default", { month: "short" })}
+                                      </span>
+                                    </div>
+
+                                    {/* Disaster Code */}
+                                    <div className="details">
+                                      <span className="title">{distItem.disasterCode}</span>
+                                    </div>
+
+                                    {/* Barangay Name */}
+                                    <div className="brgy">
+                                      <span className="subtitle">{barangay.name}</span>
+                                    </div>
+
+                                    {/* Actions */}
+                                    <div className="actions">
+                                      <button className="doneButton" onClick={() => handleEdit(dist._id)} >Edit</button>
+                                    </div>
                                   </div>
-
-                                  {/* Disaster Code */}
-                                  <div className="details">
-                                    <span className="title">{distItem.disasterCode}</span>
-                                  </div>
-
-                                  {/* Barangay Name */}
-                                  <div className="brgy">
-                                    <span className="subtitle">{barangay.name}</span>
-                                  </div>
-
-                                  {/* Actions */}
-                                  <div className="actions">
-                                    <button className="doneButton" onClick={() => handleEdit(dist._id)} >Edit</button>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          ))}
-                        </div>
-                      ))
-                    ) : (
-                      <div>No distributions found.</div>
-                    )}
-                  </div>
-
+                                ))}
+                              </div>
+                            ))}
+                          </div>
+                        ))
+                      ) : (
+                        <div>No distributions found.</div>
+                      )}
+                    </div>
 
                     <div className="btn-container">
+                    <button 
+                      className="nav-button prev" 
+                      onClick={handlePrevPending} 
+                      disabled={pendingDistributionsPage === 1}
+                    >
+                      <i className="fa-solid fa-angle-left"></i>
+                    </button>
 
-                      <button
-                        className="nav-button prev"
-                        onClick={handlePrev}
-                        disabled={currentPage === 1}
+                      <button 
+                        className="nav-button next" 
+                        onClick={handleNextPending} 
+                        disabled={pendingDistributionsPage === totalPendingPages}
                       >
-                          <i className="fa-solid fa-angle-left"></i>
-                      </button>
-
-
-                      <button
-                        className="nav-button next"
-                        onClick={handleNext}
-                        disabled={currentPage === totalPages}
-                      >
-                          <i className="fa-solid fa-angle-right"></i>
+                        <i className="fa-solid fa-angle-right"></i>
                       </button>
                     </div>
                   </div>
@@ -482,6 +559,7 @@ const validateFields = () => {
                     </div>
                   </div>
 
+                  <div className="distab">
                     <table>
                       <thead>
                         <tr>
@@ -493,8 +571,8 @@ const validateFields = () => {
                       </thead>
                     
                     <tbody>
-                      {displayDistribution.length > 0 ? (
-                        displayDistribution.map((item, index) => (
+                      {displayedHistory.length > 0 ? (
+                        displayedHistory.map((item, index) => (
                           <tr key={index}>
                             <td>{item.disasterCode}</td>
                             <td>{new Date(item.disasterDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</td>
@@ -516,6 +594,19 @@ const validateFields = () => {
                     </tbody>
 
                     </table>
+                  </div>
+
+
+
+                      {/* Pagination Controls */}
+                      <div className="btn-container">
+                        <button className="nav-button prev" onClick={handlePrevHistory} disabled={historyPage === 1}>
+                          <i className="fa-solid fa-angle-left"></i>
+                        </button>
+                        <button className="nav-button next" onClick={handleNextHistory} disabled={historyPage === totalDistributionHistoryPages}>
+                          <i className="fa-solid fa-angle-right"></i>
+                        </button>
+                      </div>
 
                 </div>
 

@@ -511,6 +511,7 @@ const Residents = () => {
                 <th>Contact No.</th>
                 <th>Education</th>
                 <th>Dependents</th>
+                <th>View More</th>
               </tr>
               </thead>
               <tbody>
@@ -535,6 +536,7 @@ const Residents = () => {
                             ))
                           : "No dependents"}
                       </td> {/* Dependents information */}
+                      <td> </td>
                     </tr>
                   ))
                 ) : (

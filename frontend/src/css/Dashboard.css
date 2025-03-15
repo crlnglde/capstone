@@ -201,7 +201,16 @@
     border-bottom: 2px solid #0A194E;
   }
   
+  .disasters-table .distab{
+    height: 450px;
+  }
 
+  .disasters-table .res-button-container{
+    margin-top: auto; 
+    display: flex;
+    padding: 20px 0 0 0;
+  }
+  
   
 
   .header-container {

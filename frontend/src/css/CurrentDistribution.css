@@ -1,9 +1,10 @@
 /* Centering the transaction item */
 .container {
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     flex-direction: column;
+    height: 220px;
   }
 
 .transactionItem {
@@ -15,6 +16,7 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     width: 80%;
     margin: 2px;
+    min-width: 450px;
   }
   
   .dateBox {
@@ -53,9 +55,10 @@
     width: 100%;
   }
   
-  .title {
+  .details .title {
     font-weight: bold;
     font-size: 14px;
+    margin: 0;
   }
   
   .subtitle {

@@ -29,6 +29,8 @@ function App() {
     return storedState !== null ? storedState : false; // Default to false if no state in localStorage
   });
 
+  const [navbarTitle, setNavbarTitle] = useState("");
+
   const [showLogo, setShowLogo] = useState(true);
   const [loading, setLoading] = useState(true);
 
@@ -57,13 +59,14 @@ function App() {
           <ConditionalLayout 
             isSidebarMinimized={isSidebarMinimized} 
             setIsSidebarMinimized={setIsSidebarMinimized} // Pass the setter here
+            navbarTitle={navbarTitle} 
           >
             <Routes>
               <Route path="/" element={<Navigate to="/home" />} />
               <Route path="/home" element={<Home />} />
               <Route path="/disaster" element={<Dashboard />} /> 
               <Route path="/disaster/add-disaster" element={<AddDisaster />} />
-              <Route path="/distribution" element={<Distribution />}>
+              <Route path="/distribution" element={<Distribution setNavbarTitle={setNavbarTitle} />}>
                 <Route path="rds" element={<RDS/>} />
                 <Route path="edit-rds" element={<EditRDS/>} />
                 <Route path="view-rds" element={<ViewRDS/>} />
@@ -84,7 +87,7 @@ function App() {
   );
 }
 
-function ConditionalLayout({ isSidebarMinimized, setIsSidebarMinimized, children }) {
+function ConditionalLayout({ isSidebarMinimized, setIsSidebarMinimized,  navbarTitle, children }) {
   const location = useLocation();
 
   // Check if the current route is the Landing page
@@ -99,7 +102,7 @@ function ConditionalLayout({ isSidebarMinimized, setIsSidebarMinimized, children
             setIsMinimized={setIsSidebarMinimized}
           />
           <div className={`main-content ${isSidebarMinimized ? "adjusted" : ""}`}>
-            <Navbar isSidebarMinimized={isSidebarMinimized} />
+            <Navbar isSidebarMinimized={isSidebarMinimized} customTitle={navbarTitle} />
             {children}
           </div>
         </>
