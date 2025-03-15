@@ -290,9 +290,11 @@ const validateFields = () => {
 //pagination area
     const [currentDisastersPage, setCurrentDisastersPage] = useState(1);// pagination sa current
     const [pendingDistributionsPage, setPendingDistributionsPage] = useState(1);///pagination sa pending
+    const [historyPage, setHistoryPage] = useState(1);
 
-    const disastersPerPage = 5;  // Adjust per requirement
+    const disastersPerPage = 5;  
     const pendingPerPage = 5;
+    const historyPerPage = 10;
 
     // Sort disasters by disasterDateTime (latest first)
       const sortedDisasters = [...recentDisasters].sort(
@@ -308,8 +310,13 @@ const validateFields = () => {
         }
       );
 
+      const sortedHistory = [...displayDistribution].sort(
+        (a, b) => new Date(b.disasterDate) - new Date(a.disasterDate)
+      );
+
       const totalDisasterPages = Math.ceil(sortedDisasters.length / disastersPerPage);
       const totalPendingPages = Math.ceil(sortedPending.length / pendingPerPage);
+      const totalHistoryPages = Math.ceil(sortedHistory.length / historyPerPage);
 
     // Handle pagination for Current Disasters
       const handleNextDisasters = () => {
@@ -337,6 +344,20 @@ const validateFields = () => {
         }
       };
 
+    // Pagination handlers for History
+      const handleNextHistory = () => {
+        if (historyPage < totalHistoryPages) {
+          setHistoryPage(historyPage + 1);
+        }
+      };
+
+      const handlePrevHistory = () => {
+        if (historyPage > 1) {
+          setHistoryPage(historyPage - 1);
+        }
+      };
+
+
     // Slice the data to show only the required page data
       const displayedDisasters = sortedDisasters.slice(
         (currentDisastersPage - 1) * disastersPerPage,
@@ -348,6 +369,10 @@ const validateFields = () => {
         pendingDistributionsPage * pendingPerPage
       );
 
+      const displayedHistory = sortedHistory.slice(
+        (historyPage - 1) * historyPerPage,
+        historyPage * historyPerPage
+      );
 
   return (
     <div className="distribution">
@@ -541,8 +566,8 @@ const validateFields = () => {
                       </thead>
                     
                     <tbody>
-                      {displayDistribution.length > 0 ? (
-                        displayDistribution.map((item, index) => (
+                      {displayedHistory.length > 0 ? (
+                        displayedHistory.map((item, index) => (
                           <tr key={index}>
                             <td>{item.disasterCode}</td>
                             <td>{new Date(item.disasterDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</td>
