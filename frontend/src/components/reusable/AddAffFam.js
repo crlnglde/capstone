@@ -3,7 +3,6 @@ import { useNavigate} from 'react-router-dom';
 import axios from "axios";
 import Papa from 'papaparse';
 import moment from "moment";
-import Modal from "../Modal";
 import "../../css/reusable/AddAffFam.css";
 import DAFAC from "../forms/DAFAC";
 import Modal from "../Modal";

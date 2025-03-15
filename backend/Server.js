@@ -158,6 +158,41 @@ app.post("/add-disaster", async (req, res) => {
   }
 });
 
+app.put("/update-dafac-status/:disCode/:disBarangay/:familyId", async (req, res) => {
+  try {
+      const { disCode, disBarangay, familyId } = req.params;
+
+      const disaster = await Disaster.findOne({ disasterCode: disCode });
+
+      if (!disaster) {
+        return res.status(404).json({ message: "Disaster not found" });
+    }
+
+        // Find the barangay
+        const barangay = disaster.barangays.find(b => b.name === disBarangay);
+        if (!barangay) {
+            return res.status(404).json({ message: "Barangay not found" });
+        }
+
+        // Find the affected family
+        const family = barangay.affectedFamilies.find(f => f.id === familyId);
+        if (!family) {
+            return res.status(404).json({ message: "Affected family not found" });
+        }
+
+        // Update the dafacStatus
+        family.dafacStatus = "Confirmed";
+
+        // Save the updated disaster document
+        await disaster.save();
+
+        res.json({ message: "DAFAC status updated successfully" });
+    } catch (error) {
+        console.error("Error updating DAFAC status:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+});
+
 app.get("/get-disasters", async(req, res)=> {
   try {
     const disasters = await Disaster.find();
@@ -205,14 +240,21 @@ app.put("/update-disaster/:disasterCode", async (req, res) => {
 
       if (existingBarangay) {
         newBarangay.affectedFamilies.forEach((newFamily) => {
-          const isDuplicate = existingBarangay.affectedFamilies.some(
+          const existingFamilyIndex = existingBarangay.affectedFamilies.findIndex(
             (existingFamily) =>
               existingFamily.firstName === newFamily.firstName &&
               existingFamily.lastName === newFamily.lastName &&
               existingFamily.bdate === newFamily.bdate
-          );
+          );      
 
-          if (!isDuplicate) {
+          if (existingFamilyIndex !== -1) {
+            // Update existing family data
+            existingBarangay.affectedFamilies[existingFamilyIndex] = {
+              ...existingBarangay.affectedFamilies[existingFamilyIndex],
+              ...newFamily,
+            };
+          } else {
+            // Add new family if not found
             existingBarangay.affectedFamilies.push(newFamily);
           }
         });
@@ -237,7 +279,6 @@ app.put("/update-disaster/:disasterCode", async (req, res) => {
     res.status(500).json({ message: "Server error", error });
   }
 });
-
 
 app.post("/add-distribution/:disasterCode/:barangayName", async (req, res) => {
   const { disasterCode, barangayName } = req.params;

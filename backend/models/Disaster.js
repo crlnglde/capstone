@@ -43,7 +43,8 @@ const affectedFamilySchema = new mongoose.Schema({
   occupancy: { type: String },
   costDamage: { type: Number },
   casualty: [casualtySchema],
-  regDate: { type: Date, required: true }
+  regDate: { type: Date, required: true },
+  dafacStatus:{ type: String, enum: ["Confirmed", "Pending"] },
 });
 
 

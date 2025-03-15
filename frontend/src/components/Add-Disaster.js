@@ -369,6 +369,7 @@ const AddDisaster = () => {
                     costDamage: resident.costDamage || 0,
                     casualty: resident.casualty || [],
                     regDate: resident.regDate || "",
+                    dafacStatus: resident.dafacStatus || "",
                 })),
             }));
 
@@ -390,7 +391,7 @@ const AddDisaster = () => {
                         updatedBarangays.push(newBarangay);
                     }
                 });
-    
+                    console.log("hehe")
                 const updateResponse = await fetch(`http://localhost:3003/update-disaster/${disasterCode}`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
@@ -400,6 +401,8 @@ const AddDisaster = () => {
                 if (!updateResponse.ok) throw new Error("Failed to update disaster data.");
                 alert("Disaster data updated successfully!");
             } else {
+
+                console.log("haha")
                 // Disaster does not exist, create new disaster
                 const disasterDocument = {
                     disasterCode,

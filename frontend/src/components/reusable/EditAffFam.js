@@ -4,6 +4,8 @@ import axios from "axios";
 import Papa from 'papaparse';
 import moment from "moment";
 import "../../css/reusable/ConAffFam.css";
+import Modal from "../Modal";
+import DAFAC from "../forms/DAFAC";
 
 const ConAffFam = ({disBarangay, disCode}) => {
 const [step, setStep] = useState(1);
@@ -48,6 +50,10 @@ const [step, setStep] = useState(1);
         }
     };
 
+        const handleResidentSelect = (resident) => {
+            setActiveResident(resident); // Set the active resident
+            handleOpenModal("dafac"); // Open the modal with "add" type
+        };
        
         const handleOpenModal = (type) => {
             setModalType(type);
@@ -211,19 +217,89 @@ const [step, setStep] = useState(1);
                 fetchAffectedFamilies(disCode, disBarangay);
             }
         }, [disCode, disBarangay]);    
+    
+        const handleFinalSubmit = async () => {
+            const disasterData = JSON.parse(localStorage.getItem("disasterData")) || null;
+            const residentData = JSON.parse(localStorage.getItem("savedForms")) || [];
 
+            console.log("saved forms", residentData)
         
-        const handleConfirm = async (disCode, disBarangay, familyId) => {
-            try {
-                const response = await axios.put(
-                    `http://localhost:3003/update-dafac-status/${disCode}/${disBarangay}/${familyId}`
-                );
-                alert(response.data.message);
-            } catch (error) {
-                console.error("Error confirming DAFAC status:", error);
-                alert("Failed to confirm DAFAC status");
+            if (!disasterData || residentData.length === 0) {
+                alert("No data found in localStorage to save.");
+                return;
             }
-        };
+        
+            try {
+                // Fetch existing disaster data
+                const checkResponse = await fetch(`http://localhost:3003/get-disaster/${disasterCode}`);
+                const existingDisaster = await checkResponse.json();
+            
+                if (checkResponse.ok && existingDisaster) {
+                    console.log("Existing Disaster Data:", existingDisaster);
+
+                    const groupedByBarangay = residentData.reduce((acc, resident) => {
+                        if (!acc[resident.barangay]) {
+                            acc[resident.barangay] = [];
+                        }
+                        acc[resident.barangay].push(resident);
+                        return acc;
+                    }, {});
+            
+                    const updatedBarangays = existingDisaster.barangays.map(existingBarangay => {
+                        const affectedFamilies = existingBarangay.affectedFamilies || []; // Ensure it's an array
+            
+                        if (groupedByBarangay[existingBarangay.name]) {
+                            const newFamilies = groupedByBarangay[existingBarangay.name].map(newFamily => {
+                                // Check if the family already exists
+                                const existingFamilyIndex = affectedFamilies.findIndex(existingFamily =>
+                                    existingFamily.firstName.trim().toLowerCase() === newFamily.firstName.trim().toLowerCase() &&
+                                    existingFamily.lastName.trim().toLowerCase() === newFamily.lastName.trim().toLowerCase() &&
+                                    existingFamily.bdate === newFamily.bdate
+                                );
+            
+                                if (existingFamilyIndex !== -1) {
+                                    // Family exists, update their data
+                                    affectedFamilies[existingFamilyIndex] = { ...affectedFamilies[existingFamilyIndex], ...newFamily };
+                                    return null; // Skip adding to new families since it's already updated
+                                }
+                                return newFamily; // Add only if it's new
+                            }).filter(family => family !== null); // Remove null values (updated families)
+            
+                            console.log(`New Families for ${existingBarangay.name}:`, newFamilies);
+            
+                            return {
+                                ...existingBarangay,
+                                affectedFamilies: [...affectedFamilies, ...newFamilies], // Keep updated and new families
+                            };
+                        }
+                        return existingBarangay;
+                    });
+            
+                    console.log("Updated Barangays Data:", updatedBarangays);
+            
+                    // Send the updated barangays data to backend
+                    const updateResponse = await fetch(`http://localhost:3003/update-disaster/${disasterCode}`, {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ barangays: updatedBarangays }),
+                    });
+            
+                    console.log("Update Response:", await updateResponse.json());
+            
+                    if (!updateResponse.ok) throw new Error("Failed to update disaster data.");
+            
+                    alert("Affected families updated successfully!");
+                    localStorage.removeItem("savedForms");
+                    localStorage.removeItem("disasterData");
+                    closeModal();
+                } else {
+                    alert("Disaster not found!");
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("An error occurred while saving data. Please try again.");
+            }            
+        };        
 
   return (
     <div className="AddAffFam">
@@ -260,7 +336,7 @@ const [step, setStep] = useState(1);
                                     <th>Contact No.</th>
                                     <th>Education</th>
                                     <th>Dependents</th>
-                                    <th>Confirmation</th>
+                                    <th>Generate Form</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -285,11 +361,10 @@ const [step, setStep] = useState(1);
                                                     ))
                                                 : "No dependents"}
                                             </td> {/* Dependents information */}
-
                                             <td>
                                                 
-                                            <button className="res-submit-btn" disabled={resident.dafacStatus === "Confirmed"} onClick={() => handleConfirm(disCode, disBarangay, resident.id)}>
-                                                <i class="fa-regular fa-circle-check"></i> Confirm
+                                            <button className="res-submit-btn"disabled={resident.dafacStatus === "Confirmed" || isResidentSaved(resident)} onClick={() => handleResidentSelect(resident)}>
+                                                <i class="fa-solid fa-pen-to-square" ></i>
                                             </button>
                                             </td>
                                         </tr>
@@ -323,12 +398,30 @@ const [step, setStep] = useState(1);
                     </button>
                     </div>
 
+
+                    {/*new*/}
+                    <div className="dstr-bgay-btn">
+
+                        <button className="bgy-submit-btn" onClick={handleFinalSubmit}>
+                            <i class="fa-solid fa-floppy-disk"></i>Submit
+                        </button>
+
+                    </div>
+
                     
                 </div>
             )}
         </div>
 
       </div>
+
+      <Modal isOpen={isModalOpen} onClose={closeModal} title={modalType === "dafac"}>
+        {modalType === "dafac" && (
+          <div>
+            <DAFAC activeResident={activeResident} disasterData={JSON.parse(localStorage.getItem('disasterData'))} setIsModalOpen={setIsModalOpen}/> 
+          </div>
+        )}
+      </Modal>
    
     </div>
   );
