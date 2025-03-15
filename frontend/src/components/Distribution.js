@@ -13,7 +13,7 @@ import "../css/Distribution.css";
 
 import SignaturePad from "./Signature";
 
-const Distribution = () => {
+const Distribution = ({ setNavbarTitle }) => {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState("rds");
@@ -26,6 +26,11 @@ const Distribution = () => {
   const [activeTab, setActiveTab] = useState("list");
 
   const [isEditMode, setIsEditMode] = useState(false);
+
+  useEffect(() => {
+    setNavbarTitle(`Distribution > ${activeTab === "list" ? "List" : "Visualization"}`);
+  }, [activeTab, setNavbarTitle]);
+
 
           // Static list of affected barangays FOR VIEW MORE
           const [activeBarangay, setActiveBarangay] = useState("ALL");
@@ -292,9 +297,9 @@ const validateFields = () => {
     const [pendingDistributionsPage, setPendingDistributionsPage] = useState(1);///pagination sa pending
     const [historyPage, setHistoryPage] = useState(1);
 
-    const disastersPerPage = 5;  
-    const pendingPerPage = 5;
-    const historyPerPage = 10;
+    const disastersPerPage = 3;  
+    const pendingPerPage = 3;
+    const historyPerPage = 6;
 
     // Sort disasters by disasterDateTime (latest first)
       const sortedDisasters = [...recentDisasters].sort(
@@ -316,7 +321,7 @@ const validateFields = () => {
 
       const totalDisasterPages = Math.ceil(sortedDisasters.length / disastersPerPage);
       const totalPendingPages = Math.ceil(sortedPending.length / pendingPerPage);
-      const totalHistoryPages = Math.ceil(sortedHistory.length / historyPerPage);
+      const totalDistributionHistoryPages = Math.ceil(sortedHistory.length / historyPerPage);
 
     // Handle pagination for Current Disasters
       const handleNextDisasters = () => {
@@ -346,7 +351,7 @@ const validateFields = () => {
 
     // Pagination handlers for History
       const handleNextHistory = () => {
-        if (historyPage < totalHistoryPages) {
+        if (historyPage < totalDistributionHistoryPages) {
           setHistoryPage(historyPage + 1);
         }
       };
@@ -470,52 +475,51 @@ const validateFields = () => {
                 
                   {/* Pending */}
                   <div className="distribution-table">
-                  <div className="header-container">
-                    <h2 className="header-title">Pending Distribution</h2>
-                  </div>
+                    <div className="header-container">
+                      <h2 className="header-title">Pending Distribution</h2>
+                    </div>
 
-                  <div className="container">
-                    {displayedPending.length > 0 ? (
-                      displayedPending.map((distItem, index) => (
-                        <div key={index} >
-                          {/* Loop through barangays */}
-                          {distItem.barangays.map((barangay, bIndex) => (
-                            <div key={bIndex}>
-                              {barangay.distribution.map((dist, dIndex) => (
-                                <div key={dIndex} className="transactionItem">
-                                  {/* Date Box */}
-                                  <div className="dateBox">
-                                    <span className="date">{new Date(dist.dateDistributed).getDate()}</span>
-                                    <span className="month">
-                                      {new Date(dist.dateDistributed).toLocaleString("default", { month: "short" })}
-                                    </span>
+                    <div className="container">
+                      {displayedPending.length > 0 ? (
+                        displayedPending.map((distItem, index) => (
+                          <div key={index} >
+                            {/* Loop through barangays */}
+                            {distItem.barangays.map((barangay, bIndex) => (
+                              <div key={bIndex}>
+                                {barangay.distribution.map((dist, dIndex) => (
+                                  <div key={dIndex} className="transactionItem">
+                                    {/* Date Box */}
+                                    <div className="dateBox">
+                                      <span className="date">{new Date(dist.dateDistributed).getDate()}</span>
+                                      <span className="month">
+                                        {new Date(dist.dateDistributed).toLocaleString("default", { month: "short" })}
+                                      </span>
+                                    </div>
+
+                                    {/* Disaster Code */}
+                                    <div className="details">
+                                      <span className="title">{distItem.disasterCode}</span>
+                                    </div>
+
+                                    {/* Barangay Name */}
+                                    <div className="brgy">
+                                      <span className="subtitle">{barangay.name}</span>
+                                    </div>
+
+                                    {/* Actions */}
+                                    <div className="actions">
+                                      <button className="doneButton" onClick={() => handleEdit(dist._id)} >Edit</button>
+                                    </div>
                                   </div>
-
-                                  {/* Disaster Code */}
-                                  <div className="details">
-                                    <span className="title">{distItem.disasterCode}</span>
-                                  </div>
-
-                                  {/* Barangay Name */}
-                                  <div className="brgy">
-                                    <span className="subtitle">{barangay.name}</span>
-                                  </div>
-
-                                  {/* Actions */}
-                                  <div className="actions">
-                                    <button className="doneButton" onClick={() => handleEdit(dist._id)} >Edit</button>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          ))}
-                        </div>
-                      ))
-                    ) : (
-                      <div>No distributions found.</div>
-                    )}
-                  </div>
-
+                                ))}
+                              </div>
+                            ))}
+                          </div>
+                        ))
+                      ) : (
+                        <div>No distributions found.</div>
+                      )}
+                    </div>
 
                     <div className="btn-container">
                     <button 
@@ -555,6 +559,7 @@ const validateFields = () => {
                     </div>
                   </div>
 
+                  <div className="distab">
                     <table>
                       <thead>
                         <tr>
@@ -589,6 +594,19 @@ const validateFields = () => {
                     </tbody>
 
                     </table>
+                  </div>
+
+
+
+                      {/* Pagination Controls */}
+                      <div className="btn-container">
+                        <button className="nav-button prev" onClick={handlePrevHistory} disabled={historyPage === 1}>
+                          <i className="fa-solid fa-angle-left"></i>
+                        </button>
+                        <button className="nav-button next" onClick={handleNextHistory} disabled={historyPage === totalDistributionHistoryPages}>
+                          <i className="fa-solid fa-angle-right"></i>
+                        </button>
+                      </div>
 
                 </div>
 

@@ -2,7 +2,7 @@ import React from "react";
 import { useLocation } from "react-router-dom";
 import "../css/Navbar.css";
 
-const Navbar = ({ isSidebarMinimized }) => {
+const Navbar = ({ isSidebarMinimized, customTitle }) => {
     const location = useLocation();
 
     // Function to generate a readable page name from the path
@@ -25,7 +25,7 @@ const Navbar = ({ isSidebarMinimized }) => {
     return (
         <div className={`navbar ${isSidebarMinimized ? "adjusted-navbar" : ""}`}>
             <div className="page-name">
-                <h1>{currentPageName}</h1>
+            <h1>{customTitle || currentPageName}</h1> 
             </div>
 
             <div className="notifications">
