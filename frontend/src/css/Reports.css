@@ -12,7 +12,7 @@
   flex-wrap: wrap;
   padding: 20px 0;
   justify-content: center;
-
+  height: 100%; 
 }
 
 .report-list {

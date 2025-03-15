@@ -152,6 +152,11 @@
             padding: 8px;
           }
 
+
+      .distribution-table .distab{
+        height: 450px;
+      }
+
       .distribution-table table{
         margin-top: 20px;
         width: 100%;
@@ -193,7 +198,6 @@
           display: flex;
           justify-content: center;
           gap: 46px;
-          padding: 20px 20px 20px 20px;
         }
 
           .btn-container button {
