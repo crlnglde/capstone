@@ -326,7 +326,7 @@ const [step, setStep] = useState(1);
       <Modal isOpen={isModalOpen} onClose={closeModal} title={modalType === "dafac"}>
         {modalType === "dafac" && (
           <div>
-            <DAFAC/>
+             <DAFAC activeResident={activeResident} disasterData={JSON.parse(localStorage.getItem('disasterData'))} setIsModalOpen={setIsModalOpen}/> 
           </div>
         )}
       </Modal>

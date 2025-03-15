@@ -6,11 +6,41 @@ import "../../css/forms/RDS.css";
 import ICImage from '../../pic/IC.png';
 import cswdImage from '../../pic/cswd.jpg';
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import Modal from "../Modal";
+import SignaturePad from "../Signature";
 
 const RDS= () => {
   const navigate = useNavigate();  
   const [families, setFamilies] = useState([]);
   const [decryptedImages, setDecryptedImages] = useState({});
+
+ const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedFamilyIndex, setSelectedFamilyIndex] = useState(null);
+  //const [selectedFamilyName, setSelectedFamilyName] = useState("");
+  const [selectedFamily, setSelectedFamily] = useState(null);
+  const [signature, setSignature] = useState({});
+
+  const handleOpenModal = (family) => {
+    //setSelectedFamilyIndex(index);
+    setSelectedFamily(family);
+    setIsModalOpen(true);
+  };
+
+  const handleSaveSignature = (imageURL) => {
+    if (selectedFamily) {
+      setSignature((prev) => ({
+        ...prev,
+        [selectedFamily]: imageURL, // Store signature for this family head
+      }));
+    }
+    handleCloseModal(); // Close modal automatically
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+
   const [forDistribution, setForDistribution] = useState(() => {
     const storedData = localStorage.getItem("forDistribution");
     return storedData ? JSON.parse(storedData) : {
@@ -205,23 +235,21 @@ const RDS= () => {
                         {forDistribution.entries.map(entry => `${entry.name} - ${entry.quantity}`).join(" | ")}
                       </p>
                   </td>
-                  <td>
-                    {decryptedImages[index] ? (
+                  <td className="signature-cell">
+                    {signature[family] ? ( /* E CHANGE PANI TO STATUS IS DONE */
                       <img
-                        src={decryptedImages[index]}
-                        alt="Thumbmark"
-                        style={{
-                          width: "50px",
-                          height: "50px",
-                          objectFit: "contain",
-                          border: "1px solid #ccc",
-                        }}
+                        src={signature[family]}
+                        alt="Signature"
+                        className="signature-image"
                       />
-                    ) : (
-                      <button onClick={() => handleDecryptEsig(family.esig, index)}>
-                        Signature/Thumbmark
-                      </button>
-                    )}
+                      ) : (
+                        <button
+                          className="show-signature-button"
+                          onClick={() => handleOpenModal(family)}
+                        >
+                          Signature/Thumbmark
+                        </button>
+                      )}
                   </td>
                 </tr>
               ))
@@ -252,6 +280,10 @@ const RDS= () => {
 
 
       </div>
+
+      <Modal isOpen={isModalOpen} onClose={handleCloseModal} title="Signature Pad">
+        <SignaturePad family={selectedFamily} onSave={handleSaveSignature}onClose={handleCloseModal} />
+      </Modal>
 
     </div>
   );

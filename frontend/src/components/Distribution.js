@@ -11,6 +11,8 @@ import Piec from './visualizations/Pie-ch'
 import Map from './visualizations/Iligan'
 import "../css/Distribution.css";
 
+import SignaturePad from "./Signature";
+
 const Distribution = () => {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -18,7 +20,6 @@ const Distribution = () => {
   const [currentPage, setCurrentPage] = useState(1); // State for current page
   const rowsPerPage = 10;
   const totalPages = 20;
-  //const totalPages = Math.ceil(disasters.length / rowsPerPage);
   const [step, setStep] = useState(1);
   const [recentDisasters, setDisasters] = useState([]);
   const [distribution, setDistribution] = useState([]);
@@ -137,19 +138,6 @@ const Distribution = () => {
         navigate("/distribution"); 
       } else {
         navigate(-1); 
-      }
-    };
-
-    //page sa disasters
-    const handleNext = () => {
-      if (currentPage < totalPages) {
-        setCurrentPage(prev => prev + 1);
-      }
-    };
-  
-    const handlePrev = () => {
-      if (currentPage > 1) {
-        setCurrentPage(prev => prev - 1);
       }
     };
 
@@ -299,6 +287,68 @@ const validateFields = () => {
 };
 
 
+//pagination area
+    const [currentDisastersPage, setCurrentDisastersPage] = useState(1);// pagination sa current
+    const [pendingDistributionsPage, setPendingDistributionsPage] = useState(1);///pagination sa pending
+
+    const disastersPerPage = 5;  // Adjust per requirement
+    const pendingPerPage = 5;
+
+    // Sort disasters by disasterDateTime (latest first)
+      const sortedDisasters = [...recentDisasters].sort(
+        (a, b) => new Date(b.disasterDateTime) - new Date(a.disasterDateTime)
+      );
+
+    // Sort pending distributions by dateDistributed (latest first)
+      const sortedPending = [...pendingDistributions].sort(
+        (a, b) => {
+          const latestA = Math.max(...a.barangays.flatMap(b => b.distribution.map(d => new Date(d.dateDistributed))));
+          const latestB = Math.max(...b.barangays.flatMap(b => b.distribution.map(d => new Date(d.dateDistributed))));
+          return latestB - latestA;
+        }
+      );
+
+      const totalDisasterPages = Math.ceil(sortedDisasters.length / disastersPerPage);
+      const totalPendingPages = Math.ceil(sortedPending.length / pendingPerPage);
+
+    // Handle pagination for Current Disasters
+      const handleNextDisasters = () => {
+        if (currentDisastersPage < totalDisasterPages) {
+          setCurrentDisastersPage(currentDisastersPage + 1);
+        }
+      };
+
+      const handlePrevDisasters = () => {
+        if (currentDisastersPage > 1) {
+          setCurrentDisastersPage(currentDisastersPage - 1);
+        }
+      };
+
+    // Handle pagination for Pending Distributions
+      const handleNextPending = () => {
+        if (pendingDistributionsPage < totalPendingPages) {
+          setPendingDistributionsPage(pendingDistributionsPage + 1);
+        }
+      };
+
+      const handlePrevPending = () => {
+        if (pendingDistributionsPage > 1) {
+          setPendingDistributionsPage(pendingDistributionsPage - 1);
+        }
+      };
+
+    // Slice the data to show only the required page data
+      const displayedDisasters = sortedDisasters.slice(
+        (currentDisastersPage - 1) * disastersPerPage,
+        currentDisastersPage * disastersPerPage
+      );
+      
+      const displayedPending = sortedPending.slice(
+        (pendingDistributionsPage - 1) * pendingPerPage,
+        pendingDistributionsPage * pendingPerPage
+      );
+
+
   return (
     <div className="distribution">
 
@@ -332,8 +382,8 @@ const validateFields = () => {
                     </div>
 
                     <div className="container">
-                    {recentDisasters.length > 0 ? (
-                      recentDisasters.map((disaster, index) => (
+                    {displayedDisasters.length > 0 ? (
+                      displayedDisasters.map((disaster, index) => (
                         <div key={index} className="transactionItem"> 
                           <div className="dateBox">
                             <span className="date">{new Date(disaster.disasterDateTime).getDate()}</span>
@@ -374,21 +424,21 @@ const validateFields = () => {
 
                     <div className="btn-container">
 
-                      <button
-                        className="nav-button prev"
-                        onClick={handlePrev}
-                        disabled={currentPage === 1}
+                      <button 
+                        className="nav-button prev" 
+                        onClick={handlePrevDisasters} 
+                        disabled={currentDisastersPage === 1}
                       >
-                          <i className="fa-solid fa-angle-left"></i>
+                        <i className="fa-solid fa-angle-left"></i>
                       </button>
 
 
-                      <button
-                        className="nav-button next"
-                        onClick={handleNext}
-                        disabled={currentPage === totalPages}
+                      <button 
+                        className="nav-button next" 
+                        onClick={handleNextDisasters} 
+                        disabled={currentDisastersPage === totalDisasterPages}
                       >
-                          <i className="fa-solid fa-angle-right"></i>
+                        <i className="fa-solid fa-angle-right"></i>
                       </button>
                     </div>
                   </div>
@@ -400,8 +450,8 @@ const validateFields = () => {
                   </div>
 
                   <div className="container">
-                    {pendingDistributions.length > 0 ? (
-                      pendingDistributions.map((distItem, index) => (
+                    {displayedPending.length > 0 ? (
+                      displayedPending.map((distItem, index) => (
                         <div key={index} >
                           {/* Loop through barangays */}
                           {distItem.barangays.map((barangay, bIndex) => (
@@ -443,22 +493,20 @@ const validateFields = () => {
 
 
                     <div className="btn-container">
+                    <button 
+                      className="nav-button prev" 
+                      onClick={handlePrevPending} 
+                      disabled={pendingDistributionsPage === 1}
+                    >
+                      <i className="fa-solid fa-angle-left"></i>
+                    </button>
 
-                      <button
-                        className="nav-button prev"
-                        onClick={handlePrev}
-                        disabled={currentPage === 1}
+                      <button 
+                        className="nav-button next" 
+                        onClick={handleNextPending} 
+                        disabled={pendingDistributionsPage === totalPendingPages}
                       >
-                          <i className="fa-solid fa-angle-left"></i>
-                      </button>
-
-
-                      <button
-                        className="nav-button next"
-                        onClick={handleNext}
-                        disabled={currentPage === totalPages}
-                      >
-                          <i className="fa-solid fa-angle-right"></i>
+                        <i className="fa-solid fa-angle-right"></i>
                       </button>
                     </div>
                   </div>
