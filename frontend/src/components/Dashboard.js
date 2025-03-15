@@ -427,7 +427,7 @@ useEffect(() => {
       }>
         {modalType === "addAffectedFamily" && (
           <div>
-            <AddAffFam  disBarangay={disBarangay} disCode={disCode}/>
+            <AddAffFam  disBarangay={disBarangay} disCode={disCode} closeModal={closeModal}/>
           </div>
         )}
 
