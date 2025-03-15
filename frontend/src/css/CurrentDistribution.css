@@ -1,9 +1,10 @@
 /* Centering the transaction item */
 .container {
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     flex-direction: column;
+    height: 350px;
   }
 
 .transactionItem {
@@ -13,7 +14,7 @@
     border-radius: 8px;
     padding: 10px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    width: 80%;
+    /*width: 80%;*/
     margin: 2px;
   }
   
@@ -53,9 +54,10 @@
     width: 100%;
   }
   
-  .title {
+  .details .title {
     font-weight: bold;
     font-size: 14px;
+    margin: 0;
   }
   
   .subtitle {

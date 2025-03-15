@@ -6,14 +6,42 @@ import "../../css/forms/RDS.css";
 import ICImage from '../../pic/IC.png';
 import cswdImage from '../../pic/cswd.jpg';
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import Modal from "../Modal";
+import SignaturePad from "../Signature";
 
 const EditRDS = () => {
   const navigate = useNavigate();  
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [distributionId, setDistributionId] = useState("");
-  const [signature, setSignature] = useState(null);
+  //const [signature, setSignature] = useState(null);
   const [isUpdated, setIsUpdated] = useState(false);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedFamilyIndex, setSelectedFamilyIndex] = useState(null);
+  //const [selectedFamilyName, setSelectedFamilyName] = useState("");
+  const [selectedFamily, setSelectedFamily] = useState(null);
+  const [signature, setSignature] = useState({});
+
+  const handleOpenModal = (family) => {
+    //setSelectedFamilyIndex(index);
+    setSelectedFamily(family);
+    setIsModalOpen(true);
+  };
+
+  const handleSaveSignature = (imageURL) => {
+    if (!selectedFamily || !selectedFamily._id) return; 
+
+    setSignature((prev) => ({
+      ...prev,
+      [selectedFamily._id]: imageURL,
+    }));
+    handleCloseModal(); // Close modal automatically
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
 
   const [distributionData, setDistributionData] = useState({
     disasterCode: "",
@@ -73,23 +101,6 @@ const EditRDS = () => {
   // Extract disaster date and formatted month
   const disasterDate = distributionData.disasterDate ? new Date(distributionData.disasterDate) : null;
   const formattedMonth = disasterDate ? disasterDate.toLocaleString("default", { month: "long" }) : "";
-
-
-  const handleFetchSignature = async (memId, index) => {
-    try {
-      const response = await axios.get(`http://localhost:3003/get-resident-esig?memId=${memId}`);
-      const resident = response.data;
-      console.log("Resident", resident)
-      if (resident && resident.esig) {
-        handleDecryptEsig(resident.esig, index); // Decrypt and save signature
-      } else {
-        alert("E-signature not found for this resident.");
-      }
-    } catch (error) {
-      console.error("Error fetching e-signature:", error);
-      alert("Failed to fetch e-signature.");
-    }
-  };
 
   const handleDecryptEsig = (encryptedEsig, index) => {
     const password = prompt("Enter password to decrypt the thumbmark:");
@@ -192,15 +203,23 @@ const EditRDS = () => {
                       {distributionData.reliefItems.map(item => `${item.name} - ${item.quantity}`).join(" | ")}
                     </p>
                   </td>
-                  <td>
-                    {family.status === "Done" ? (
-                      <span>Done</span> 
+                  <td className="signature-cell">
+                    {signature[family._id] ? (
+                      <img
+                        src={signature[family._id]} 
+                        alt="Signature"
+                        className="signature-image"
+                      />
                     ) : (
-                    <button onClick={() => handleFetchSignature(family.memId, index)}>
-                      Signature/Thumbmark 
-                    </button>
+                      <button
+                        className="show-signature-button"
+                        onClick={() => handleOpenModal(family)}
+                      >
+                        Signature/Thumbmark
+                      </button>
                     )}
                   </td>
+
 
                 </tr>
               ))
@@ -230,6 +249,11 @@ const EditRDS = () => {
         )}
 
       </div>
+
+      <Modal isOpen={isModalOpen} onClose={handleCloseModal} title="Signature Pad">
+        <SignaturePad family={selectedFamily} onSave={handleSaveSignature} onClose={handleCloseModal} />
+      </Modal>
+
     </div>
   );
 };
