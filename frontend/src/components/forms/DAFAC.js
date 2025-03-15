@@ -12,6 +12,8 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 const DAFAC= ({ activeResident, disasterData, setIsModalOpen}) => {
   const formRef = useRef(null);
 
+  console.log("Active Resident", activeResident)
+  console.log("DisasterData", disasterData)
   const [currentDate, setCurrentDate] = useState("");
   
   const [formData, setFormData] = useState({
@@ -40,6 +42,7 @@ const DAFAC= ({ activeResident, disasterData, setIsModalOpen}) => {
     costDamage:"",
     casualty:[],
     regDate: "",
+    dafacStatus: "",
   });
 
   useEffect(() => {
@@ -49,7 +52,8 @@ const DAFAC= ({ activeResident, disasterData, setIsModalOpen}) => {
     // Ensure regDate is updated inside formData
     setFormData((prevData) => ({
       ...prevData,
-      regDate: today, // Set regDate correctly
+      regDate: today,
+      dafacStatus: "Pending",
     }));
   }, []);
 
@@ -57,8 +61,8 @@ const DAFAC= ({ activeResident, disasterData, setIsModalOpen}) => {
   useEffect(() => {
     if (activeResident) {
       setFormData((prevData) => ({
-        ...prevData, // Keep existing formData values (including regDate)
-        id: activeResident.memId || "",
+        ...prevData,
+        id: activeResident.memId || activeResident.id,
         firstName: activeResident.firstName || "",
         middleName: activeResident.middleName || "",
         lastName: activeResident.lastName || "",
@@ -70,9 +74,21 @@ const DAFAC= ({ activeResident, disasterData, setIsModalOpen}) => {
         education: activeResident.education || "",
         income: activeResident.income || "",
         purok: activeResident.purok || "",
-        barangay: activeResident.barangay || "",
+        barangay: activeResident.barangay || disasterData.selectedBarangays,
         dependents: activeResident.dependents || [],
         familyMembers: (activeResident.dependents?.length || 0) + 1,
+        is4ps: activeResident.is4ps || false,
+        isPWD: activeResident.isPWD || false,
+        isPreg: activeResident.isPreg || false,
+        isSenior: activeResident.isSenior || false,
+        isIps: activeResident.isIps || false,
+        isSolo: activeResident.isSolo || false,
+        evacuation: activeResident.evacuation || "",
+        extentDamage: activeResident.extentDamage || "",
+        occupancy: activeResident.occupancy || "",
+        costDamage: activeResident.costDamage || 0,
+        casualty: activeResident.casualty || [],
+        regDate: activeResident.regDate ? activeResident.regDate.split("T")[0] : prevData.regDate,
       }));
     }
   }, [activeResident]);  
@@ -209,37 +225,6 @@ const DAFAC= ({ activeResident, disasterData, setIsModalOpen}) => {
       alert("An error occurred while generating the PDF.");
     }
   };
-//para ni sa IDP aron maka input ug dependents
-/** 
-  const [newDependent, setNewDependent] = useState({
-    name: "",
-    relationToHead: "",
-    age: "",
-    sex: "",
-    education: "",
-    occupationSkills: "",
-  });
-
-  const handleDependentChange = (e) => {
-    setNewDependent({ ...newDependent, [e.target.name]: e.target.value });
-  };
-
-  const addDependent = () => {
-    setFormData({
-      ...formData,
-      dependents: [...formData.dependents, { ...newDependent, _id: Date.now() }],
-    });
-
-    // Reset input fields
-    setNewDependent({
-      name: "",
-      relationToHead: "",
-      age: "",
-      sex: "",
-      education: "",
-      occupationSkills: "",
-    });
-  };*/
 
   return (
     <div className="dafac">
@@ -322,7 +307,7 @@ const DAFAC= ({ activeResident, disasterData, setIsModalOpen}) => {
 
                         <div className="form-row serial1">
                           <label>District / Cluster: <input type="text" value="Iligan City"/></label>
-                          <label>Purok & Barangay: <input type="text" value={`${formData.purok}, ${formData.barangay}`|| ""}  /></label>
+                          <label>Purok & Barangay: <input type="text" value={`${formData.purok}, ${formData.barangay}`}  /></label>
                           <label> Evacuation: <input type="text" value={formData.evacuation} onChange={(e) => setFormData({ ...formData, evacuation: e.target.value })}/></label>
                         </div>
 
@@ -629,7 +614,7 @@ const DAFAC= ({ activeResident, disasterData, setIsModalOpen}) => {
     
                     <div className="date-registered">
                       <p>Date Registered:</p>
-                      <input type="date" value={currentDate} readOnly />
+                      <input type="date" value={formData.regDate || currentDate} readOnly />
                     </div>
                 </div>
 

@@ -11,6 +11,7 @@ import Piec from './visualizations/Pie-ch'
 import Map from './visualizations/Iligan'
 import Modal from "./Modal";
 import AddAffFam from "./reusable/AddAffFam";
+import EditAffFam from "./reusable/EditAffFam";
 import ConAffFam from "./reusable/ConAffFam";
 import "../css/Dashboard.css";
 
@@ -65,6 +66,12 @@ const Dashboard = () => {
 
   const handleAddAffFam = (disCode, disBarangay) => {
     setModalType("addAffectedFamily"); 
+    setSelectedDisCode(disCode); 
+    setDisBarangay(disBarangay); 
+    setIsModalOpen(true);
+  };
+  const handleEditAffFam = (disCode, disBarangay) => {
+    setModalType("editAffectedFamily"); 
     setSelectedDisCode(disCode); 
     setDisBarangay(disBarangay); 
     setIsModalOpen(true);
@@ -272,12 +279,11 @@ useEffect(() => {
                     <th rowSpan="2" className="wide-column">Disaster Type</th>
                     <th rowSpan="2" className="wide-column">Disaster Date</th>
                     <th rowSpan="2" className="wide-column">Affected Barangay</th>
-                    <th rowSpan="2" className="wide-column">No. of Affected Families</th>
-                    <th rowSpan="2" className="wide-column">No. of Affected People</th>
                     <th colSpan="5" className="action-column">Actions</th>
                   </tr>
                   <tr>
                     <th className="action-column">Add</th>
+                    <th className="action-column">Edit</th>
                     <th className="action-column">Confirm</th>
                     <th className="action-column">View More</th>
                   </tr>
@@ -292,23 +298,26 @@ useEffect(() => {
                         <td>{disaster.disasterType}</td>
                         <td>{disaster.disasterDateTime}</td>
                         <td>{disaster.barangay}</td>
-                        <td>{disaster.affectedFamilies}</td>
-                        <td>{disaster.affectedPersons}</td>
-                        <td className="action-column">
-                          <button className="dash-viewmore-btn" onClick={() => handleAddAffFam(disaster.disasterCode, disaster.barangay)}>
-                            <LuClipboardPlus />
-                          </button>
-                        </td>
-                        <td className="action-column">
-                          <button className="dash-viewmore-btn" onClick={() => handleConfirm(disaster.disasterCode, disaster.barangay)}>
-                            <GiConfirmed />
-                          </button>
-                        </td>
-                        <td className="action-column">
-                          <button className="dash-viewmore-btn" onClick={() => handleViewMore(disaster)}>
-                            <i className="fa-solid fa-ellipsis"></i>
-                          </button>
-                        </td>
+                              <td className="action-column">
+                        <button className="dash-viewmore-btn" onClick={() => handleAddAffFam(disaster.disasterCode, disaster.barangay)}>
+                          <LuClipboardPlus />
+                        </button>
+                      </td>
+                      <td className="action-column">
+                        <button className="dash-viewmore-btn" onClick={() => handleEditAffFam(disaster.disasterCode, disaster.barangay)}>
+                          <LuClipboardPlus />
+                        </button>
+                      </td>
+                      <td className="action-column">
+                        <button className="dash-viewmore-btn" onClick={() => handleConfirm(disaster.disasterCode, disaster.barangay)}>
+                          <GiConfirmed />
+                        </button>
+                      </td>
+                      <td className="action-column">
+                        <button className="dash-viewmore-btn" onClick={() => handleViewMore(disaster)}>
+                          <i className="fa-solid fa-ellipsis"></i>
+                        </button>
+                      </td>
 
                       </tr>
                     ))
@@ -420,6 +429,8 @@ useEffect(() => {
       <Modal isOpen={isModalOpen} onClose={closeModal} title={
         modalType === "addAffectedFamily" 
           ? "Add Affected Family" 
+          : modalType === "editAffectedFamily" 
+          ?"Edit Affected Family"
           : modalType === "confirmDamageCategory" 
           ? "Confirm Damage Category" 
           : modalType === "viewmore" 
@@ -431,6 +442,12 @@ useEffect(() => {
             <AddAffFam  disBarangay={disBarangay} disCode={disCode} closeModal={closeModal}/>
           </div>
         )}
+
+{       modalType === "editAffectedFamily" && (
+          <div>
+            <EditAffFam  disBarangay={disBarangay} disCode={disCode}/>
+          </div>
+        )}    
 
         {modalType === "confirmDamageCategory" && (
           <div>
