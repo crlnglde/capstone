@@ -27,12 +27,12 @@ const RDS= () => {
   };
 
   const handleSaveSignature = (imageURL) => {
-    if (selectedFamily) {
-      setSignature((prev) => ({
-        ...prev,
-        [selectedFamily]: imageURL, // Store signature for this family head
-      }));
-    }
+    if (!selectedFamily || !selectedFamily._id) return; 
+
+    setSignature((prev) => ({
+      ...prev,
+      [selectedFamily._id]: imageURL,
+    }));
     handleCloseModal(); // Close modal automatically
   };
 
@@ -236,9 +236,9 @@ const RDS= () => {
                       </p>
                   </td>
                   <td className="signature-cell">
-                    {signature[family] ? ( /* E CHANGE PANI TO STATUS IS DONE */
+                    {signature[family._id] ? ( /* E CHANGE PANI TO STATUS IS DONE */
                       <img
-                        src={signature[family]}
+                        src={signature[family._id]}
                         alt="Signature"
                         className="signature-image"
                       />
