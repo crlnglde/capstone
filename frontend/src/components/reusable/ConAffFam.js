@@ -6,6 +6,8 @@ import moment from "moment";
 import Modal from "../Modal";
 import DAFAC from "../forms/DAFAC";
 import "../../css/reusable/ConAffFam.css";
+import Modal from "../Modal";
+import DAFAC from "../forms/DAFAC";
 
 const ConAffFam = ({disBarangay, disCode}) => {
 const [step, setStep] = useState(1);
@@ -49,6 +51,11 @@ const [step, setStep] = useState(1);
             navigate(-1);  
         }
     };
+
+        const handleResidentSelect = (resident) => {
+            setActiveResident(resident); // Set the active resident
+            handleOpenModal("dafac"); // Open the modal with "add" type
+        };
 
        
         const handleOpenModal = (type) => {
@@ -262,6 +269,7 @@ const [step, setStep] = useState(1);
                                     <th>Contact No.</th>
                                     <th>Education</th>
                                     <th>Dependents</th>
+                                    <th>Generate Form</th>
                                     <th>Confirmation</th>
                                 </tr>
                             </thead>
@@ -287,6 +295,22 @@ const [step, setStep] = useState(1);
                                                     ))
                                                 : "No dependents"}
                                             </td> {/* Dependents information */}
+                                            <td>
+
+                                            <button 
+                                                className="res-submit-btn" 
+                                                onClick={() => handleResidentSelect(resident)}
+                                                disabled={affectedFamilies.some(family => family.id === resident.memId) || isResidentSaved(resident)}
+                                            >
+                                                 {affectedFamilies.some(family => family.id === resident.memId) || isResidentSaved(resident) ? (
+                                                    <i className="fa-solid fa-check-circle"></i>
+                                                ) : (
+                                                    <i className="fa-solid fa-pen-to-square"></i> 
+                                                )}
+
+                                            </button>
+
+                                            </td>
 
                                             <td>
                                                 
