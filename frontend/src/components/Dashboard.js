@@ -5,6 +5,7 @@ import Papa from 'papaparse';
 import moment from "moment";
 import { LuClipboardPlus } from "react-icons/lu";
 import { GiConfirmed } from "react-icons/gi";
+import { RiEdit2Line } from "react-icons/ri";
 import Ling from './visualizations/Line-gr'
 import Barc from './visualizations/Bar-ch'
 import Piec from './visualizations/Pie-ch'
@@ -305,7 +306,7 @@ useEffect(() => {
                       </td>
                       <td className="action-column">
                         <button className="dash-viewmore-btn" onClick={() => handleEditAffFam(disaster.disasterCode, disaster.barangay)}>
-                          <LuClipboardPlus />
+                          <RiEdit2Line />
                         </button>
                       </td>
                       <td className="action-column">
