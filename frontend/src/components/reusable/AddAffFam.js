@@ -5,6 +5,7 @@ import Papa from 'papaparse';
 import moment from "moment";
 import "../../css/reusable/AddAffFam.css";
 import DAFAC from "../forms/DAFAC";
+import Modal from "../Modal";
 
 
 const AddAffFam = ({disBarangay, disCode, closeModal}) => {
