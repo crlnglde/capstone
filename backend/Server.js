@@ -347,6 +347,8 @@ app.post("/save-distribution", async (req, res) => {
   try {
     const { disasterCode, disasterDate, assistanceType, barangay, families, reliefItems, receivedFrom, certifiedCorrect, submittedBy, status } = req.body;
 
+
+    console.log(families)
     console.log("type:", assistanceType)
     // Validate required fields
     if (!disasterCode || !disasterDate || !barangay || !families || !reliefItems) {
@@ -387,7 +389,13 @@ app.post("/save-distribution", async (req, res) => {
       })),
       assistanceType,
       dateDistributed: new Date(),
-      families,  // Use validated families data
+      families: families.map(family => ({
+        familyHead: family.familyHead,
+        rationCount: family.rationCount,
+        memId: family.memId,
+        status: family.status,
+        signature: family.signature // Ensure signature is included
+      })),
       receivedFrom,
       certifiedCorrect,
       submittedBy
@@ -404,7 +412,9 @@ app.post("/save-distribution", async (req, res) => {
       return b;
     });
 
+    barangayData.distribution.forEach(dist => dist.families.forEach(fam => dist.markModified("families")));
     existingDistribution.markModified("barangays");
+
     await existingDistribution.save();
 
     res.status(201).json({ message: "Distribution data saved successfully!" });

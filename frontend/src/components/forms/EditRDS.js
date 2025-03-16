@@ -36,6 +36,16 @@ const EditRDS = () => {
       ...prev,
       [selectedFamily._id]: imageURL,
     }));
+
+    setDistributionData((prevData) => ({
+      ...prevData,
+      families: prevData.families.map(family =>
+        family._id === selectedFamily._id ? { ...family, signature: imageURL, status: "Done" } : family
+      )
+    }));
+
+    setIsUpdated(true);
+
     handleCloseModal(); // Close modal automatically
   };
 
@@ -101,37 +111,6 @@ const EditRDS = () => {
   // Extract disaster date and formatted month
   const disasterDate = distributionData.disasterDate ? new Date(distributionData.disasterDate) : null;
   const formattedMonth = disasterDate ? disasterDate.toLocaleString("default", { month: "long" }) : "";
-
-  const handleDecryptEsig = (encryptedEsig, index) => {
-    const password = prompt("Enter password to decrypt the thumbmark:");
-    if (!password) {
-      alert("Password is required!");
-      return;
-    }
-  
-    try {
-      const bytes = CryptoJS.AES.decrypt(encryptedEsig, password);
-      const decryptedData = bytes.toString(CryptoJS.enc.Utf8);
-  
-      if (!decryptedData) {
-        alert("Incorrect password!");
-        return;
-      }
-  
-      setDistributionData((prevData) => ({
-        ...prevData,
-        families: prevData.families.map((family, i) =>
-          i === index ? { ...family, status: "Done" } : family
-        )
-      }));
-      
-      setIsUpdated(true);  // Mark as updated when status changes
-  
-    } catch (error) {
-      alert("Decryption failed! Check the password.");
-      console.error(error);
-    }
-  };
 
   const handleSaveDistribution = async () => {
     try {
@@ -204,9 +183,9 @@ const EditRDS = () => {
                     </p>
                   </td>
                   <td className="signature-cell">
-                    {signature[family._id] ? (
+                    {family.signature || signature[family._id] ? (
                       <img
-                        src={signature[family._id]} 
+                        src={family.signature || signature[family._id]} 
                         alt="Signature"
                         className="signature-image"
                       />
@@ -219,7 +198,6 @@ const EditRDS = () => {
                       </button>
                     )}
                   </td>
-
 
                 </tr>
               ))
