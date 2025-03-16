@@ -382,7 +382,7 @@ const validateFields = () => {
   return (
     <div className="distribution">
 
-        {!isEditMode && (
+        {!isEditMode && step !== 2 && (
           <div className="toggle-container">
             <button
               className={activeTab === "list" ? "active" : ""}

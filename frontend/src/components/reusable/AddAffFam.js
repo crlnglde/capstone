@@ -4,7 +4,6 @@ import axios from "axios";
 import Papa from 'papaparse';
 import moment from "moment";
 import "../../css/reusable/AddAffFam.css";
-import Modal from "../Modal";
 import DAFAC from "../forms/DAFAC";
 import Modal from "../Modal";
 
