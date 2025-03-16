@@ -6,8 +6,7 @@ import moment from "moment";
 import Modal from "../Modal";
 import DAFAC from "../forms/DAFAC";
 import "../../css/reusable/ConAffFam.css";
-import Modal from "../Modal";
-import DAFAC from "../forms/DAFAC";
+
 
 const ConAffFam = ({disBarangay, disCode}) => {
 const [step, setStep] = useState(1);
