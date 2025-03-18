@@ -11,6 +11,7 @@ const SignaturePad = ({family, onSave, onClose}) => {
   const saveSignature = () => {
     if (sigCanvas.current) {
         const signatureData = sigCanvas.current.toDataURL("image/png");
+        console.log("Signature Image URL:", signatureData);
         onSave(signatureData); // Send signature back to editrds pero change ni to save to dataase
     }
   };

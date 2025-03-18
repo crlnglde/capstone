@@ -4,7 +4,10 @@ const familySchema = new mongoose.Schema({
   familyHead: { type: String, required: true },
   rationCount: { type: Number, required: true },
   memId: { type: String },
-  status:{ type: String, required: true, enum: ["Done", "Pending"] },
+  status:{ type: String, enum: ["Done", "Pending"] },
+  signature:{ 
+    type: String
+},
 });
 
 // Relief Items Schema

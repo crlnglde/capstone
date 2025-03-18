@@ -26,15 +26,19 @@ const RDS= () => {
     setIsModalOpen(true);
   };
 
-  const handleSaveSignature = (imageURL) => {
+  const handleSaveSignature = (signatureData) => {
     if (!selectedFamily || !selectedFamily._id) return; 
 
-    setSignature((prev) => ({
-      ...prev,
-      [selectedFamily._id]: imageURL,
-    }));
+    console.log("Signature Image URL fo Database:", signatureData);
+  
+    setFamilies((prevFamilies) => 
+      prevFamilies.map((family) => 
+        family._id === selectedFamily._id ? { ...family, signature: signatureData, status: "Done" } : family
+      )
+    );
+  
     handleCloseModal(); // Close modal automatically
-  };
+  };  
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
@@ -79,24 +83,8 @@ const RDS= () => {
   
         // Set affected families
         let affectedFamilies = selectedBarangay.affectedFamilies || [];
-
-        console.log("hehe",affectedFamilies)
-        // Fetch esig for each family head
-        const familiesWithStatus = await Promise.all(
-          affectedFamilies.map(async (family) => {
-            try {
-              console.log("famId", family.id);
-              const res = await axios.get(`http://localhost:3003/get-resident-esig?memId=${family.id}`);
-              console.log("esig", res.data);
-              return { ...family, status: "Pending", esig: res.data.esig};
-            } catch (error) {
-              console.error(`Error fetching e-signature for ${family.firstName} ${family.lastName}:`, error);
-              return { ...family, status: "Pending", esig: "" }; // Default to Pending
-            }
-          })
-        );
         
-        setFamilies(familiesWithStatus);
+        setFamilies(affectedFamilies);
   
       } catch (error) {
         console.error("Error fetching disasters data:", error);
@@ -106,41 +94,11 @@ const RDS= () => {
     fetchFamilies();
   }, []);
 
-  console.log(families)
-
-  const handleDecryptEsig = (encryptedEsig, index) => {
-    const password = prompt("Enter password to decrypt the thumbmark:");
-    if (!password) {
-      alert("Password is required!");
-      return;
-    }
-
-    try {
-      const bytes = CryptoJS.AES.decrypt(encryptedEsig, password);
-      const decryptedData = bytes.toString(CryptoJS.enc.Utf8);
-
-      if (!decryptedData) {
-        alert("Incorrect password!");
-        return;
-      }
-
-      setFamilies((prevFamilies) => 
-        prevFamilies.map((family, i) =>
-          i === index ? { ...family, status: "Done" } : family
-        )
-      );
-  
-      setDecryptedImages((prev) => ({
-        ...prev,
-        [index]: decryptedData,
-      }));
-    } catch (error) {
-      alert("Decryption failed! Check the password.");
-      console.error(error);
-    }
-  };
-
-  console.log("hatdog",forDistribution)
+  useEffect(() => {
+    families.forEach(family => {
+      console.log(family.signature);
+    });
+  }, [families]);
 
   const handleSaveDistribution = async () => {
     try {
@@ -153,8 +111,9 @@ const RDS= () => {
         families: families.map(family => ({
           familyHead: `${family.firstName} ${family.middleName} ${family.lastName}`,
           memId: family.id,
-          status: family.status,  
+          status: family.status || "Pending",  
           rationCount: 1 + (family.dependents ? family.dependents.length : 0),
+          signature: family.signature || "" ,
       })),
         status: "Pending",
         receivedFrom: forDistribution.receivedFrom,
@@ -236,20 +195,20 @@ const RDS= () => {
                       </p>
                   </td>
                   <td className="signature-cell">
-                    {signature[family._id] ? ( /* E CHANGE PANI TO STATUS IS DONE */
+                    {family.signature ? (
                       <img
-                        src={signature[family._id]}
+                        src={family.signature}
                         alt="Signature"
                         className="signature-image"
                       />
-                      ) : (
-                        <button
-                          className="show-signature-button"
-                          onClick={() => handleOpenModal(family)}
-                        >
-                          Signature/Thumbmark
-                        </button>
-                      )}
+                    ) : (
+                      <button
+                        className="show-signature-button"
+                        onClick={() => handleOpenModal(family)}
+                      >
+                        Signature/Thumbmark
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))
@@ -282,7 +241,7 @@ const RDS= () => {
       </div>
 
       <Modal isOpen={isModalOpen} onClose={handleCloseModal} title="Signature Pad">
-        <SignaturePad family={selectedFamily} onSave={handleSaveSignature}onClose={handleCloseModal} />
+        <SignaturePad family={selectedFamily} onSave={handleSaveSignature} onClose={handleCloseModal} />
       </Modal>
 
     </div>
