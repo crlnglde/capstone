@@ -1,0 +1,131 @@
+.search-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    /*background-color: #f5f5f5;*/
+    padding: 8px;
+    border-radius: 8px;
+    position: relative; /* Ensure proper positioning for absolute children */
+}
+
+.search-container .search-input {
+    flex: 1;
+    padding: 8px;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    outline: none; 
+    transition: border-color 0.3s ease-in-out;
+    font-size: 16px;
+}
+
+/* Optional: Add a focus effect */
+.search-container .search-input:focus {
+    border-color: #007bff; /* Blue border when focused */
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Light glow effect */
+}
+
+
+.search-btn,
+.filter-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 12px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    position: relative;
+    z-index: 2; /* Ensure buttons remain above other elements */
+}
+
+.search-btn {
+    background-color: #0a194e;
+    color: white;
+    border-radius: 4px;
+}
+
+button:hover {
+    background-color: #233c96;
+    transform: scale(1.05);
+}
+
+.filter-btn:hover {
+    color: white; /* Ensure text color turns white on hover */
+}
+
+
+
+.filter-btn {
+    background-color: #ddd;
+    border-radius: 4px;
+}
+
+/* Ensure the filter modal appears above other elements */
+.filter-dropdown {
+    position: absolute;
+    top: 100%; /* Position right below the filter button */
+    right: 0;
+    width: 220px; /* Adjust width as needed */
+    background: white;
+    padding: 12px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+    z-index: 1000; /* Ensure it's above other elements */
+}
+
+.filter-select {
+    width: 100%;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+/* Modal inside the dropdown */
+.filter-modal {
+    margin-top: 10px;
+    padding: 10px;
+    background: white;
+    border-radius: 8px;
+}
+
+.years-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
+    margin: 10px 0;
+}
+
+.year-option {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: center;
+}
+
+.year-option.selected {
+    background-color: #007bff;
+    color: white;
+}
+
+.filter-actions {
+    display: flex;
+    justify-content: space-between;
+}
+
+.cancel-btn,
+.done-btn {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.done-btn {
+    background-color: #0a194e;
+    color: white;
+}
+
+.cancel-btn:hover {
+    color: white; /* Ensure text color turns white on hover */
+}

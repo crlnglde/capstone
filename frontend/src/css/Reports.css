@@ -15,12 +15,45 @@
   height: 100%; 
 }
 
+.report-list-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.pagination-wrapper {
+  margin-top: 20px;
+}
+
+
 .report-list {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 15px;
   margin: 10px;
 }
+
+.no-disaster-message {
+  color: rgb(86, 86, 86);
+  font-weight:lighter;
+  text-align: center;
+  font-size: 15px;
+  padding: 15px;
+ /* Light red background */
+  border-radius: 5px;
+
+  /* Make it occupy full row */
+  grid-column: 1 / -1; /* Span across all columns */
+
+  /* Center text within the grid */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+
 
 /* Report Cards (Step 1) */
 .report-card {

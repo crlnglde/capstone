@@ -17,6 +17,9 @@ import landslide from "../pic/landslide.jpg";
 import earthquake from "../pic/earthquake.png";
 import armedConflict from "../pic/armedconflict.png";
 
+import Pagination from "./again/Pagination";
+import Search from "./again/Search-filter";
+
 const Reports = () => {
   const [reports, setReports] = useState([]);
   const [disasters, setDisasters] = useState([]);
@@ -26,8 +29,7 @@ const Reports = () => {
   const fdrRef = useRef(null);
   const sporadicRef = useRef(null);
 
-
-  useEffect(() => {
+  useEffect(() => { 
     const fetchReports = async () => {
       try {
         const response = await axios.get("http://localhost:3003/get-disasters");
@@ -66,6 +68,7 @@ const Reports = () => {
         });
   
         setReports(aggregatedReports);
+        setFilteredReports(aggregatedReports); 
       } catch (error) {
         console.error("Failed to fetch disaster reports:", error);
       }
@@ -188,14 +191,63 @@ const Reports = () => {
         }
     };
 
+
+
+
+    const [filteredReports, setFilteredReports] = useState([]);
     const [searchQuery, setSearchQuery] = useState("");
+    const [filterOptions, setFilterOptions] = useState({ type: "Yearly", year: 2024 });
     
     //for search
-    const handleSearchChange = (event) => {
-        const query = event.target.value.toLowerCase();
-        setSearchQuery(query);
-        console.log("Search Query: ", query);
+    const handleSearchChange = (query) => {
+      setCurrentPage(1);
+      setSearchQuery(query);
+
+      if (!query.trim()) {
+        // If search is empty, show all reports
+        setFilteredReports(reports);
+        return;
+      }
+    
+      // Apply filtering based on the query
+      const filtered = reports.filter(report =>
+        report.type.toLowerCase().includes(query.toLowerCase()) ||
+        report.barangays.toLowerCase().includes(query.toLowerCase())
+      );
+    
+      setFilteredReports(filtered);
     };
+
+    const handleFilter = (filter) => {
+      let filteredData = reports;
+  
+      if (filter.type === "Yearly") {
+        filteredData = reports.filter((report) => report.year === filter.year);
+      } else if (filter.type === "Monthly") {
+        filteredData = reports.filter(
+          (report) => report.year === filter.year && report.month === filter.month
+        );
+      }
+  
+      setFilteredReports(filteredData);
+    };
+
+
+    //pagination ni 
+      const reportsPerPage = 8; // 4 columns x 4 rows
+      const [currentPage, setCurrentPage] = useState(1);
+      
+      // Calculate total pages dynamically
+      const totalPages = Math.ceil(filteredReports.length / reportsPerPage);
+    
+      // Get reports for the current page
+      const startIndex = (currentPage - 1) * reportsPerPage;
+      const currentReports = filteredReports.slice(startIndex, startIndex + reportsPerPage);
+
+      const paginatedReports = filteredReports.slice(
+        (currentPage - 1) * reportsPerPage,
+        currentPage * reportsPerPage
+      );
 
   return (
     <div className="reports">
@@ -213,52 +265,47 @@ const Reports = () => {
       <div className="container">
 
                     <div className="dstr-search">
-                      <div className="dstr-search-container">
-                        <i className="fa-solid fa-magnifying-glass"></i>
-                        <input 
-                          type="text" 
-                          placeholder="Search..." 
-                          onChange={handleSearchChange} 
-                          className="search-bar"
-                        />
-                      </div>
+                        <Search onSearch={handleSearchChange} onFilter={handleFilter} />
                     </div>
 
         {!selectedReport ? (
+        <div className="report-list-container">
           <div className="report-list">
-          
-          {/* }//Step 1: Display report cards*/}
-          {reports.map((report) => (
-            <div
-              key={report.id}
-              className="report-card"
-              onClick={() => setSelectedReport(report)}
-              style={{ cursor: "pointer" }}
-            >
-              <div className="report-image" style={{ backgroundImage: `url(${getImage(report.type)})` }}>
-                <span
-                  className="report-label"
-                  style={{ backgroundColor: getLabelColor(report.type) }}
-                >
-                  <span className="icon">{getIcon(report.type)}</span> {report.type}
-                </span>
-              </div>
-              <div className="report-content">
-                <h3>{report.date}</h3>
-                <p className="barangay-name">{report.barangay}</p>
-                <p className="report-type">{report.type}</p>
-                <div className="report-info">
-                  <span>
-                    <FaUsers /> {report.households} Families
-                  </span>
-                  <span className="download-icon">
-                    <FaDownload />
-                  </span>
+            {paginatedReports.length > 0 ? (
+              /* }//Step 1: Display report cards*/
+              paginatedReports.map((report) => (
+                <div key={report.id} className="report-card" onClick={() => setSelectedReport(report)} style={{ cursor: "pointer" }}>
+                  <div className="report-image" style={{ backgroundImage: `url(${getImage(report.type)})` }}>
+                    <span className="report-label" style={{ backgroundColor: getLabelColor(report.type) }}>
+                      <span className="icon">{getIcon(report.type)}</span> {report.type}
+                    </span>
+                  </div>
+                  <div className="report-content">
+                    <h3>{report.date}</h3>
+                    <p className="barangay-name">{report.barangays}</p>
+                    <p className="report-type">{report.type}</p>
+                    <div className="report-info">
+                      <span><FaUsers /> {report.households} Families</span>
+                      <span className="download-icon"><FaDownload /></span>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          ))}
+              ))
+            ) : (
+              <p className="no-disaster-message">
+                No disasters under that filter.
+              </p>
+            )}
+
           </div>
+
+          {totalPages > 1 && (
+            <div className="pagination-wrapper">
+              <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+            </div>
+          )}
+
+        </div>
         ) : (
           // Step 2: Display report details (similar to uploaded image)
           <div className="report-preview">
