@@ -188,7 +188,15 @@ const Reports = () => {
         }
     };
 
-  
+    const [searchQuery, setSearchQuery] = useState("");
+    
+    //for search
+    const handleSearchChange = (event) => {
+        const query = event.target.value.toLowerCase();
+        setSearchQuery(query);
+        console.log("Search Query: ", query);
+    };
+
   return (
     <div className="reports">
 
@@ -203,6 +211,18 @@ const Reports = () => {
 
 
       <div className="container">
+
+                    <div className="dstr-search">
+                      <div className="dstr-search-container">
+                        <i className="fa-solid fa-magnifying-glass"></i>
+                        <input 
+                          type="text" 
+                          placeholder="Search..." 
+                          onChange={handleSearchChange} 
+                          className="search-bar"
+                        />
+                      </div>
+                    </div>
 
         {!selectedReport ? (
           <div className="report-list">
@@ -239,10 +259,7 @@ const Reports = () => {
             </div>
           ))}
           </div>
-     
-          
         ) : (
-
           // Step 2: Display report details (similar to uploaded image)
           <div className="report-preview">
             <div className="tabs">
@@ -280,12 +297,9 @@ const Reports = () => {
                 ) : null}
 
               </div>
-
             </div>
           </div>
-
         )}
-
 
       </div>
     </div>

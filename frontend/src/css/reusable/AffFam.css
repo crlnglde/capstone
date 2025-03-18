@@ -1,0 +1,82 @@
+.AddAffFam{
+    padding: 20px;
+    flex: 1;
+  }
+    .dash-btn{
+      padding: 10px 0 10px 0;
+    }
+  
+    .dash-btn i{
+      margin-right: 10px;
+    }
+
+    .AddAffFam-container{
+        background-color: white;
+        border-collapse: collapse;
+        height: 100%;
+        width: 1000px;
+    }
+
+        .afffam-residents-table{
+            padding: 20px 0 ;
+            height: 100%;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            
+        }
+
+        thead {
+            background-color: #00000000;
+            color: rgb(0, 0, 0);
+            border-bottom: 2px solid #ddd;
+          }
+        
+          .afffam-residents-table th, td {
+            padding: 5px;
+            text-align: left;
+            
+          }
+        
+          .afffam-residents-table th {
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 1px;
+            text-align: center;
+            padding: 10px;
+            
+          }
+          
+          tr:nth-child(even) {
+            background-color: #f2f2f2;
+          }
+          
+          .afffam-residents-table td {
+            font-size: 12px;
+            text-align: center;
+            font-weight: 500;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+          }
+        
+        
+          
+          .afffam-residents-table p {
+            font-size: 18px;
+            color: #555;
+            background-color: #fff;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+          }
+
+          .afffam-residents-table .upper{
+            display:flex;
+          }
+
+          .dstr-search {
+              margin-left: auto; /* Pushes the search bar to the right */
+          }
+        
