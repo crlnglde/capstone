@@ -448,6 +448,15 @@ const AddDisaster = () => {
         }
     };
 
+      const [searchQuery, setSearchQuery] = useState("");
+      
+      //for search
+        const handleSearchChange = (event) => {
+            const query = event.target.value.toLowerCase();
+            setSearchQuery(query);
+            console.log("Search Query: ", query);
+        };
+
     const Step2 = (
         <div className="residents-table">
             <div className="barangay-buttons">
@@ -468,6 +477,18 @@ const AddDisaster = () => {
                     </button>
                 ))}
                 */}
+
+                    <div className="dstr-search">
+                      <div className="dstr-search-container">
+                        <i className="fa-solid fa-magnifying-glass"></i>
+                        <input 
+                          type="text" 
+                          placeholder="Search..." 
+                          onChange={handleSearchChange} 
+                          className="search-bar"
+                        />
+                      </div>
+                    </div>
             </div>
 
 

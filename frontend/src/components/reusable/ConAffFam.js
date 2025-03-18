@@ -5,7 +5,7 @@ import Papa from 'papaparse';
 import moment from "moment";
 import Modal from "../Modal";
 import DAFAC from "../forms/DAFAC";
-import "../../css/reusable/ConAffFam.css";
+import "../../css/reusable/AffFam.css";
 
 
 const ConAffFam = ({disBarangay, disCode}) => {
@@ -233,19 +233,43 @@ const [step, setStep] = useState(1);
             }
         };
 
+    const [searchQuery, setSearchQuery] = useState("");
+    
+    //for search
+    const handleSearchChange = (event) => {
+        const query = event.target.value.toLowerCase();
+        setSearchQuery(query);
+        console.log("Search Query: ", query);
+    };
+
   return (
     <div className="AddAffFam">
 
       <div className="AddAffFam-container">
 
         <div className="afffam-residents-table">
-            <div className="barangay-buttons">
-            <button
-                className={`barangay-button ${activeBarangay === disBarangay ? 'active' : ''}`}
-                //onClick={() => handleBarangayClick(disBarangay)}
-            >
-                {disBarangay}
-            </button>
+          
+            <div className="upper">
+                <div className="barangay-buttons">
+                    <button
+                        className={`barangay-button ${activeBarangay === disBarangay ? 'active' : ''}`}
+                        //onClick={() => handleBarangayClick(disBarangay)}
+                    >
+                        {disBarangay}
+                    </button>
+                </div>
+
+                <div className="dstr-search">
+                    <div className="dstr-search-container">
+                    <i className="fa-solid fa-magnifying-glass"></i>
+                    <input 
+                        type="text" 
+                        placeholder="Search..." 
+                        onChange={handleSearchChange} 
+                        className="search-bar"
+                    />
+                    </div>
+                </div>
             </div>
 
             {disBarangay && (

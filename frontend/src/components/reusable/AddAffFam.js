@@ -3,7 +3,7 @@ import { useNavigate} from 'react-router-dom';
 import axios from "axios";
 import Papa from 'papaparse';
 import moment from "moment";
-import "../../css/reusable/AddAffFam.css";
+import "../../css/reusable/AffFam.css";
 import DAFAC from "../forms/DAFAC";
 import Modal from "../Modal";
 
@@ -341,12 +341,16 @@ const [step, setStep] = useState(1);
       <div className="AddAffFam-container">
 
         <div className="afffam-residents-table">
-            <button
+
+        <div className="upper">
+            <div className="barangay-buttons">
+                <button
                 className={`barangay-button ${activeBarangay === disBarangay ? 'active' : ''}`}
                 //onClick={() => handleBarangayClick(disBarangay)}
-            >
-                {disBarangay}
-            </button>
+                >
+                    {disBarangay}
+                </button>
+            </div>
 
             <div className="dstr-search">
                 <div className="dstr-search-container">
@@ -359,7 +363,8 @@ const [step, setStep] = useState(1);
                   />
                 </div>
             </div>
-
+        </div>
+        
             {disBarangay && (
                 <div>
                     {isLoading ? (
