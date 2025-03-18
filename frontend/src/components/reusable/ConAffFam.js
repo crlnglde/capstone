@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate} from 'react-router-dom'; 
 import axios from "axios";
 import Papa from 'papaparse';
@@ -8,7 +8,7 @@ import DAFAC from "../forms/DAFAC";
 import "../../css/reusable/AffFam.css";
 
 
-const ConAffFam = ({disBarangay, disCode}) => {
+const ConAffFam = ({disBarangay, disCode, closeModal}) => {
 const [step, setStep] = useState(1);
     const navigate = useNavigate();  
 
@@ -40,6 +40,7 @@ const [step, setStep] = useState(1);
     const totalPages = Math.ceil(residents.length / rowsPerPage);
 
     const [activeResident, setActiveResident] = useState(null);
+    const [refresh, setRefresh] = useState(false);
 
     const handleBackClick = () => {
 
@@ -61,8 +62,6 @@ const [step, setStep] = useState(1);
             setModalType(type);
             setIsModalOpen(true);
         };
-
-        const closeModal = () => setIsModalOpen(false);
     
         const validateFields = () => {
             const missingFields = [];
@@ -129,11 +128,6 @@ const [step, setStep] = useState(1);
         useEffect(() => {
             if (hasClickedNext) validateFields();
         }, [disasterType, date, selectedBarangays]);
-
-        const displayResidents = residents.slice(
-            (currentPage - 1) * rowsPerPage,
-            currentPage * rowsPerPage
-          );
     
         const isResidentSaved = (resident) => {
         const savedData = JSON.parse(localStorage.getItem("savedForms")) || [];
@@ -218,7 +212,7 @@ const [step, setStep] = useState(1);
             if (disCode && disBarangay) {
                 fetchAffectedFamilies(disCode, disBarangay);
             }
-        }, [disCode, disBarangay]);    
+        }, [disCode, disBarangay, refresh]);    
 
         
         const handleConfirm = async (disCode, disBarangay, familyId) => {
@@ -227,6 +221,7 @@ const [step, setStep] = useState(1);
                     `http://localhost:3003/update-dafac-status/${disCode}/${disBarangay}/${familyId}`
                 );
                 alert(response.data.message);
+                setRefresh((prev) => !prev); 
             } catch (error) {
                 console.error("Error confirming DAFAC status:", error);
                 alert("Failed to confirm DAFAC status");
@@ -237,10 +232,41 @@ const [step, setStep] = useState(1);
     
     //for search
     const handleSearchChange = (event) => {
-        const query = event.target.value.toLowerCase();
+        const query = event.target.value.trim().toLowerCase();
         setSearchQuery(query);
         console.log("Search Query: ", query);
     };
+
+    const filteredResidents = useMemo(() => {
+        return residents.filter((resident) => {
+            const excludeColumns = []; // Add column names here if you want to exclude specific fields
+    
+            // Construct a full name string for searching
+            const fullName = `${resident.firstName} ${resident.middleName} ${resident.lastName}`.toLowerCase();
+            // Check if any dependent's name includes the search query
+            const hasMatchingDependent = resident.dependents?.some((dependent) => 
+                dependent.name.toLowerCase().includes(searchQuery)
+            );
+
+            return (
+                fullName.includes(searchQuery) || // Match full name
+                hasMatchingDependent || // Match dependent names
+                Object.keys(resident).some((key) => {
+                    if (!excludeColumns.includes(key)) {
+                        const value = resident[key];
+                        return value && value.toString().toLowerCase().includes(searchQuery);
+                    }
+                    return false;
+                })
+            );
+        });
+    }, [residents, searchQuery]);   
+    
+    // Slice the sorted disasters for pagination
+    const displayResidents = filteredResidents.slice(
+        (currentPage - 1) * rowsPerPage,
+        currentPage * rowsPerPage
+      );
 
   return (
     <div className="AddAffFam">
