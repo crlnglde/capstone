@@ -3,6 +3,27 @@
     flex: 1;
   }
 
+    .tabs {
+      display: flex;
+      padding-bottom: 10px;
+    }
+    .tab {
+      padding: 8px 15px;
+      border-radius: 10px 10px 0 0;
+      background: #767b91;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    .tab.active {
+      background: #5b5f78;
+    }
+    
+    .tab:hover {
+      background: #6d7189;
+    }
+
 .rds-container{
     background-color: white;
     border-collapse: collapse;

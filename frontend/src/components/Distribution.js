@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate} from 'react-router-dom'; 
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation  } from "react-router-dom";
 import axios from "axios";
 import RDS from "./forms/RDS";
 import EditRDS from "./forms/EditRDS"
@@ -24,8 +24,28 @@ const Distribution = ({ setNavbarTitle }) => {
   const [recentDisasters, setDisasters] = useState([]);
   const [distribution, setDistribution] = useState([]);
   const [activeTab, setActiveTab] = useState("list");
+  const location = useLocation();
 
   const [isEditMode, setIsEditMode] = useState(false);
+  const [isViewMode, setIsViewMode] = useState(false);
+
+   // Update navbar title when tab changes
+   useEffect(() => {
+    let title = `Distribution > ${activeTab === "list" ? "List" : "Visualization"}`;
+
+   // Get the last segment of the path
+   const pathSegments = location.pathname.split("/").filter(Boolean);
+   const lastSegment = pathSegments[pathSegments.length - 1];
+
+   // If the last segment is a subpage of "list", append it
+   if (lastSegment === "rds") title += " > RDS";
+   if (lastSegment === "edit-rds") title += " > Edit RDS";
+   if (lastSegment === "view-rds") title += " > View RDS";
+
+    setNavbarTitle(title);
+}, [location.pathname, activeTab, setNavbarTitle]);
+
+
 
   useEffect(() => {
     setNavbarTitle(`Distribution > ${activeTab === "list" ? "List" : "Visualization"}`);
@@ -36,6 +56,7 @@ const Distribution = ({ setNavbarTitle }) => {
           const [activeBarangay, setActiveBarangay] = useState("ALL");
           const [affectedBarangays, setAffectedBarangays] = useState([]); 
           const [ViewDistribution, setViewDistribution] = useState(""); 
+          
           useEffect(() => {
             if (affectedBarangays.length > 0) {
               setActiveBarangay(affectedBarangays[0]); // Automatically select the first barangay ✅
@@ -134,6 +155,7 @@ const Distribution = ({ setNavbarTitle }) => {
     setAffectedBarangays(barangays.map(barangay => barangay.name)); 
     setViewDistribution(id); 
   };
+  
 
 
     const handleBackClick = () => {
@@ -625,7 +647,13 @@ const validateFields = () => {
                 </div>
 
 
-              {isEditMode ? <EditRDS /> : <RDS />}
+                {isEditMode ? (
+                    <EditRDS />
+                ) : isViewMode ? (
+                  <ViewRDS />
+                ) : (
+                    <RDS />
+                )}
               </div>
             )
 
