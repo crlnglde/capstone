@@ -111,11 +111,6 @@ const [step, setStep] = useState(1);
         useEffect(() => {
             if (hasClickedNext) validateFields();
         }, [disasterType, date, selectedBarangays]);
-
-        const displayResidents = residents.slice(
-            (currentPage - 1) * rowsPerPage,
-            currentPage * rowsPerPage
-          );
         
     
         const isResidentSaved = (resident) => {
@@ -128,19 +123,6 @@ const [step, setStep] = useState(1);
                 data.barangay === resident.barangay &&
                 data.purok === resident.purok
         );
-        };
-
-        //Page ni
-        const handleNext = () => {
-            if (currentPage < totalPages) {
-            setCurrentPage(prev => prev + 1);
-            }
-        };
-    
-        const handlePrev = () => {
-            if (currentPage > 1) {
-            setCurrentPage(prev => prev - 1);
-            }
         };
 
         useEffect(() => {
@@ -316,8 +298,43 @@ const [step, setStep] = useState(1);
             setSearchQuery(query);
             console.log("Search Query: ", query); // Debugging the query
           };
-        
 
+          const filteredResidents = residents.filter((resident) => {
+            const excludeColumns = [
+              ""
+            ];
+         
+            return Object.keys(resident).some((key) => {
+              if (!excludeColumns.includes(key)) {
+                const value = resident[key];
+                if (value && value.toString) {
+                  return value.toString().toLowerCase().includes(searchQuery);
+                }
+              }
+              return false;
+            });
+          });  
+
+
+        //Page ni
+        const handleNext = () => {
+            if (currentPage < totalPages) {
+            setCurrentPage(prev => prev + 1);
+            }
+        };
+    
+        const handlePrev = () => {
+            if (currentPage > 1) {
+            setCurrentPage(prev => prev - 1);
+            }
+        };
+
+        // Slice the sorted disasters for pagination
+        const displayResidents = filteredResidents.slice(
+            (currentPage - 1) * rowsPerPage,
+            currentPage * rowsPerPage
+          );
+        
   return (
     <div className="AddAffFam">
 

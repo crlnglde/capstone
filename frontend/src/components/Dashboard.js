@@ -137,6 +137,7 @@ useEffect(() => {
           return {
             disasterCode: disaster.disasterCode,
             disasterType: disaster.disasterType,
+            disasterStatus: disaster.disasterStatus,
             disasterDateTime: moment(disaster.disasterDateTime).format("MMMM D, YYYY h:mm A"),
             barangay: brgy.name || "Unknown",
             affectedFamilies: Array.isArray(brgy.affectedFamilies) ? brgy.affectedFamilies.length : 0,
@@ -192,10 +193,10 @@ useEffect(() => {
   //page sa disasters
     const [disasterPage, setDisasterPage] = useState(1);
     const disastersPerPage = 6;
-    const totalPages = Math.ceil(disasters.length / disastersPerPage);
+    const totalPages = Math.ceil(filteredDisasters.length / disastersPerPage);
 
     // Sort disastersList by disasterDateTime (latest first)
-    const sortedDisasters = [...disasters].sort(
+    const sortedDisasters = [...filteredDisasters].sort(
       (a, b) => new Date(b.disasterDateTime) - new Date(a.disasterDateTime)
     );
 
@@ -300,17 +301,17 @@ useEffect(() => {
                         <td>{disaster.disasterDateTime}</td>
                         <td>{disaster.barangay}</td>
                               <td className="action-column">
-                        <button className="dash-viewmore-btn" onClick={() => handleAddAffFam(disaster.disasterCode, disaster.barangay)}>
+                        <button className="dash-viewmore-btn" disabled={disaster.disasterStatus === "Done"} onClick={() => handleAddAffFam(disaster.disasterCode, disaster.barangay)}>
                           <LuClipboardPlus />
                         </button>
                       </td>
                       <td className="action-column">
-                        <button className="dash-viewmore-btn" onClick={() => handleEditAffFam(disaster.disasterCode, disaster.barangay)}>
+                        <button className="dash-viewmore-btn" disabled={disaster.disasterStatus === "Done"} onClick={() => handleEditAffFam(disaster.disasterCode, disaster.barangay)}>
                           <RiEdit2Line />
                         </button>
                       </td>
                       <td className="action-column">
-                        <button className="dash-viewmore-btn" onClick={() => handleConfirm(disaster.disasterCode, disaster.barangay)}>
+                        <button className="dash-viewmore-btn" disabled={disaster.disasterStatus === "Done"} onClick={() => handleConfirm(disaster.disasterCode, disaster.barangay)}>
                           <GiConfirmed />
                         </button>
                       </td>
