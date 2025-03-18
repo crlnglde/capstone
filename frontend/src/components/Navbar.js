@@ -9,10 +9,26 @@ const Navbar = ({ isSidebarMinimized, customTitle }) => {
     const formatPageName = (pathname) => {
         if (pathname === "/") return "Home"; // Default for root
 
-        return pathname
-            .split("/") // Split path into parts
-            .filter((part) => part) // Remove empty parts
-            .map((part) => 
+        let pathSegments = pathname.split("/").filter(Boolean); // Remove empty parts
+
+        // Handle "/distribution" separately
+        if (pathSegments[0] === "distribution") {
+            let breadcrumb = "Distribution > List"; // Default active tab
+
+            // If it's a subpage under distribution (rds, edit-rds, view-rds), add it to the title
+            if (pathSegments.length > 1) {
+                const subPage = pathSegments[1];
+                if (["rds", "edit-rds", "view-rds"].includes(subPage)) {
+                    breadcrumb += ` > ${subPage.replace(/-/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())}`;
+                }
+            }
+
+            return breadcrumb; // Ensure breadcrumb is returned correctly
+        }
+
+        // Default behavior for other routes
+        return pathSegments
+            .map((part) =>
                 part
                     .replace(/-/g, " ") // Replace hyphens with spaces
                     .replace(/\b\w/g, (char) => char.toUpperCase()) // Capitalize first letter of each word
@@ -25,7 +41,7 @@ const Navbar = ({ isSidebarMinimized, customTitle }) => {
     return (
         <div className={`navbar ${isSidebarMinimized ? "adjusted-navbar" : ""}`}>
             <div className="page-name">
-            <h1>{customTitle || currentPageName}</h1> 
+                <h1>{customTitle || currentPageName}</h1> 
             </div>
 
             <div className="notifications">
