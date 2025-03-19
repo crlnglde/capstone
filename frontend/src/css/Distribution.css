@@ -390,12 +390,67 @@
               align-items: center;
             }
 
-            .distribution-info {
+            /*}.distribution-info {
               font-size: 16px;
               font-weight: bold;
               color: #333;
-            }
+              width: 100%;
+              display: flex;
+              justify-content: flex-end;
+            }*/
 
+                .dateday-container {
+                  display: flex;
+                  align-items: center;
+                  padding: 5px 8px;
+                  border-radius: 12px;
+                  width: fit-content;
+                  color: rgb(0, 0, 0);
+                  font-family: 'Arial', sans-serif;
+                  font-weight: bold;
+                }
+                
+                .day-box {
+                  background: black;
+                  color: white;
+                  font-size: 1rem;
+                  padding: 10px 20px;
+                  border-radius: 8px;
+                  text-align: center;
+                  height: 45px;
+                  align-items: center;
+                  display: flex;
+                }
+                
+                .date-box {
+                  display: flex;
+                  flex-direction: column;
+                  align-items: center;
+                  margin-left: 15px;
+                  line-height: 1.0;
+                }
+                
+                .date-box .weekday {
+                  font-size: 1rem;
+                  opacity: 0.8;
+                }
+                
+                .date-box .day-number {
+                  font-size: 1.5rem;
+                }
+
+                .date-box .month-year .month{
+                  font-size: 1rem;
+                  color: black;
+                }
+                
+                .month-year {
+                  display: flex;
+                  gap: 8px; /* Space between month and year */
+                 
+                  opacity: 0.8;
+                }
+            
               .tabs {
                 display: flex;
                 padding-bottom: 10px;

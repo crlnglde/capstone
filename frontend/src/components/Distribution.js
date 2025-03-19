@@ -838,14 +838,22 @@ const validateFields = () => {
                   ))}
                 </div>
 
-                {/* Display Day and Date */}
-                <div className="distribution-info">
-                  <span>
-                    Day 1 - mm-dd-yyyy
-                  </span>
+                <div className="dateday-container">
+                  <div className="day-box">Day 1</div>
+                  <div className="date-box">
+                    <span className="weekday">Tuesday</span>
+                    <span className="day-number">23</span>
+                    <div className="month-year">
+                      <span className="month">June</span>
+                      <span className="year">2025</span>
+                    </div>
+                  </div>
                 </div>
+
+
+
               </div>
-              {/* Display RDS Component Based on Selected Barangay */}
+              
               <ViewRDS selectedBarangay={activeBarangay} distributionId= {ViewDistribution} />
             
           </div>
