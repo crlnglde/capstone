@@ -5,7 +5,8 @@
     /*background-color: #f5f5f5;*/
     padding: 8px;
     border-radius: 8px;
-    position: relative; /* Ensure proper positioning for absolute children */
+    position: relative;
+    width: 50%;
 }
 
 .search-container .search-input {

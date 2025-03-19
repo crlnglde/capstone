@@ -840,12 +840,13 @@ const validateFields = () => {
 
                 <div className="dateday-container">
                   <div className="day-box">Day 1</div>
+                  
                   <div className="date-box">
-                    <span className="weekday">Tuesday</span>
-                    <span className="day-number">23</span>
+
+                    <span className="year">2025</span>
                     <div className="month-year">
                       <span className="month">June</span>
-                      <span className="year">2025</span>
+                      <span className="day-number">20</span>
                     </div>
                   </div>
                 </div>

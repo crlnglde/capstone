@@ -17,8 +17,8 @@ import landslide from "../pic/landslide.jpg";
 import earthquake from "../pic/earthquake.png";
 import armedConflict from "../pic/armedconflict.png";
 
-import Pagination from "./again/Pagination";
 import Search from "./again/Search-filter";
+import Pagination from "./again/Pagination";
 
 const Reports = () => {
   const [reports, setReports] = useState([]);
@@ -40,16 +40,18 @@ const Reports = () => {
           const totalFamilies = disaster.barangays.reduce((sum, barangay) => 
             sum + barangay.affectedFamilies.length, 0
           );
+          
           const barangayNames = disaster.barangays.map(barangay => barangay.name).join(", ");
           const affectedFamilies = disaster.barangays.flatMap(barangay => barangay.affectedFamilies);
 
-          const formattedDate = new Date(disaster.disasterDateTime).toLocaleDateString('en-US', {
+          const date = new Date(disaster.disasterDateTime);
+          const formattedDate = date.toLocaleDateString('en-US', {
             year: 'numeric',
             month: '2-digit',
             day: '2-digit',
           });
           
-          const formattedTime = new Date(disaster.disasterDateTime).toLocaleTimeString('en-US', {
+          const formattedTime = date.toLocaleTimeString('en-US', {
             hour: '2-digit',
             minute: '2-digit',
             hour12: true,
@@ -60,6 +62,8 @@ const Reports = () => {
           return {
             id: disaster.disasterCode,
             date: dateTime,
+            year: date.getFullYear(),
+            month: date.getMonth() + 1,
             barangays: barangayNames,
             type: disaster.disasterType,
             households: totalFamilies,
@@ -196,7 +200,6 @@ const Reports = () => {
 
     const [filteredReports, setFilteredReports] = useState([]);
     const [searchQuery, setSearchQuery] = useState("");
-    const [filterOptions, setFilterOptions] = useState({ type: "Yearly", year: 2024 });
     
     //for search
     const handleSearchChange = (query) => {
@@ -219,18 +222,31 @@ const Reports = () => {
     };
 
     const handleFilter = (filter) => {
-      let filteredData = reports;
-  
-      if (filter.type === "Yearly") {
-        filteredData = reports.filter((report) => report.year === filter.year);
-      } else if (filter.type === "Monthly") {
-        filteredData = reports.filter(
-          (report) => report.year === filter.year && report.month === filter.month
-        );
+      if (!filter.year) {
+        setFilteredReports(reports);
+        return;
       }
-  
+      console.log("Filter selected:", filter);
+    
+      let filteredData = reports.filter((report) => {
+        const reportDate = new Date(report.date);
+        const reportYear = reportDate.getFullYear();
+        const reportMonth = reportDate.toLocaleString("en-US", { month: "short" });
+    
+        if (filter.type === "Yearly") {
+          return reportYear === Number(filter.year); // Ensure year comparison is accurate
+        } else if (filter.type === "Monthly") {
+          return reportYear === Number(filter.year) && reportMonth === filter.month;
+        }
+        
+        return true;
+      });
+    
+      console.log("Filtered Reports:", filteredData);
       setFilteredReports(filteredData);
     };
+    
+    
 
 
     //pagination ni 
@@ -264,12 +280,27 @@ const Reports = () => {
 
       <div className="container">
 
-                    <div className="dstr-search">
-                        <Search onSearch={handleSearchChange} onFilter={handleFilter} />
-                    </div>
-
         {!selectedReport ? (
+          
         <div className="report-list-container">
+
+          <div className="search-row">
+            {/* Disaster Count on the Left */}
+            <div className="disaster-count">
+              {filteredReports.length} disasters reported
+            </div>
+
+            {/* Search in the Center */}
+            <div className="search-wrapper" >
+              <Search onSearch={handleSearchChange} onFilter={(filter) => handleFilter({
+                type: filter.type,
+                year: Number(filter.year),
+                month: filter.month
+              })} />
+            </div>
+          </div>
+
+
           <div className="report-list">
             {paginatedReports.length > 0 ? (
               /* }//Step 1: Display report cards*/
