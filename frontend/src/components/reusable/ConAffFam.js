@@ -363,9 +363,9 @@ const [step, setStep] = useState(1);
 
                                             <td>
                                                 
-                                            <button className="res-submit-btn" disabled={resident.dafacStatus === "Confirmed"} onClick={() => handleConfirm(disCode, disBarangay, resident.id)}>
-                                                <i class="fa-regular fa-circle-check"></i> Confirm
-                                            </button>
+                                                <button className="res-submit-btn" disabled={resident.dafacStatus === "Confirmed"} onClick={() => handleConfirm(disCode, disBarangay, resident.id)}>
+                                                    <i class="fa-regular fa-circle-check"></i> Confirm
+                                                </button>
                                             </td>
                                         </tr>
                                     ))
@@ -409,7 +409,7 @@ const [step, setStep] = useState(1);
       <Modal isOpen={isModalOpen} onClose={closeModal} title={modalType === "dafac"}>
         {modalType === "dafac" && (
           <div>
-             <DAFAC activeResident={activeResident} disasterData={JSON.parse(localStorage.getItem('disasterData'))} setIsModalOpen={setIsModalOpen}/> 
+             <DAFAC activeResident={activeResident} disasterData={JSON.parse(localStorage.getItem('disasterData'))} setIsModalOpen={setIsModalOpen} mode="confirm"/> 
           </div>
         )}
       </Modal>

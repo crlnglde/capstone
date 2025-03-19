@@ -7,7 +7,6 @@ import { LuClipboardPlus } from "react-icons/lu";
 import { GiConfirmed } from "react-icons/gi";
 import { RiEdit2Line } from "react-icons/ri";
 import Ling from './visualizations/Line-gr'
-import Barc from './visualizations/Bar-ch'
 import Piec from './visualizations/Pie-ch'
 import Map from './visualizations/Iligan'
 import Modal from "./Modal";
@@ -33,6 +32,7 @@ const Dashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
 
   const [activeTab, setActiveTab] = useState("list");
+
 
   //list of barangays
   const barangays = [
@@ -392,9 +392,6 @@ useEffect(() => {
             
             <div className="ch1">
               <Ling/>
-            </div>
-            <div className="ch1">
-              <Barc barangay={selectedBarangay} year={selectedYear}/>
             </div>
   
             <div className="ch2">
