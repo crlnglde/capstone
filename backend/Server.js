@@ -1,6 +1,10 @@
+require("dotenv").config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const User = require('../backend/models/User')
 const Resident = require('../backend/models/Resident')
 const Disaster = require('../backend/models/Disaster')
 const Distribution = require ('../backend/models/Distribution')
@@ -10,13 +14,62 @@ const port = 3003;
 app.use(cors());
 app.use(express.json());
 
-mongoose.connect('mongodb://localhost:27017/capstone-project',{
+mongoose.connect(process.env.MONGO_URI,{
     useNewUrlParser: true,
     useUnifiedTopology:true
 })
-
 .then(db=>console.log('DB is connected'))
 .catch(err=> console.log(err));
+
+
+  // Register Route
+  app.post("/register", async (req, res) => {
+    try {
+      const { username, password, role } = req.body;
+
+      // Check if user already exists
+      let user = await User.findOne({ username });
+      if (user) return res.status(400).json({ message: "User already exists" });
+
+      // Hash password
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
+
+      // Create user
+      user = new User({ username, password: hashedPassword, role });
+      await user.save();
+
+      res.status(201).json({ message: "User registered successfully" });
+    } catch (err) {
+      console.error("Registration Error:", err); // Log the error
+      res.status(500).json({ message: "Server error", error: err.message });
+    }
+  });
+
+// Login Route
+app.post("/login", async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    // Find user
+    const user = await User.findOne({ username });
+    if (!user) return res.status(400).json({ message: "Invalid credentials" });
+
+    // Check password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
+
+    // Generate token
+    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
+
+    res.json({ token, user: { id: user._id, username: user.username, role: user.role } });
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 
 app.post("/add-residents", async (req, res) => {
   try {
