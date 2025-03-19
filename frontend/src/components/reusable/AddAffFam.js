@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate} from 'react-router-dom'; 
 import axios from "axios";
 import Papa from 'papaparse';
@@ -294,26 +294,35 @@ const [step, setStep] = useState(1);
 
         //search
         const handleSearchChange = (event) => {
-            const query = event.target.value.toLowerCase();
+            const query = event.target.value.trim().toLowerCase();
             setSearchQuery(query);
             console.log("Search Query: ", query); // Debugging the query
           };
 
-          const filteredResidents = residents.filter((resident) => {
-            const excludeColumns = [
-              ""
-            ];
-         
-            return Object.keys(resident).some((key) => {
-              if (!excludeColumns.includes(key)) {
-                const value = resident[key];
-                if (value && value.toString) {
-                  return value.toString().toLowerCase().includes(searchQuery);
-                }
-              }
-              return false;
+        const filteredResidents = useMemo(() => {
+            return residents.filter((resident) => {
+                const excludeColumns = []; // Add column names here if you want to exclude specific fields
+        
+                // Construct a full name string for searching
+                const fullName = `${resident.firstName} ${resident.middleName} ${resident.lastName}`.toLowerCase();
+                // Check if any dependent's name includes the search query
+                const hasMatchingDependent = resident.dependents?.some((dependent) => 
+                    dependent.name.toLowerCase().includes(searchQuery)
+                );
+    
+                return (
+                    fullName.includes(searchQuery) || // Match full name
+                    hasMatchingDependent || // Match dependent names
+                    Object.keys(resident).some((key) => {
+                        if (!excludeColumns.includes(key)) {
+                            const value = resident[key];
+                            return value && value.toString().toLowerCase().includes(searchQuery);
+                        }
+                        return false;
+                    })
+                );
             });
-          });  
+        }, [residents, searchQuery]);    
 
 
         //Page ni

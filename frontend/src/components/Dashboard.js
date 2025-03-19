@@ -447,13 +447,13 @@ useEffect(() => {
 
 {       modalType === "editAffectedFamily" && (
           <div>
-            <EditAffFam  disBarangay={disBarangay} disCode={disCode}/>
+            <EditAffFam  disBarangay={disBarangay} disCode={disCode} closeModal={closeModal}/>
           </div>
         )}    
 
         {modalType === "confirmDamageCategory" && (
           <div>
-            <ConAffFam disBarangay={disBarangay} disCode={disCode}/>
+            <ConAffFam disBarangay={disBarangay} disCode={disCode} closeModal={closeModal}/>
           </div>
         )}
 

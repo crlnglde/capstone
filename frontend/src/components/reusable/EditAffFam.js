@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate} from 'react-router-dom'; 
 import axios from "axios";
 import Papa from 'papaparse';
@@ -7,7 +7,7 @@ import Modal from "../Modal";
 import DAFAC from "../forms/DAFAC";
 import "../../css/reusable/AffFam.css";
 
-const ConAffFam = ({disBarangay, disCode}) => {
+const EditAffFam = ({disBarangay, disCode, closeModal}) => {
 const [step, setStep] = useState(1);
     const navigate = useNavigate();  
 
@@ -59,8 +59,6 @@ const [step, setStep] = useState(1);
             setModalType(type);
             setIsModalOpen(true);
         };
-
-        const closeModal = () => setIsModalOpen(false);
     
         const validateFields = () => {
             const missingFields = [];
@@ -127,11 +125,6 @@ const [step, setStep] = useState(1);
         useEffect(() => {
             if (hasClickedNext) validateFields();
         }, [disasterType, date, selectedBarangays]);
-
-        const displayResidents = residents.slice(
-            (currentPage - 1) * rowsPerPage,
-            currentPage * rowsPerPage
-          );
     
         const isResidentSaved = (resident) => {
         const savedData = JSON.parse(localStorage.getItem("savedForms")) || [];
@@ -291,7 +284,10 @@ const [step, setStep] = useState(1);
                     alert("Affected families updated successfully!");
                     localStorage.removeItem("savedForms");
                     localStorage.removeItem("disasterData");
-                    closeModal();
+
+                    if (typeof closeModal === "function") {
+                        closeModal(); // Close modal on successful submission
+                    }
                 } else {
                     alert("Disaster not found!");
                 }
@@ -306,10 +302,41 @@ const [step, setStep] = useState(1);
     
     //for search
     const handleSearchChange = (event) => {
-        const query = event.target.value.toLowerCase();
+        const query = event.target.value.trim().toLowerCase();
         setSearchQuery(query);
         console.log("Search Query: ", query);
     };
+
+    const filteredResidents = useMemo(() => {
+        return residents.filter((resident) => {
+            const excludeColumns = []; // Add column names here if you want to exclude specific fields
+    
+            // Construct a full name string for searching
+            const fullName = `${resident.firstName} ${resident.middleName} ${resident.lastName}`.toLowerCase();
+            // Check if any dependent's name includes the search query
+            const hasMatchingDependent = resident.dependents?.some((dependent) => 
+                dependent.name.toLowerCase().includes(searchQuery)
+            );
+
+            return (
+                fullName.includes(searchQuery) || // Match full name
+                hasMatchingDependent || // Match dependent names
+                Object.keys(resident).some((key) => {
+                    if (!excludeColumns.includes(key)) {
+                        const value = resident[key];
+                        return value && value.toString().toLowerCase().includes(searchQuery);
+                    }
+                    return false;
+                })
+            );
+        });
+    }, [residents, searchQuery]);    
+    
+      // Slice the sorted disasters for pagination
+      const displayResidents = filteredResidents.slice(
+        (currentPage - 1) * rowsPerPage,
+        currentPage * rowsPerPage
+      );
 
   return (
     <div className="AddAffFam">
@@ -453,4 +480,4 @@ const [step, setStep] = useState(1);
   );
 };
 
-export default ConAffFam;
+export default EditAffFam;
