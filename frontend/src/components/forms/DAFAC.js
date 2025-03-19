@@ -9,7 +9,7 @@ import ICImage from '../../pic/IC.png';
 import cswdImage from '../../pic/cswd.jpg';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
-const DAFAC= ({ activeResident, disasterData, setIsModalOpen}) => {
+const DAFAC= ({ activeResident, disasterData, setIsModalOpen, mode}) => {
   const formRef = useRef(null);
 
   console.log("Active Resident", activeResident)
@@ -625,10 +625,11 @@ const DAFAC= ({ activeResident, disasterData, setIsModalOpen}) => {
                  
 
       </div>
-                <button type="submit" className="submit-btn" onClick={handleSave}>
-                                        Save
-                </button>
-
+        {mode !== "confirm" && (
+          <button type="submit" className="submit-btn" onClick={handleSave}>
+                                  Save
+          </button>
+        )}
     </div>
   );
 };

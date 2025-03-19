@@ -9,6 +9,7 @@ import Modal from "./Modal";
 import Barc from './visualizations/Bar-ch'
 import Piec from './visualizations/Pie-ch'
 import Map from './visualizations/Iligan'
+import LineGraph from "./visualizations/Line-gr";
 import "../css/Distribution.css";
 
 import SignaturePad from "./Signature";
@@ -45,6 +46,30 @@ const Distribution = ({ setNavbarTitle }) => {
     setNavbarTitle(title);
 }, [location.pathname, activeTab, setNavbarTitle]);
 
+  //list of barangays
+  const barangays = [
+    "Abuno", "Acmac-Mariano Badelles Sr.", "Bagong Silang", "Bonbonon", "Bunawan", "Buru-un", "Dalipuga",
+    "Del Carmen", "Digkilaan", "Ditucalan", "Dulag", "Hinaplanon", "Hindang", "Kabacsanan", "Kalilangan",
+    "Kiwalan", "Lanipao", "Luinab", "Mahayahay", "Mainit", "Mandulog", "Maria Cristina", "Pala-o",
+    "Panoroganan", "Poblacion", "Puga-an", "Rogongon", "San Miguel", "San Roque", "Santa Elena",
+    "Santa Filomena", "Santiago", "Santo Rosario", "Saray", "Suarez", "Tambacan", "Tibanga",
+    "Tipanoy", "Tomas L. Cabili (Tominobo Proper)", "Upper Tominobo", "Tubod", "Ubaldo Laya", "Upper Hinaplanon",
+    "Villa Verde"
+  ];
+
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: currentYear - 2012 + 1 }, (_, index) => 2012 + index);
+
+  const [selectedBarangay, setSelectedBarangay] = useState("All");
+  const [selectedYear, setSelectedYear] = useState("All");
+
+  const handleBarangayChange = (event) => {
+    setSelectedBarangay(event.target.value);
+  };
+  
+  const handleYearChange = (event) => {
+    setSelectedYear(event.target.value);
+  };
 
 
   useEffect(() => {
@@ -156,8 +181,6 @@ const Distribution = ({ setNavbarTitle }) => {
     setViewDistribution(id); 
   };
   
-
-
     const handleBackClick = () => {
       if (step > 1) {
         setStep(step - 1);
@@ -268,6 +291,7 @@ const Distribution = ({ setNavbarTitle }) => {
       currentPage * rowsPerPage
     );
   }, [filteredDistribution, currentPage, rowsPerPage]);
+  
     
 //input validation
 
@@ -384,7 +408,6 @@ const validateFields = () => {
         }
       };
 
-
     // Slice the data to show only the required page data
       const displayedDisasters = sortedDisasters.slice(
         (currentDisastersPage - 1) * disastersPerPage,
@@ -404,23 +427,24 @@ const validateFields = () => {
   return (
     <div className="distribution">
 
-        {!isEditMode && step !== 2 && (
-          <div className="toggle-container">
-            <button
-              className={activeTab === "list" ? "active" : ""}
-              onClick={() => setActiveTab("list")}
-            >
-              List
-            </button>
-            <button
-              className={activeTab === "visualization" ? "active" : ""}
-              onClick={() => setActiveTab("visualization")}
-            >
-              Visualization
-            </button>
-          </div>
-        )}
+      {!isEditMode && step !== 2 && (
+        <div className="toggle-container">
+          <button
+            className={activeTab === "list" ? "active" : ""}
+            onClick={() => setActiveTab("list")}
+          >
+            List
+          </button>
+          <button
+            className={activeTab === "visualization" ? "active" : ""}
+            onClick={() => setActiveTab("visualization")}
+          >
+            Visualization
+          </button>
+        </div>
+      )}
 
+      <div className="distribution-container">
         {activeTab === "list" ? (
             step === 1 ? (
             <>
@@ -618,8 +642,6 @@ const validateFields = () => {
                     </table>
                   </div>
 
-
-
                       {/* Pagination Controls */}
                       <div className="btn-container">
                         <button className="nav-button prev" onClick={handlePrevHistory} disabled={historyPage === 1}>
@@ -633,7 +655,6 @@ const validateFields = () => {
                 </div>
 
               </div>
-
             </>
             ) : (
 
@@ -659,14 +680,52 @@ const validateFields = () => {
 
         ):(
           <div className="disasters-visualizations">
+
             <div className="header-container">
               <h2 className="header-title">Visualizations</h2>
+    
+              <div className="dis-filter">
+    
+                <div className="dis-filter-container">
+                  {/*dropdown for barangays*/}
+                  <label htmlFor="barangay">Select Barangay: </label>
+                  <select id="barangay" name="barangay" value={selectedBarangay} onChange={handleBarangayChange}>
+                  <option value="All">All</option>
+                    {barangays.map((barangay, index) => (
+                      <option key={index} value={barangay}>
+                        {barangay}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div className="dis-filter-container">
+                  {/*dropdown for years*/}
+                  <label htmlFor="year">Select Year: </label>
+                  <select id="year" name="year" value={selectedYear} onChange={handleYearChange}>
+                  <option value="All">All</option>
+                    {years.map((year, index) => (
+                      <option key={index} value={year}>
+                        {year}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+    
+              </div>
+            </div>
 
+            <div className="ch1">
+              <Barc barangay={selectedBarangay} year={selectedYear}/>
+            </div>
+  
+            <div className="ch2">
+              <Map barangay={selectedBarangay} year={selectedYear}/>
+              <Piec barangay={selectedBarangay} year={selectedYear}/>
             </div>
           </div>
         )}
-
-      
+      </div>
 
       <Modal isOpen={isModalOpen} onClose={closeModal} title={modalType === "rds" ? "RDS" : "Distribution Details"}>
 
@@ -765,21 +824,29 @@ const validateFields = () => {
         ) : (
           // Distribution Details (View More)
           <div className="view-more-content">
-          
-              <div className="tabs">
-                {affectedBarangays.map((barangay) => (
-                  <button
-                    key={barangay}
-                    className={activeBarangay === barangay ? "tab active" : "tab"}
-                    onClick={() => setActiveBarangay(barangay)}
-                  >
-                    {barangay}
-                  </button>
-                ))}
-              </div>
 
-            {/* Display RDS Component Based on Selected Barangay */}
-            <ViewRDS selectedBarangay={activeBarangay} distributionId= {ViewDistribution} />
+              <div className="tabs-container">
+                <div className="tabs">
+                  {affectedBarangays.map((barangay) => (
+                    <button
+                      key={barangay}
+                      className={activeBarangay === barangay ? "tab active" : "tab"}
+                      onClick={() => setActiveBarangay(barangay)}
+                    >
+                      {barangay}
+                    </button>   
+                  ))}
+                </div>
+
+                {/* Display Day and Date */}
+                <div className="distribution-info">
+                  <span>
+                    Day 1 - mm-dd-yyyy
+                  </span>
+                </div>
+              </div>
+              {/* Display RDS Component Based on Selected Barangay */}
+              <ViewRDS selectedBarangay={activeBarangay} distributionId= {ViewDistribution} />
             
           </div>
 
