@@ -6,6 +6,7 @@ import dswd from '../pic/dswd.jpg';
 import dswd2 from '../pic/dswd2.png'; 
 import dswd3 from '../pic/dswd3.jpg'; 
 import videoBackground from '../pic/vid.mp4';
+import { motion } from "framer-motion";
 
 import Map from './visualizations/map'
 
@@ -97,12 +98,27 @@ useEffect(() => {
         
          <img src={dswd} alt="Background" className="background-image" />
 
-            <div className="overlay">
-            <h1>Welcome to the Disaster <br />Monitoring System </h1>
-            
-            <h3>Quick Action, Timely Disaster Response</h3>
-              
-            </div>
+          <div className="overlay">
+
+            <motion.h1
+              initial={{ opacity: 0, y: -50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1.5, ease: [0.25, 1, 0.5, 1] }}
+
+              viewport={{ once: false, amount: 0.2 }}
+            >
+              Welcome to the Disaster <br /> Monitoring System
+            </motion.h1>
+
+            <motion.h3
+              initial={{ opacity: 0, x: -50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 1.5, ease: [0.25, 1, 0.5, 1] }}
+              viewport={{ once: false, amount: 0.2 }}
+            >
+              Quick Action, Timely Disaster Response
+            </motion.h3>
+          </div>
       </div>   
 
       <div className="home-container1">

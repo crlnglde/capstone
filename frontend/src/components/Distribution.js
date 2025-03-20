@@ -720,7 +720,7 @@ const validateFields = () => {
             </div>
   
             <div className="ch2">
-              <Map barangay={selectedBarangay} year={selectedYear}/>
+
               <Piec barangay={selectedBarangay} year={selectedYear}/>
             </div>
           </div>
