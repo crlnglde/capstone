@@ -1,0 +1,118 @@
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    height: 100vh;
+    background-color: #f5f5f5;
+  }
+  
+  .loginBox {
+    display: flex;
+    width: 850px;
+    height: 500px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+  }
+  
+  .leftPanel {
+    width: 50%;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  
+  .rightPanel {
+    width: 50%;
+    background: linear-gradient(to left, #0A194E, #123D74);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  
+  .image {
+    width: 90%;
+    height: auto;
+    object-fit: cover;
+  }
+  
+  .title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #0A194E;
+    margin-bottom: 5px;
+  }
+  
+  .subtitle {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 20px;
+  }
+  
+  .form {
+    display: flex;
+    flex-direction: column;
+  }
+
+            .passwordContainer {
+                position: relative;
+                display: flex;
+                align-items: center;
+            }
+            
+            .passwordContainer .input {
+                width: 100%;
+                padding-right: 40px; /* Space for the eye icon */
+            }
+            
+            .eyeIcon {
+                position: absolute;
+                right: 10px;
+                cursor: pointer;
+                font-size: 18px;
+                color: #666;
+                transition: color 0.3s ease;
+            }
+            
+            .eyeIcon:hover {
+                color: #333;
+            }
+  
+  
+  .input {
+    padding: 12px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+  }
+  
+  .forgotPassword {
+    text-align: right;
+    font-size: 12px;
+    color: #0A194E;
+    cursor: pointer;
+    margin-bottom: 10px;
+  }
+  
+  .loginButton {
+    background-color: #0A194E;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.3s;
+  }
+  
+  .loginButton:hover {
+    background-color: #123D74;
+  }
+  
+
+  

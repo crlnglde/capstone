@@ -17,6 +17,7 @@ import DAFAC from "./components/forms/DAFAC";
 import SPORADIC from "./components/forms/SPORADIC";
 import FDR from "./components/forms/FDR";
 import Landing from "./components/landing";
+import Login from "./components/Login";
 
 import { motion } from "framer-motion";
 import "./App.css";
@@ -62,7 +63,8 @@ function App() {
             navbarTitle={navbarTitle} 
           >
             <Routes>
-              <Route path="/" element={<Navigate to="/home" />} />
+              <Route path="/" element={<Login />} />
+              {/*<Route path="/" element={<Navigate to="/home" />} />*/}
               <Route path="/home" element={<Home />} />
               <Route path="/disaster" element={<Dashboard />} /> 
               <Route path="/disaster/add-disaster" element={<AddDisaster />} />
