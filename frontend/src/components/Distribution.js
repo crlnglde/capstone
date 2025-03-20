@@ -6,7 +6,7 @@ import RDS from "./forms/RDS";
 import EditRDS from "./forms/EditRDS"
 import ViewRDS from "./forms/ViewRDS"
 import Modal from "./Modal";
-import Barc from './visualizations/Bar-ch'
+import BarGraph from "./visualizations/Bar-ch";
 import Piec from './visualizations/Pie-ch'
 import Map from './visualizations/Iligan'
 import LineGraph from "./visualizations/Line-gr";
@@ -732,7 +732,7 @@ const validateFields = () => {
             </div>
 
             <div className="ch1">
-              <Barc barangay={selectedBarangay} year={selectedYear}/>
+              <BarGraph barangay={selectedBarangay} year={selectedYear}/>
             </div>
   
             <div className="ch2">
@@ -866,9 +866,6 @@ const validateFields = () => {
                     </div>
                   </div>
                 </div>
-
-
-
               </div>
               
               <ViewRDS selectedBarangay={activeBarangay} distributionId= {ViewDistribution} setDistributionDate={setDistributionDate} setPage={setPage}/>
