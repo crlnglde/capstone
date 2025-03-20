@@ -6,8 +6,6 @@
 .sporadic-container{
     background-color: white;
     border-collapse: collapse;
-    height: 100%;
-    width: min-content;
     display: flex;
     flex-direction: column;
     justify-content: space-between; /* Distribute space between form content and the footer */

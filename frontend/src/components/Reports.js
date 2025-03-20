@@ -1,7 +1,9 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { FaUsers, FaDownload, FaFire, FaTint, FaFlag } from "react-icons/fa";
-import jsPDF from "jspdf";
+
+import jsPDF  from "jspdf";
+import autoTable from "jspdf-autotable";
 import html2canvas from "html2canvas";
 import "../css/Reports.css";
 import '@fortawesome/fontawesome-free/css/all.min.css';
@@ -138,7 +140,7 @@ const Reports = () => {
     return imageMap[type] || fireIncident; // Default fallback
   };
 
-  const handleDownloadPDF = () => {
+    const handleDownloadPDF = () => {
     const activeRef = activeTab === "SPORADIC" ? sporadicRef : fdrRef;
     const orientation = activeTab === "SPORADIC" ? "landscape" : "portrait";
     const pageWidth = orientation === "landscape" ? 297 : 210;  // A4 width in mm
@@ -151,7 +153,11 @@ const Reports = () => {
     const rightMargin = 15;
 
     if (activeRef.current) {
-        html2canvas(activeRef.current, { scale: 2 }).then((canvas) => {
+      html2canvas(activeRef.current, {
+        scale: window.devicePixelRatio, // Improve quality
+        useCORS: true, // Load images properly
+        logging: false, // Reduce console logs
+      }).then((canvas) => {
             const pdf = new jsPDF(orientation, "mm", "a4");
             const imgData = canvas.toDataURL("image/png");
 
@@ -194,7 +200,6 @@ const Reports = () => {
         });
         }
     };
-
 
 
 
@@ -360,8 +365,6 @@ const Reports = () => {
               </div>
 
               <div className="form-container">
-
-              
                 {activeTab === "SPORADIC" ? (
                   <div ref={sporadicRef}>
                     <SPORADIC report={selectedReport} distribution={getDistributionForReport(selectedReport.id)} />

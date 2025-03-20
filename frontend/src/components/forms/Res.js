@@ -58,7 +58,7 @@ const RES = ({ residentData }) => {
             <label>Home Address</label>
           </div>
           <div className="col">
-            <input type="date" value={residentData.bdate || ""} disabled />
+            <input type="date" value={residentData.bdate ? residentData.bdate.split("T")[0] : ""}  disabled />
             <label>Date of Birth</label>
           </div>
           <div className="col">
