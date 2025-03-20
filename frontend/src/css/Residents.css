@@ -85,7 +85,7 @@
   .res-top-col{
     display: flex;
     justify-content: space-between;
-    padding: 0px 20px 0 20px;
+    padding: 0px 20px 0 0px;
     align-items: flex-start;
     gap: 20px;
   }
@@ -221,6 +221,16 @@
     border-radius: 10px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   }
+
+      .res-viewmore-btn {
+        background-color: transparent;  
+        border: 2px solid transparent; 
+        color: #333; 
+        padding: 2px 10px;  
+        font-size: 16px;  
+        border-radius: 5px; 
+        cursor: pointer; 
+      }
 
   .res-button-container{
     display: flex;
@@ -392,30 +402,34 @@
   gap: 10px;
 }
 
+.res-pop-form2{
+  display: flex;
+}
+
 .res-pop-form1{
   display: flex;
   flex-direction: column;
   gap: 10px;
+  justify-content: center;
+  width: 100%;
 }
 
 .res-pop-form{
   display: flex;
   flex-direction: row;
   gap: 10px;
+  width: 100%;
 }
 
 /* Form styling (reuse from earlier code) */
 .res-pop-form .form-group {
   display: flex;
   flex-direction: column;
-  width: 100%;
-  max-width: 220px;
 }
 
 .res-pop-form1 .form-group {
   display: flex;
-  flex-direction: column;
-  
+  flex-direction: column; 
 }
 
 .name-group{
@@ -480,22 +494,28 @@ select:focus, select:not(:focus):valid {
   gap: 10px;
 }
 
-.member-input {
+.member-input-group {
   display: flex;
-  align-items: center;
-  position: relative;
+  gap: 10px;
+  flex-direction: column;
 }
 
-.member-input .remove-btn {
+.member-input-group .remove-btn {
   background-color: rgba(255, 255, 255, 0);
   color: rgb(169, 35, 35);
   border: none;
   border-radius: 5px;
   
-  font-size: 12px;
+  font-size: 14px;
   cursor: pointer;
   margin-left: 10px;
 }
+
+      hr {
+        border: 1px solid #ccc; /* Adjust thickness and color */
+        width: 95%; /* Ensure it spans the width */
+        margin: 0px 0; /* Add spacing */
+      }
 
 .remove-btn:hover{
   background-color:#ffffff00;
