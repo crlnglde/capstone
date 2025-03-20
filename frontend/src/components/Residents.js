@@ -4,6 +4,7 @@ import CryptoJS from "crypto-js";
 import axios from "axios";
 import Modal from "./Modal";
 import RES from "./forms/Res";
+import Pagination from "./again/Pagination";
 import "../css/Residents.css";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
@@ -440,17 +441,17 @@ const Residents = () => {
             </div>
           </div>
 
-        <div className="dstr-search">
-          <div className="dstr-search-container">
-            <i className="fa-solid fa-magnifying-glass"></i>
-            <input 
-              type="text" 
-              placeholder="Search..." 
-              onChange={handleSearchChange} 
-              className="search-bar"
-            />
+          <div className="dstr-search">
+            <div className="dstr-search-container">
+              <i className="fa-solid fa-magnifying-glass"></i>
+              <input 
+                type="text" 
+                placeholder="Search..." 
+                onChange={handleSearchChange} 
+                className="search-bar"
+              />
+            </div>
           </div>
-        </div>
     
           <div className="res-filter-container">
             <label htmlFor="barangayFilter"><i className="fa-solid fa-filter"></i> Filter: </label>
@@ -482,7 +483,6 @@ const Residents = () => {
                 <th>Occupation</th>
                 <th>Contact No.</th>
                 <th>Education</th>
-                <th>Dependents</th>
                 <th>View More</th>
               </tr>
               </thead>
@@ -499,15 +499,7 @@ const Residents = () => {
                       <td>{resident.occupation}</td> {/* Occupation */}
                       <td>{resident.phone}</td> {/* Contact No. */}
                       <td>{resident.education || "Not Provided"}</td> {/* Education */}
-                      <td>
-                        {resident.dependents && resident.dependents.length > 0
-                          ? resident.dependents.map((dependent, depIndex) => (
-                              <div key={depIndex}>
-                                {dependent.name} ({dependent.relationToHead})
-                              </div>
-                            ))
-                          : "No dependents"}
-                      </td> {/* Dependents information */}
+                      
                       <td> 
                       <button className="res-viewmore-btn" onClick={() => handleViewMore(resident)}>
                         <i className="fa-solid fa-ellipsis"></i>
@@ -523,29 +515,18 @@ const Residents = () => {
                                       
               </tbody>
           </table>
+
+          {totalPages > 1 && (
+            <div className="pagination-wrapper">
+              <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+            </div>
+          )}
           
         </div>
 
-        <div className="res-button-container">
-          <button 
-            className="nav-button prev" 
-            onClick={handlePrev}
-            disabled={currentPage === 1}
-          >
-              <i className="fa-solid fa-angle-left"></i>
-          </button>
-
-          <button 
-            className="nav-button next" 
-            onClick={handleNext}
-            disabled={currentPage === totalPages}
-          >
-              <i className="fa-solid fa-angle-right"></i>
-          </button>
-        </div>
       </div>
 
-      <Modal isOpen={isModalOpen} onClose={closeModal} title={modalType === "add" ? "Add Resident" : modalType === "upload" ? "Upload Resident CSV" :  "View Resident Details"}>
+      <Modal isOpen={isModalOpen} onClose={closeModal} title={modalType === "add" ? "Add Resident" : modalType === "upload" ? "Upload Resident CSV" :  "Resident Details"}>
 
             {modalType === "add" && (
               <div>
@@ -886,7 +867,6 @@ const Residents = () => {
 
             {modalType === "upload" && (
               <div>
-                <h2 className="modal-title">Upload Resident CSV</h2>
                 <form onSubmit={handleFileUpload} className="upload-form">
                   <input type="file" accept=".csv" onChange={handleFileChange} />
                   <button type="submit" className="submit-btn" disabled={isUploading}>

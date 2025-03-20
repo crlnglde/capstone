@@ -14,10 +14,12 @@ const RES = ({ residentData }) => {
     <div className="resvw">
       <form className="res-form">
         {/* Head of the Family Section */}
+
         <div className="form-header">
           <span>Head of the Family</span>
+          
           <span className="contact">
-            Contact No.: <input type="text" value={residentData.phone || ""} disabled />
+            <label>Contact No.: </label><input type="text" value={residentData.phone || ""} disabled />
           </span>
         </div>
 
@@ -35,14 +37,15 @@ const RES = ({ residentData }) => {
             <input type="text" value={residentData.middleName || ""} disabled />
             <label>Middle Name</label>
           </div>
-          <div className="col">
+
+          <div className="col gender">
             <label>Gender: </label>
             <select value={residentData.sex} disabled>
               <option value="M">M</option>
               <option value="F">F</option>
             </select>
           </div>
-          <div className="col">
+          <div className="col age">
             <label>Age: </label>
             <input type="number" min="0" value={residentData.age || ""} disabled />
           </div>
@@ -75,7 +78,12 @@ const RES = ({ residentData }) => {
             <label>Educational Attainment</label>
           </div>
           <div className="col">
-            <input type="number" min="0" value={residentData.familyMembers || ""} disabled />
+          <input 
+            type="number" 
+            min="1" 
+            value={1 + (residentData.dependents ? residentData.dependents.length : 0)} 
+            disabled 
+          />
             <label>No. of Family Members</label>
           </div>
         </div>
