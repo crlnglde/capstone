@@ -53,10 +53,6 @@ const ResidentsSchema = new mongoose.Schema({
         type: String,
         default: null
     },
-    esig: { 
-        type: String,  
-        required: true 
-    },
     dependents: [
         {
             name: { type: String, required: true },

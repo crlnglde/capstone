@@ -25,7 +25,6 @@ const Residents = () => {
   const [familyHeadLastName, setFamilyHeadLastName] = useState('');
   const [occupation, setOccupation] = useState('');
   const [phone, setPhone] = useState('');
-  const [esig, setEsig] = useState('');
   const [dependents, setDependents] = useState([""]);
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -107,7 +106,6 @@ const Residents = () => {
                     const bdate = row['bdate'] ? new Date(row['bdate']).toISOString() : null;
                     const occupation = row['occupation'] ? row['occupation'].trim() : '';
                     const education = row['education'] ? row['education'].trim() : '';
-                    const esig = row['esig'] ? row['esig'].trim() : '';
                     const income = row['income'] ? parseFloat(row['income']) : 0; // Ensure numeric value
 
                     // Handling dependents
@@ -141,7 +139,6 @@ const Residents = () => {
                         occupation,
                         education,
                         income,
-                        esig,
                         dependents,
                     };
 
@@ -173,37 +170,11 @@ const Residents = () => {
 
     reader.readAsText(csvFile);
 };
-
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-  
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onloadend = () => {
-      const password = prompt("Enter a password to secure the signature:");
-      if (!password) {
-        alert("Password is required to encrypt the signature.");
-        return;
-      }
-  
-      // Encrypt the signature using AES
-      const encryptedEsig = CryptoJS.AES.encrypt(reader.result, password).toString();
-  
-      // Save the encrypted signature
-      setEsig(encryptedEsig);
-    };
-  };
     
 
   //Add Manually
   const handleSubmit = async (event) => {
     event.preventDefault();
-
-    if (!esig) {
-      alert("Please upload an eSignature.");
-      return;
-    }
   
     // Generate unique memId (can be adjusted)
     const memId = `MEM${Date.now()}`;
@@ -222,7 +193,6 @@ const Residents = () => {
       occupation: occupation.trim() || null,
       education: education.trim() || null,
       income: parseInt(income, 10),
-      esig: esig, 
       dependents: dependents
         .map(member => ({
           name: member.name.trim(),
@@ -259,7 +229,6 @@ const Residents = () => {
     setBarangay('');
     setPurok('');
     setPhone('');
-    setEsig('');
     setBdate(''); 
     setOccupation('');
     setIncome('');

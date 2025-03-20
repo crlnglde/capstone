@@ -73,7 +73,7 @@ app.post("/login", async (req, res) => {
 
 app.post("/add-residents", async (req, res) => {
   try {
-    const { memId, firstName, middleName, lastName, age, sex, purok, barangay, phone, bdate, occupation, education, income, dependents, esig } = req.body;
+    const { memId, firstName, middleName, lastName, age, sex, purok, barangay, phone, bdate, occupation, education, income, dependents} = req.body;
 
     // Validate required fields
     if (!memId || !firstName || !lastName || !age || !sex || !purok || !barangay || !phone) {
