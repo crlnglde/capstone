@@ -1,23 +1,31 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../css/Login.css"
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { motion } from "framer-motion";
 import CSWD from "../pic/cswdlogo.png"
 
 const Login = () => {
+    const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
 
     const togglePasswordVisibility = () => {
         setShowPassword((prevShowPassword) => !prevShowPassword);
       };
 
+    const handleLogin = (e) => {
+        e.preventDefault();
+
+        navigate("/home");
+    };
+
     return (
-      <div className="container">
+      <div className="login">
         <div className="loginBox">
           <div className="leftPanel">
             <h2 className="title">Log In</h2>
             <p className="subtitle">Please enter your details</p>
-            <form className="form">
+            <form className="form" onSubmit={handleLogin}>
                 <input type="email" placeholder="Email" className="input" />
                 <div className="passwordContainer">
                     <input 

@@ -63,8 +63,8 @@ function App() {
             navbarTitle={navbarTitle} 
           >
             <Routes>
-              <Route path="/" element={<Login />} />
-              {/*<Route path="/" element={<Navigate to="/home" />} />*/}
+              <Route path="/login" element={<Login />} />
+              <Route path="/" element={<Navigate to="/home" />} />
               <Route path="/home" element={<Home />} />
               <Route path="/disaster" element={<Dashboard />} /> 
               <Route path="/disaster/add-disaster" element={<AddDisaster />} />
