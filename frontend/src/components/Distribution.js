@@ -14,6 +14,14 @@ import "../css/Distribution.css";
 
 import SignaturePad from "./Signature";
 
+const disasterTypeMapping = {
+  "D1": "Typhoon",
+  "D2": "Fire Incident",
+  "D3": "Earthquake",
+  "D4": "Flood",
+  "D5": "Landslide"
+};
+
 const Distribution = ({ setNavbarTitle }) => {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -29,6 +37,9 @@ const Distribution = ({ setNavbarTitle }) => {
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [isViewMode, setIsViewMode] = useState(false);
+
+  const [distributionDate, setDistributionDate] = useState(null);
+  const [page, setPage] = useState(0);
 
    // Update navbar title when tab changes
    useEffect(() => {
@@ -424,6 +435,8 @@ const validateFields = () => {
         historyPage * historyPerPage
       );
 
+      console.log("hehe", distributionDate);
+
   return (
     <div className="distribution">
 
@@ -545,6 +558,9 @@ const validateFields = () => {
                                     {/* Disaster Code */}
                                     <div className="details">
                                       <span className="title">{distItem.disasterCode}</span>
+                                      <span className="subtitle">
+                                        {disasterTypeMapping[distItem.disasterCode.split('-')[0]] || "Unknown Disaster"}
+                                      </span>
                                     </div>
 
                                     {/* Barangay Name */}
@@ -839,20 +855,20 @@ const validateFields = () => {
                 </div>
 
                 <div className="dateday-container">
-                  <div className="day-box">Day 1</div>
+                  <div className="day-box">Day {page + 1}</div>
                   
                   <div className="date-box">
 
-                    <span className="year">2025</span>
+                    <span className="year">{distributionDate ? distributionDate.year : "YYYY"}</span>
                     <div className="month-year">
-                      <span className="month">June</span>
-                      <span className="day-number">20</span>
+                      <span className="month">{distributionDate ? distributionDate.month : "Month"}</span>
+                      <span className="day-number">{distributionDate ? distributionDate.day : "DD"}</span>
                     </div>
                   </div>
                 </div>
               </div>
               
-              <ViewRDS selectedBarangay={activeBarangay} distributionId= {ViewDistribution} />
+              <ViewRDS selectedBarangay={activeBarangay} distributionId= {ViewDistribution} setDistributionDate={setDistributionDate} setPage={setPage}/>
             
           </div>
 
