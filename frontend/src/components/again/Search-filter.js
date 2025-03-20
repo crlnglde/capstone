@@ -1,13 +1,15 @@
-import React, { useState } from "react";
-import { FaSearch, FaFilter } from "react-icons/fa"; // Import icons
+import React, { useState, useEffect, useRef } from "react";
+import { FaSearch, FaFilter } from "react-icons/fa"; 
 import "../../css/again/Search-filter.css";
 
 const Search = ({ onSearch, onFilter }) => {
   const [showFilter, setShowFilter] = useState(false);
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-  const [selectedMonth, setSelectedMonth] = useState(new Date().toLocaleString("en-US", { month: "short" }));
+  const [selectedYear, setSelectedYear] = useState(""); // No default year
+  const [selectedMonth, setSelectedMonth] = useState(""); // No default month
+
   const [filterType, setFilterType] = useState("Yearly");
   const [query, setQuery] = useState("");
+  const filterRef = useRef(null); // Reference for the filter modal
 
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 15 }, (_, i) => currentYear - i).reverse();
@@ -29,9 +31,26 @@ const Search = ({ onSearch, onFilter }) => {
       filterData.month = selectedMonth;
     }
 
-    onFilter(filterData); // Send filter to parent
+    onFilter(filterData);
     setShowFilter(false);
   };
+
+  // Close modal when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (filterRef.current && !filterRef.current.contains(event.target)) {
+        setShowFilter(false);
+      }
+    };
+
+    if (showFilter) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showFilter]);
 
   return (
     <div className="search-container">
@@ -42,28 +61,51 @@ const Search = ({ onSearch, onFilter }) => {
         value={query}
         onChange={handleSearchChange}
       />
-      <button className="search-btn">
-        <FaSearch /> SEARCH
+     <button
+        className="search-btn"
+        onClick={() => {
+          if (selectedYear || selectedMonth) {
+            // If filters are applied, clear them and show all disasters
+            setFilterType("Yearly");
+            setSelectedYear(""); // Reset year
+            setSelectedMonth(""); // Reset month
+            onFilter({ type: "All" }); // Show all disasters
+          }
+        }}
+        disabled={!(selectedYear || selectedMonth)}
+      >
+        <FaSearch />
+        {selectedYear || selectedMonth ? " CLEAR" : " SEARCH"}
       </button>
-      <button className="filter-btn" onClick={() => setShowFilter(!showFilter)}>
+
+
+
+      <button
+        className="filter-btn"
+        onClick={() => {
+          setFilterType("Yearly");
+          setShowFilter(true);
+        }}
+      >
         <FaFilter /> FILTER
       </button>
 
       {showFilter && (
-        <div className="filter-dropdown">
+        <div className="filter-dropdown" ref={filterRef}>
           <select
             className="filter-select"
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
           >
-            <option value="Weekly">Weekly</option>
             <option value="Monthly">Monthly</option>
             <option value="Yearly">Yearly</option>
           </select>
 
           <div className="filter-modal">
-            {filterType !== "Weekly" && (
-              <button className="year-btn">{selectedYear} ▼</button>
+            {filterType !== "Yearly" && (
+              <button className="year-btn" onClick={() => setFilterType("Yearly")}>
+                {selectedYear} ▼
+              </button>
             )}
 
             {filterType === "Yearly" && (
@@ -95,7 +137,14 @@ const Search = ({ onSearch, onFilter }) => {
             )}
 
             <div className="filter-actions">
-              <button className="cancel-btn" onClick={() => setShowFilter(false)}>Cancel</button>
+              <button
+                className="cancel-btn"
+                onClick={() => {
+                  setShowFilter(false); // Only close the filter modal
+                }}  
+              >
+                Cancel
+              </button>
               <button className="done-btn" onClick={applyFilter}>Done</button>
             </div>
           </div>

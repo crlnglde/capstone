@@ -417,7 +417,6 @@
                   padding: 10px 20px;
                   border-radius: 8px;
                   text-align: center;
-                  height: 45px;
                   align-items: center;
                   display: flex;
                 }
@@ -430,12 +429,7 @@
                   line-height: 1.0;
                 }
                 
-                .date-box .weekday {
-                  font-size: 1rem;
-                  opacity: 0.8;
-                }
-                
-                .date-box .day-number {
+                .date-box .year {
                   font-size: 1.5rem;
                 }
 
@@ -445,9 +439,9 @@
                 }
                 
                 .month-year {
+                  font-size: 1rem;
                   display: flex;
                   gap: 8px; /* Space between month and year */
-                 
                   opacity: 0.8;
                 }
             
