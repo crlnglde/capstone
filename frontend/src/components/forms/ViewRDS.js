@@ -7,7 +7,7 @@ import ICImage from '../../pic/IC.png';
 import cswdImage from '../../pic/cswd.jpg';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
-const ViewRDS = ({selectedBarangay, distributionId}) => {
+const ViewRDS = ({selectedBarangay, distributionId, setDistributionDate, setPage}) => {
   const navigate = useNavigate();  
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -22,6 +22,7 @@ const ViewRDS = ({selectedBarangay, distributionId}) => {
         console.log("Fetching disaster distribution with ID:", distributionId);
         const response = await axios.get(`http://localhost:3003/get-disdistribution/${distributionId}`);
         const data = response.data;
+        
         setforDisasterMonth(data.disasterDate)
         if (!data || !data.barangays) {
           throw new Error("Invalid data format");
@@ -29,6 +30,10 @@ const ViewRDS = ({selectedBarangay, distributionId}) => {
 
         const filteredData = data.barangays.filter(barangay => barangay.name === selectedBarangay);
         setDistributionData(filteredData.length > 0 ? filteredData[0].distribution : []);
+
+        if (filteredData.length > 0 && filteredData[0].distribution.length > 0) {
+          updateDistributionDate(0, filteredData[0].distribution);
+        }
       } catch (err) {
         console.error("Error fetching disaster distribution data:", err);
         setError("Failed to fetch data");
@@ -42,18 +47,36 @@ const ViewRDS = ({selectedBarangay, distributionId}) => {
     }
   }, [distributionId, selectedBarangay]);
 
+  const updateDistributionDate = (index, data) => {
+    console.log("data", data)
+    if (data[index]) {
+      const date = new Date(data[index].dateDistributed);
+      setDistributionDate({
+        year: date.getUTCFullYear(),
+        month: date.toLocaleString("default", { month: "long", timeZone:"UTC" }),
+        day: date.getUTCDate(),
+      });
+    }
+  };
 
   const handleNext = () => {
     if (currentPage < distributionData.length - 1) {
-      setCurrentPage(prev => prev + 1);
+      const newPage = currentPage + 1;
+      setCurrentPage(newPage);
+      setPage(newPage);
+      updateDistributionDate(newPage, distributionData);
     }
   };
-
+  
   const handlePrev = () => {
     if (currentPage > 0) {
-      setCurrentPage(prev => prev - 1);
+      const newPage = currentPage - 1;
+      setCurrentPage(newPage);
+      setPage(newPage);
+      updateDistributionDate(newPage, distributionData);
     }
   };
+  
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
