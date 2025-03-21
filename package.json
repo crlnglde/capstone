@@ -2,7 +2,8 @@
   "dependencies": {
     "crypto-js": "^4.2.0",
     "html2canvas": "^1.4.1",
-    "jspdf": "^3.0.0",
+    "jspdf": "^3.0.1",
+    "jspdf-autotable": "^5.0.2",
     "react-script": "^2.0.5",
     "react-scripts": "^5.0.1",
     "react-signature-canvas": "^1.1.0-alpha.1",
