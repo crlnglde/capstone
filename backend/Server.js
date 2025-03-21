@@ -85,9 +85,6 @@ app.post("/add-residents", async (req, res) => {
     if (existingResident) {
       return res.status(400).json({ message: "Resident with this memId already exists." });
     }
-    if (!esig) {
-      return res.status(400).json({ message: "eSignature is required." });
-    }
 
     // Validate `bdate`
     const formattedBdate = bdate ? new Date(bdate) : null;
@@ -114,7 +111,6 @@ app.post("/add-residents", async (req, res) => {
       education,
       income,
       dependents: formattedDependents,
-      esig,
     });
 
     await newResident.save();

@@ -1,0 +1,168 @@
+.resvw {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+  .res-form {
+    width: 100%;
+    font-family: Arial, sans-serif;
+    padding: 10px;
+    border: none;
+  }
+
+    .res-form  .form-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+
+      .res-form .form-header .contact {
+        text-align: right;
+      }
+
+        .res-form .form-header .contact label {
+          text-align: right;
+          font-size: 14px;
+          color: #555;
+          font-weight: normal;
+        }
+        .res-form .form-header .contact input {
+          border: none;
+          border-bottom: 1px solid #000;
+          background: transparent;
+          font-size: 14px;
+          padding: 5px;
+          text-align: left;
+          font-weight:bolder;
+          width: 150px;
+          text-transform: uppercase;
+        }
+        
+
+      .res-form .row {
+      display: flex;
+      width: 100%;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 20px;
+      align-items: flex-start;
+    }
+
+    .res-form  .row  .col {
+      flex: 1;
+      position: relative;
+      margin-right: 10px;
+    }
+
+    .res-form  .row  .col:last-child {
+      margin-right: 0;
+    }
+
+    .res-form  .row  .col input, 
+    .res-form  .row  .col select {
+
+      border: none;
+      border-bottom: 1px solid #000;
+      background: transparent;
+      font-size: 14px;
+      padding: 5px;
+      text-align: center;
+      font-weight:bolder;
+      text-transform: uppercase;
+    }
+
+    .res-form  .row .col label {
+      font-size: 14px;
+      color: #555;
+      display: block;
+      margin-top: 2px;
+      text-align: center;
+    }
+
+                .row {
+                  display: flex;
+                  flex-wrap: wrap;
+                  gap: 15px; /* Adjust spacing between elements */
+                }
+                
+                .col {
+                    display: flex;
+                    flex-direction: column;
+                }
+                
+                .col.gender,
+                .col.age {
+                    display: flex;
+                    flex-direction: row;
+                    align-items: center;
+                    gap: 5px; 
+                    flex-wrap: nowrap; /* Prevents wrapping */
+                }
+                
+                .col.gender label,
+                .col.age label {
+                    margin: 0; /* Remove default margin */
+                    white-space: nowrap; /* Prevent text wrapping */
+                }
+                
+
+      .col .age {
+        flex: 0.5; 
+        max-width: 70px; 
+      }
+
+      .col.gender,
+      .col.age {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 5px;
+      }
+
+      .col.gender label,
+      .col.age label {
+          white-space: nowrap;
+      }
+
+      .address {
+        flex: 2;
+      }
+
+    .res-form .family-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    .res-form .family-table th, .family-table td {
+      border: 1px solid #000;
+      padding: 5px;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    .res-form .family-table tbody td:first-child {
+      text-align: left; 
+      text-transform: uppercase;
+    }
+    
+    .res-form .family-table tbody td {
+      text-align: center; 
+      text-transform: uppercase;
+    }
+    
+
+    .res-form .family-table th {
+      background-color: #f0f0f0;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .res-form .family-table td[colspan="6"] {
+      text-align: center;
+      font-style: italic;
+      color: #777;
+    }
