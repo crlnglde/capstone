@@ -6,6 +6,7 @@ import moment from "moment";
 import { LuClipboardPlus } from "react-icons/lu";
 import { GiConfirmed } from "react-icons/gi";
 import { RiEdit2Line } from "react-icons/ri";
+import { FaLock } from "react-icons/fa";
 import Ling from './visualizations/Line-gr'
 import Piec from './visualizations/Pie-ch'
 import Map from './visualizations/Iligan'
@@ -300,21 +301,36 @@ useEffect(() => {
                         <td>{disaster.disasterType}</td>
                         <td>{disaster.disasterDateTime}</td>
                         <td>{disaster.barangay}</td>
-                              <td className="action-column">
-                        <button className="dash-viewmore-btn" disabled={disaster.disasterStatus === "Done"} onClick={() => handleAddAffFam(disaster.disasterCode, disaster.barangay)}>
-                          <LuClipboardPlus />
-                        </button>
-                      </td>
-                      <td className="action-column">
-                        <button className="dash-viewmore-btn" disabled={disaster.disasterStatus === "Done"} onClick={() => handleEditAffFam(disaster.disasterCode, disaster.barangay)}>
-                          <RiEdit2Line />
-                        </button>
-                      </td>
-                      <td className="action-column">
-                        <button className="dash-viewmore-btn" disabled={disaster.disasterStatus === "Done"} onClick={() => handleConfirm(disaster.disasterCode, disaster.barangay)}>
-                          <GiConfirmed />
-                        </button>
-                      </td>
+                        <td className="action-column">
+                          <button 
+                            className="dash-viewmore-btn" 
+                            disabled={disaster.disasterStatus === "Done"} 
+                            onClick={() => handleAddAffFam(disaster.disasterCode, disaster.barangay)}
+                            title={disaster.disasterStatus === "Done" ? "This disaster is finalized and cannot be modified." : ""}
+                          >
+                            {disaster.disasterStatus === "Done" ? <FaLock /> : <LuClipboardPlus />}
+                          </button>
+                        </td>
+                        <td className="action-column">
+                          <button 
+                            className="dash-viewmore-btn" 
+                            disabled={disaster.disasterStatus === "Done"} 
+                            onClick={() => handleEditAffFam(disaster.disasterCode, disaster.barangay)}
+                            title={disaster.disasterStatus === "Done" ? "This disaster is finalized and cannot be modified." : ""}
+                          >
+                            {disaster.disasterStatus === "Done" ? <FaLock /> : <RiEdit2Line />}
+                          </button>
+                        </td>
+                        <td className="action-column">
+                          <button 
+                            className="dash-viewmore-btn" 
+                            disabled={disaster.disasterStatus === "Done"} 
+                            onClick={() => handleConfirm(disaster.disasterCode, disaster.barangay)}
+                            title={disaster.disasterStatus === "Done" ? "This disaster is finalized and cannot be modified." : ""}
+                          >
+                            {disaster.disasterStatus === "Done" ? <FaLock /> : <GiConfirmed />}
+                          </button>
+                        </td>
                       <td className="action-column">
                         <button className="dash-viewmore-btn" onClick={() => handleViewMore(disaster)}>
                           <i className="fa-solid fa-ellipsis"></i>
@@ -389,15 +405,19 @@ useEffect(() => {
     
               </div>
             </div>
-            
-            <div className="ch1">
-              <Ling/>
-            </div>
   
             <div className="ch2">
               <Map barangay={selectedBarangay} year={selectedYear}/>
+            </div>
+
+            <div className="ch2">
               <Piec barangay={selectedBarangay} year={selectedYear}/>
             </div>
+
+            <div className="ch1">
+              <Ling/>
+            </div>
+
           </div>
 
         )}    

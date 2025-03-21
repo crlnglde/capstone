@@ -74,7 +74,7 @@ const LineGraph = () => {
             <div className='bar'>
 
                 <div className="bar-filter">
-                    <h2>Disaster Occurrences per Barangay (Past 5 Years)</h2>
+                    <h2>Disaster Occurrences</h2>
 
                     <div className="filters-right">
                         <div className="bar-filter-container">

@@ -41,6 +41,9 @@ const Distribution = ({ setNavbarTitle }) => {
   const [distributionDate, setDistributionDate] = useState(null);
   const [page, setPage] = useState(0);
 
+  const [disasterTypeFilter, setDisasterTypeFilter] = useState("All");
+  const [disasterDateFilter, setDisasterDateFilter] = useState("All");
+
    // Update navbar title when tab changes
    useEffect(() => {
     let title = `Distribution > ${activeTab === "list" ? "List" : "Visualization"}`;
@@ -95,9 +98,9 @@ const Distribution = ({ setNavbarTitle }) => {
           
           useEffect(() => {
             if (affectedBarangays.length > 0) {
-              setActiveBarangay(affectedBarangays[0]); // Automatically select the first barangay ✅
+              setActiveBarangay(affectedBarangays[0]);
             }
-          }, [affectedBarangays]); // Runs when `affectedBarangays` updates
+          }, [affectedBarangays]);
 
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -435,8 +438,6 @@ const validateFields = () => {
         historyPage * historyPerPage
       );
 
-      console.log("hehe", distributionDate);
-
   return (
     <div className="distribution">
 
@@ -475,7 +476,7 @@ const validateFields = () => {
                       displayedDisasters.map((disaster, index) => (
                         <div key={index} className="transactionItem"> 
                           <div className="dateBox">
-                            <span className="date">{new Date(disaster.disasterDateTime).getDate()}</span>
+                            <span className="date">{new Date(disaster.disasterDateTime).getUTCDate()}</span>
                             <span className="month">{new Date(disaster.disasterDateTime).toLocaleString('default', { month: 'short' })}</span>
                           </div>
                           <div className="details">
@@ -549,7 +550,7 @@ const validateFields = () => {
                                   <div key={dIndex} className="transactionItem">
                                     {/* Date Box */}
                                     <div className="dateBox">
-                                      <span className="date">{new Date(dist.dateDistributed).getDate()}</span>
+                                      <span className="date">{new Date(dist.dateDistributed).getUTCDate()}</span>
                                       <span className="month">
                                         {new Date(dist.dateDistributed).toLocaleString("default", { month: "short" })}
                                       </span>
@@ -701,43 +702,11 @@ const validateFields = () => {
               <h2 className="header-title">Visualizations</h2>
     
               <div className="dis-filter">
-    
-                <div className="dis-filter-container">
-                  {/*dropdown for barangays*/}
-                  <label htmlFor="barangay">Select Barangay: </label>
-                  <select id="barangay" name="barangay" value={selectedBarangay} onChange={handleBarangayChange}>
-                  <option value="All">All</option>
-                    {barangays.map((barangay, index) => (
-                      <option key={index} value={barangay}>
-                        {barangay}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div className="dis-filter-container">
-                  {/*dropdown for years*/}
-                  <label htmlFor="year">Select Year: </label>
-                  <select id="year" name="year" value={selectedYear} onChange={handleYearChange}>
-                  <option value="All">All</option>
-                    {years.map((year, index) => (
-                      <option key={index} value={year}>
-                        {year}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-    
               </div>
             </div>
 
             <div className="ch1">
               <BarGraph barangay={selectedBarangay} year={selectedYear}/>
-            </div>
-  
-            <div className="ch2">
-
-              <Piec barangay={selectedBarangay} year={selectedYear}/>
             </div>
           </div>
         )}

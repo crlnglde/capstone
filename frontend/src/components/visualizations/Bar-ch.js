@@ -1,132 +1,174 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { Bar } from 'react-chartjs-2';
+import { Bar } from "react-chartjs-2";
 import axios from "axios";
-import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from 'chart.js';
+import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from "chart.js";
 import "../../css/visualizations/Bar-ch.css";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
-const BarGraph = ({ barangay, year }) => {
-  const [disasterTypeFilter, setDisasterTypeFilter] = useState("All");
-  const [disasterDateFilter, setDisasterDateFilter] = useState("All");
+const BarGraph = () => {
+  const [disasterCodeFilter, setDisasterCodeFilter] = useState("");
+  const [barangayFilter, setBarangayFilter] = useState("");
   const [disasters, setDisasters] = useState([]);
+  const [distributions, setDistributions] = useState([]);
 
   useEffect(() => {
     const fetchDisasters = async () => {
       try {
         const response = await axios.get("http://localhost:3003/get-disasters");
-        setDisasters(response.data);
+        const disasterData = response.data.filter(disaster => disaster.disasterStatus === "Current");
+        setDisasters(disasterData);
+  
+        // Automatically select the first disaster code if available
+        if (disasterData.length > 0) {
+          setDisasterCodeFilter(disasterData[0].disasterCode);
+        }
       } catch (error) {
         console.error("Error fetching disasters data:", error);
       }
     };
+  
+    const fetchDistributions = async () => {
+      try {
+        const response = await axios.get("http://localhost:3003/get-distribution");
+        setDistributions(response.data);
+      } catch (error) {
+        console.error("Error fetching distribution data:", error);
+      }
+    };
+  
     fetchDisasters();
+    fetchDistributions();
   }, []);
 
-  const filteredDisasters = useMemo(() => {
-    return disasters.filter(disaster => {
-      const disasterDate = new Date(disaster.disasterDateTime);
-      const disasterYear = disasterDate.getFullYear().toString();
-      const formattedDate = disasterDate.toISOString().split("T")[0];
-      const matchesBarangay = barangay === "All" || disaster.barangays.some(b => b.name === barangay);
-      const matchesYear = year === "All" || disasterYear === year;
-      const matchesType = disasterTypeFilter === "All" || disaster.disasterType === disasterTypeFilter;
-      const matchesDate = disasterDateFilter === "All" || formattedDate === disasterDateFilter;
-      return matchesBarangay && matchesYear && matchesType && matchesDate;
-    });
-  }, [disasters, barangay, year, disasterTypeFilter, disasterDateFilter]);
-
-  const affectedData = useMemo(() => {
-    const counts = {};
-    filteredDisasters.forEach(disaster => {
-      disaster.barangays.forEach(b => {
-        counts[b.name] = (counts[b.name] || 0) + (Array.isArray(b.affectedFamilies) ? b.affectedFamilies.length : 0);
-      });
-    });
-    return counts;
-  }, [filteredDisasters]);
-
-  const casualtiesData = useMemo(() => {
-    const counts = {};
-    filteredDisasters.forEach(disaster => {
-      disaster.barangays.forEach(b => {
-        counts[b.name] = (counts[b.name] || 0) + (Array.isArray(b.casualties) ? b.casualties.length : 0);
-      });
-    });
-    return counts;
-  }, [filteredDisasters]);
-
-  const data = useMemo(() => {
-    const barangayNames = Object.keys(affectedData);
+  const chartData = useMemo(() => {
+    if (!disasterCodeFilter || !disasters.length) return null;
+  
+    const selectedDisaster = disasters.find(d => d.disasterCode === disasterCodeFilter);
+    if (!selectedDisaster) return null;
+  
+    // Get total affected families based on barangay filter
+    const affectedFamiliesCount = selectedDisaster.barangays
+      .filter(barangay => !barangayFilter || barangay.name === barangayFilter)
+      .reduce((sum, barangay) => sum + (barangay.affectedFamilies?.length || 0), 0);
+  
+    // Get all distributions for the selected disaster and barangay
+    const allDistributions = distributions
+      .filter(d => d.disasterCode === disasterCodeFilter)
+      .flatMap(d => d.barangays)
+      .filter(barangay => !barangayFilter || barangay.name === barangayFilter) // Apply barangay filter
+      .flatMap(barangay => barangay.distribution || []);
+  
+    // Generate labels
+    const labels = allDistributions.map((distribution, index) => {
+      const date = new Date(distribution.dateDistributed);
+      const formattedUTC = date.toUTCString().slice(5, 16); // Extracts "MMM DD YYYY"
+      return `Distribution ${index + 1} (${formattedUTC})`;
+    });      
+  
+    // Affected Families remains the same for each distribution
+    const affectedFamiliesData = Array(allDistributions.length).fill(affectedFamiliesCount);
+  
+    // Count families that received assistance
+    const receivedFamiliesData = allDistributions.map(distribution => 
+      distribution.families.filter(fam => fam.status === "Done").length
+    );
+  
     return {
-      labels: barangayNames,
+      labels,
       datasets: [
         {
-          label: 'Affected Families',
-          data: barangayNames.map(name => affectedData[name] || 0),
-          backgroundColor: 'rgba(75, 192, 192, 0.5)',
-          borderColor: 'rgba(75, 192, 192, 1)',
+          label: "Affected Families",
+          data: affectedFamiliesData,
+          backgroundColor: "rgba(0, 76, 153, 0.7)", // Darker blue
+          borderColor: "rgba(0, 76, 153, 1)",
           borderWidth: 1,
         },
         {
-          label: 'Casualties',
-          data: barangayNames.map(name => casualtiesData[name] || 0),
-          backgroundColor: 'rgba(255, 99, 132, 0.5)',
-          borderColor: 'rgba(255, 99, 132, 1)',
+          label: "Families Received Assistance",
+          data: receivedFamiliesData,
+          backgroundColor: "rgba(30, 144, 255, 0.7)", // Medium blue
+          borderColor: "rgba(30, 144, 255, 1)",
           borderWidth: 1,
-        }
-      ]
+        }        
+      ],
     };
-  }, [affectedData, casualtiesData]);
+  }, [disasterCodeFilter, barangayFilter, disasters, distributions]);
+  
+  const availableDisasterCodes = useMemo(() => {
+    return Array.from(new Set(disasters.map(d => d.disasterCode)));
+  }, [disasters]);
 
-  const options = {
-    responsive: true,
-    plugins: {
-      legend: { display: true, position: 'top' },
-    },
-    scales: {
-      x: { barPercentage: 0.9, categoryPercentage: 1.0 },
-      y: { beginAtZero: true },
-    },
-    maintainAspectRatio: false,
-  };
+  const availableBarangays = useMemo(() => {
+    const selectedDisaster = disasters.find(d => d.disasterCode === disasterCodeFilter);
+    return selectedDisaster ? selectedDisaster.barangays.map(b => b.name) : [];
+  }, [disasterCodeFilter, disasters]);
+  
+  useEffect(() => {
+    if (availableBarangays.length > 0 && !barangayFilter) {
+      setBarangayFilter(availableBarangays[0]); // Automatically select the first barangay
+    }
+  }, [availableBarangays]);  
+  
 
   return (
     <div className="bar-graph-container">
       <div className='bar'>
         <div className="bar-filter">
-          <h2>Disaster Impact</h2>
+          <h2>Current Distributions</h2>
           <div className="filters-right">
-            <div className="bar-filter-container">
-              <select id="disasterType" name="disasterType" onChange={(e) => setDisasterTypeFilter(e.target.value)}>
-                <option value="All">All</option>
-                <option value="Fire Incident">Fire Incident</option>
-                <option value="Flood">Flood</option>
-                <option value="Landslide">Landslide</option>
-                <option value="Earthquake">Earthquake</option>
-                <option value="Typhoon">Typhoon</option>
-              </select>
+            <div className="pie-filter">
+              <div className="col">
+                <label htmlFor="disasterCode">Disaster Code: </label>
+                <select id="disasterCode" value={disasterCodeFilter} onChange={(e) => setDisasterCodeFilter(e.target.value)}>
+                  <option value="">Select Disaster</option>
+                  {availableDisasterCodes.map((code, index) => (
+                    <option key={index} value={code}>{code}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="col">
+                <label htmlFor="barangay">Barangay: </label>
+                <select id="barangay" value={barangayFilter} onChange={(e) => setBarangayFilter(e.target.value)}>
+                  {availableBarangays.map((barangay, index) => (
+                    <option key={index} value={barangay}>{barangay}</option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
         </div>
         <div className="bar-wrapper">
-          <Bar data={data} options={options} />
+          {chartData ? (
+            <Bar data={chartData} options={{ responsive: true, maintainAspectRatio: false }} />
+          ) : (
+            <p>No distribution data available for this disaster.</p>
+          )}
         </div>
       </div>
-      <div className="bar-text-overlay">
-        <h2>Disaster Impact Overview</h2>
-        {Object.keys(affectedData).length > 0 ? (
-          <p>
-            The barangay with the most affected families is <strong>
-              {Object.keys(affectedData).reduce((a, b) => affectedData[a] > affectedData[b] ? a : b)}
-            </strong>, while the barangay with the most casualties is <strong>
-              {Object.keys(casualtiesData).reduce((a, b) => casualtiesData[a] > casualtiesData[b] ? a : b)}
-            </strong>.
-          </p>
+
+      <div className="pie-text-overlay">
+        <h2>Disaster Insights</h2>
+        {chartData && chartData.labels.length > 0 ? (
+          <>
+            {chartData.datasets[1].data.some((received, index) => received < chartData.datasets[0].data[index]) ? (
+              <p>
+                Some distributions did not reach all affected families:{" "}
+                <strong>
+                  {chartData.labels
+                    .filter((_, index) => chartData.datasets[1].data[index] < chartData.datasets[0].data[index])
+                    .join(", ")}
+                </strong>
+              </p>
+            ) : (
+              <p>All affected families have received assistance in every distribution.</p>
+            )}
+          </>
         ) : (
-          <p>No disaster data available.</p>
+          <p>No distribution data available for the selected filters.</p>
         )}
       </div>
+
     </div>
   );
 };
