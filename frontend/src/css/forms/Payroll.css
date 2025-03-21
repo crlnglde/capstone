@@ -1,67 +1,197 @@
-.payroll {
-    padding: 20px;
-    flex: 1;
+/* General Styling */
+body {
+  font-family: Arial, sans-serif;
+  background-color: white;
+
 }
 
-.payrolls-container {
-    background-color: white;
-    border-collapse: collapse;
-    height: 600px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between; 
-    box-sizing: border-box;
-    flex-wrap: wrap;
-    padding: 20px;
-    justify-content: center;
-  }
+.payroll {
+
+  margin: auto;
+  background: #fff;
+  padding: 15px;
+}
+
+/* Header Section */
+.header {
+  display: flex;
+  justify-content: space-between;
+  text-align: center;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+  gap: 250px
+}
+
+.header .col {
+  flex: 1;
+  min-width: 150px; /* Prevents excessive shrinking */
+  text-align: left;
+}
+
+.underline {
+  text-decoration: underline;
+}
+
+
+.header h6 {
+  margin: 3px 0;
+  font-size: .67em;
+}
+
+.subtitle {
+  font-style: italic;
+  color: black;
   
-  .payroll-table {
-    width: 100%;
-    border-collapse: collapse;
-    text-align: center;
-    font-family: Arial, sans-serif;
-    font-size: 14px;
-    background-color: white;
-  }
+}
+
+/* Acknowledgment Section */
+.ack {
+  text-align: center;
+  margin: 10px 0;
+  overflow-wrap: break-word;
+}
+
+/* Table Styling */
+.payroll-table {
+  background-color: #fff;
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  font-size: 12px;
+  table-layout: fixed; 
+}
+
+.payroll-table th,
+.payroll-table td {
+  border: 1px solid black;
+  padding: 5px;
+  text-align: center;
+  word-wrap: break-word;
+  overflow: hidden;
+}
+
+.payroll-table tr {
+  background-color: #ffffff; 
+}
+.payroll-table thead {
+  background-color: #00000000;
+  color: rgb(0, 0, 0);
+  border-bottom: 1px solid #000000;
   
-  .payroll-table th,
-  .payroll-table td {
-    border: 1px solid black;
-    padding: 8px;
-  }
-  
-  .payroll-table th {
-    background-color: #ddd;
-    font-weight: bold;
+}
+
+
+
+.payroll-table th {
+
+  font-weight: bold;
+}
+
+tfoot td {
+  font-weight: bold;
+
+}
+
+/* Footer Section */
+.footer {
+  display: flex;
+  justify-content: space-between;
+  text-align: center;
+
+  flex-wrap: wrap;
+}
+    .col.two{
+      display: flex;
+      align-items: flex-end;
+    }
+    .col.three{
+      align-items: center;
+    }
+
+.footer.three{
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.footer .col {
+  flex: 1;
+  min-width: 150px;
+  text-align: left;
+  box-sizing: border-box;
+}
+
+    .col.low{
+      align-items: flex-end;
+    }
+
+  .footer .col.asst,
+  .footer .col.yr {
+    flex: .5; 
   }
 
-  .payroll-table td {
-    background-color: #ffffff;
+  .footer .col.year {
+    flex: 1.4; 
   }
-  
-  tfoot td {
-    font-weight: bold;
+
+  .footer .col.atty {
+    flex: 1.2; 
   }
-  
-  /* Formatting for the total row */
-  tfoot {
-    background-color: #f0f0f0;
+
+  .footer .col.hereby {
+    flex: 2; 
   }
-  
-  .fdr {
-    margin: 0 auto;
-    width: 95%;
+
+  .footer .col .sig{
+    align-items: center;
   }
-  
-  .res-btn {
-    margin-bottom: 10px;
+  .footer .col .sigb{
+    align-items: center;
   }
-  
+
+        .sig h6:first-child {
+          text-decoration: underline;
+      }
+
+  .footer .col .signature{
+    display: flex;
+  }
+
+  .col .signature{
+    font-style: italic;
+  }
+
+  .footer .col.approved {
+    flex: 0.4; /* Middle column takes less space */
+    max-width: 100px; /* Prevents it from getting too wide */
+}
+
+.footer h6 {
+  margin: 5px 0;
+}
+
+.footer .col:last-child h6 {
+  text-align: left;
+}
+
+/* Italicize Positions */
+h6.position {
+  font-style: italic;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+  .header,
   .footer {
-    margin-top: 20px;
-    text-align: center;
-    font-weight: bold;
-    font-size: 16px;
+      flex-direction: column;
   }
-  
+
+  .payroll-table {
+      font-size: 12px;
+  }
+
+  .payroll-table th,
+  .payroll-table td {
+      padding: 4px;
+  }
+}

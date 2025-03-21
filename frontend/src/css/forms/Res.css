@@ -38,7 +38,10 @@
           text-align: left;
           font-weight:bolder;
           width: 150px;
-          text-transform: uppercase;
+        }
+
+        .res-form .form-header .contact input[type="date"] {
+          font-family: inherit; 
         }
         
 
@@ -71,7 +74,7 @@
       padding: 5px;
       text-align: center;
       font-weight:bolder;
-      text-transform: uppercase;
+      text-transform: capitalize;
     }
 
     .res-form  .row .col label {
@@ -146,12 +149,12 @@
 
     .res-form .family-table tbody td:first-child {
       text-align: left; 
-      text-transform: uppercase;
+      text-transform: capitalize;
     }
     
     .res-form .family-table tbody td {
       text-align: center; 
-      text-transform: uppercase;
+      text-transform: capitalize;
     }
     
 

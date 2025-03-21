@@ -36,9 +36,9 @@ const Residents = () => {
 
   const [selectedBarangay, setSelectedBarangay] = useState(''); // Filter state
   
-  const [currentPage, setCurrentPage] = useState(1); // State for current page
+ 
   const rowsPerPage = 10;
-  const totalPages = Math.ceil(residents.length / rowsPerPage);
+
 
   const [totalResidents, setTotalResidents] = useState(0);
   const [totalFamilies, setTotalFamilies] = useState(0);
@@ -54,6 +54,11 @@ const Residents = () => {
     'Villa Verde'
   ];
 
+  // Function to update residents list by adding new ones to the top
+const addResidentsToTop = (newResidents) => {
+  setResidents((prevResidents) => [...newResidents, ...prevResidents]);
+};
+
   //CSV Upload
   const handleFileChange = (event) => {
     setCsvFile(event.target.files[0]);
@@ -62,125 +67,76 @@ const Residents = () => {
   //CSV Upload
   const handleFileUpload = async (event) => {
     event.preventDefault();
-
+  
     if (!csvFile) {
-        alert("Please select a CSV file to upload.");
-        return;
+      alert("Please select a CSV file to upload.");
+      return;
     }
-
+  
     setIsUploading(true);
-
+  
     const reader = new FileReader();
     reader.onload = async (e) => {
-        const text = e.target.result;
-
-        // Use PapaParse to parse the CSV content
-        Papa.parse(text, {
-            complete: async (result) => {
-                console.log("Parsed Data:", result);
-
-                const data = result.data;
-                if (!data || data.length === 0) {
-                    console.error("No data found in CSV.");
-                    alert("No data found in the CSV.");
-                    setIsUploading(false);
-                    return;
-                }
-
-                // Formatting CSV data to match the schema
-                const formattedData = data.map((row, index) => {
-                    console.log(`Raw Row [${index}]:`, row);
-
-                    if (!row || Object.values(row).every(val => !val)) {
-                        console.log(`Skipping empty row [${index}]`);
-                        return null;
-                    }
-
-                    // Extract and clean values
-                    const memId = typeof row['memId'] === 'string' 
-                        ? row['memId'].trim() 
-                        : String(row['memId'] || '');
-                    const firstName = row['firstName'] ? row['firstName'].trim() : '';
-                    const middleName = row['middleName'] ? row['middleName'].trim() : '';
-                    const lastName = row['lastName'] ? row['lastName'].trim() : '';
-                    const age = row['age'] ? parseInt(row['age'], 10) : null;
-                    const sex = row['sex'] ? row['sex'].trim().toUpperCase() : ''; // Ensure "M" or "F"
-                    const purok = row['purok'] ? row['purok'].toString().trim() : '';
-                    const barangay = row['barangay'] ? row['barangay'].trim() : '';
-                    const phone = row['phone'] ? row['phone'].toString().trim() : '';
-                    const bdate = row['bdate'] ? new Date(row['bdate']).toISOString() : null;
-                    const occupation = row['occupation'] ? row['occupation'].trim() : '';
-                    const education = row['education'] ? row['education'].trim() : '';
-                    const income = row['income'] ? parseFloat(row['income']) : 0; // Ensure numeric value
-
-                    // Handling dependents
-                    let dependents = [];
-                    if (row['dependents']) {
-                        try {
-                            dependents = JSON.parse(row['dependents']).map(dep => ({
-                                name: dep.name ? dep.name.trim() : '',
-                                relationToHead: dep.relationToHead ? dep.relationToHead.trim() : '',
-                                age: dep.age ? parseInt(dep.age, 10) : null,
-                                sex: dep.sex ? dep.sex.trim() : '',
-                                education: dep.education ? dep.education.trim() : null,
-                                occupationSkills: dep.occupationSkills ? dep.occupationSkills.trim() : null
-                            }));
-                        } catch (error) {
-                            console.error(`Error parsing dependents for row ${index}:`, error);
-                        }
-                    }
-
-                    const formattedItem = {
-                        memId,
-                        firstName,
-                        middleName,
-                        lastName,
-                        age,
-                        sex,
-                        purok,
-                        barangay,
-                        phone,
-                        bdate,
-                        occupation,
-                        education,
-                        income,
-                        dependents,
-                    };
-
-                    console.log(`Formatted Item [${index}]:`, formattedItem);
-
-                    return formattedItem;
-                }).filter(item => item !== null);
-
-                console.log("Final Formatted Data:", formattedData);
-
-                try {
-                    // Send data to backend for MongoDB insertion
-                    await axios.post("http://localhost:3003/add-csvresidents", { residents: formattedData });
-
-                    alert('CSV data uploaded successfully!');
-                    setIsUploading(false);
-                    window.location.reload();
-                } catch (error) {
-                    console.error('Error uploading CSV data:', error);
-                    setIsUploading(false);
-                }
-            },
-            header: true,
-            skipEmptyLines: true,
-            dynamicTyping: true,
-            delimiter: ',',
-        });
+      const text = e.target.result;
+  
+      Papa.parse(text, {
+        complete: async (result) => {
+          const data = result.data;
+          if (!data || data.length === 0) {
+            console.error("No data found in CSV.");
+            alert("No data found in the CSV.");
+            setIsUploading(false);
+            return;
+          }
+  
+          const formattedData = data.map((row, index) => {
+            if (!row || Object.values(row).every(val => !val)) {
+              return null;
+            }
+  
+            return {
+              memId: row['memId'] ? row['memId'].trim() : `MEM${Date.now() + index}`,
+              firstName: row['firstName']?.trim() || '',
+              middleName: row['middleName']?.trim() || '',
+              lastName: row['lastName']?.trim() || '',
+              age: row['age'] ? parseInt(row['age'], 10) : null,
+              sex: row['sex']?.trim().toUpperCase() || '',
+              purok: row['purok']?.toString().trim() || '',
+              barangay: row['barangay']?.trim() || '',
+              phone: row['phone']?.toString().trim() || '',
+              bdate: row['bdate'] ? new Date(row['bdate']).toISOString() : null,
+              occupation: row['occupation']?.trim() || '',
+              education: row['education']?.trim() || '',
+              income: row['income'] ? parseFloat(row['income']) : 0,
+              dependents: row['dependents'] ? JSON.parse(row['dependents']) : [],
+            };
+          }).filter(item => item !== null);
+  
+          try {
+            await axios.post("http://localhost:3003/add-csvresidents", { residents: formattedData });
+  
+            alert('CSV data uploaded successfully!');
+            addResidentsToTop(formattedData); // Add new residents to the top
+            setIsUploading(false);
+          } catch (error) {
+            console.error('Error uploading CSV data:', error);
+            setIsUploading(false);
+          }
+        },
+        header: true,
+        skipEmptyLines: true,
+        dynamicTyping: true,
+        delimiter: ',',
+      });
     };
-
+  
     reader.readAsText(csvFile);
-};
+  };
 
   //Add Manually
   const handleSubmit = async (event) => {
     event.preventDefault();
   
-    // Generate unique memId (can be adjusted)
     const memId = `MEM${Date.now()}`;
   
     const formattedData = {
@@ -193,7 +149,7 @@ const Residents = () => {
       purok: purok.trim(),
       barangay: barangay.trim(),
       phone: phone.trim(),
-      bdate: birthdate || null, // Ensure valid date format
+      bdate: birthdate || null,
       occupation: occupation.trim() || null,
       education: education.trim() || null,
       income: parseInt(income, 10),
@@ -206,17 +162,15 @@ const Residents = () => {
           education: member.education.trim() || null,
           occupationSkills: member.skills.trim() || null,
         }))
-        .filter(member => member.name.length > 0), // Remove empty entries
+        .filter(member => member.name.length > 0),
     };
-  
-    console.log("Formatted Data to Store:", formattedData);
   
     try {
       const response = await axios.post("http://localhost:3003/add-residents", formattedData);
       alert(response.data.message);
+      addResidentsToTop([formattedData]); // Add new resident to the top
       resetForm();
       handleCloseModal();
-      window.location.reload();
     } catch (error) {
       console.error("Error adding resident:", error);
       alert("Failed to add resident.");
@@ -271,19 +225,7 @@ const Residents = () => {
     fetchResidents();  // Call function to fetch data
   }, []);
   
-  //Page ni
-  const handleNext = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(prev => prev + 1);
-    }
-  };
-
-  const handlePrev = () => {
-    if (currentPage > 1) {
-      setCurrentPage(prev => prev - 1);
-    }
-  };
-
+  
   const filteredResidents = residents.filter(resident => {
     if (selectedBarangay) {
       return resident.barangay === selectedBarangay;
@@ -305,19 +247,12 @@ const Residents = () => {
     setTotalFamilies(familiesSet.size);
   }, [selectedBarangay, residents]);
   
-  const displayResidents = filteredResidents.slice(
-    (currentPage - 1) * rowsPerPage,
-    currentPage * rowsPerPage
-  );
+
 
   const residentCount = selectedBarangay
   ? filteredResidents.length
   : residents.length;
   
-  {/*const displayResidents = residents.slice(
-    (currentPage - 1) * rowsPerPage,
-    currentPage * rowsPerPage
-  );*/}
 
   const handleAddMember = () => {
     setDependents([...dependents, ""]); // Add a new empty member field when "Add More Member" is clicked
@@ -370,38 +305,63 @@ const Residents = () => {
     console.log("Search Query: ", query); // Debugging the query
   };
 
-  const searchResidents = useMemo(() => {
-      return displayResidents.filter((residents) => {
-        return Object.keys(residents).some((key) => {
-          const value = residents[key];
+
+
+    //pagination ni 
+          const residentsPerPage = 8; // 4 columns x 4 rows
+          const [currentPage, setCurrentPage] = useState(1);
+          
+          // Calculate total pages dynamically
+          const totalPages = Math.ceil(filteredResidents.length / residentsPerPage);
+        
+          // Get reports for the current page
+          const startIndex = (currentPage - 1) * residentsPerPage;
+          const currentResidents = filteredResidents.slice(startIndex, startIndex + residentsPerPage);
     
-          // Handle string-based fields (disasterCode, status, disasterDate, etc.)
-          if (typeof value === "string" && value.toLowerCase().includes(searchQuery)) {
-            return true;
-          }
-    
-          // Handle array fields (e.g., barangays)
-          if (Array.isArray(value)) {
-            return value.some((item) => {
-              // Convert object properties to a string and check for searchQuery
-              return Object.values(item).some(
-                (subValue) =>
-                  typeof subValue === "string" && subValue.toLowerCase().includes(searchQuery)
-              );
+          const paginatedReports = filteredResidents.slice(
+            (currentPage - 1) * residentsPerPage,
+            currentPage * residentsPerPage
+          );
+
+          // Ensure new residents appear at the top in pagination
+          const displayResidents = filteredResidents.sort((a, b) => b.memId.localeCompare(a.memId)).slice(
+            (currentPage - 1) * rowsPerPage,
+            currentPage * rowsPerPage
+          );
+          
+          const searchResidents = useMemo(() => {
+            return displayResidents.filter((residents) => {
+              return Object.keys(residents).some((key) => {
+                const value = residents[key];
+          
+                // Handle string-based fields (disasterCode, status, disasterDate, etc.)
+                if (typeof value === "string" && value.toLowerCase().includes(searchQuery)) {
+                  return true;
+                }
+          
+                // Handle array fields (e.g., barangays)
+                if (Array.isArray(value)) {
+                  return value.some((item) => {
+                    // Convert object properties to a string and check for searchQuery
+                    return Object.values(item).some(
+                      (subValue) =>
+                        typeof subValue === "string" && subValue.toLowerCase().includes(searchQuery)
+                    );
+                  });
+                }
+          
+                return false;
+              });
             });
-          }
+          }, [displayResidents, searchQuery]);
+        
+          const tableResidents = useMemo(() => {
+            return searchResidents.slice(
+              (currentPage - 1) * rowsPerPage,
+              currentPage * rowsPerPage
+            );
+          }, [searchResidents, currentPage, rowsPerPage]);
     
-          return false;
-        });
-      });
-    }, [displayResidents, searchQuery]);
-  
-    const tableResidents = useMemo(() => {
-      return searchResidents.slice(
-        (currentPage - 1) * rowsPerPage,
-        currentPage * rowsPerPage
-      );
-    }, [searchResidents, currentPage, rowsPerPage]);
 
   return (
     <div className="residents">
@@ -509,18 +469,17 @@ const Residents = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="6">No residents found.</td>
+                    <td colSpan="9">No residents found.</td>
                   </tr>
                 )}
                                       
               </tbody>
           </table>
 
-          {totalPages > 1 && (
             <div className="pagination-wrapper">
               <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
             </div>
-          )}
+   
           
         </div>
 

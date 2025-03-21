@@ -172,6 +172,11 @@
     height: 100%;
   }
 
+  .residents-table  .pagination-wrapper{
+    display: flex;
+    justify-content: center;
+  }
+
   table {
     width: 100%;
     border-collapse: collapse;
@@ -196,9 +201,12 @@
     letter-spacing: 1px;
     text-align: center;
     padding: 10px;
-    
   }
   
+  .residents-table td {
+    text-transform: capitalize;
+  }
+
   tr:nth-child(even) {
     background-color: #f2f2f2;
   }
