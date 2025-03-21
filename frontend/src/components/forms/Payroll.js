@@ -12,6 +12,10 @@ const Payroll= () => {
         amount: 3000.0,
     });
 
+
+    const maxRows = 15;
+    const emptyRows = maxRows - employees.length;
+
     return (
         <div className="payroll">
 
@@ -62,43 +66,59 @@ const Payroll= () => {
                         <th>NAME</th>
                         <th>Category</th>
                         <th>Address</th>
-                        <th>AMOUNT DUE</th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
                         <th>TOTAL AMOUNT</th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th>AMOUNT DUE</th>
                         <th>SIGNATURE</th>
                     </tr>
                     </thead>
                     <tbody>
-                    {employees.map((emp, index) => (
-                        <tr key={index}>
-                        <td>{index + 1}</td>
-                        <td>{emp.name}</td>
-                        <td>{emp.category}</td>
-                        <td>{emp.address}</td>
-                        <td>{emp.amount.toLocaleString()}</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td>{emp.amount.toLocaleString()}</td>
-                        <td></td>
-                        </tr>
-                    ))}
+                        {employees.map((emp, index) => (
+                            <tr key={index}>
+                                <td>{index + 1}</td>
+                                <td>{emp.name}</td>
+                                <td>{emp.category}</td>
+                                <td>{emp.address}</td>
+                                <td>{emp.amount.toLocaleString()}</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>{emp.amount.toLocaleString()}</td>
+                                <td></td>
+                            </tr>
+                        ))}
+                        {/* Add empty rows to ensure a total of 15 */}
+                        {Array.from({ length: emptyRows }).map((_, index) => (
+                            <tr key={`empty-${index}`}>
+                                <td>{employees.length + index + 1}</td>
+                                <td></td> 
+                                <td></td> 
+                                <td></td> 
+                                <td></td> 
+                                <td></td> 
+                                <td></td> 
+                                <td></td> 
+                                <td></td> 
+                                <td></td> 
+                                <td></td> 
+                            </tr>
+                        ))}
                     </tbody>
                     <tfoot>
-                    <tr>
-                        <td colSpan="4">TOTAL</td>
-                        <td>000,000.00</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td>000,000.00</td>
-                        <td></td>
-                    </tr>
+                        <tr>
+                            <td colSpan="4">TOTAL</td>
+                            <td>000,000.00</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>000,000.00</td>
+                            <td></td>
+                        </tr>
                     </tfoot>
                 </table>
                 

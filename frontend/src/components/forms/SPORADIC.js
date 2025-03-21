@@ -66,31 +66,31 @@ const SPORADIC= ({ report, distribution }) => {
                 <img src={cswdImage} alt="Logo" />
             </div>
         </div>
-    
         
         <div className="table-container">
-            <table className="sporadic-report">
+            <table border="1" id="yourTableID" className="sporadic-report">
                 <thead>
-                <tr>
-                    <th rowSpan="2">No.</th>
-                    <th rowSpan="2">Name</th>
-                    <th rowSpan="2">Age</th>
-                    <th rowSpan="2">Sex</th>
-                    <th rowSpan="2">Brgy. Address</th>
-                    <th rowSpan="2">No. of Dependents</th>
-                    <th rowSpan="2">Type of Calamity</th>
-                    <th rowSpan="2">Date of Calamity</th>
-                    <th rowSpan="2">Category</th>
-                    <th colSpan="5">Sectoral</th>
-                    <th rowSpan="2">Livelihood</th>
-                </tr>
-                <tr>
-                    <th>Senior Citizen</th>
-                    <th>PWD</th>
-                    <th>Solo Parent</th>
-                    <th>Pregnant</th>
-                    <th>Lactating Mothers</th>
-                </tr>
+                    <tr>
+                        <th rowSpan="2">No.</th>
+                        <th rowSpan="2">Name</th>
+                        <th rowSpan="2">Age</th>
+                        <th rowSpan="2">Sex</th>
+                        <th rowSpan="2">Brgy. Address</th>
+                        <th rowSpan="2">No. of Dependents</th>
+                        <th rowSpan="2">Type of Calamity</th>
+                        <th rowSpan="2">Date of Calamity</th>
+                        <th rowSpan="2">Category</th>
+                        <th colSpan="5">Sectoral</th>
+                        <th rowSpan="2">Livelihood</th>
+                    </tr>
+                    <tr>
+                        <th>Senior Citizen</th>
+                        <th>PWD</th>
+                        <th>Solo Parent</th>
+                        <th>Pregnant</th>
+                        <th>Lactating Mothers</th>
+                    </tr>
+                    
                 </thead>
                 <tbody>
                     {report?.families?.map((family, familyIndex) => (
@@ -120,6 +120,8 @@ const SPORADIC= ({ report, distribution }) => {
         <div className="table-container1">
             <h5 className="no-margin">Immediate Food Assistance From CSWD: </h5>
             <table className="ifa">
+          
+
             <thead>
               <tr>
                 <th>Name of Agency</th>
@@ -175,7 +177,7 @@ const SPORADIC= ({ report, distribution }) => {
         
         <div className="footer">
 
-            <div>
+            <div className="one">
                 <p>Prepared by</p>
 
                 <div className="neym">
@@ -186,7 +188,7 @@ const SPORADIC= ({ report, distribution }) => {
 
             </div>
 
-            <div>
+            <div className="two">
                 <p>Recommending Approval:</p>
 
                 <div className="neym">
@@ -197,7 +199,7 @@ const SPORADIC= ({ report, distribution }) => {
             </div>
             
 
-            <div>
+            <div className="three">
                 <p>Approved by</p>
 
                 <div className="neym">
