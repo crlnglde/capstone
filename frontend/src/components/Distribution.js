@@ -476,7 +476,7 @@ const validateFields = () => {
                       displayedDisasters.map((disaster, index) => (
                         <div key={index} className="transactionItem"> 
                           <div className="dateBox">
-                            <span className="date">{new Date(disaster.disasterDateTime).getUTCDate()}</span>
+                            <span className="date">{new Date(disaster.disasterDateTime).getDate()}</span>
                             <span className="month">{new Date(disaster.disasterDateTime).toLocaleString('default', { month: 'short' })}</span>
                           </div>
                           <div className="details">
@@ -550,7 +550,7 @@ const validateFields = () => {
                                   <div key={dIndex} className="transactionItem">
                                     {/* Date Box */}
                                     <div className="dateBox">
-                                      <span className="date">{new Date(dist.dateDistributed).getUTCDate()}</span>
+                                      <span className="date">{new Date(dist.dateDistributed).getDate()}</span>
                                       <span className="month">
                                         {new Date(dist.dateDistributed).toLocaleString("default", { month: "short" })}
                                       </span>

@@ -52,9 +52,9 @@ const ViewRDS = ({selectedBarangay, distributionId, setDistributionDate, setPage
     if (data[index]) {
       const date = new Date(data[index].dateDistributed);
       setDistributionDate({
-        year: date.getUTCFullYear(),
-        month: date.toLocaleString("default", { month: "long", timeZone:"UTC" }),
-        day: date.getUTCDate(),
+        year: date.getFullYear(),
+        month: date.toLocaleString("default", { month: "long"}),
+        day: date.getDate(),
       });
     }
   };

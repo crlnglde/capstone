@@ -48,6 +48,7 @@ const AddDisaster = () => {
 
     //new
     const generateDisasterCode = (type, date) => {
+        console.log(date)
         if (!(date instanceof Date)) {
             date = new Date(date); // Convert string to Date object
         }

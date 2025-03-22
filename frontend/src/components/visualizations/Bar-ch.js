@@ -13,11 +13,9 @@ const BarGraph = ({ isBarGraph }) => {
   const [distributions, setDistributions] = useState([]);
 
   const [graphType, setGraphType] = useState("bar"); 
+  const [availableBarangays, setAvailableBarangays] = useState([]);
 
-
-  const [disasterCode, setDisasterCode] = useState("All");
-  const [barangay, setBarangay] = useState("All");
-
+  const [barangayOptions, setBarangayOptions] = useState([]);
   useEffect(() => {
     const fetchDisasters = async () => {
       try {
@@ -68,8 +66,10 @@ const BarGraph = ({ isBarGraph }) => {
     // Generate labels
     const labels = allDistributions.map((distribution, index) => {
       const date = new Date(distribution.dateDistributed);
-      const formattedUTC = date.toUTCString().slice(5, 16); // Extracts "MMM DD YYYY"
-      return `Distribution ${index + 1} (${formattedUTC})`;
+      const formatted = date.toLocaleString('en-US', { 
+        month: 'short', day: '2-digit', year: 'numeric' 
+      }); // Extracts "MMM DD YYYY"
+      return `Distribution ${index + 1} (${formatted})`;
     });      
   
     // Affected Families remains the same for each distribution
@@ -79,6 +79,7 @@ const BarGraph = ({ isBarGraph }) => {
     const receivedFamiliesData = allDistributions.map(distribution => 
       distribution.families.filter(fam => fam.status === "Done").length
     );
+    
   
     return {
       labels,
@@ -105,28 +106,39 @@ const BarGraph = ({ isBarGraph }) => {
     return Array.from(new Set(disasters.map(d => d.disasterCode)));
   }, [disasters]);
 
-  const availableBarangays = useMemo(() => {
-    const selectedDisaster = disasters.find(d => d.disasterCode === disasterCodeFilter);
-    return selectedDisaster ? selectedDisaster.barangays.map(b => b.name) : [];
+  useEffect(() => {
+    if (disasterCodeFilter) {
+      const selectedDisaster = disasters.find(d => d.disasterCode === disasterCodeFilter);
+      const newBarangayOptions = selectedDisaster ? selectedDisaster.barangays.map(b => b.name) : [];
+  
+      setBarangayOptions(newBarangayOptions);
+  
+      // Reset barangay filter if the new disaster has no barangays
+      setBarangayFilter(newBarangayOptions.length > 0 ? newBarangayOptions[0] : "All");
+    }
   }, [disasterCodeFilter, disasters]);
   
-  useEffect(() => {
-    if (availableBarangays.length > 0 && !barangayFilter) {
-      setBarangayFilter(availableBarangays[0]); // Automatically select the first barangay
-    }
-  }, [availableBarangays]);  
 
   //filter
-    const filtersForBar = [
-      { label: "Disaster Code", key: "disasterCode", options: availableDisasterCodes },
-      { label: "Barangay", key: "barangay", options: availableBarangays }
-    ];
+  const filtersForBar = [
+    { label: "Disaster Code", key: "disasterCode", options: availableDisasterCodes },
+    { label: "Barangay", key: "barangay", options: availableBarangays }
+  ];
 
-    const handleBarFilter = (filterData) => {
-      setDisasterCode(filterData.disasterCode || "All");
-      setBarangay(filterData.barangay || "All");
-    };
+  const handleBarFilter = (filterData) => {
+    const selectedDisasterCode = filterData.disasterCode || "All";
+    setDisasterCodeFilter(selectedDisasterCode);
   
+    if (selectedDisasterCode !== "All") {
+      const selectedDisaster = disasters.find(d => d.disasterCode === selectedDisasterCode);
+      const newBarangayList = selectedDisaster ? selectedDisaster.barangays.map(b => b.name) : [];
+      
+      // Keep barangay filter flexible
+      setBarangayFilter(newBarangayList.includes(filterData.barangay) ? filterData.barangay : "All");
+    } else {
+      setBarangayFilter(filterData.barangay || "All");
+    }
+  };
 
   return (
     <div className="bar-graph-container">
@@ -136,7 +148,7 @@ const BarGraph = ({ isBarGraph }) => {
           <div className="filters-right">
             <div className="pie-filter">
 
-            <Filter filters={filtersForBar} onFilter={handleBarFilter}  graphType={graphType} />
+            <Filter disasters={disasters} setAvailableBarangays={setAvailableBarangays} filters={filtersForBar} onFilter={handleBarFilter}  graphType={graphType} />
 
 
             </div>

@@ -21,12 +21,19 @@ const DonutGraph = () => {
 
   const filtersForDonut = [
     { label: "Year", key: "year", options: Array.from({ length: 15 }, (_, i) => (new Date().getFullYear() - i).toString()) },
-    { label: "Barangay", key: "barangay", options: ["All", "Barangay 1", "Barangay 2", "Barangay 3", "Barangay 4", "Barangay 5"] },
-    { label: "Disaster Type", key: "disasterType", options: ["All", "Flood", "Landslide", "Typhoon", "Earthquake", "Fire"] },
+    { label: "Barangay", key: "barangay", options: ["All",  "Abuno", "Acmac-Mariano Badelles Sr.", "Bagong Silang", "Bonbonon", "Bunawan", "Buru-un", "Dalipuga",
+      "Del Carmen", "Digkilaan", "Ditucalan", "Dulag", "Hinaplanon", "Hindang", "Kabacsanan", "Kalilangan",
+      "Kiwalan", "Lanipao", "Luinab", "Mahayahay", "Mainit", "Mandulog", "Maria Cristina", "Pala-o",
+      "Panoroganan", "Poblacion", "Puga-an", "Rogongon", "San Miguel", "San Roque", "Santa Elena",
+      "Santa Filomena", "Santiago", "Santo Rosario", "Saray", "Suarez", "Tambacan", "Tibanga", "Tipanoy",
+      "Tomas L. Cabili (Tominobo Proper)", "Upper Tominobo", "Tubod", "Ubaldo Laya", "Upper Hinaplanon",
+      "Villa Verde"] },
+    { label: "Disaster Type", key: "disasterType", options: ["All", "Flood", "Landslide", "Typhoon", "Earthquake", "Fire Incident", "Armed Conflict"] },
     { label: "Disaster Date", key: "disasterDate", options: [] },
   ];
   
   const handleDonutFilter = (filterData) => {
+    console.log("Received Filter Data:", filterData);
     setYear(filterData.year || "All");
     setBarangay(filterData.barangay || "All");
     setDisasterType(filterData.disasterType || "All");
@@ -58,20 +65,39 @@ const DonutGraph = () => {
   }, [disasters, disasterTypeFilter]);
 
   // Filter disasters based on all selected filters
-  const filteredDisasters = useMemo(() => {
-    return disasters.filter(disaster => {
-      const disasterDate = new Date(disaster.disasterDateTime);
-      const disasterYear = disasterDate.getFullYear().toString();
-      const formattedDate = disasterDate.toISOString().split("T")[0]; // Extract YYYY-MM-DD
+  console.log("Filters:", { barangay, year, disasterType, disasterDate });
 
-      const matchesBarangay = barangay === "All" || disaster.barangays.some(b => b.name === barangay);
-      const matchesYear = year === "All" || disasterYear === year;
-      const matchesType = disasterTypeFilter === "All" || disaster.disasterType === disasterTypeFilter;
-      const matchesDate = disasterDateFilter === "All" || formattedDate === disasterDateFilter;
+const filteredDisasters = useMemo(() => {
+  console.log("Original Disasters", disasters);
+  
+  return disasters.filter(disaster => {
+    const date = new Date(disaster.disasterDateTime);
+    const disasterYear = date.getFullYear().toString();
+    const formattedDate = date.toISOString().split("T")[0];
 
-      return matchesBarangay && matchesYear && matchesType && matchesDate;
+    console.log("Date", formattedDate)
+    console.log("Filter Date", disasterDate)
+
+    const matchesBarangay = barangay === "All" || 
+      disaster.barangays.some(b => b.name === barangay);
+
+    const matchesYear = year === "All" || disasterYear === year;
+    const matchesType = disasterType === "All" || disaster.disasterType === disasterType;
+    const matchesDate = !disasterDate || formattedDate === disasterDate;
+
+    console.log({
+      disasterCode: disaster.disasterCode,
+      matchesBarangay,
+      matchesYear,
+      matchesType,
+      matchesDate
     });
-  }, [disasters, barangay, year, disasterTypeFilter, disasterDateFilter]);
+
+    return matchesBarangay && matchesYear && matchesType && matchesDate;
+  });
+}, [disasters, barangay, year, disasterType, disasterDate]);
+
+  console.log("Filtered Disasters", filteredDisasters)
 
   // Calculate casualties stats
   const casualtyStats = useMemo(() => {
@@ -117,41 +143,7 @@ const DonutGraph = () => {
       <div className='pie'>
         <div className="pie-filter">
 
-        <Filter onFilter={handleDonutFilter} filters={filtersForDonut} graphType={graphType}/>
-
-          <div className="col">
-            <label htmlFor="disasterType">Disaster Type: </label>
-            <select 
-              id="disasterType" 
-              name="disasterType" 
-              value={disasterTypeFilter} 
-              onChange={(e) => {
-                setDisasterTypeFilter(e.target.value);
-                setDisasterDateFilter("All"); // Reset date filter when disaster type changes
-              }}
-            >
-              <option value="All">All</option>
-              <option value="Fire Incident">Fire Incident</option>
-              <option value="Flood">Flood</option>
-              <option value="Landslide">Landslide</option>
-              <option value="Earthquake">Earthquake</option>
-              <option value="Typhoon">Typhoon</option>
-            </select>
-          </div>
-          <div className="col">
-            <label htmlFor="disasterDate">Disaster Date: </label>
-            <select 
-              id="disasterDate" 
-              name="disasterDate" 
-              value={disasterDateFilter} 
-              onChange={(e) => setDisasterDateFilter(e.target.value)}
-            >
-              <option value="All">All</option>
-              {availableDisasterDates.map((date, index) => (
-                <option key={index} value={date}>{date}</option>
-              ))}
-            </select>
-          </div>
+        <Filter disasters={disasters} onFilter={handleDonutFilter} filters={filtersForDonut} graphType={graphType}/>
         </div>
         <h2>Casualties Breakdown</h2>
         <div className="pie-wrapper">
@@ -164,8 +156,10 @@ const DonutGraph = () => {
           <p>No casualty data available for the selected filters.</p>
         ) : (
           <p>
-            The highest number of casualties recorded is <strong>{Math.max(casualtyStats.dead, casualtyStats.missing, casualtyStats.injured)}</strong>
-            from the category <strong>{['Dead', 'Missing', 'Injured'][[casualtyStats.dead, casualtyStats.missing, casualtyStats.injured].indexOf(Math.max(casualtyStats.dead, casualtyStats.missing, casualtyStats.injured))]}</strong>.
+            There are <strong>{casualtyStats.injured}</strong> injured, 
+            <strong> {casualtyStats.dead}</strong> dead, and 
+            <strong> {casualtyStats.missing}</strong> missing from the last recorded disaster on 
+            <strong> {disasterDate}</strong>.
           </p>
         )}
       </div>
