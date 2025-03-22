@@ -3,14 +3,20 @@ import { Bar } from "react-chartjs-2";
 import axios from "axios";
 import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from "chart.js";
 import "../../css/visualizations/Bar-ch.css";
-
+import Filter from "../again/Filter";
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
-const BarGraph = () => {
+const BarGraph = ({ isBarGraph }) => {
   const [disasterCodeFilter, setDisasterCodeFilter] = useState("");
   const [barangayFilter, setBarangayFilter] = useState("");
   const [disasters, setDisasters] = useState([]);
   const [distributions, setDistributions] = useState([]);
+
+  const [graphType, setGraphType] = useState("bar"); 
+
+
+  const [disasterCode, setDisasterCode] = useState("All");
+  const [barangay, setBarangay] = useState("All");
 
   useEffect(() => {
     const fetchDisasters = async () => {
@@ -109,6 +115,17 @@ const BarGraph = () => {
       setBarangayFilter(availableBarangays[0]); // Automatically select the first barangay
     }
   }, [availableBarangays]);  
+
+  //filter
+    const filtersForBar = [
+      { label: "Disaster Code", key: "disasterCode", options: availableDisasterCodes },
+      { label: "Barangay", key: "barangay", options: availableBarangays }
+    ];
+
+    const handleBarFilter = (filterData) => {
+      setDisasterCode(filterData.disasterCode || "All");
+      setBarangay(filterData.barangay || "All");
+    };
   
 
   return (
@@ -118,23 +135,10 @@ const BarGraph = () => {
           <h2>Current Distributions</h2>
           <div className="filters-right">
             <div className="pie-filter">
-              <div className="col">
-                <label htmlFor="disasterCode">Disaster Code: </label>
-                <select id="disasterCode" value={disasterCodeFilter} onChange={(e) => setDisasterCodeFilter(e.target.value)}>
-                  <option value="">Select Disaster</option>
-                  {availableDisasterCodes.map((code, index) => (
-                    <option key={index} value={code}>{code}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="col">
-                <label htmlFor="barangay">Barangay: </label>
-                <select id="barangay" value={barangayFilter} onChange={(e) => setBarangayFilter(e.target.value)}>
-                  {availableBarangays.map((barangay, index) => (
-                    <option key={index} value={barangay}>{barangay}</option>
-                  ))}
-                </select>
-              </div>
+
+            <Filter filters={filtersForBar} onFilter={handleBarFilter}  graphType={graphType} />
+
+
             </div>
           </div>
         </div>

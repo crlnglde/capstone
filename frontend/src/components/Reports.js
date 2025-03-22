@@ -143,11 +143,20 @@ const Reports = () => {
   
     const handleDownloadPDF = async () => {
       const activeRef = activeTab === "SPORADIC" ? sporadicRef : activeTab === "FDR" ? fdrRef : payrollRef;
-      const orientation = activeTab === "SPORADIC" || activeTab === "Payroll" ? "landscape" : "portrait";
-      const pageWidth = orientation === "landscape" ? 297 : 210; // A4 width in mm
-      const pageHeight = orientation === "landscape" ? 210 : 297; // A4 height in mm
-  
-      const doc = new jsPDF(orientation, "mm", "a4");
+     
+      // Set page size and orientation based on activeTab
+      let orientation = "portrait";
+      let pageSize = "a4"; // Default A4 size
+      
+      if (activeTab === "SPORADIC") {
+        orientation = "landscape";
+        pageSize = "a4";
+      } else if (activeTab === "Payroll") {
+        orientation = "landscape";
+        pageSize = [215.9, 330.2]; // Folio size (Width x Height in mm)
+      }
+
+      const doc = new jsPDF(orientation, "mm", pageSize);
       let y = 10; // Initial Y position
 
       const addElementToPDF = async (elementId, yOffset = 10, align = "left") => {
@@ -159,17 +168,15 @@ const Reports = () => {
     
         const canvas = await html2canvas(element);
         const imgData = canvas.toDataURL("image/png");
-        const imgWidth = 190; // A4 width in mm minus margins
+        const imgWidth = doc.internal.pageSize.width - 20;
         const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-          // Calculate X position based on alignment
-          let x = 10; // Default (left-aligned)
-          if (align === "center") {
-            const pageWidth = doc.internal.pageSize.width;
-            x = (pageWidth - imgWidth) / 2;
-          }
     
-        // Add image to PDF
+        let x = 10; // Default left alignment
+        if (align === "center") {
+          const pageWidth = doc.internal.pageSize.width;
+          x = (pageWidth - imgWidth) / 2;
+        }
+    
         doc.addImage(imgData, "PNG", x, y, imgWidth, imgHeight);
         y += imgHeight + yOffset; // Increase Y position for spacing
       };
@@ -402,36 +409,40 @@ const Reports = () => {
           }
 
           try {
+            // Ensure we're using the existing doc instance
+            const pageWidth = doc.internal.pageSize.width;  // Get width from initialized doc
+            const pageHeight = doc.internal.pageSize.height; // Get height from initialized doc
+    
             // Capture the entire FDR section as an image
             const canvas = await html2canvas(fdrRef.current, {
-                scale: window.devicePixelRatio, // Improve quality
-                useCORS: true, // Load images properly
-                logging: false, // Reduce console logs
+                scale: 2, // Increase resolution for better quality
+                useCORS: true,
+                logging: false,
             });
-
+    
             const imgData = canvas.toDataURL("image/png");
-            const imgWidth = pageWidth - 20; // Adjusting width with margins
+            const imgWidth = pageWidth - 20; // Account for margins
             const imgHeight = (canvas.height * imgWidth) / canvas.width;
-            const usablePageHeight = pageHeight - 20; // Leave margin
-
+            const usablePageHeight = pageHeight - 20; // Account for margins
+    
             const pageCount = Math.ceil(imgHeight / usablePageHeight);
-
+    
             for (let i = 0; i < pageCount; i++) {
                 if (i > 0) doc.addPage();
-
+    
                 const srcY = i * usablePageHeight * (canvas.height / imgHeight);
                 const sHeight = Math.min(canvas.height - srcY, usablePageHeight * (canvas.height / imgHeight));
-
+    
                 // Create a temporary canvas to crop the current section
                 const tempCanvas = document.createElement("canvas");
                 tempCanvas.width = canvas.width;
                 tempCanvas.height = sHeight;
-
+    
                 const ctx = tempCanvas.getContext("2d");
                 ctx.drawImage(canvas, 0, srcY, canvas.width, sHeight, 0, 0, canvas.width, sHeight);
-
+    
                 const tempImgData = tempCanvas.toDataURL("image/png");
-
+    
                 doc.addImage(tempImgData, "PNG", 10, 10, imgWidth, (sHeight * imgWidth) / canvas.width);
             }
 
@@ -440,38 +451,47 @@ const Reports = () => {
         }
              
       } else if (activeTab === "Payroll") {
-        if (!payrollRef.current) {
-            console.error("Payroll content not found!");
-            return;
-        }
-    
-        try {
-            const canvas = await html2canvas(payrollRef.current, { scale: window.devicePixelRatio, useCORS: true });
-            const imgData = canvas.toDataURL("image/png");
-            const imgWidth = pageWidth - 20;
-            const imgHeight = (canvas.height * imgWidth) / canvas.width;
-            const usablePageHeight = pageHeight - 20;
-            const pageCount = Math.ceil(imgHeight / usablePageHeight);
-    
-            for (let i = 0; i < pageCount; i++) {
-                if (i > 0) doc.addPage();
-    
-                const srcY = i * usablePageHeight * (canvas.height / imgHeight);
-                const sHeight = Math.min(canvas.height - srcY, usablePageHeight * (canvas.height / imgHeight));
-    
-                const tempCanvas = document.createElement("canvas");
-                tempCanvas.width = canvas.width;
-                tempCanvas.height = sHeight;
-                const ctx = tempCanvas.getContext("2d");
-                ctx.drawImage(canvas, 0, srcY, canvas.width, sHeight, 0, 0, canvas.width, sHeight);
-    
-                doc.addImage(tempCanvas.toDataURL("image/png"), "PNG", 10, 10, imgWidth, (sHeight * imgWidth) / canvas.width);
-            }
-        } catch (error) {
-            console.error(`Error generating Payroll PDF:`, error);
-        }
+          if (!payrollRef.current) {
+              console.error("Payroll content not found!");
+              return;
+          }
+
+          try {
+              const pageWidth = doc.internal.pageSize.width;  // Folio width
+              const pageHeight = doc.internal.pageSize.height; // Folio height
+
+              // Capture the entire Payroll section as an image
+              const canvas = await html2canvas(payrollRef.current, {
+                  scale: 2, // Higher scale for better quality
+                  useCORS: true,
+                  logging: false,
+              });
+
+              let imgData = canvas.toDataURL("image/png");
+
+              // Maintain aspect ratio while fitting to Folio size
+              const imgAspectRatio = canvas.width / canvas.height;
+              let imgWidth = pageWidth - 10;  // Apply margin
+              let imgHeight = imgWidth / imgAspectRatio;
+
+              // Ensure it doesn't exceed page height
+              if (imgHeight > pageHeight - 20) {
+                  imgHeight = pageHeight - 20;
+                  imgWidth = imgHeight * imgAspectRatio;
+              }
+
+              // Center image horizontally
+              const xPos = (pageWidth - imgWidth) / 2;
+              const yPos = 10; // Top margin
+
+              // Add image to PDF and save
+              doc.addImage(imgData, "PNG", xPos, yPos, imgWidth, imgHeight);
+
+          } catch (error) {
+              console.error(`Error generating Payroll PDF:`, error);
+          }
       }
-    
+
       // Save the PDF
       doc.save(`${activeTab.toLowerCase()}-report.pdf`);
     };

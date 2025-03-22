@@ -81,7 +81,7 @@ const Search = ({ onSearch, onFilter }) => {
 
 
       <button
-        className="filter-btn"
+        className="search-filter-btn"
         onClick={() => {
           setFilterType("Yearly");
           setShowFilter(true);
@@ -91,9 +91,9 @@ const Search = ({ onSearch, onFilter }) => {
       </button>
 
       {showFilter && (
-        <div className="filter-dropdown" ref={filterRef}>
+        <div className="search-filter-dropdown" ref={filterRef}>
           <select
-            className="filter-select"
+            className="search-filter-select"
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
           >
@@ -101,7 +101,7 @@ const Search = ({ onSearch, onFilter }) => {
             <option value="Yearly">Yearly</option>
           </select>
 
-          <div className="filter-modal">
+          <div className="search-filter-modal">
             {filterType !== "Yearly" && (
               <button className="year-btn" onClick={() => setFilterType("Yearly")}>
                 {selectedYear} ▼
@@ -113,7 +113,7 @@ const Search = ({ onSearch, onFilter }) => {
                 {years.map((year) => (
                   <button
                     key={year}
-                    className={`year-option ${year === selectedYear ? "selected" : ""}`}
+                    className={`sf-year-option ${year === selectedYear ? "selected" : ""}`}
                     onClick={() => setSelectedYear(year)}
                   >
                     {year}
@@ -127,7 +127,7 @@ const Search = ({ onSearch, onFilter }) => {
                 {months.map((month) => (
                   <button
                     key={month}
-                    className={`year-option ${month === selectedMonth ? "selected" : ""}`}
+                    className={`sf-year-option ${month === selectedMonth ? "selected" : ""}`}
                     onClick={() => setSelectedMonth(month)}
                   >
                     {month}
@@ -136,7 +136,7 @@ const Search = ({ onSearch, onFilter }) => {
               </div>
             )}
 
-            <div className="filter-actions">
+            <div className="search-filter-actions">
               <button
                 className="cancel-btn"
                 onClick={() => {

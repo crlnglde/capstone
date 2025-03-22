@@ -406,15 +406,13 @@ useEffect(() => {
               </div>
             </div>
   
-            <div className="ch2">
+            <div className="ch1">
               <Map barangay={selectedBarangay} year={selectedYear}/>
             </div>
 
             <div className="ch2">
               <Piec barangay={selectedBarangay} year={selectedYear}/>
-            </div>
 
-            <div className="ch1">
               <Ling/>
             </div>
 

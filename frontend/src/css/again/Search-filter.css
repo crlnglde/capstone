@@ -27,7 +27,7 @@
 
 
 .search-btn,
-.filter-btn {
+.search-filter-btn {
     display: flex;
     align-items: center;
     gap: 5px;
@@ -50,19 +50,19 @@ button:hover {
     transform: scale(1.05);
 }
 
-.filter-btn:hover {
+.search-filter-btn:hover {
     color: white; /* Ensure text color turns white on hover */
 }
 
 
 
-.filter-btn {
+.search-filter-btn {
     background-color: #ddd;
     border-radius: 4px;
 }
 
 /* Ensure the filter modal appears above other elements */
-.filter-dropdown {
+.search-filter-dropdown {
     position: absolute;
     top: 100%; /* Position right below the filter button */
     right: 0;
@@ -74,7 +74,7 @@ button:hover {
     z-index: 1000; /* Ensure it's above other elements */
 }
 
-.filter-select {
+.search-filter-select {
     width: 100%;
     padding: 8px;
     border-radius: 4px;
@@ -82,7 +82,7 @@ button:hover {
 }
 
 /* Modal inside the dropdown */
-.filter-modal {
+.search-filter-modal {
     margin-top: 10px;
     padding: 10px;
     background: white;
@@ -96,7 +96,7 @@ button:hover {
     margin: 10px 0;
 }
 
-.year-option {
+.sf-year-option {
     padding: 8px;
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -104,12 +104,12 @@ button:hover {
     text-align: center;
 }
 
-.year-option.selected {
+.sf-year-option.selected {
     background-color: #007bff;
     color: white;
 }
 
-.filter-actions {
+.search-filter-actions {
     display: flex;
     justify-content: space-between;
 }

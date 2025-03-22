@@ -1,0 +1,148 @@
+/* Container for the filter */
+.filter-container {
+    position: relative;
+    display: inline-block;
+  }
+  
+  /* Filter button styling */
+  .filter-btn {
+    background-color: #002855;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    font-size: 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .filter-btn:hover {
+    background-color: #18538a;
+  }
+  
+  /* Dropdown positioning */
+  .filter-dropdown {
+    position: absolute;
+    top: 110%;
+    right: 0;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    width: 270px;
+    z-index: 1000;
+  }
+  
+  /* Filter modal */
+  .filter-modal {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  /* Filter section labels */
+  .filter-section label {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: block;
+  }
+
+  .year-option.full-width {
+    grid-column: span 3;
+  }
+
+  .month-option.full-width {
+    grid-column: span 4;
+  }
+  
+  /* Year selection grid */
+  .years-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  
+  .year-option {
+    background: #f0f0f0;
+    border: none;
+    padding: 8px;
+    text-align: center;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s ease;
+  }
+  
+  .year-option:hover {
+    background: #d9d9d9;
+  }
+  
+
+  
+  /* Month selection grid */
+  .months-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+  
+  .month-option {
+    background: #f0f0f0;
+    border: none;
+    padding: 6px;
+    text-align: center;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background 0.2s ease;
+  }
+
+
+  
+  .month-option:hover {
+    background: #d9d9d9;
+  }
+  
+  .year-option.full-width.selected,
+  .month-option.full-width.selected {
+      background: #002855;
+      color: white;
+      grid-column: span 4;
+  }
+  
+
+  /* Dropdown select for barangays */
+  .filter-select {
+    width: 100%;
+    padding: 8px;
+    border-radius: 5px; 
+    border: 1px solid #ccc;
+  }
+  
+  /* Action buttons */
+  .filter-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+  }
+  
+  .cancel-btn {
+    background: #e0e0e0;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .done-btn {
+    background: #002855;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
