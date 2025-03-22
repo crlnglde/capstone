@@ -652,7 +652,7 @@ const Reports = () => {
                   </div>
                 ) : activeTab === "Payroll" ? (
                   <div ref={payrollRef}>
-                    <Payroll />
+                    <Payroll report={selectedReport} />
                   </div>
                 ) : null}
 

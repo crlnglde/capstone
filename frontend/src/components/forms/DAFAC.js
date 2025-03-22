@@ -94,8 +94,8 @@ const DAFAC= ({ activeResident, disasterData, setIsModalOpen, mode}) => {
   }, [activeResident]);  
 
   const damageCostMap = {
-    Totally: 9000,
-    Partially: 6000,
+    Totally: 10000,
+    Partially: 5000,
     Flooded: 3000,
   };
 
