@@ -4,14 +4,32 @@ import axios from "axios";
 import 'leaflet/dist/leaflet.css';
 import iliganData from '../../data/iligan.json'; 
 import "../../css/visualizations/Iligan.css";
+import Filter from "../again/Filter";
 
-const ChoroplethGraph = ({barangay, year }) => {
+const ChoroplethGraph = () => {
   const [disasterTypeFilter, setDisasterTypeFilter] = useState("All");
   const [disasterMonthFilter, setDisasterMonthFilter] = useState("All");
   const [disasters, setDisasters] = useState([]);
   const [filteredDisastersByBarangay, setFilteredDisastersByBarangay] = useState({});
 
+   const [graphType, setGraphType] = useState("map"); 
 
+  const [barangay, setBarangay] = useState("All");
+  const [year, setYear] = useState("All");
+
+  const filtersForMap = [
+    { label: "Year", key: "year", options: Array.from({ length: 15 }, (_, i) => (new Date().getFullYear() - i).toString()) },
+    { label: "Month", key: "month", options: Array.from({ length: 12 }, (_, i) => new Date(0, i).toLocaleString("en", { month: "short" })) },
+    { label: "Barangay", key: "barangay", options: ["All", "Barangay 1", "Barangay 2", "Barangay 3", "Barangay 4", "Barangay 5"] },
+    { label: "Disaster Type", key: "disasterType", options: ["All", "Flood", "Landslide", "Typhoon", "Earthquake", "Fire"] },
+  ];
+  
+  const handleFilter = (filterData) => {
+    setBarangay(filterData.barangay || "All");
+    setYear(filterData.year || "All");
+    
+  };
+  
   useEffect(() => {
     const fetchDisasters = async () => {
       try {
@@ -109,9 +127,6 @@ const ChoroplethGraph = ({barangay, year }) => {
       : '#FFEDA0';
   };
 
-
-
-
   // Define a function to get color based on density (or other property)
   const getColorForBubble = (disasterType) => {
     return disasterType === "Fire Incident"
@@ -127,15 +142,9 @@ const ChoroplethGraph = ({barangay, year }) => {
       : 'rgba(0, 0, 0, 0.7)';
   };
 
-
-
-
   const getMarkerSize = (count) => {
     return Math.sqrt(count) * 5; // Size based on disaster count (you can adjust the scale)
   };
-
-
-
 
   const handleDisasterTypeChange = (event) => {
     setDisasterTypeFilter(event.target.value);
@@ -172,7 +181,6 @@ const ChoroplethGraph = ({barangay, year }) => {
   };
 
 
-
   return (
     <div className="choropleth-map-container">
       
@@ -184,6 +192,9 @@ const ChoroplethGraph = ({barangay, year }) => {
             <h2>Iligan City</h2>
 
           <div className="filters-right">
+          
+          <Filter onFilter={handleFilter} filters={filtersForMap} graphType={graphType}/>
+
             <div className="map-filter-container">
               {/* Dropdown for Disaster Date */}
               <select id="disasterType" name="disasterType" onChange={(e) => setDisasterTypeFilter(e.target.value)} value={disasterTypeFilter}>

@@ -3,13 +3,35 @@ import { Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import "../../css/visualizations/Pie-ch.css"; 
 import axios from "axios";
+import Filter from "../again/Filter";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const DonutGraph = ({ barangay, year }) => {
+const DonutGraph = () => {
   const [disasterTypeFilter, setDisasterTypeFilter] = useState("All");
   const [disasterDateFilter, setDisasterDateFilter] = useState("All");
   const [disasters, setDisasters] = useState([]);
+  const [disasterType, setDisasterType] = useState("All");
+  const [disasterDate, setDisasterDate] = useState("");
+
+  const [graphType, setGraphType] = useState("donut"); 
+
+  const [barangay, setBarangay] = useState("All");
+  const [year, setYear] = useState("All");
+
+  const filtersForDonut = [
+    { label: "Year", key: "year", options: Array.from({ length: 15 }, (_, i) => (new Date().getFullYear() - i).toString()) },
+    { label: "Barangay", key: "barangay", options: ["All", "Barangay 1", "Barangay 2", "Barangay 3", "Barangay 4", "Barangay 5"] },
+    { label: "Disaster Type", key: "disasterType", options: ["All", "Flood", "Landslide", "Typhoon", "Earthquake", "Fire"] },
+    { label: "Disaster Date", key: "disasterDate", options: [] },
+  ];
+  
+  const handleDonutFilter = (filterData) => {
+    setYear(filterData.year || "All");
+    setBarangay(filterData.barangay || "All");
+    setDisasterType(filterData.disasterType || "All");
+    setDisasterDate(filterData.disasterDate || "");
+  };
 
   useEffect(() => {
     const fetchDisasters = async () => {
@@ -94,6 +116,9 @@ const DonutGraph = ({ barangay, year }) => {
     <div className="donut-graph-container">
       <div className='pie'>
         <div className="pie-filter">
+
+        <Filter onFilter={handleDonutFilter} filters={filtersForDonut} graphType={graphType}/>
+
           <div className="col">
             <label htmlFor="disasterType">Disaster Type: </label>
             <select 
