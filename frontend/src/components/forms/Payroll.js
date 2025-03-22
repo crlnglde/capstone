@@ -3,14 +3,16 @@ import React, { useEffect, useState } from "react";
 import "../../css/forms/Payroll.css";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
-const Payroll= () => {
+const Payroll= ({ report}) => {
 
-    const employees = Array(3).fill({
-        name: "XXXXXXXXXXXXX",
-        category: "SHARER",
-        address: "PK 10, TAMBACAN",
-        amount: 3000.0,
-    });
+    console.log("report",report)
+
+    const employees = report?.families?.map((family, index) => ({
+        name: `${family.firstName} ${family.middleName} ${family.lastName}`,
+        category: family.extentDamage || "None",
+        address:  `PRK ${family.purok}, ${report.barangays}` || "Unknown",
+        amount: family.costDamage || 0,
+    })) || [];
 
 
     const maxRows = 15;
@@ -111,12 +113,12 @@ const Payroll= () => {
                     <tfoot>
                         <tr>
                             <td colSpan="4">TOTAL</td>
-                            <td>000,000.00</td>
+                            <td>{employees.reduce((sum, emp) => sum + emp.amount, 0).toLocaleString()}</td>
                             <td></td>
                             <td></td>
                             <td></td>
                             <td></td>
-                            <td>000,000.00</td>
+                            <td>{employees.reduce((sum, emp) => sum + emp.amount, 0).toLocaleString()}</td>
                             <td></td>
                         </tr>
                     </tfoot>

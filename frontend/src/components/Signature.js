@@ -9,12 +9,15 @@ const SignaturePad = ({family, onSave, onClose}) => {
   const [imageURL, setImageURL] = useState(null);
 
   const saveSignature = () => {
-    if (sigCanvas.current) {
-        const signatureData = sigCanvas.current.toDataURL("image/png");
-        console.log("Signature Image URL:", signatureData);
-        onSave(signatureData); // Send signature back to editrds pero change ni to save to dataase
+    if (sigCanvas.current && !sigCanvas.current.isEmpty()) {
+      const signatureData = sigCanvas.current.toDataURL("image/png");
+      console.log("Signature Image URL:", signatureData);
+      onSave(signatureData); // Send signature back to editrds pero change ni to save to database
+    } else {
+      console.log("No signature detected. Please sign before saving.");
+      alert("Please provide a signature before saving.");
     }
-  };
+  };  
 
   const clearSignature = () => {
     if (sigCanvas.current) {
