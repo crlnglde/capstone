@@ -12,7 +12,7 @@ const Login = () => {
     const [userName, setUserName]= useState('');
     const [password, setUserPassword]= useState('');
 
-    const togglePasswordVisibility = () => {
+      const togglePasswordVisibility = () => {
         setShowPassword((prevShowPassword) => !prevShowPassword);
       };
 
@@ -69,13 +69,40 @@ const Login = () => {
             
           </div>
           <motion.div 
-            className="rightPanel"
-            initial={{ opacity: 0, x: 50 }} // Start hidden and slightly right
-            animate={{ opacity: 1, x: 0 }} // Fade in and move to position
-            transition={{ duration: 1, ease: "easeOut" }} // Smooth transition
-            >
-            <img src={CSWD} alt="Fitness" className="image" />
-            </motion.div>
+        className="rightPanel"
+        initial={{ opacity: 0, x: 50 }} 
+        animate={{ opacity: 1, x: 0 }} 
+        transition={{ duration: 1, ease: "easeOut" }}
+        >
+        <motion.div 
+            className="cswdContent"
+        >
+              <motion.img 
+                  src={CSWD} 
+                  alt="CSWD Logo" 
+                  className="image" 
+                  initial={{ opacity: 0, y: -50 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 1, ease: "easeOut" }}
+              />
+              <motion.h3 
+                  className="cswdText"
+                  initial={{ opacity: 0, x: -50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 1, delay: 0.5 }}
+              >
+                City Social Welfare and Development Office
+              </motion.h3>
+              <motion.p 
+                  className="cswdDescription"
+                  initial={{ opacity: 0, x: 50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 1, delay: 0.7 }}
+              >
+                  Committed to providing assistance and relief to those in need, ensuring safety and well-being for all.
+              </motion.p>
+          </motion.div>
+        </motion.div>
         </div>
       </div>
     );

@@ -76,9 +76,9 @@
     position: relative;
 
     height: 100px;
-    bottom: 40px;
+    bottom: 80px;
     z-index: 1;
-    box-shadow: 4px 20px 20px 6px rgba(255, 255, 255, 0.32), 0px 2px 4px rgba(67, 67, 67, 0.1);
+    
   }
   
   .home-count-card {
@@ -145,6 +145,7 @@
     flex-direction: row;
     justify-content: center;
     background-color:#0a194e;
+    box-shadow: 4px 20px 20px 6px rgba(255, 255, 255, 0.32), 0px 2px 4px rgba(67, 67, 67, 0.1);
   }
 
   .home-container2{

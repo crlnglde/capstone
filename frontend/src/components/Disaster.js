@@ -39,12 +39,24 @@ const Disaster = ({ setNavbarTitle }) => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [isViewMode, setIsViewMode] = useState(false);
 
-  // Update navbar title when tab changes
   useEffect(() => {
     let title = `Disaster > ${activeTab === "list" ? "List" : "Visualization"}`;
-    setNavbarTitle(title);
-  }, [activeTab, setNavbarTitle]);
 
+    if (activeTab === "list" && step === 2) {
+        const stepTitles = {
+            addAffectedFamily: "Add Affected Family",
+            editAffectedFamily: "Edit DAFAC",
+            confirmDamageCategory: "Confirm DAFAC",
+        };
+
+        if (step2Type && stepTitles[step2Type]) {
+            title += ` > ${stepTitles[step2Type]}`;
+        }
+    }
+
+    setNavbarTitle(title);
+}, [activeTab, step, step2Type, setNavbarTitle]);
+  
 
 
   //list of barangays

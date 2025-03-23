@@ -6,6 +6,8 @@ import Modal from "./Modal";
 import RES from "./forms/Res";
 import Pagination from "./again/Pagination";
 import "../css/Residents.css";
+import Loading from "./again/Loading";
+import Notification from "./again/Notif";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 const Residents = () => {
@@ -43,6 +45,8 @@ const Residents = () => {
   const [totalResidents, setTotalResidents] = useState(0);
   const [totalFamilies, setTotalFamilies] = useState(0);
 
+  const [notification, setNotification] = useState(null);
+
   //list of barangays
   const barangays = [
     'Abuno', 'Acmac-Mariano Badelles Sr.', 'Bagong Silang', 'Bonbonon', 'Bunawan', 'Buru-un', 'Dalipuga',
@@ -67,17 +71,55 @@ const addResidentsToTop = (newResidents) => {
   //CSV Upload
   const handleFileUpload = async (event) => {
     event.preventDefault();
+    setNotification(null);
   
+    // Check if a file was selected
     if (!csvFile) {
-      alert("Please select a CSV file to upload.");
+      setNotification({ 
+        type: "error", 
+        title: "No File Selected", 
+        message: "Please select a CSV file to upload."
+      });
+      setTimeout(() => {
+        setNotification(null);
+      }, 3000);
       return;
     }
-  
+
+    // Check if the uploaded file is a CSV
+    const allowedFileTypes = ['text/csv', 'application/vnd.ms-excel']; // mime types for CSV
+    if (!allowedFileTypes.includes(csvFile.type)) {
+      setNotification({
+        type: 'error',
+        title: 'Invalid File Type',
+        message: 'Please upload a valid CSV file.'
+      });
+      setTimeout(() => {
+        setNotification(null);
+      }, 3000);
+      return;
+    }
+    
     setIsUploading(true);
+    setNotification(null); 
   
     const reader = new FileReader();
     reader.onload = async (e) => {
       const text = e.target.result;
+
+          // Check if the file is empty
+          if (!text.trim()) {
+            setNotification({
+              type: 'error',
+              title: 'Empty File',
+              message: 'The file you uploaded is empty.'
+            });
+            setTimeout(() => {
+              setNotification(null);
+            }, 3000);
+            setIsUploading(false);
+            return;
+          }
   
       Papa.parse(text, {
         complete: async (result) => {
@@ -113,14 +155,55 @@ const addResidentsToTop = (newResidents) => {
           }).filter(item => item !== null);
   
           try {
+            await new Promise((resolve) => setTimeout(resolve, 2000));
+
             await axios.post("http://localhost:3003/add-csvresidents", { residents: formattedData });
-  
-            alert('CSV data uploaded successfully!');
-            addResidentsToTop(formattedData); // Add new residents to the top
-            setIsUploading(false);
+
+            setNotification({ type: "success", title: "CSV Upload Successful", message: "Your file has been uploaded successfully!" });
+
+            setTimeout(() => {
+              addResidentsToTop(formattedData);
+              resetForm();
+              setNotification(null);
+              closeModal();
+            }, 3000);
+
           } catch (error) {
-            console.error('Error uploading CSV data:', error);
-            setIsUploading(false);
+            let errorTitle = "Error";
+            let errorMessage = "Failed to upload CSV. Please try again.";
+          
+
+            if (!error.response) {
+              errorTitle = "Network Error";
+              errorMessage = "Please check your internet connection and try again.";
+            } else if (error.response.status === 400) {
+              errorTitle = "Invalid CSV Format";
+              errorMessage = "Ensure all required columns are present in the file.";
+            } else if (error.response.status === 401 || error.response.status === 403) {
+              errorTitle = "Unauthorized Access";
+              errorMessage = "You do not have permission to upload files.";
+            } else if (error.response.status === 500) {
+              errorTitle = "Server Error";
+              errorMessage = "An error occurred on the server. Please try again later.";
+            } else if (error.message.includes("unsupported file type")) {
+              errorTitle = "Invalid File Type";
+              errorMessage = "Only CSV files are allowed. Please upload a valid file.";
+            } else if (error.message.includes("empty file")) {
+              errorTitle = "Empty File";
+              errorMessage = "The uploaded CSV file is empty. Please provide a valid file.";
+            }
+
+              setNotification({ 
+                type: "error", 
+                title: errorTitle, 
+                message: errorMessage 
+              });
+
+            setTimeout(() => {
+              setNotification(null);
+            }, 3000);
+          }finally {
+            setIsUploading(false); // Stop Loading after success/error
           }
         },
         header: true,
@@ -136,6 +219,8 @@ const addResidentsToTop = (newResidents) => {
   //Add Manually
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setIsUploading(true); 
+    setNotification(null); 
   
     const memId = `MEM${Date.now()}`;
   
@@ -166,14 +251,28 @@ const addResidentsToTop = (newResidents) => {
     };
   
     try {
+
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      
       const response = await axios.post("http://localhost:3003/add-residents", formattedData);
-      alert(response.data.message);
-      addResidentsToTop([formattedData]); // Add new resident to the top
-      resetForm();
-      handleCloseModal();
+
+      
+      setNotification({ type: "success", message: "Resident added successfully!" });
+
+      setTimeout(() => {
+        addResidentsToTop([formattedData]);
+        resetForm();
+        setNotification(null);
+        closeModal();
+      }, 3000);
     } catch (error) {
-      console.error("Error adding resident:", error);
-      alert("Failed to add resident.");
+        setNotification({ type: "error", message: "Failed to add resident. Please try again." });
+
+        setTimeout(() => {
+          setNotification(null);
+        }, 3000);
+    } finally {
+      setIsUploading(false); // Stop Loading after success/error
     }
   };
   
@@ -483,7 +582,20 @@ const addResidentsToTop = (newResidents) => {
 
       </div>
 
+
       <Modal isOpen={isModalOpen} onClose={closeModal} title={modalType === "add" ? "Add Resident" : modalType === "upload" ? "Upload Resident CSV" :  "Resident Details"}>
+
+      {notification && (
+        <Notification
+          type={notification.type}
+          title={notification.title} 
+          message={notification.message}
+          onClose={() => setNotification(null)}
+        />
+      )}
+
+      {isUploading && <Loading message="Uploading..." />}
+
 
             {modalType === "add" && (
               <div>
@@ -814,8 +926,8 @@ const addResidentsToTop = (newResidents) => {
                         </button>
                     </div>
 
-                    <button type="submit" className="submit-btn">
-                      Save
+                    <button type="submit" className="submit-btn" disabled={isUploading}>
+                      {isUploading ? <i className="fa fa-spinner fa-spin"></i> : "Save"}
                     </button>
                   </form>
                 
@@ -827,7 +939,7 @@ const addResidentsToTop = (newResidents) => {
                 <form onSubmit={handleFileUpload} className="upload-form">
                   <input type="file" accept=".csv" onChange={handleFileChange} />
                   <button type="submit" className="submit-btn" disabled={isUploading}>
-                    {isUploading ? 'Uploading...' : 'Upload'}
+                    {isUploading ? <i className="fa fa-spinner fa-spin"></i> : "Save"}
                   </button>
                 </form>
               </div>
