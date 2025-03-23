@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from 'react-router-dom'; 
 import axios from "axios";
 
@@ -150,17 +150,12 @@ const AddDisaster = () => {
     };
     */}
 
-    const handleBarangayClick = (barangay) => {
-        console.log(`Barangay clicked: ${barangay}`);
-   
-        if (barangay === activeBarangay) {
-            setActiveBarangay(null); // Deselect the active barangay
-            fetchResidents(barangay);
-        } else {
-            setActiveBarangay(barangay); // Set the clicked barangay as active
-            fetchResidents(barangay); // Fetch residents for the active barangay
+    useEffect(() => {
+        if (selectedBarangays) {
+            setActiveBarangay(selectedBarangays);
+            fetchResidents(selectedBarangays); // Automatically fetch residents
         }
-    };
+    }, [selectedBarangays]);
 
 // Load saved selections from localStorage on component mount
     //modified
@@ -431,11 +426,6 @@ const AddDisaster = () => {
         }
     };    
 
-    const displayResidents = residents.slice(
-        (currentPage - 1) * rowsPerPage,
-        currentPage * rowsPerPage
-      );
-
     //Page ni
     const handleNext = () => {
         if (currentPage < totalPages) {
@@ -458,12 +448,42 @@ const AddDisaster = () => {
             console.log("Search Query: ", query);
         };
 
+        const filteredResidents = useMemo(() => {
+                    return residents.filter((resident) => {
+                        const excludeColumns = []; // Add column names here if you want to exclude specific fields
+                
+                        // Construct a full name string for searching
+                        const fullName = `${resident.firstName} ${resident.middleName} ${resident.lastName}`.toLowerCase();
+                        // Check if any dependent's name includes the search query
+                        const hasMatchingDependent = resident.dependents?.some((dependent) => 
+                            dependent.name.toLowerCase().includes(searchQuery)
+                        );
+            
+                        return (
+                            fullName.includes(searchQuery) || // Match full name
+                            hasMatchingDependent || // Match dependent names
+                            Object.keys(resident).some((key) => {
+                                if (!excludeColumns.includes(key)) {
+                                    const value = resident[key];
+                                    return value && value.toString().toLowerCase().includes(searchQuery);
+                                }
+                                return false;
+                            })
+                        );
+                    });
+                }, [residents, searchQuery]);  
+
+                        // Slice the sorted disasters for pagination
+        const displayResidents = filteredResidents.slice(
+            (currentPage - 1) * rowsPerPage,
+            currentPage * rowsPerPage
+          );
+
     const Step2 = (
         <div className="residents-table">
             <div className="barangay-buttons">
                     <button
                         className={`barangay-button ${selectedBarangays === activeBarangay ? 'active' : ''}`}
-                        onClick={() => handleBarangayClick(selectedBarangays)}
                     >
                         {selectedBarangays}
                     </button>
