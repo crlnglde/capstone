@@ -11,34 +11,85 @@ const ChoroplethGraph = () => {
   const [disasterMonthFilter, setDisasterMonthFilter] = useState("All");
   const [disasters, setDisasters] = useState([]);
   const [filteredDisastersByBarangay, setFilteredDisastersByBarangay] = useState({});
-
-   const [graphType, setGraphType] = useState("map"); 
-
+  const [filteredData, setFilteredData] = useState(disasters);
+  const [graphType, setGraphType] = useState("map"); 
+  const [currentFilter, setCurrentFilter] = useState({
+    barangay: "All",
+    year: "All",
+    month: "All",
+    disasterType: "All",
+  });
+  
   const [barangay, setBarangay] = useState("All");
   const [year, setYear] = useState("All");
 
   const filtersForMap = [
     { label: "Year", key: "year", options: Array.from({ length: 15 }, (_, i) => (new Date().getFullYear() - i).toString()) },
     { label: "Month", key: "month", options: Array.from({ length: 12 }, (_, i) => new Date(0, i).toLocaleString("en", { month: "short" })) },
-    { label: "Barangay", key: "barangay", options: ["All", "Barangay 1", "Barangay 2", "Barangay 3", "Barangay 4", "Barangay 5"] },
-    { label: "Disaster Type", key: "disasterType", options: ["All", "Flood", "Landslide", "Typhoon", "Earthquake", "Fire"] },
+    { label: "Barangay", key: "barangay", options: ["All",  "Abuno", "Acmac-Mariano Badelles Sr.", "Bagong Silang", "Bonbonon", "Bunawan", "Buru-un", "Dalipuga",
+      "Del Carmen", "Digkilaan", "Ditucalan", "Dulag", "Hinaplanon", "Hindang", "Kabacsanan", "Kalilangan",
+      "Kiwalan", "Lanipao", "Luinab", "Mahayahay", "Mainit", "Mandulog", "Maria Cristina", "Pala-o",
+      "Panoroganan", "Poblacion", "Puga-an", "Rogongon", "San Miguel", "San Roque", "Santa Elena",
+      "Santa Filomena", "Santiago", "Santo Rosario", "Saray", "Suarez", "Tambacan", "Tibanga", "Tipanoy",
+      "Tomas L. Cabili (Tominobo Proper)", "Upper Tominobo", "Tubod", "Ubaldo Laya", "Upper Hinaplanon",
+      "Villa Verde"] },
+    { label: "Disaster Type", key: "disasterType", options: ["All", "Flood", "Landslide", "Typhoon", "Earthquake", "Fire Incident", "Armed Conflict"] },
   ];
-  
-  const handleFilter = (filterData) => {
-    setBarangay(filterData.barangay || "All");
-    setYear(filterData.year || "All");
+
+  const handleFilter = useCallback((filterData) => {
+    console.log("Received Filter Data:", filterData);
+    setCurrentFilter(filterData) ;
+    console.log("Original Disasters Data:", disasters); 
     
-  };
+    if (!filterData) return;
+
+    const filtered = disasters.filter(disaster => {
+        const disasterDate = new Date(disaster.disasterDateTime);
+        
+        if (isNaN(disasterDate)) {
+            console.warn("Invalid Date Format:", disaster.disasterDateTime);
+            return false;
+        }
+
+        const disasterYear = disasterDate.getFullYear().toString();
+        const disasterMonth = new Date(disaster.disasterDateTime).toLocaleString('en-US', { month: 'short' });
+        console.log(`Checking: Year(${disasterYear}), Month(${disasterMonth}), Type(${disaster.disasterType})`);
+
+        const matchYear = filterData.year === "All" || disasterYear === filterData.year;
+        const matchMonth = filterData.month === "All" || disasterMonth === filterData.month;
+        const matchType = filterData.disasterType === "All" || disaster.disasterType === filterData.disasterType;
+        const matchBarangay = filterData.barangay === "All" || (disaster.barangays && disaster.barangays.some(b => b.name === filterData.barangay));
+
+        console.log(`Match Conditions: Year: ${matchYear}, Month: ${matchMonth}, Type: ${matchType}, Barangay: ${matchBarangay}`);
+
+        return matchYear && matchMonth && matchType && matchBarangay;
+    });
+
+    console.log("Filtered Data:", filtered);
+    setFilteredData(filtered);
+}, [disasters]);
+
+
+  console.log("Original Disasters Data:", disasters);
+
+
+  (console.log("filtered data", filteredData))
+  
+  useEffect(() => {
+    if (disasters.length > 0) {
+      handleFilter({ barangay, year, month: disasterMonthFilter, disasterType: disasterTypeFilter });
+    }
+  }, [disasters, barangay, year, disasterMonthFilter, disasterTypeFilter]);  
+  
+  
   
   useEffect(() => {
     const fetchDisasters = async () => {
       try {
         const response = await axios.get("http://localhost:3003/get-disasters");
         const disasterData = response.data;
-        setDisasters(disasterData); // Store disasters data in state
-  
-        // Set the total number of disasters
-        setDisasters(disasterData);
+        setDisasters(disasterData); 
+        setFilteredData(disasterData); // Set filteredData with fetched data
       } catch (error) {
         console.error("Error fetching disasters data:", error);
       }
@@ -47,52 +98,51 @@ const ChoroplethGraph = () => {
     fetchDisasters();
   }, []);  
 
-
-
     const allMonths = [
       "January", "February", "March", "April", "May", "June",
       "July", "August", "September", "October", "November", "December"
     ];
 
-    const filteredDisasters = useMemo(() => {
-      return disasters.filter(disaster => {
-        const disasterDate = new Date(disaster.disasterDateTime);
-        const disasterYear = disasterDate.getFullYear().toString();
-        const disasterMonth = allMonths[disasterDate.getMonth()];
 
-        return (
-          (barangay === "All" || disaster.barangays.some(b => b.name === barangay)) &&
-          (year === "All" || disasterYear === year) &&
-          (disasterTypeFilter === "All" || disaster.disasterType === disasterTypeFilter) &&
-          (disasterMonthFilter === "All" || disasterMonth === disasterMonthFilter)
-        );  
-      });
-    }, [disasters, barangay, year, disasterTypeFilter, disasterMonthFilter, allMonths]);  
-
-
-    const countFilteredDisastersByBarangayAndType = (filteredDisastersList) => {
+    const countFilteredDisastersByBarangayAndType = (filteredDisastersList, currentBarangay) => {
       return filteredDisastersList.reduce((acc, disaster) => {
-        disaster.barangays.forEach(b => {
-          const barangay = b.name;
-          const disasterType = disaster.disasterType;
+        if (!disaster.barangays || disaster.barangays.length === 0) return acc;
     
-          if (!acc[barangay]) {
-            acc[barangay] = {};
+        // If a specific barangay is selected, filter out disasters that don't include it
+        if (currentBarangay !== "All" && !disaster.barangays.some(b => b.name === currentBarangay)) {
+          return acc;
+        }
+    
+        disaster.barangays.forEach(({ name }) => {
+          if (!name) return;
+    
+          const { disasterType } = disaster;
+    
+          // Only count the selected barangay (if not "All")
+          if (currentBarangay === "All" || name === currentBarangay) {
+            acc[name] = acc[name] || {};
+            acc[name][disasterType] = (acc[name][disasterType] || 0) + 1;
           }
-    
-          acc[barangay][disasterType] = (acc[barangay][disasterType] || 0) + 1;
         });
     
         return acc;
       }, {});
-    };    
+    };
+    
+         
    
     useEffect(() => {
-      const countByBarangayAndType = countFilteredDisastersByBarangayAndType(filteredDisasters);
-      if (JSON.stringify(countByBarangayAndType) !== JSON.stringify(filteredDisastersByBarangay)) {
-        setFilteredDisastersByBarangay(countByBarangayAndType);
+      if (filteredData.length > 0) {
+        const newFilteredData = countFilteredDisastersByBarangayAndType(filteredData, currentFilter.barangay);
+    setFilteredDisastersByBarangay(newFilteredData);
+    console.log("Updated filteredDisastersByBarangay:", newFilteredData);
+        setFilteredDisastersByBarangay(newFilteredData);
+        console.log("Updated filteredDisastersByBarangay:", newFilteredData);
+      } else {
+        setFilteredDisastersByBarangay({}); // Ensure state updates to an empty object
+        console.log("No disasters found, clearing map data.");
       }
-    }, [filteredDisasters, filteredDisastersByBarangay]);
+    }, [filteredData, disasterTypeFilter, disasterMonthFilter, barangay, year]);    
     
 
   // Define a function to style each feature
@@ -149,12 +199,6 @@ const ChoroplethGraph = () => {
   const handleDisasterTypeChange = (event) => {
     setDisasterTypeFilter(event.target.value);
   };
-
-  useEffect(() => {
-    if (Object.keys(filteredDisastersByBarangay).length !== 0) {
-      setFilteredDisastersByBarangay({});
-    }
-  }, [disasterTypeFilter]);
   
 
   const calculateCentroid = (geometry) => {
@@ -193,30 +237,8 @@ const ChoroplethGraph = () => {
 
           <div className="filters-right">
           
-          <Filter onFilter={handleFilter} filters={filtersForMap} graphType={graphType}/>
+          <Filter disasters={disasters} onFilter={handleFilter} filters={filtersForMap} graphType={graphType}/>
 
-            <div className="map-filter-container">
-              {/* Dropdown for Disaster Date */}
-              <select id="disasterType" name="disasterType" onChange={(e) => setDisasterTypeFilter(e.target.value)} value={disasterTypeFilter}>
-                  <option value="All">All</option>
-                  <option value="Fire Incident">Fire Incident</option>
-                  <option value="Flood">Flood</option>
-                  <option value="Landslide">Landslide</option>
-                  <option value="Earthquake">Earthquake</option>
-                  <option value="Typhoon">Typhoon</option>
-                </select>
-
-            </div>
-
-            <div className="map-filter-container">
-                <label htmlFor="disasterMonth">Select Disaster Month: </label>
-                <select id="disasterMonth" name="disasterMonth" onChange={(e) => setDisasterMonthFilter(e.target.value)}  value={disasterMonthFilter}>
-                  <option value="All">All</option>
-                  {allMonths.map((date, index) => (
-                    <option key={index} value={date}>{date}</option>
-                  ))}
-                </select>
-            </div>
           </div>
 
         </div>
@@ -277,7 +299,7 @@ const ChoroplethGraph = () => {
       <div className="map-text-overlay">
         <h2>Disaster Insights</h2>
         <p>
-          {filteredDisasters.length > 0 ?
+          {filteredData.length > 0 ?
             (disasterTypeFilter === "All" ?
               <span>
                 There is a noticeable concentration of <strong style={{ color:"white"}}>disasters</strong> in specific barangays.

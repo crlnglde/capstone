@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { FaFilter } from "react-icons/fa";
 import "../../css/again/Filter.css";
 
-const Filter = ({ onFilter, filters, graphType }) => {
+const Filter = ({ disasters, setAvailableBarangays, onFilter, filters, graphType }) => {
   const [showFilter, setShowFilter] = useState(false);
   const [selectedValues, setSelectedValues] = useState({
     year: "",
@@ -35,10 +35,13 @@ const Filter = ({ onFilter, filters, graphType }) => {
   const applyFilter = () => {
     let filterData = {};
     filters.forEach(filter => {
-      if (selectedValues[filter.key] !== "All" && selectedValues[filter.key] !== "") {
+      if (selectedValues[filter.key] !== "") {
         filterData[filter.key] = selectedValues[filter.key];
+      }else{
+        filterData[filter.key]="All";
       }
     });
+    console.log("Applied Filters:", filterData);
     onFilter(filterData);
     setShowFilter(false);
   };
@@ -62,13 +65,49 @@ const Filter = ({ onFilter, filters, graphType }) => {
       case "map":
         return ["year", "month", "disasterType", "barangay"];
       case "donut":
-        return ["barangay", "year", "disasterType", "disasterCode"];
+        return ["year", "disasterType","barangay", "disasterDate"];
       default:
         return [];
     }
   };
 
   const filterOrder = getFilterOrder();
+
+  const handleDisasterChange = (e) => {
+    const value = e.target.value;
+    setSelectedValues(prev => ({ ...prev, disasterCode: value }));
+  
+    const selectedDisaster = disasters.find(d => d.disasterCode === value);
+    const filteredBarangays = selectedDisaster ? selectedDisaster.barangays.map(b => b.name) : [];
+  
+    if (typeof setAvailableBarangays === "function") {
+      setAvailableBarangays(filteredBarangays);
+    } else {
+      console.error("setAvailableBarangays is not a function. Ensure it is passed as a prop.");
+    }
+  };
+
+  const handleBarangayChange = (e) => {
+    const value = e.target.value;
+    setSelectedValues(prev => ({ ...prev, barangay: value }));
+  };
+
+  const getAvailableDisasterDates = () => {
+    console.log("Filtering disasters...");
+    return disasters
+      .filter((d) => {
+        const yearMatch = selectedValues.year === "All" || new Date(d.disasterDateTime).getFullYear() == selectedValues.year;
+        const typeMatch = selectedValues.disasterType === "All" || d.disasterType === selectedValues.disasterType;
+        const barangayMatch =
+          selectedValues.barangay === "All" ||
+          d.barangays.some(b => b.name === selectedValues.barangay);
+        
+        console.log(`Checking disaster: ${d.disasterDateTime}`, { yearMatch, typeMatch, barangayMatch });
+  
+        return yearMatch && typeMatch && barangayMatch;
+      })
+      .map(d => new Date(d.disasterDateTime).toISOString().split("T")[0])
+  };  
 
   return (
     <div className="filter-container">
@@ -87,6 +126,29 @@ const Filter = ({ onFilter, filters, graphType }) => {
 
               if (filterKey === "month" && !selectedValues.year) {
                 return null;
+              }
+
+              if (filterKey === "disasterDate") {
+                return (
+                  <div className="filter-section" key={filterKey}>
+                    <label>Disaster Date</label>
+                    <select
+                      className="filter-select"
+                      value={selectedValues.disasterDate}
+                      onChange={(e) =>
+                        setSelectedValues((prev) => ({ ...prev, disasterDate: e.target.value }))
+                      }
+                      disabled={getAvailableDisasterDates().length === 0} // Disable if no dates available
+                    >
+                      <option value="">Select Disaster Date</option>
+                      {getAvailableDisasterDates().map((date, index) => (
+                        <option key={index} value={date}>
+                          {date}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                );
               }
 
               return (
@@ -124,7 +186,16 @@ const Filter = ({ onFilter, filters, graphType }) => {
                     <select
                       className="filter-select"
                       value={selectedValues[filterKey]}
-                      onChange={(e) => setSelectedValues(prev => ({ ...prev, [filterKey]: e.target.value }))}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (filterKey === "barangay") {
+                          handleBarangayChange(e);
+                        } else if (filterKey === "disasterCode") {
+                          handleDisasterChange(e);
+                        } else {
+                          setSelectedValues(prev => ({ ...prev, [filterKey]: value }));
+                        }
+                      }}                      
                       disabled={
                         (graphType === "bar" && filterKey === "barangay" && (!selectedValues.disasterCode || selectedValues.disasterCode === "All")) ||
                         (graphType === "map" && filterKey === "month" && !selectedValues.year)
