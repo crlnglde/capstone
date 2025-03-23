@@ -158,8 +158,8 @@ const filteredDisasters = useMemo(() => {
           <p>
             There are <strong>{casualtyStats.injured}</strong> injured, 
             <strong> {casualtyStats.dead}</strong> dead, and 
-            <strong> {casualtyStats.missing}</strong> missing from the last recorded disaster on 
-            <strong> {disasterDate}</strong>.
+            <strong> {casualtyStats.missing}</strong> missing from the last recorded disaster/s
+            {disasterDate ? ` on ${disasterDate}` : ""}.
           </p>
         )}
       </div>
