@@ -67,7 +67,7 @@
   .residents-container{
     background-color: white;
     border-collapse: collapse;
-    height: 600px;
+    /*height: 600px;*/
     display: flex;
     flex-direction: column;
 
@@ -169,12 +169,14 @@
   
   .residents-table{
     padding: 20px;
-    height: 100%;
+    height: 500px;
   }
 
-  .residents-table  .pagination-wrapper{
+  .residents-container .pagination-wrapper{
     display: flex;
     justify-content: center;
+    margin: 15px 0 15px 0;
+    padding: 0 0 15px 0;
   }
 
   table {

@@ -308,11 +308,8 @@ const addResidentsToTop = (newResidents) => {
 
 
     //pagination ni 
-          const residentsPerPage = 8; // 4 columns x 4 rows
+          const residentsPerPage = 10; // 4 columns x 4 rows
           const [currentPage, setCurrentPage] = useState(1);
-          
-          // Calculate total pages dynamically
-          const totalPages = Math.ceil(filteredResidents.length / residentsPerPage);
         
           // Get reports for the current page
           const startIndex = (currentPage - 1) * residentsPerPage;
@@ -324,43 +321,44 @@ const addResidentsToTop = (newResidents) => {
           );
 
           // Ensure new residents appear at the top in pagination
-          const displayResidents = filteredResidents.sort((a, b) => b.memId.localeCompare(a.memId)).slice(
-            (currentPage - 1) * rowsPerPage,
-            currentPage * rowsPerPage
-          );
-          
+          const sortedResidents = useMemo(() => {
+            return [...filteredResidents].sort((a, b) => b.memId.localeCompare(a.memId));
+          }, [filteredResidents]);
+
+          // Apply search filtering
           const searchResidents = useMemo(() => {
-            return displayResidents.filter((residents) => {
-              return Object.keys(residents).some((key) => {
-                const value = residents[key];
-          
-                // Handle string-based fields (disasterCode, status, disasterDate, etc.)
+            return sortedResidents.filter((resident) => {
+              return Object.keys(resident).some((key) => {
+                const value = resident[key];
+
                 if (typeof value === "string" && value.toLowerCase().includes(searchQuery)) {
                   return true;
                 }
-          
-                // Handle array fields (e.g., barangays)
+
                 if (Array.isArray(value)) {
-                  return value.some((item) => {
-                    // Convert object properties to a string and check for searchQuery
-                    return Object.values(item).some(
+                  return value.some((item) =>
+                    Object.values(item).some(
                       (subValue) =>
                         typeof subValue === "string" && subValue.toLowerCase().includes(searchQuery)
-                    );
-                  });
+                    )
+                  );
                 }
-          
+
                 return false;
               });
             });
-          }, [displayResidents, searchQuery]);
+          }, [sortedResidents, searchQuery]);
         
+          // Calculate total pages dynamically
+          const totalPages = Math.ceil(searchResidents.length / residentsPerPage);
+
+          // Paginate filtered residents
           const tableResidents = useMemo(() => {
             return searchResidents.slice(
-              (currentPage - 1) * rowsPerPage,
-              currentPage * rowsPerPage
+              (currentPage - 1) * residentsPerPage,
+              currentPage * residentsPerPage
             );
-          }, [searchResidents, currentPage, rowsPerPage]);
+          }, [searchResidents, currentPage]);
     
 
   return (
@@ -475,13 +473,13 @@ const addResidentsToTop = (newResidents) => {
                                       
               </tbody>
           </table>
+        </div>
 
+        {totalPages > 1 && (
             <div className="pagination-wrapper">
               <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
             </div>
-   
-          
-        </div>
+          )}
 
       </div>
 
