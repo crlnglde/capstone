@@ -594,6 +594,22 @@
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
+.dashboard .backButton {
+  background-color: #0A194E;
+  color: white;
+  border-radius: 5px;
+  border: none;
+  padding: 10px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin: 0 0 10px 0px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.step2{
+  padding: 0 20px;
+}
 
 
 /* Close button */

@@ -15,9 +15,9 @@
   .modal-overlay .modal-content {
     background: #fff;
     /*border-radius: 12px;*/
-    padding: 30px;
+    padding: 20px;
     width: auto;
-    max-width: 1000px;
+    max-width: 1200px;
     max-height: 80vh;
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
     position: relative;

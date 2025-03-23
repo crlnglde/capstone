@@ -1,5 +1,5 @@
 .dafac {
-    padding: 20px;
+    padding: 0px;
     flex: 1;
   }
 
@@ -7,9 +7,31 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 50px;
+    gap: 30px;
     margin: 30px 0 0 0;
 }
+      .dafac .title {
+        font-size: 1.1em;
+        font-weight: bold;
+      }
+
+      .dafac .bold {
+        font-size: 1.3em;
+        font-weight: bold;
+      }
+      
+      .dafac .italic-bold {
+        font-style: italic;
+        font-weight: bold;
+        font-size: 1.1em;
+      }
+
+      .dafac .sheet-title h2{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 24px !important;
+      }
 
 .dafac-container .form-container {
   border: none;
@@ -27,7 +49,8 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-
+    padding: 20px 50px 20px 50px;
+    margin: 20px;
     justify-content: space-between; /* Distribute space between form content and the footer */
     box-sizing: border-box;
   }
@@ -68,7 +91,10 @@
     justify-content: space-between;
     align-items: center;
     flex-direction: column;
+    margin: 0;
   }
+
+
 
   .form-row {
     display: flex;
@@ -80,7 +106,7 @@
         .form-row-1{
           display: flex;
           flex-wrap: wrap;
-          gap: 80px;
+        /*gap: 80px;*/
           padding: 5px 0;
           width: 100%;
           justify-content: center;
@@ -102,6 +128,12 @@
           grid-auto-flow: column;               /* Fill by columns first */
           gap: 10px;
         }
+
+          .checkbox-group label{
+            display: flex;
+                align-items: center;
+                gap: 10px;
+          }
 
         /*para sa header text sa row*/
         .form-row h3 {
@@ -158,13 +190,14 @@
           .fd{
             display: flex
             ;
-                justify-content: space-around;
-                width: 80%;
+                justify-content: space-between;
+                width: 85%;
                 gap: 150px;
+                margin: 0 0 20px 0;
           }
 
     .homead input[type="text"]{
-      width: 280px;
+      width: 260px;
     }
 
     .age input[type="number"]{
@@ -173,6 +206,9 @@
 
     .name input[type="text"]{
       width: 180px;
+    }
+    .mi input[type="number"]{
+      width: 100px;
     }
 
     .serial1 input[type="text"]{
@@ -228,7 +264,7 @@
       .duha{
         display: flex;
         justify-content: space-between;
-        gap: 365px;
+      /*gap: 365px;*/
       }
 
       .tulo{
@@ -247,10 +283,6 @@
       }
 
 /* lower part ni sya sa ubos sa table sa fam memberss*/
-.below-table{
-
-  
-}
   
 .cost-of-damage {
     flex: 0 1 auto;
@@ -327,9 +359,9 @@
     display: flex;
     justify-content: space-evenly;
     margin: 20px 0 0 0;
-
+    gap: 15px;
     align-items: flex-start; 
-    width: 80%;
+    width: 100%;
   }
 
   .dafac .signature-section .signature-container {  
