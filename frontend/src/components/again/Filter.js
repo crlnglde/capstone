@@ -65,7 +65,9 @@ const Filter = ({ disasters, setAvailableBarangays, onFilter, filters, graphType
       case "map":
         return ["year", "month", "disasterType", "barangay"];
       case "donut":
-        return ["year", "disasterType","barangay", "disasterDate"];
+        return ["year", "disasterType","barangay", "disasterCode"];
+      case "pie":
+        return ["year", "disasterType","barangay", "disasterCode"];
       default:
         return [];
     }
@@ -85,6 +87,10 @@ const Filter = ({ disasters, setAvailableBarangays, onFilter, filters, graphType
     } else {
       console.error("setAvailableBarangays is not a function. Ensure it is passed as a prop.");
     }
+
+    if (filteredBarangays.length > 0) {
+      setSelectedValues(prev => ({ ...prev, barangay: filteredBarangays[0] }));
+    }
   };
 
   const handleBarangayChange = (e) => {
@@ -92,7 +98,7 @@ const Filter = ({ disasters, setAvailableBarangays, onFilter, filters, graphType
     setSelectedValues(prev => ({ ...prev, barangay: value }));
   };
 
-  const getAvailableDisasterDates = () => {
+  const getAvailableDisasterCodes = () => {
     console.log("Filtering disasters...");
     return disasters
       .filter((d) => {
@@ -102,12 +108,13 @@ const Filter = ({ disasters, setAvailableBarangays, onFilter, filters, graphType
           selectedValues.barangay === "All" ||
           d.barangays.some(b => b.name === selectedValues.barangay);
         
-        console.log(`Checking disaster: ${d.disasterDateTime}`, { yearMatch, typeMatch, barangayMatch });
+        console.log(`Checking disaster: ${d.disasterCode}`, { yearMatch, typeMatch, barangayMatch });
   
         return yearMatch && typeMatch && barangayMatch;
       })
-      .map(d => new Date(d.disasterDateTime).toISOString().split("T")[0])
-  };  
+      .map(d => d.disasterCode); // Returning disasterCode instead of disasterDateTime
+  };
+   
 
   return (
     <div className="filter-container">
@@ -128,28 +135,28 @@ const Filter = ({ disasters, setAvailableBarangays, onFilter, filters, graphType
                 return null;
               }
 
-              if (filterKey === "disasterDate") {
+              if (filterKey === "disasterCode" && (graphType === "pie" || graphType === "donut" )) {
                 return (
                   <div className="filter-section" key={filterKey}>
-                    <label>Disaster Date</label>
+                    <label>Disaster Code</label>
                     <select
                       className="filter-select"
-                      value={selectedValues.disasterDate}
+                      value={selectedValues.disasterCode}
                       onChange={(e) =>
-                        setSelectedValues((prev) => ({ ...prev, disasterDate: e.target.value }))
+                        setSelectedValues((prev) => ({ ...prev, disasterCode: e.target.value }))
                       }
-                      disabled={getAvailableDisasterDates().length === 0} // Disable if no dates available
+                      disabled={getAvailableDisasterCodes().length === 0} // Disable if no disaster codes available
                     >
-                      <option value="">Select Disaster Date</option>
-                      {getAvailableDisasterDates().map((date, index) => (
-                        <option key={index} value={date}>
-                          {date}
+                      <option value="">Select Disaster Code</option>
+                      {getAvailableDisasterCodes().map((code, index) => (
+                        <option key={index} value={code}>
+                          {code}
                         </option>
                       ))}
                     </select>
                   </div>
                 );
-              }
+              }              
 
               return (
                 <div className="filter-section" key={filterKey}>
