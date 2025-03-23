@@ -14,15 +14,16 @@
   
   .modal-overlay .modal-content {
     background: #fff;
-    border-radius: 12px;
+    /*border-radius: 12px;*/
     padding: 30px;
     width: auto;
-    max-width: 100%;
+    max-width: 1000px;
     max-height: 80vh;
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
     position: relative;
     animation: fadeInModal 0.3sease;
     overflow-y: auto;
+    left: 130px;
   }
 
   .modal-title {
