@@ -169,6 +169,10 @@ h3 {
   -ms-overflow-style: none; 
 }
 
+.report-preview .upper{
+  display: flex;
+}
+
 /* Tabs for RDS and FDR */
 .tabs {
   width: 100%;
@@ -177,11 +181,11 @@ h3 {
 }
 
 .tab {
-  background: #6c7180;
+  background: #8c8d8f;
   color: white;
   padding: 10px 20px;
   border: none;
-  border-radius: 5px 5px 0 0;
+  border-radius: 10px 10px 0 0;
   cursor: pointer;
   font-size: 16px;
   font-weight: bold;
@@ -189,7 +193,20 @@ h3 {
 }
 
 .tab.active {
-  background: #555b6a;
+  background: #1B2B65;
+
+}
+
+.tab:hover {
+  background: #11297e;
+  border-radius: 10px 10px 0 0;
+  transform: scale(1.02);
+}
+
+.buttons{
+  width: 100%;
+  display:flex;
+  justify-content: flex-end;
 }
 
 /* Report Content Box */
@@ -239,17 +256,28 @@ h3 {
       margin-right: 10px;
     }
 
-.download-btn{
-  background: #007bff;
-  color: white;
-  padding: 10px 20px;
+.download-btn,
+.print-btn{
+  display: flex;
+  align-items: center;
+  background: transparent;
+  color: rgb(0, 0, 0);
+
   border: none;
   border-radius: 5px;
-  margin: 10px;
+  margin: 5px 5px;
   font-size: 16px;
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: transform 0.2s ease-in-out;
+  gap: 8px;
 }
+
+.download-btn:hover,
+.print-btn:hover {
+  transform: scale(1.05);
+  color: rgb(6, 26, 139);
+  background: #00000000;
+} 
 
 .back-btn {
   background-color: #0A194E; 
@@ -264,9 +292,7 @@ h3 {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.download-btn:hover {
-  background: #0056b3;
-}
+
 
 .back-btn:hover {
   background: #545b62;

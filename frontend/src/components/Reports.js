@@ -140,7 +140,120 @@ const Reports = () => {
     };
     return imageMap[type] || fireIncident; // Default fallback
   };
+
+  const handlePrint = async () => {
+    const activeRef = activeTab === "SPORADIC" ? sporadicRef : activeTab === "FDR" ? fdrRef : payrollRef;
   
+    let orientation = "portrait";
+    let pageSize = "a4"; 
+  
+    if (activeTab === "SPORADIC") {
+      orientation = "landscape";
+      pageSize = "a4";
+    } else if (activeTab === "Payroll") {
+      orientation = "landscape";
+      pageSize = [215.9, 330.2]; 
+    }
+  
+    const doc = new jsPDF(orientation, "mm", pageSize);
+    let y = 10;
+  
+    const addElementToPDF = async (elementId, yOffset = 10, align = "left") => {
+      const element = document.querySelector(elementId);
+      if (!element) {
+        console.error(`Element ${elementId} not found`);
+        return;
+      }
+  
+      const canvas = await html2canvas(element);
+      const imgData = canvas.toDataURL("image/png");
+      const imgWidth = doc.internal.pageSize.width - 20;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+  
+      let x = 10;
+      if (align === "center") {
+        const pageWidth = doc.internal.pageSize.width;
+        x = (pageWidth - imgWidth) / 2;
+      }
+  
+      doc.addImage(imgData, "PNG", x, y, imgWidth, imgHeight);
+      y += imgHeight + yOffset;
+    };
+  
+    if (activeTab === "SPORADIC") {
+      await addElementToPDF(".header", 1, "center");
+  
+      const sporadicTable = document.querySelector("#yourTableID");
+      if (sporadicTable) {
+        const headers = [
+          ["No.", "Name", "Age", "Sex", "Brgy. Address", "No. of Dependents", "Type of Calamity", "Date of Calamity", "Category", "Senior Citizen", "PWD", "Solo Parent", "Pregnant", "Lactating Mothers", "Livelihood"],
+        ];
+  
+        const body = [];
+        sporadicTable.querySelectorAll("tbody tr").forEach((tr) => {
+          const rowData = [];
+          tr.querySelectorAll("td").forEach((td) => {
+            rowData.push(td.innerText.trim());
+          });
+          body.push(rowData);
+        });
+  
+        autoTable(doc, {
+          startY: y + 5,
+          head: headers,
+          body: body,
+          styles: { fontSize: 8, halign: "center" },
+          theme: "grid",
+        });
+  
+        y = doc.lastAutoTable.finalY + 10;
+      }
+  
+      await addElementToPDF(".table-container1", 5);
+      await addElementToPDF(".reco", 10);
+      await addElementToPDF(".footer", 10);
+  
+    } else if (activeTab === "FDR") {
+      if (!fdrRef.current) {
+        console.error("FDR content not found!");
+        return;
+      }
+  
+      try {
+        const canvas = await html2canvas(fdrRef.current, { scale: 2, useCORS: true });
+        const imgData = canvas.toDataURL("image/png");
+        const imgWidth = doc.internal.pageSize.width - 20;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+  
+        doc.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight);
+      } catch (error) {
+        console.error("Error generating FDR print:", error);
+      }
+  
+    } else if (activeTab === "Payroll") {
+      if (!payrollRef.current) {
+        console.error("Payroll content not found!");
+        return;
+      }
+  
+      try {
+        const canvas = await html2canvas(payrollRef.current, { scale: 2, useCORS: true });
+        const imgData = canvas.toDataURL("image/png");
+        const imgWidth = doc.internal.pageSize.width - 10;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+  
+        doc.addImage(imgData, "PNG", (doc.internal.pageSize.width - imgWidth) / 2, 10, imgWidth, imgHeight);
+      } catch (error) {
+        console.error("Error generating Payroll print:", error);
+      }
+    }
+  
+    doc.autoPrint();
+    window.open(doc.output("bloburl"), "_blank");
+  };
+  
+  
+
     const handleDownloadPDF = async () => {
       const activeRef = activeTab === "SPORADIC" ? sporadicRef : activeTab === "FDR" ? fdrRef : payrollRef;
      
@@ -589,8 +702,12 @@ const Reports = () => {
           <div className="search-row">
             {/* Disaster Count on the Left */}
             <div className="disaster-count">
-              {filteredReports.length} disasters reported
+              {filteredReports.length === 0
+                ? ""
+                : `${filteredReports.length} ${filteredReports.length === 1 ? "disaster" : "disasters"} reported`}
             </div>
+
+
 
             {/* Search in the Center */}
             <div className="search-wrapper" >
@@ -626,8 +743,8 @@ const Reports = () => {
               ))
             ) : (
               <p className="no-disaster-message">
-                No disasters under that filter.
-              </p>
+              {searchQuery ? "No disasters match your search." : "No disaster record available."}
+            </p>
             )}
 
           </div>
@@ -642,24 +759,37 @@ const Reports = () => {
         ) : (
           // Step 2: Display report details (similar to uploaded image)
           <div className="report-preview">
-            <div className="tabs">
-              <button className={activeTab === "SPORADIC" ? "tab active" : "tab"} onClick={() => setActiveTab("SPORADIC")}>
-                SPORADIC
-              </button>
-              <button className={activeTab === "FDR" ? "tab active" : "tab"} onClick={() => setActiveTab("FDR")}>
-                FDR
-              </button>
-              <button className={activeTab === "Payroll" ? "tab active" : "tab"} onClick={() => setActiveTab("Payroll")}>
-                Payroll
-              </button>
-            </div>
-            
-            <div className="report-content-box">
-              <div>
-                <button className="download-btn" onClick={handleDownloadPDF}>
-                  <FaDownload /> Download Report
+
+            <div className="upper">
+
+              <div className="tabs">
+                <button className={activeTab === "SPORADIC" ? "tab active" : "tab"} onClick={() => setActiveTab("SPORADIC")}>
+                  SPORADIC
+                </button>
+                <button className={activeTab === "FDR" ? "tab active" : "tab"} onClick={() => setActiveTab("FDR")}>
+                  FDR
+                </button>
+                <button className={activeTab === "Payroll" ? "tab active" : "tab"} onClick={() => setActiveTab("Payroll")}>
+                  Payroll
                 </button>
               </div>
+
+              <div className="buttons">
+                <button className="download-btn" onClick={handleDownloadPDF}>
+                  <FaDownload /> Download
+                </button>
+                <button className="print-btn" onClick={handlePrint}>
+                  <i className="fa-solid fa-print"></i> Print
+                </button>
+
+              </div>
+
+            </div>
+
+
+
+            
+            <div className="report-content-box">
 
               <div className="form-container">
                 {activeTab === "SPORADIC" ? (
