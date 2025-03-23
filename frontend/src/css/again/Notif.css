@@ -1,0 +1,73 @@
+.notification {
+    display: flex;
+    align-items: center;
+    background: #f0f0f0;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: auto;
+    z-index: 1000;
+    border-top: 6px solid;
+    gap: 15px;
+}
+
+/* Success styles */
+.notification.success {
+    border-color: #2ecc71;
+}
+
+/* Error styles */
+.notification.error {
+    border-color: #e74c3c;
+}
+
+/* Badge styling */
+.badge {
+    padding: 10px 20px;
+    font-weight: bold;
+    font-size: 14px;
+    border-radius: 20px;
+    color: white;
+    position: absolute;
+    left: -40px;
+    top: 13px;
+}
+
+/* Success badge */
+.badge.success {
+    background: #2ecc71;
+}
+
+/* Error badge */
+.badge.error {
+    background: #e74c3c;
+}
+
+/* Content */
+.content {
+    margin-left: 60px;
+    flex-grow: 1;
+}
+
+.notification .title {
+    font-weight: bold;
+    color: #333;
+    font-size: 15px;
+}
+
+.notification p{
+    margin: 0px 0 0 0;
+    font-size: 13px;
+}
+
+/* Close button */
+.notification .close-btn {
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    color: #333;
+}

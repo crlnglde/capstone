@@ -7,7 +7,7 @@ const Navbar = ({ isSidebarMinimized, customTitle }) => {
 
     // Function to generate a readable page name from the path
     const formatPageName = (pathname) => {
-        if (pathname === "/") return "Home"; // Default for root
+        if (pathname === "/") return ""; // Default for root
 
         let pathSegments = pathname.split("/").filter(Boolean); // Remove empty parts
 

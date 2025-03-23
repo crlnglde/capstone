@@ -18,7 +18,7 @@ import SPORADIC from "./components/forms/SPORADIC";
 import FDR from "./components/forms/FDR";
 import Landing from "./components/landing";
 import Login from "./components/Login";
-
+import Loading from "./components/again/Loading";
 import { motion } from "framer-motion";
 import "./App.css";
 import Minlogo from "./pic/logo-min.png";
@@ -36,24 +36,14 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Hide the logo animation after 3 seconds
-    const timer = setTimeout(() => setShowLogo(false), 5000);
-    return () => clearTimeout(timer);
+    setTimeout(() => {
+      setLoading(false);
+    }, 1000);
   }, []);
 
-  useEffect(() => {
-    window.onload = () => {
-      setTimeout(() => setLoading(false), 1000); // Fade-out delay
-    };
-  }, []);
-
-  return (
+  return(
     <div className="app">
-      {loading && (
-        <div className={`loader-container ${!loading ? "hidden" : ""}`}>
-          <div className="spinner"></div>
-        </div>
-      )}
+
 
       <ToastContextProvider>
         <Router>
@@ -98,7 +88,7 @@ function ConditionalLayout({ isSidebarMinimized, setIsSidebarMinimized,  navbarT
 
   return (
     <>
-      {!isLandingPage && (
+     {!isLandingPage && (
         <>
           <Sidebar
             isMinimized={isSidebarMinimized}

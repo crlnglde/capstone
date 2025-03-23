@@ -3,11 +3,12 @@ import axios from "axios";
 import "../css/Home.css";
 import dswd1 from '../pic/dswd1.jpg'; 
 import dswd from '../pic/dswd.jpg'; 
+import cswd from '../pic/cswd1.jpg';
 import dswd2 from '../pic/dswd2.png'; 
 import dswd3 from '../pic/dswd3.jpg'; 
 import videoBackground from '../pic/vid.mp4';
-import { motion } from "framer-motion";
-
+import { motion, useInView } from "framer-motion";
+import { useRef } from "react";
 import Map from './visualizations/map'
 
 const Home = () => {
@@ -20,6 +21,9 @@ const Home = () => {
   const [totalFamilies, setTotalFamilies] = useState(0);
   const [disasters, setDisasters] = useState([]);
   const [totalDisasters, setTotalDisasters] = useState(0);
+
+  const ref = useRef(null);
+  const isInView = useInView(ref, { triggerOnce: false, margin: "-50px" });
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -96,7 +100,7 @@ useEffect(() => {
       
       <div className="home-container">
         
-         <img src={dswd} alt="Background" className="background-image" />
+         <img src={cswd} alt="Background" className="background-image" />
 
           <div className="overlay">
 
@@ -107,7 +111,7 @@ useEffect(() => {
 
               viewport={{ once: false, amount: 0.2 }}
             >
-              Welcome to the Disaster <br /> Monitoring System
+             Welcome to the CSWD<br />Disaster Assistance Web System 
             </motion.h1>
 
             <motion.h3
@@ -116,44 +120,109 @@ useEffect(() => {
               transition={{ duration: 1.5, ease: [0.25, 1, 0.5, 1] }}
               viewport={{ once: false, amount: 0.2 }}
             >
-              Quick Action, Timely Disaster Response
+              Ensuring Safety, Preparedness, and Support for the Community
             </motion.h3>
           </div>
       </div>   
 
-      <div className="home-container1">
-        <div className="home-row">
-          <div className="home-count-card">
-            <div className="hcc-label">
-              <i className="fa-solid fa-people-group"></i>
-              
-            </div>
-            <label>Total Residents</label>
-            <p>{totalResidents}</p>
-          </div>
+    <div className="home-container1">
+      <div className="home-row" ref={ref}>
 
-          <div className="home-count-card">
-            <div className="hcc-label">
-              <i className="fa-solid fa-people-roof"></i>
-              
-            </div>
-            <label>Total Families</label>
-            <p>{totalFamilies}</p>
-          </div>
+        {/* Residents Card */}
+        <motion.div 
+          className="home-count-card"
+          initial={{ opacity: 0, y: 50 }}
+          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+          transition={{ duration: 0.6 }}
+        >
+          <motion.div 
+            className="hcc-label"
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.5 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <i className="fa-solid fa-people-group"></i>
+          </motion.div>
+          <motion.label 
+            initial={{ opacity: 0, x: -30 }}
+            animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -30 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+          >
+            Total Residents
+          </motion.label>
+          <motion.p 
+            initial={{ opacity: 0, x: 30 }}
+            animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 30 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+          >
+            {totalResidents}
+          </motion.p>
+        </motion.div>
 
+        {/* Families Card */}
+        <motion.div 
+          className="home-count-card"
+          initial={{ opacity: 0, y: 50 }}
+          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+        >
+          <motion.div 
+            className="hcc-label"
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.5 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+          >
+            <i className="fa-solid fa-people-roof"></i>
+          </motion.div>
+          <motion.label 
+            initial={{ opacity: 0, x: -30 }}
+            animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -30 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+          >
+            Total Families
+          </motion.label>
+          <motion.p 
+            initial={{ opacity: 0, x: 30 }}
+            animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 30 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+          >
+            {totalFamilies}
+          </motion.p>
+        </motion.div>
 
-          {/* Display Total Disasters */}
-          <div className="home-count-card">
-            <div className="hcc-label">
-              <i className="fa-solid fa-hurricane"></i>
-            </div>
-            <label>Total Disasters</label>
-            <p>{totalDisasters}</p> {/* Display the total disasters */}
-          </div>
-
-        </div>
+        {/* Disasters Card */}
+        <motion.div 
+          className="home-count-card"
+          initial={{ opacity: 0, y: 50 }}
+          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
+          <motion.div 
+            className="hcc-label"
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.5 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+          >
+            <i className="fa-solid fa-hurricane"></i>
+          </motion.div>
+          <motion.label 
+            initial={{ opacity: 0, x: -30 }}
+            animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -30 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+          >
+            Total Disasters
+          </motion.label>
+          <motion.p 
+            initial={{ opacity: 0, x: 30 }}
+            animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 30 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+          >
+            {totalDisasters}
+          </motion.p>
+        </motion.div>
 
       </div>
+    </div>
 
       <div className="home-container2">
       
