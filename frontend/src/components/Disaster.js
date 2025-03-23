@@ -9,20 +9,21 @@ import { RiEdit2Line } from "react-icons/ri";
 import { FaLock } from "react-icons/fa";
 import Ling from './visualizations/Line-gr'
 import Piec from './visualizations/Pie-ch'
+import PieChart from "./visualizations/Pie";
 import Map from './visualizations/Iligan'
 import Modal from "./Modal";
 import AddAffFam from "./reusable/AddAffFam";
 import EditAffFam from "./reusable/EditAffFam";
 import ConAffFam from "./reusable/ConAffFam";
-import "../css/Dashboard.css";
+import "../css/Disaster.css";
 
-const Dashboard = () => {
+const Disaster = ({ setNavbarTitle }) => {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState("");
   const [isUploading, setIsUploading] = useState(false); 
   const [file, setFile] = useState(null);
-
+  
   const [disasters, setDisasters] = useState([]);
   const [selectedBarangay, setSelectedBarangay] = useState("All");
   const [selectedYear, setSelectedYear] = useState("All");
@@ -33,6 +34,17 @@ const Dashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
 
   const [activeTab, setActiveTab] = useState("list");
+  const [step, setStep] = useState(1);
+  const [step2Type, setStep2Type] = useState("");
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [isViewMode, setIsViewMode] = useState(false);
+
+  // Update navbar title when tab changes
+  useEffect(() => {
+    let title = `Disaster > ${activeTab === "list" ? "List" : "Visualization"}`;
+    setNavbarTitle(title);
+  }, [activeTab, setNavbarTitle]);
+
 
 
   //list of barangays
@@ -66,25 +78,14 @@ const Dashboard = () => {
     setIsModalOpen(true);
   };
 
-  const handleAddAffFam = (disCode, disBarangay) => {
-    setModalType("addAffectedFamily"); 
-    setSelectedDisCode(disCode); 
-    setDisBarangay(disBarangay); 
-    setIsModalOpen(true);
-  };
-  const handleEditAffFam = (disCode, disBarangay) => {
-    setModalType("editAffectedFamily"); 
-    setSelectedDisCode(disCode); 
-    setDisBarangay(disBarangay); 
-    setIsModalOpen(true);
-  };
-  
-  const handleConfirm = (disCode, disBarangay) => {
-    setModalType("confirmDamageCategory"); 
-    setSelectedDisCode(disCode); 
-    setDisBarangay(disBarangay); 
-    setIsModalOpen(true); 
-  };
+  const handleStepChange = (type, disCode, disBarangay) => {
+    setStep(2); // Move to step 2
+    setStep2Type(type); // Set the type of content to show
+    setSelectedDisCode(disCode);
+    setDisBarangay(disBarangay);
+};
+
+
   
   const handleViewMore = (disaster) => {
     setModalType("viewmore"); 
@@ -93,6 +94,15 @@ const Dashboard = () => {
   };
 
   const closeModal = () => setIsModalOpen(false);
+
+  const handleBackClick = () => {
+    if (step > 1) {
+      setStep(step - 1);
+      navigate("/disaster"); 
+    } else {
+      navigate(-1); 
+    }
+  };
 
   const handleFileChange = (event) => {
     setFile(event.target.files[0]);
@@ -223,7 +233,8 @@ useEffect(() => {
 
   return (
     <div className="dashboard">
-        
+
+        {step !== 2 && (
         <div className="toggle-container">
           <button
             className={activeTab === "list" ? "active" : ""}
@@ -238,172 +249,176 @@ useEffect(() => {
             Visualization
           </button>
         </div>
+        )}
+
+        {step == 2 && (
+          <div className="back">
+            <button className="backButton" onClick={handleBackClick}>
+              <i className="fa-solid fa-chevron-left"></i>
+              Back
+            </button>
+          </div>
+        )}
 
       <div className="dashboard-container">
 
         {activeTab === "list" ? (
 
-          <div className="disasters-table">
 
-            <div className="header-container">
-              <h2 className="header-title">List of Disasters</h2>
-              <div className="dstr-search">
-                <div className="dstr-search-container">
-                  <i className="fa-solid fa-magnifying-glass"></i>
-                  <input 
-                    type="text" 
-                    placeholder="Search..." 
-                    onChange={handleSearchChange} 
-                    className="search-bar"
-                  />
+          step === 1 ? (
+            <div className="disasters-table">
+
+              <div className="header-container">
+                <h2 className="header-title">List of Disasters</h2>
+                <div className="dstr-search">
+                  <div className="dstr-search-container">
+                    <i className="fa-solid fa-magnifying-glass"></i>
+                    <input 
+                      type="text" 
+                      placeholder="Search..." 
+                      onChange={handleSearchChange} 
+                      className="search-bar"
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="dash-btn">
+              <div className="dash-btn">
 
-              <button className="add-disaster" onClick={handleAddDisaster}>
-                <i className="fa-solid fa-file-circle-plus"></i>
-                Add Disaster
-              </button>
-              {/** 
-              <button className="upload-csv" onClick={handleUploadCsvClick}>
-                <i className="fa-solid fa-upload"></i>
-                Upload CSV
-              </button>
-              */}
-            </div>
+                <button className="add-disaster" onClick={handleAddDisaster}>
+                  <i className="fa-solid fa-file-circle-plus"></i>
+                  Add Disaster
+                </button>
+                {/** 
+                <button className="upload-csv" onClick={handleUploadCsvClick}>
+                  <i className="fa-solid fa-upload"></i>
+                  Upload CSV
+                </button>
+                */}
+              </div>
 
-            <div className="distab">
-              <table>
-                <thead>
-                  <tr>
-                    <th rowSpan="2" className="wide-column">Disaster Code</th>
-                    <th rowSpan="2" className="wide-column">Disaster Type</th>
-                    <th rowSpan="2" className="wide-column">Disaster Date</th>
-                    <th rowSpan="2" className="wide-column">Affected Barangay</th>
-                    <th colSpan="5" className="action-column">Actions</th>
-                  </tr>
-                  <tr>
-                    <th className="action-column">Add</th>
-                    <th className="action-column">Edit</th>
-                    <th className="action-column">Confirm</th>
-                    <th className="action-column">View More</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-
-                {displayDisasters.length > 0 ? (
-                    displayDisasters.map((disaster, index) => (
-                      <tr key={index}>
-                        <td>{disaster.disasterCode}</td>
-                        <td>{disaster.disasterType}</td>
-                        <td>{disaster.disasterDateTime}</td>
-                        <td>{disaster.barangay}</td>
-                        <td className="action-column">
-                          <button 
-                            className="dash-viewmore-btn" 
-                            disabled={disaster.disasterStatus === "Done"} 
-                            onClick={() => handleAddAffFam(disaster.disasterCode, disaster.barangay)}
-                            title={disaster.disasterStatus === "Done" ? "This disaster is finalized and cannot be modified." : ""}
-                          >
-                            {disaster.disasterStatus === "Done" ? <FaLock /> : <LuClipboardPlus />}
-                          </button>
-                        </td>
-                        <td className="action-column">
-                          <button 
-                            className="dash-viewmore-btn" 
-                            disabled={disaster.disasterStatus === "Done"} 
-                            onClick={() => handleEditAffFam(disaster.disasterCode, disaster.barangay)}
-                            title={disaster.disasterStatus === "Done" ? "This disaster is finalized and cannot be modified." : ""}
-                          >
-                            {disaster.disasterStatus === "Done" ? <FaLock /> : <RiEdit2Line />}
-                          </button>
-                        </td>
-                        <td className="action-column">
-                          <button 
-                            className="dash-viewmore-btn" 
-                            disabled={disaster.disasterStatus === "Done"} 
-                            onClick={() => handleConfirm(disaster.disasterCode, disaster.barangay)}
-                            title={disaster.disasterStatus === "Done" ? "This disaster is finalized and cannot be modified." : ""}
-                          >
-                            {disaster.disasterStatus === "Done" ? <FaLock /> : <GiConfirmed />}
-                          </button>
-                        </td>
-                      <td className="action-column">
-                        <button className="dash-viewmore-btn" onClick={() => handleViewMore(disaster)}>
-                          <i className="fa-solid fa-ellipsis"></i>
-                        </button>
-                      </td>
-
-                      </tr>
-                    ))
-                  ) : (
+              <div className="distab">
+                <table>
+                  <thead>
                     <tr>
-                      <td colSpan="7">No disasters found.</td>
+                      <th rowSpan="2" className="wide-column">Disaster Code</th>
+                      <th rowSpan="2" className="wide-column">Disaster Type</th>
+                      <th rowSpan="2" className="wide-column">Disaster Date</th>
+                      <th rowSpan="2" className="wide-column">Affected Barangay</th>
+                      <th colSpan="5" className="action-column">Actions</th>
                     </tr>
-                  )}
-                                        
-                </tbody>
-              </table>
-            </div>
-    
-            {/*Pagination*/}
-            <div className="res-button-container">
-              <button
-                className="nav-button prev"
-                onClick={handlePrevDisaster}
-                disabled={disasterPage === 1}
-              >
-                <i className="fa-solid fa-angle-left"></i>
-              </button>
+                    <tr>
+                      <th className="action-column">Add</th>
+                      <th className="action-column">Edit</th>
+                      <th className="action-column">Confirm</th>
+                      <th className="action-column">View More</th>
+                    </tr>
+                  </thead>
 
-              <button
-                className="nav-button next"
-                onClick={handleNextDisaster}
-                disabled={disasterPage === totalDisasterPages}
-              >
-                <i className="fa-solid fa-angle-right"></i>
-              </button>
+                  <tbody>
+
+                    {displayDisasters.length > 0 ? (
+                      displayDisasters.map((disaster, index) => (
+                        <tr key={index}>
+                          <td>{disaster.disasterCode}</td>
+                          <td>{disaster.disasterType}</td>
+                          <td>{disaster.disasterDateTime}</td>
+                          <td>{disaster.barangay}</td>
+                          {/*add*/}
+                          <td className="action-column">
+                            <button 
+                              className="dash-viewmore-btn" 
+                              disabled={disaster.disasterStatus === "Done"} 
+                              onClick={() => handleStepChange("addAffectedFamily", disaster.disasterCode, disaster.barangay)}
+                              title={disaster.disasterStatus === "Done" ? "This disaster is finalized and cannot be modified." : ""}
+                            >
+                              {disaster.disasterStatus === "Done" ? <FaLock /> : <LuClipboardPlus />}
+                            </button>
+                          </td>
+
+                          {/*edit*/}
+                          <td className="action-column">
+                            <button 
+                              className="dash-viewmore-btn" 
+                              disabled={disaster.disasterStatus === "Done"} 
+                              onClick={() => handleStepChange("editAffectedFamily", disaster.disasterCode, disaster.barangay)}
+                              title={disaster.disasterStatus === "Done" ? "This disaster is finalized and cannot be modified." : ""}
+                            >
+                              {disaster.disasterStatus === "Done" ? <FaLock /> : <RiEdit2Line />}
+                            </button>
+                          </td>
+
+                          {/*confirm*/}
+                          <td className="action-column">
+                            <button 
+                              className="dash-viewmore-btn" 
+                              disabled={disaster.disasterStatus === "Done"} 
+                              onClick={() => handleStepChange("confirmDamageCategory", disaster.disasterCode, disaster.barangay)}
+                              title={disaster.disasterStatus === "Done" ? "This disaster is finalized and cannot be modified." : ""}
+                            >
+                              {disaster.disasterStatus === "Done" ? <FaLock /> : <GiConfirmed />}
+                            </button>
+                          </td>
+
+                          {/*view*/}
+                          <td className="action-column">
+                            <button className="dash-viewmore-btn" onClick={() => handleViewMore(disaster)}>
+                              <i className="fa-solid fa-ellipsis"></i>
+                            </button>
+                          </td>
+
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="7">No disasters found.</td>
+                      </tr>
+                    )}
+                                          
+                  </tbody>
+                </table>
+              </div>
+      
+              {/*Pagination*/}
+              <div className="res-button-container">
+                <button
+                  className="nav-button prev"
+                  onClick={handlePrevDisaster}
+                  disabled={disasterPage === 1}
+                >
+                  <i className="fa-solid fa-angle-left"></i>
+                </button>
+
+                <button
+                  className="nav-button next"
+                  onClick={handleNextDisaster}
+                  disabled={disasterPage === totalDisasterPages}
+                >
+                  <i className="fa-solid fa-angle-right"></i>
+                </button>
+              </div>
+
             </div>
 
-          </div>
+          ) : (
+            <div className="step2">
+              {step === 2 && (
+                <>
+                  {step2Type === "addAffectedFamily" && <AddAffFam disBarangay={disBarangay} disCode={disCode} />}
+                  {step2Type === "editAffectedFamily" && <EditAffFam disBarangay={disBarangay} disCode={disCode} />}
+                  {step2Type === "confirmDamageCategory" && <ConAffFam disBarangay={disBarangay} disCode={disCode} />}
+                </>
+              )}
+            </div>
+          )
+
+
         ):(  
           <div className="disasters-visualizations">
 
             <div className="header-container">
               <h2 className="header-title">Visualizations</h2>
     
-              <div className="dis-filter">
-    
-                <div className="dis-filter-container">
-                  {/*dropdown for barangays*/}
-                  <label htmlFor="barangay">Select Barangay: </label>
-                  <select id="barangay" name="barangay" value={selectedBarangay} onChange={handleBarangayChange}>
-                  <option value="All">All</option>
-                    {barangays.map((barangay, index) => (
-                      <option key={index} value={barangay}>
-                        {barangay}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div className="dis-filter-container">
-                  {/*dropdown for years*/}
-                  <label htmlFor="year">Select Year: </label>
-                  <select id="year" name="year" value={selectedYear} onChange={handleYearChange}>
-                  <option value="All">All</option>
-                    {years.map((year, index) => (
-                      <option key={index} value={year}>
-                        {year}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-    
-              </div>
             </div>
   
             <div className="ch1">
@@ -412,6 +427,11 @@ useEffect(() => {
 
             <div className="ch2">
               <Piec barangay={selectedBarangay} year={selectedYear}/>
+              <PieChart barangay={selectedBarangay} year={selectedYear}/>
+
+            </div>
+
+            <div className="ch2">
 
               <Ling/>
             </div>
@@ -454,23 +474,6 @@ useEffect(() => {
           ? "Disaster Details" 
           : ""
       }>
-        {modalType === "addAffectedFamily" && (
-          <div>
-            <AddAffFam  disBarangay={disBarangay} disCode={disCode} closeModal={closeModal}/>
-          </div>
-        )}
-
-{       modalType === "editAffectedFamily" && (
-          <div>
-            <EditAffFam  disBarangay={disBarangay} disCode={disCode} closeModal={closeModal}/>
-          </div>
-        )}    
-
-        {modalType === "confirmDamageCategory" && (
-          <div>
-            <ConAffFam disBarangay={disBarangay} disCode={disCode} closeModal={closeModal}/>
-          </div>
-        )}
 
         {modalType === "viewmore" && (
           <form className="viewmore-form">
@@ -602,4 +605,4 @@ useEffect(() => {
   );
 };
 
-export default Dashboard;
+export default Disaster;

@@ -6,7 +6,7 @@ import Sidebar from "./components/Sidebar";
 import Navbar from "./components/Navbar";
 import Home from "./components/Home";
 import Residents from "./components/Residents";
-import Dashboard from "./components/Dashboard";
+import Disaster from "./components/Disaster";
 import Distribution from "./components/Distribution";
 import AddDisaster from "./components/Add-Disaster";
 import Reports from "./components/Reports";
@@ -67,7 +67,7 @@ function App() {
               <Route path="/login" element={<Login />} />
               {/*<Route path="/" element={<Navigate to="/home" />} />*/}
               <Route path="/home" element={<Home />} />
-              <Route path="/disaster" element={<Dashboard />} /> 
+              <Route path="/disaster" element={<Disaster setNavbarTitle={setNavbarTitle} />} /> 
               <Route path="/disaster/add-disaster" element={<AddDisaster />} />
               <Route path="/distribution" element={<Distribution setNavbarTitle={setNavbarTitle} />}>
                 <Route path="rds" element={<RDS/>} />
