@@ -340,17 +340,17 @@ const DAFAC= ({ activeResident, disasterData, setIsModalOpen, mode}) => {
                     </div>
 
                     <div className="form-row detail tulo">
-                      <div className="form-row col"> 
+                      <div className="form-row col name"> 
                       <input type="text" value={formData.lastName || ""} disabled={!!formData.lastName} />
                         <label>Surname </label>
                       </div>
 
-                      <div className="form-row col"> 
+                      <div className="form-row col name"> 
                       <input type="text" value={formData.firstName || ""}  disabled={!!formData.firstName} />
                         <label>First Name </label>
                       </div>
 
-                      <div className="form-row col"> 
+                      <div className="form-row col name"> 
                       <input type="text" value={formData.middleName || ""} disabled={!!formData.middleName} />
                         <label>Middle Name</label>
                       </div>
@@ -389,7 +389,7 @@ const DAFAC= ({ activeResident, disasterData, setIsModalOpen, mode}) => {
                         <label>Occupation</label>
                       </div>
 
-                      <div className="form-row col"> 
+                      <div className="form-row col mi"> 
                       <input type="number" min="0" step="0.01" value={formData.income || ""} disabled={!!formData.income} />
                         <label>Monthly Income</label>
                       </div>
@@ -596,13 +596,13 @@ const DAFAC= ({ activeResident, disasterData, setIsModalOpen, mode}) => {
                   <div className="signature-container">
                     
                     <input type="text" className="printed-name"  />
-                    <label>Name/Signature of Barangay Captain</label>
+                    <label>Name/Signature of Barangay Captain <br/> </label>
                   </div>
 
                   <div className="signature-container">
                     
-                    <input type="text" className="printed-name" s />
-                    <label>Name/Signature of Social Worker</label>
+                    <input type="text" className="printed-name" />
+                    <label>Name/Signature of Social Worker <br/> </label>
                   </div>
 
                 </div>

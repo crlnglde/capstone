@@ -61,8 +61,9 @@
     margin: 0;
   }
   
-  .subtitle {
+  .container .subtitle {
     font-size: 12px;
+    font-style: normal;
     color: gray;
   }
   

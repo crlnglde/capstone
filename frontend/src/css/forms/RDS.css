@@ -57,20 +57,20 @@
     margin: 5px 0;
   }
   
-  .title {
-    font-size: 1.2em;
+  .rds .title {
+    font-size: 1.1em;
     font-weight: bold;
   }
   
   .bold {
-    font-size: 1.5em;
+    font-size: 1.3em;
     font-weight: bold;
   }
   
   .italic-bold {
     font-style: italic;
     font-weight: bold;
-    font-size: 1.3em;
+    font-size: 1.1em;
   }
   
   .light {
@@ -87,7 +87,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    
+    font-size: 0.99em;
   }
 
   .rds-text{

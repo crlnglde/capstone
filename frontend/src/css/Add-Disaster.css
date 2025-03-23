@@ -191,6 +191,7 @@
     flex-wrap: wrap;
     gap: 0px;
     margin-bottom: 15px;
+    justify-content: space-between;
 }
 
 .barangay-button {
@@ -247,7 +248,7 @@
     border-radius: 8px;
     cursor: pointer;
     transition: background-color 0.3s ease;
-    width: 10%;
+    /*width: 10%;*/
     margin: 20px 0 0 0 ;
   }
 
@@ -272,7 +273,7 @@
 }
 
 /*Modal*/
-.modal-content {
+/*.modal-content {
     background: white;
     margin: 10px;
     width: 1200px;
@@ -283,7 +284,7 @@
     animation: fadeIn 0.3s ease;
     overflow-y: auto;
     left: 130px;
-}
+}*/
 
 /*answer modal*/
 

@@ -1,5 +1,5 @@
 .AddAffFam{
-    padding: 20px;
+    padding: 0px;
     flex: 1;
   }
     .dash-btn{
@@ -14,7 +14,7 @@
         background-color: white;
         border-collapse: collapse;
         height: 100%;
-        width: 1000px;
+
     }
 
         .afffam-residents-table{
