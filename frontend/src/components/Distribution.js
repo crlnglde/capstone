@@ -580,7 +580,7 @@ const validateFields = () => {
                           </div>
                         ))
                       ) : (
-                        <div>No distributions found.</div>
+                        <div>No Pending distributions found.</div>
                       )}
                     </div>
 

@@ -140,6 +140,50 @@ const BarGraph = ({ isBarGraph }) => {
     }
   };
 
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        labels: {
+          color: "#000000", // White legend text
+          font: {
+            size: 14,
+          },
+        },
+      },
+    },
+    scales: {
+      x: {
+        ticks: {
+          color: "#000000", // White X-axis labels
+          
+        },
+        grid: {
+          display: false, // Remove grid lines
+        },
+        barPercentage: 0.8, // Adjust bar width
+        categoryPercentage: 0.6, // Space between grouped bars
+      },
+      y: {
+        ticks: {
+          color: "#000000", // White Y-axis labels
+          callback: function (value) {
+            return Number.isInteger(value) ? value : ""; // ✅ Hide decimals, show whole numbers
+          },
+        },
+        grid: {
+          color: "rgba(255, 255, 255, 0.2)", // Light grid lines
+        },
+        beginAtZero: true,
+      },
+    },
+    animation: {
+      duration: 2000,
+      easing: "easeInOutQuart",
+    },
+  };
+
   return (
     <div className="bar-graph-container">
       <div className='bar'>
@@ -156,7 +200,7 @@ const BarGraph = ({ isBarGraph }) => {
         </div>
         <div className="bar-wrapper">
           {chartData ? (
-            <Bar data={chartData} options={{ responsive: true, maintainAspectRatio: false }} />
+            <Bar data={chartData} options={chartOptions} />
           ) : (
             <p>No distribution data available for this disaster.</p>
           )}
