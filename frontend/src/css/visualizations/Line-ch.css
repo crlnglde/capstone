@@ -1,0 +1,37 @@
+.line-graph-container {
+  width: 100%;
+  background: #fff;
+
+  border-radius: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.filter-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 20px 20px 0 20px;
+}
+
+.filters {
+  display: flex;
+  gap: 15px;
+}
+
+.graph-container {
+  height: 400px;
+  padding: 0 20px 0px 20px;
+
+}
+
+.insights {
+  background: #0A195E;
+  color: white;
+  padding: 15px;
+  border-radius: 10px;
+  margin-top: 15px;
+}
+
+
+

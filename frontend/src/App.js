@@ -22,6 +22,7 @@ import Loading from "./components/again/Loading";
 import { motion } from "framer-motion";
 import "./App.css";
 import Minlogo from "./pic/logo-min.png";
+import ProtectedRoute from "./ProtectedRoute";
 
 function App() {
   const [isSidebarMinimized, setIsSidebarMinimized] = useState(() => {
@@ -47,18 +48,29 @@ function App() {
 
       <ToastContextProvider>
         <Router>
+
+
+        {loading && (
+            <div className="full-page-loading">
+              <Loading />
+            </div>
+          )}
+
+
           <ConditionalLayout 
             isSidebarMinimized={isSidebarMinimized} 
             setIsSidebarMinimized={setIsSidebarMinimized} // Pass the setter here
             navbarTitle={navbarTitle} 
+            setLoading={setLoading}
           >
             <Routes>
-              <Route path="/" element={<Login />} />
+              {/*<Route path="/" element={<Login />} />
               <Route path="/login" element={<Login />} />
-              {/*<Route path="/" element={<Navigate to="/home" />} />*/}
+              {/*<Route path="/" element={<Navigate to="/home" />} />
               <Route path="/home" element={<Home />} />
               <Route path="/disaster" element={<Disaster setNavbarTitle={setNavbarTitle} />} /> 
               <Route path="/disaster/add-disaster" element={<AddDisaster />} />
+
               <Route path="/distribution" element={<Distribution setNavbarTitle={setNavbarTitle} />}>
                 <Route path="rds" element={<RDS/>} />
                 <Route path="edit-rds" element={<EditRDS/>} />
@@ -71,8 +83,36 @@ function App() {
               <Route path="/rds" element={<RDS />} />
               <Route path="/dafac" element={<DAFAC />} />
               <Route path="/sporadic" element={<SPORADIC />} />
+              <Route path="/fdr" element={<FDR />} />*/}
+           
+
+
+            <Route path="/" element={<Login />} />
+            <Route path="/login" element={<Login />} />
+
+            <Route element={<ProtectedRoute allowedRoles={["admin", "user"]} />}>
+                <Route path="/home" element={<Home />} />
+                <Route path="/disaster" element={<Disaster setNavbarTitle={setNavbarTitle} />} />
+                <Route path="/disaster/add-disaster" element={<AddDisaster />} />
+                <Route path="/residents" element={<Residents />} />
+            </Route>
+
+            <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
+              
+              <Route path="/distribution" element={<Distribution setNavbarTitle={setNavbarTitle} />}>
+                <Route path="rds" element={<RDS/>} />
+                <Route path="edit-rds" element={<EditRDS/>} />
+                <Route path="view-rds" element={<ViewRDS/>} />
+              </Route>
+
+              <Route path="/rds" element={<RDS />} />
+              <Route path="/dafac" element={<DAFAC />} />
+              <Route path="/sporadic" element={<SPORADIC />} />
               <Route path="/fdr" element={<FDR />} />
-            </Routes>
+              <Route path="/reports" element={<Reports />} />
+          ``</Route>
+          </Routes>
+
           </ConditionalLayout>
         </Router>
       </ToastContextProvider>
@@ -80,7 +120,7 @@ function App() {
   );
 }
 
-function ConditionalLayout({ isSidebarMinimized, setIsSidebarMinimized,  navbarTitle, children }) {
+function ConditionalLayout({ isSidebarMinimized, setIsSidebarMinimized,  navbarTitle, setLoading, children }) {
   const location = useLocation();
 
   // Check if the current route is the Landing page
@@ -93,6 +133,7 @@ function ConditionalLayout({ isSidebarMinimized, setIsSidebarMinimized,  navbarT
           <Sidebar
             isMinimized={isSidebarMinimized}
             setIsMinimized={setIsSidebarMinimized}
+            setLoading={setLoading}
           />
           <div className={`main-content ${isSidebarMinimized ? "adjusted" : ""}`}>
             <Navbar isSidebarMinimized={isSidebarMinimized} customTitle={navbarTitle} />
