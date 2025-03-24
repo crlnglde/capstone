@@ -5,6 +5,8 @@ import axios from "axios";
 import "../css/Add-Disaster.css";
 import DstrGif from "../pic/disaster.gif"
 import DAFAC from "./forms/DAFAC";
+import Loading from "./again/Loading";
+import Notification from "./again/Notif";
 
 const disasterTypeMapping = {
     "Typhoon": "D1",
@@ -45,6 +47,9 @@ const AddDisaster = () => {
     const [currentPage, setCurrentPage] = useState(1); // State for current page
     const rowsPerPage = 10;
     const totalPages = Math.ceil(residents.length / rowsPerPage);
+
+    const [loading, setLoading] = useState(false);
+    const [notification, setNotification] = useState(null); 
 
     //new
     const generateDisasterCode = (type, date) => {
@@ -318,10 +323,12 @@ const AddDisaster = () => {
         const residentData = JSON.parse(localStorage.getItem("savedForms")) || [];
    
         if (!disasterData || residentData.length === 0) {
-            alert("No data found in localStorage to save.");
+            setNotification({ type: "error", title: "Error", message: "No data found in localStorage to save." });
+            setTimeout(() => setNotification(null), 3000);
             return;
         }
-   
+        setLoading(true);
+
         try {
             const { disasterCode, disasterStatus, disasterType, date } = disasterData;
             
@@ -395,7 +402,9 @@ const AddDisaster = () => {
                 });
     
                 if (!updateResponse.ok) throw new Error("Failed to update disaster data.");
-                alert("Disaster data updated successfully!");
+
+                setNotification({ type: "success", title: "Success", message: "Disaster data updated successfully!" });
+
             } else {
 
                 console.log("haha")
@@ -415,14 +424,23 @@ const AddDisaster = () => {
                 });
     
                 if (!createResponse.ok) throw new Error("Failed to save data.");
-                alert("New disaster record created successfully!");
+                setNotification({ type: "success", title: "Success", message: "New disaster record created successfully!" });
             }
     
             localStorage.removeItem("savedForms");
             localStorage.removeItem("disasterData");
-            navigate("/disaster");
+
+            setTimeout(() => {
+                setNotification(null);
+                setLoading(false); 
+                navigate("/disaster");
+            }, 3000); 
+
         } catch (error) {
-            alert("An error occurred while saving data. Please try again.");
+            setNotification({ type: "error", title: "Error Occurred", message: error.message || "An error occurred while saving data. Please try again."});
+            setTimeout(() => setNotification(null), 3000);
+        } finally {
+            setLoading(false);
         }
     };    
 
@@ -715,10 +733,16 @@ const AddDisaster = () => {
         localStorage.setItem("residentData", JSON.stringify(updatedData));
    
         console.log("Updated family data:", updatedData);
-        alert("Family information saved successfully!");
+        setNotification({
+            type: "success",
+            title: "Success",
+            message: "Family information saved successfully!",
+        });
    
-        // Optional: Reset the form or close the modal
-        handleCloseModal();
+        setTimeout(() => {
+            setNotification(null);
+            handleCloseModal(); // Close the modal (if defined)
+        }, 3000);
     };
    
     //new
@@ -732,6 +756,18 @@ const AddDisaster = () => {
 
   return (
     <div className="dstr-dashboard">
+
+    {loading && <Loading />}  {/* Show loading spinner */}
+      
+      {notification && (
+        <Notification
+          type={notification.type}
+          title={notification.title}
+          message={notification.message}
+          onClose={() => setNotification(null)}  // Close notification when user clicks ✖
+        />
+      )}
+
 
         <div className="dash-btn">
 

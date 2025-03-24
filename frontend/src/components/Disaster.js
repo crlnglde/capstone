@@ -97,6 +97,9 @@ const Disaster = ({ setNavbarTitle }) => {
     setDisBarangay(disBarangay);
 };
 
+const closeModal = () => {
+  setIsModalOpen(false); // Close modal
+};
 
   
   const handleViewMore = (disaster) => {
@@ -104,8 +107,6 @@ const Disaster = ({ setNavbarTitle }) => {
     setSelectedDisaster(disaster); 
     setIsModalOpen(true); 
   };
-
-  const closeModal = () => setIsModalOpen(false);
 
   const handleBackClick = () => {
     if (step > 1) {
@@ -416,9 +417,9 @@ useEffect(() => {
             <div className="step2">
               {step === 2 && (
                 <>
-                  {step2Type === "addAffectedFamily" && <AddAffFam disBarangay={disBarangay} disCode={disCode} />}
-                  {step2Type === "editAffectedFamily" && <EditAffFam disBarangay={disBarangay} disCode={disCode} />}
-                  {step2Type === "confirmDamageCategory" && <ConAffFam disBarangay={disBarangay} disCode={disCode} />}
+                  {step2Type === "addAffectedFamily" && <AddAffFam disBarangay={disBarangay} disCode={disCode}  setStep={setStep}/>}
+                  {step2Type === "editAffectedFamily" && <EditAffFam disBarangay={disBarangay} disCode={disCode} setStep={setStep}/>}
+                  {step2Type === "confirmDamageCategory" && <ConAffFam disBarangay={disBarangay} disCode={disCode} setStep={setStep}/>}
                 </>
               )}
             </div>
@@ -476,13 +477,7 @@ useEffect(() => {
     */}
 
       <Modal isOpen={isModalOpen} onClose={closeModal} title={
-        modalType === "addAffectedFamily" 
-          ? "Add Affected Family" 
-          : modalType === "editAffectedFamily" 
-          ?"Edit Affected Family"
-          : modalType === "confirmDamageCategory" 
-          ? "Confirm Damage Category" 
-          : modalType === "viewmore" 
+          modalType === "viewmore" 
           ? "Disaster Details" 
           : ""
       }>

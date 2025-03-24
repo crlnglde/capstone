@@ -6,10 +6,12 @@ import moment from "moment";
 import "../../css/reusable/AffFam.css";
 import DAFAC from "../forms/DAFAC";
 import Modal from "../Modal";
+import Loading from "../again/Loading";
+import Notification from "../again/Notif";
 
 
-const AddAffFam = ({disBarangay, disCode, closeModal}) => {
-const [step, setStep] = useState(1);
+const AddAffFam = ({disBarangay, disCode, setStep}) => {
+
     const navigate = useNavigate();  
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -43,16 +45,12 @@ const [step, setStep] = useState(1);
 
     const [searchQuery, setSearchQuery] = useState("");
 
-    
-    const handleBackClick = () => {
+    const [loading, setLoading] = useState(false);
+    const [notification, setNotification] = useState(null); 
 
-        if (step > 1) {
-            setStep(step - 1);
-            navigate("/disaster"); 
-        } else {
-            navigate(-1);  
-        }
-    };
+       const closeModal = () => {
+            setIsModalOpen(false); // Close modal
+          };
 
         const handleResidentSelect = (resident) => {
             setActiveResident(resident); // Set the active resident
@@ -84,21 +82,7 @@ const [step, setStep] = useState(1);
                 return true;
             }
         };
-    
-    
-        const handleNextClick = (e) => {
-            e.preventDefault();
-               
-            // On first click, set isSubmitted to true to trigger validation
-            setHasClickedNext(true);
-    
-            // Check if all required fields are filled
-            const isValid = validateFields();
-    
-            if (isValid) {
-                setStep(2);
-            }
-        };
+
     
     
         const handleDateChange = (e) => {
@@ -233,11 +217,14 @@ const [step, setStep] = useState(1);
             const residentData = JSON.parse(localStorage.getItem("savedForms")) || [];
         
             if (!disasterData || residentData.length === 0) {
-                alert("No data found in localStorage to save.");
+                setNotification({ type: "error", title: "Error", message: "No data found in localStorage to save." });
                 return;
             }
-        
+            setLoading(true); 
+
             try {
+                await new Promise((resolve) => setTimeout(resolve, 2000));
+
                 const { disasterCode } = disasterData;
         
                 // Group resident data by barangay
@@ -275,20 +262,55 @@ const [step, setStep] = useState(1);
                     });
         
                     if (!updateResponse.ok) throw new Error("Failed to update disaster data.");
-                    alert("Affected families updated successfully!");
+
+                    setNotification({ type: "success", title: "Success", message: "Affected families updated successfully!" });
                     localStorage.removeItem("savedForms");
                     localStorage.removeItem("disasterData");
-
-                    if (typeof closeModal === "function") {
-                        closeModal(); // Close modal on successful submission
-                    }
+                    
+                    setTimeout(() => {
+                        setNotification(null);
+                        setStep(1); // Redirect to step 1
+                        setLoading(false); // Stop loading
+                    }, 2000); 
+                    
                 } else {
-                    alert("Disaster not found!");
+                    let errorTitle = "Error";
+                    let errorMessage = "An error occurred while saving data. Please try again.";
+                  
+                    if (!error.response) {
+                      errorTitle = "Network Error";
+                      errorMessage = "Please check your internet connection and try again.";
+                    } else if (error.response.status === 400) {
+                      errorTitle = "Invalid Data";
+                      errorMessage = "There is an issue with the provided data. Please check and try again.";
+                    } else if (error.response.status === 401 || error.response.status === 403) {
+                      errorTitle = "Unauthorized Access";
+                      errorMessage = "You do not have permission to perform this action.";
+                    } else if (error.response.status === 500) {
+                      errorTitle = "Server Error";
+                      errorMessage = "An error occurred on the server. Please try again later.";
+                    } else if (error.message.includes("Failed to update disaster data")) {
+                      errorTitle = "Update Failed";
+                      errorMessage = "An error occurred while updating the disaster data. Please try again.";
+                    }
+                  
+                    setNotification({ 
+                      type: "error", 
+                      title: errorTitle, 
+                      message: errorMessage 
+                    });
+                  
+                      setTimeout(() => {
+                        setNotification(null);
+                        setLoading(false); 
+                      }, 3000);
                 }
             } catch (error) {
-                alert("An error occurred while saving data. Please try again.");
-            }finally{
-               
+                setNotification({ type: "error", title: "Error", message: "An error occurred while saving data. Please try again." });
+                setTimeout(() => {
+                    setNotification(null);
+                    setLoading(false);
+                }, 2000);
             }
         };
 
@@ -348,6 +370,17 @@ const [step, setStep] = useState(1);
     <div className="AddAffFam">
 
       <div className="AddAffFam-container">
+      
+      {loading && <Loading />}  {/* Show loading spinner */}
+      
+      {notification && (
+        <Notification
+          type={notification.type}
+          title={notification.title}
+          message={notification.message}
+          onClose={() => setNotification(null)}  // Close notification when user clicks ✖
+        />
+      )}
 
         <div className="afffam-residents-table">
 

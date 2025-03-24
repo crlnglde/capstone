@@ -9,12 +9,18 @@ import ICImage from '../../pic/IC.png';
 import cswdImage from '../../pic/cswd.jpg';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
+import Loading from "../again/Loading";
+import Notification from "../again/Notif";
+
 const DAFAC= ({ activeResident, disasterData, setIsModalOpen, mode}) => {
   const formRef = useRef(null);
 
   console.log("Active Resident", activeResident)
   console.log("DisasterData", disasterData)
   const [currentDate, setCurrentDate] = useState("");
+
+      const [loading, setLoading] = useState(false);
+      const [notification, setNotification] = useState(null); 
   
   const [formData, setFormData] = useState({
     firstName: "",
@@ -195,10 +201,24 @@ const DAFAC= ({ activeResident, disasterData, setIsModalOpen, mode}) => {
     localStorage.setItem("savedForms", JSON.stringify(savedData));
   
     try {
+      setLoading(true);
+
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
       if (!formRef.current) {
-        alert("Form reference is not available.");
+        setNotification({
+          type: "error",
+          title: "Form Error",
+          message: "Form reference is not available.",
+        });
+      
+        setTimeout(() => {
+          setNotification(null);
+        }, 3000);
+      
         return;
       }
+      
   
       // Convert form to canvas
       const canvas = await html2canvas(formRef.current, {
@@ -218,11 +238,47 @@ const DAFAC= ({ activeResident, disasterData, setIsModalOpen, mode}) => {
       console.log("Saving PDF...");
       pdf.save("DAFAC_Form.pdf"); // Trigger download
   
-      alert("Form data saved successfully!");
-      setIsModalOpen(false);
-    } catch (error) {
+      setNotification({ type: "success", title: "Success", message: "Form data saved successfully" });
+
+
+      setTimeout(() => {
+        setIsModalOpen(false);  
+      }, 2000);
+    }catch (error) {
       console.error("Error generating PDF:", error);
-      alert("An error occurred while generating the PDF.");
+    
+      let errorTitle = "Error";
+      let errorMessage = "An error occurred while generating the PDF. Please try again.";
+    
+      if (!error.response) {
+        errorTitle = "Network Error";
+        errorMessage = "Please check your internet connection and try again.";
+      } else if (error.response.status === 400) {
+        errorTitle = "Invalid Data";
+        errorMessage = "There is an issue with the provided data. Please check and try again.";
+      } else if (error.response.status === 401 || error.response.status === 403) {
+        errorTitle = "Unauthorized Access";
+        errorMessage = "You do not have permission to perform this action.";
+      } else if (error.response.status === 500) {
+        errorTitle = "Server Error";
+        errorMessage = "An error occurred on the server. Please try again later.";
+      } else if (error.message.includes("Failed to update disaster data")) {
+        errorTitle = "Update Failed";
+        errorMessage = "An error occurred while updating the disaster data. Please try again.";
+      }
+    
+      setNotification({ 
+        type: "error", 
+        title: errorTitle, 
+        message: errorMessage 
+      });
+    
+      setTimeout(() => {
+        setNotification(null);
+      }, 3000);
+    }
+    finally {
+      setLoading(false); // Hide loading state
     }
   };
 
@@ -258,6 +314,10 @@ const DAFAC= ({ activeResident, disasterData, setIsModalOpen, mode}) => {
     
         
         <div className="form-container">
+
+        {loading && <Loading />}
+        {notification && <Notification type={notification.type} title={notification.title} message={notification.message} />}
+
             <form className="relief-form">
 
               <div className="upper-area">

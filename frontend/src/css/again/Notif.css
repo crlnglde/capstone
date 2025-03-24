@@ -9,14 +9,14 @@
     top: 20px;
     right: 20px;
     width: auto;
-    z-index: 1000;
+    z-index: 1001 !important;
     border-top: 6px solid;
     gap: 15px;
 }
 
 /* Success styles */
 .notification.success {
-    border-color: #2ecc71;
+    border-color: #1d5ebe;
 }
 
 /* Error styles */
@@ -38,7 +38,7 @@
 
 /* Success badge */
 .badge.success {
-    background: #2ecc71;
+    background: #126ab3;
 }
 
 /* Error badge */
