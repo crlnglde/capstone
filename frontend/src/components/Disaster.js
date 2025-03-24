@@ -39,6 +39,23 @@ const Disaster = ({ setNavbarTitle }) => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [isViewMode, setIsViewMode] = useState(false);
 
+
+  //para daw ni sa auth role and all
+  const [role, setRole] = useState(null);
+
+    useEffect(() => {
+      const token = localStorage.getItem("token");
+      const userRole = localStorage.getItem("role");
+
+      if (!token) {
+          navigate("/");
+      } else {
+          setRole(userRole);
+      }
+  }, [navigate]);
+
+
+
   useEffect(() => {
     let title = `Disaster > ${activeTab === "list" ? "List" : "Visualization"}`;
 
@@ -438,16 +455,16 @@ useEffect(() => {
               <Map barangay={selectedBarangay} year={selectedYear}/>
             </div>
 
-            <div className="ch2">
-              <Piec barangay={selectedBarangay} year={selectedYear}/>
-              <PieChart barangay={selectedBarangay} year={selectedYear}/>
+                <div className="ch2">
+                  <Piec barangay={selectedBarangay} year={selectedYear}/>
+                  <PieChart barangay={selectedBarangay} year={selectedYear}/>
 
-            </div>
+                </div>
 
-            <div className="ch2">
+                <div className="ch2">
 
-              <Ling/>
-            </div>
+                  <Ling/>
+                </div>
 
           </div>
 

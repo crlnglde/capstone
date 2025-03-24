@@ -14,6 +14,10 @@ const Login = () => {
     const [userName, setUserName]= useState('');
     const [password, setUserPassword]= useState('');
 
+    const [loading, setLoading] = useState(false);
+    const [notification, setNotification] = useState(null); 
+
+
       useEffect(() => {
         const token = localStorage.getItem("token");
         if (token) {
@@ -24,33 +28,63 @@ const Login = () => {
       const togglePasswordVisibility = () => {
         setShowPassword((prevShowPassword) => !prevShowPassword);
       };
-
+      
       const handleLogin = async (e) => {
         e.preventDefault();
+        setLoading(true);
+
         try {
-          const userdata = {
-            username: userName.trim(),
-            password: password.trim(),
-          };
-      
-          const response = await axios.post("http://localhost:3003/login", userdata);
-      
-          // Store the token in localStorage
-          localStorage.setItem("token", response.data.token);
-      
-          // Navigate to home after successful login
-          navigate("/home");
+            const userdata = {
+                username: userName.trim(),
+                password: password.trim(),
+            };
+    
+            const response = await axios.post("http://localhost:3003/login", userdata);
+    
+            console.log("Login Response:", response.data); // Debug API response
+    
+            if (response.data.token && response.data.user.role) {
+                localStorage.setItem("token", response.data.token);
+                localStorage.setItem("role", response.data.user.role);
+                localStorage.setItem("username", response.data.user.username); 
+    
+                console.log("Stored Role:", localStorage.getItem("role")); // Verify it's stored correctly
+                
+                setNotification({ 
+                  type: "success", 
+                  title: "Login Successful", 
+                  message: "Welcome hehe!" 
+              });
+
+
+              setTimeout(() => {
+                setNotification(null);
+                setLoading(false); 
+                navigate("/home");
+              }, 1000);
+            } else {
+                console.error("Missing token or role in response");
+                setNotification({
+                  type: "error",
+                  title: "Login Failed",
+                  message: "Unexpected response from server. Please try again.",
+              });
+            }
         } catch (error) {
-          console.error("Error logging in:", error);
-      
-          // Handle incorrect credentials
-          if (error.response && error.response.status === 400) {
-            alert("Invalid username or password.");
-          } else {
-            alert("Failed to login. Please try again later.");
-          }
+            console.error("Error logging in:", error);
+            setNotification({
+                type: "error",
+                title: "Login Failed",
+                message: "Invalid credentials. Please try again.",
+            });
+
+            setTimeout(() => {
+              setNotification(null);
+              setLoading(false);
+          }, 500);
         }
-      };      
+    };
+    
 
     return (
       <div className="login">
@@ -126,6 +160,18 @@ const Login = () => {
           </motion.div>
         </motion.div>
         </div>
+
+        {loading && <Loading />} {/* Show loading spinner */}
+
+        {notification && (
+            <Notification
+                type={notification.type}
+                title={notification.title}
+                message={notification.message}
+                onClose={() => setNotification(null)} // Close notification
+            />
+        )}
+
       </div>
     );
   };
