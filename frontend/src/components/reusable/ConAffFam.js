@@ -6,9 +6,10 @@ import moment from "moment";
 import Modal from "../Modal";
 import DAFAC from "../forms/DAFAC";
 import "../../css/reusable/AffFam.css";
+import Loading from "../again/Loading";
+import Notification from "../again/Notif";
 
-
-const ConAffFam = ({disBarangay, disCode, closeModal}) => {
+const ConAffFam = ({disBarangay, disCode, handleStepChange}) => {
 const [step, setStep] = useState(1);
     const navigate = useNavigate();  
 
@@ -42,6 +43,9 @@ const [step, setStep] = useState(1);
     const [activeResident, setActiveResident] = useState(null);
     const [refresh, setRefresh] = useState(false);
 
+    const [loading, setLoading] = useState(false);
+    const [notification, setNotification] = useState(null); 
+
     const handleBackClick = () => {
 
         if (step > 1) {
@@ -62,6 +66,10 @@ const [step, setStep] = useState(1);
             setModalType(type);
             setIsModalOpen(true);
         };
+
+        const closeModal = () => {
+            setIsModalOpen(false); // Close modal
+          };
     
         const validateFields = () => {
             const missingFields = [];
@@ -220,11 +228,40 @@ const [step, setStep] = useState(1);
                 const response = await axios.put(
                     `http://localhost:3003/update-dafac-status/${disCode}/${disBarangay}/${familyId}`
                 );
-                alert(response.data.message);
+
+                setNotification({
+                    type: "success",
+                    title: "Success",
+                    message: response.data.message || "DAFAC status confirmed successfully!",
+                  });
+
                 setRefresh((prev) => !prev); 
-            } catch (error) {
+            }catch (error) {
                 console.error("Error confirming DAFAC status:", error);
-                alert("Failed to confirm DAFAC status");
+
+                let errorTitle = "Error";
+                let errorMessage = "Failed to confirm DAFAC status. Please try again.";
+
+                if (!error.response) {
+                errorTitle = "Network Error";
+                errorMessage = "Please check your internet connection and try again.";
+                } else if (error.response.status === 400) {
+                errorTitle = "Invalid Request";
+                errorMessage = "The request was invalid. Please check the data and try again.";
+                } else if (error.response.status === 401 || error.response.status === 403) {
+                errorTitle = "Unauthorized";
+                errorMessage = "You do not have permission to perform this action.";
+                } else if (error.response.status === 500) {
+                errorTitle = "Server Error";
+                errorMessage = "A server error occurred. Please try again later.";
+                }
+
+                setNotification({ type: "error", title: errorTitle, message: errorMessage });
+            } finally {
+                setTimeout(() => {
+                setNotification(null); // Hide notification after 3 seconds
+                }, 3000);
+                setIsLoading(false); // Stop loading
             }
         };
 
@@ -272,6 +309,17 @@ const [step, setStep] = useState(1);
     <div className="AddAffFam">
 
       <div className="AddAffFam-container">
+
+      {loading && <Loading />}  {/* Show loading spinner */}
+      
+      {notification && (
+        <Notification
+          type={notification.type}
+          title={notification.title}
+          message={notification.message}
+          onClose={() => setNotification(null)}  // Close notification when user clicks ✖
+        />
+      )}
 
         <div className="afffam-residents-table">
           

@@ -6,9 +6,11 @@ import moment from "moment";
 import Modal from "../Modal";
 import DAFAC from "../forms/DAFAC";
 import "../../css/reusable/AffFam.css";
+import Loading from "../again/Loading";
+import Notification from "../again/Notif";
 
-const EditAffFam = ({disBarangay, disCode, closeModal}) => {
-const [step, setStep] = useState(1);
+const EditAffFam = ({disBarangay, disCode, setStep}) => {
+
     const navigate = useNavigate();  
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -40,15 +42,8 @@ const [step, setStep] = useState(1);
 
     const [activeResident, setActiveResident] = useState(null);
 
-    const handleBackClick = () => {
-
-        if (step > 1) {
-            setStep(step - 1);
-            navigate("/disaster"); 
-        } else {
-            navigate(-1);  
-        }
-    };
+    const [loading, setLoading] = useState(false);
+    const [notification, setNotification] = useState(null); 
 
         const handleResidentSelect = (resident) => {
             setActiveResident(resident); // Set the active resident
@@ -59,6 +54,10 @@ const [step, setStep] = useState(1);
             setModalType(type);
             setIsModalOpen(true);
         };
+
+        const closeModal = () => {
+            setIsModalOpen(false); // Close modal
+          };
     
         const validateFields = () => {
             const missingFields = [];
@@ -78,28 +77,6 @@ const [step, setStep] = useState(1);
             }
         };
     
-    
-        const handleNextClick = (e) => {
-            e.preventDefault();
-               
-            // On first click, set isSubmitted to true to trigger validation
-            setHasClickedNext(true);
-    
-            // Check if all required fields are filled
-            const isValid = validateFields();
-    
-            if (isValid) {
-                setStep(2);
-            }
-        };
-    
-    
-        const handleDateChange = (e) => {
-            setDate(e.target.value);
-            if (hasClickedNext) {
-                validateFields();
-            }
-        };
     
     // Load saved selections from localStorage on component mount
         //modified
@@ -197,7 +174,7 @@ const [step, setStep] = useState(1);
         
                     // Set affected families from the selected barangay
                     setResidents(barangay.affectedFamilies || []);
-        
+
                 } catch (err) {
                     console.error("Error fetching residents:", err);
                     setError("Failed to fetch residents. Please try again.");
@@ -218,11 +195,23 @@ const [step, setStep] = useState(1);
             console.log("saved forms", residentData)
         
             if (!disasterData || residentData.length === 0) {
-                alert("No data found in localStorage to save.");
+                setNotification({ 
+                    type: "error", 
+                    title: "Error", 
+                    message: "No data found in localStorage to save." 
+                });
+
+                setTimeout(() => {
+                    setNotification(null);
+                }, 3000); 
+
                 return;
             }
-        
+            setLoading(true); 
+
             try {
+                await new Promise((resolve) => setTimeout(resolve, 2000));
+
                 // Fetch existing disaster data
                 const checkResponse = await fetch(`http://localhost:3003/get-disaster/${disasterCode}`);
                 const existingDisaster = await checkResponse.json();
@@ -280,21 +269,62 @@ const [step, setStep] = useState(1);
                     console.log("Update Response:", await updateResponse.json());
             
                     if (!updateResponse.ok) throw new Error("Failed to update disaster data.");
-            
-                    alert("Affected families updated successfully!");
+                    setNotification({ type: "success", title: "Success", message: "Affected families updated successfully!" });
+                  
                     localStorage.removeItem("savedForms");
                     localStorage.removeItem("disasterData");
 
-                    if (typeof closeModal === "function") {
-                        closeModal(); // Close modal on successful submission
-                    }
+                    setTimeout(() => {
+                        setNotification(null);
+                        setStep(1); // Redirect to step 1
+                        setLoading(false); // Stop loading
+                    }, 2000); 
                 } else {
-                    alert("Disaster not found!");
+                    setNotification({ 
+                      type: "error", 
+                      title: "Not Found", 
+                      message: "Disaster not found!" 
+                    });
+                  
+                    setTimeout(() => {
+                      setNotification(null);
+                      setLoading(false); 
+                    }, 3000);
                 }
             } catch (error) {
                 console.error("Error:", error);
-                alert("An error occurred while saving data. Please try again.");
-            }            
+              
+                let errorTitle = "Error";
+                let errorMessage = "An error occurred while saving data. Please try again.";
+              
+                if (!error.response) {
+                  errorTitle = "Network Error";
+                  errorMessage = "Please check your internet connection and try again.";
+                } else if (error.response.status === 400) {
+                  errorTitle = "Invalid Data";
+                  errorMessage = "There is an issue with the provided data. Please check and try again.";
+                } else if (error.response.status === 401 || error.response.status === 403) {
+                  errorTitle = "Unauthorized Access";
+                  errorMessage = "You do not have permission to perform this action.";
+                } else if (error.response.status === 500) {
+                  errorTitle = "Server Error";
+                  errorMessage = "An error occurred on the server. Please try again later.";
+                } else if (error.message.includes("Failed to update disaster data")) {
+                  errorTitle = "Update Failed";
+                  errorMessage = "An error occurred while updating the disaster data. Please try again.";
+                }
+              
+                setNotification({ 
+                  type: "error", 
+                  title: errorTitle, 
+                  message: errorMessage 
+                });
+              
+                setTimeout(() => {
+                    setNotification(null);
+                    setLoading(false);
+                }, 2000);
+            }               
         };        
 
 
@@ -342,6 +372,17 @@ const [step, setStep] = useState(1);
     <div className="AddAffFam">
 
       <div className="AddAffFam-container">
+
+      {loading && <Loading />}  {/* Show loading spinner */}
+      
+      {notification && (
+        <Notification
+          type={notification.type}
+          title={notification.title}
+          message={notification.message}
+          onClose={() => setNotification(null)}  // Close notification when user clicks ✖
+        />
+      )}
 
         <div className="afffam-residents-table">
 
