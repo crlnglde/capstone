@@ -42,7 +42,7 @@ const LineGraph = () => {
     const chartData = useMemo(() => {
         const barangayData = {};
         lastFiveYears.forEach(year => barangayData[year] = {});
-        
+
         disasters.forEach(disaster => {
             if (selectedDisaster && disaster.disasterType !== selectedDisaster) return;
             const year = new Date(disaster.disasterDateTime).getFullYear();
@@ -65,28 +65,72 @@ const LineGraph = () => {
             fill: false
         }));
 
-        return { labels: lastFiveYears, datasets };
+        return { labels: lastFiveYears, datasets, barangayData };
+    }, [disasters, selectedDisaster, selectedBarangays]);
+
+    // Generate Dynamic Insights
+    const disasterInsights = useMemo(() => {
+        let totalOccurrences = 0;
+        let mostAffectedBarangay = "";
+        let mostAffectedCount = 0;
+        let yearWithMostDisasters = "";
+        let highestYearlyCount = 0;
+
+        const barangayOccurrences = {};
+        const yearlyOccurrences = {};
+
+        disasters.forEach(disaster => {
+            if (selectedDisaster && disaster.disasterType !== selectedDisaster) return;
+            const year = new Date(disaster.disasterDateTime).getFullYear();
+            if (!lastFiveYears.includes(year)) return;
+
+            yearlyOccurrences[year] = (yearlyOccurrences[year] || 0) + 1;
+            disaster.barangays.forEach(({ name }) => {
+                if (selectedBarangays.length === 0 || selectedBarangays.some(b => b.value === name)) {
+                    barangayOccurrences[name] = (barangayOccurrences[name] || 0) + 1;
+                    totalOccurrences += 1;
+                }
+            });
+        });
+
+        // Find most affected barangay
+        Object.entries(barangayOccurrences).forEach(([barangay, count]) => {
+            if (count > mostAffectedCount) {
+                mostAffectedCount = count;
+                mostAffectedBarangay = barangay;
+            }
+        });
+
+        // Find the year with the most disasters
+        Object.entries(yearlyOccurrences).forEach(([year, count]) => {
+            if (count > highestYearlyCount) {
+                highestYearlyCount = count;
+                yearWithMostDisasters = year;
+            }
+        });
+
+        return {
+            totalOccurrences,
+            mostAffectedBarangay,
+            mostAffectedCount,
+            yearWithMostDisasters
+        };
     }, [disasters, selectedDisaster, selectedBarangays]);
 
     return (
         <div className="bar-graph-container">
-
             <div className='bar'>
-
                 <div className="bar-filter">
                     <h2>Disaster Occurrences</h2>
 
                     <div className="filters-right">
                         <div className="bar-filter-container">
-                            {/* Disaster Type Dropdown */}
-
                             <select value={selectedDisaster} onChange={(e) => setSelectedDisaster(e.target.value)}>
                                 <option value="">All</option>
                                 {disasterTypes.map(type => (
                                     <option key={type} value={type}>{type}</option>
                                 ))}
                             </select>
-       
                         </div>
 
                         <div className="bar-filter-container">
@@ -97,21 +141,31 @@ const LineGraph = () => {
                                 onChange={setSelectedBarangays}
                                 placeholder="Select barangays..."
                             />
-                                    
                         </div>
                     </div>
                 </div>
-    
+
                 <div className="bar-wrapper">
-                {/* Render Line Graph */}
-           
                     {chartData && chartData.datasets.length > 0 ? (
                         <Line data={chartData} options={{ responsive: true, maintainAspectRatio: false }} />
                     ) : (
                         <p>No data available for the selected criteria.</p>
                     )}
-
                 </div>
+            </div>
+
+            {/* Dynamic Insights */}
+            <div className="pie-text-overlay">
+                <h2>Disaster Insights</h2>
+                {disasterInsights.totalOccurrences === 0 ? (
+                    <p>No disaster data available.</p>
+                ) : (
+                    <div>
+                        <p><strong>Total occurrences:</strong> {disasterInsights.totalOccurrences}</p>
+                        <p><strong>Most affected barangay:</strong> {disasterInsights.mostAffectedBarangay} ({disasterInsights.mostAffectedCount} occurrences)</p>
+                        <p><strong>Year with highest disasters:</strong> {disasterInsights.yearWithMostDisasters}</p>
+                    </div>
+                )}
             </div>
         </div>
     );
