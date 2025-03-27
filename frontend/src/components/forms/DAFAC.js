@@ -186,7 +186,7 @@ const DAFAC= ({ activeResident, disasterData, setIsModalOpen, mode}) => {
   };
   
 
-  const handleSave = async (event) => {
+ /* const handleSave = async (event) => {
     if (event) event.preventDefault(); // Prevent form refresh
   
     const savedData = JSON.parse(localStorage.getItem("savedForms")) || [];
@@ -215,11 +215,14 @@ const DAFAC= ({ activeResident, disasterData, setIsModalOpen, mode}) => {
         setTimeout(() => {
           setNotification(null);
         }, 3000);
+
+        setLoading(false);
       
         return;
       }
       
-  
+      setLoading(false); 
+
       // Convert form to canvas
       const canvas = await html2canvas(formRef.current, {
         scale: 2, // Increase resolution
@@ -278,9 +281,119 @@ const DAFAC= ({ activeResident, disasterData, setIsModalOpen, mode}) => {
       }, 3000);
     }
     finally {
-      setLoading(false); // Hide loading state
+
+    }
+  };*/
+
+  const handleSave = async (event) => {
+    if (event) event.preventDefault(); // Prevent form refresh
+  
+    const savedData = JSON.parse(localStorage.getItem("savedForms")) || [];
+  
+    // Generate a unique key using uuidv4()
+    const formDataWithId = { id: uuidv4(), ...formData };
+  
+    // Add new formData to the existing array
+    savedData.push(formDataWithId);
+  
+    // Store the updated array back in localStorage
+    localStorage.setItem("savedForms", JSON.stringify(savedData));
+  
+    try {
+      setLoading(true); // Start loading
+  
+      await new Promise((resolve) => setTimeout(resolve, 2000)); // Simulated delay
+  
+      if (!formRef.current) {
+        setNotification({
+          type: "error",
+          title: "Form Error",
+          message: "Form reference is not available.",
+        });
+  
+        setTimeout(() => {
+          setNotification(null);
+        }, 3000);
+  
+        setLoading(false); // Ensure loading is turned off before returning
+        return;
+      }
+  
+      setLoading(false); // Hide loading before capturing the form
+  
+      // **Wait for UI to update before capturing**
+      setTimeout(async () => {
+        // Convert form to canvas
+        const canvas = await html2canvas(formRef.current, {
+          scale: 2, // Increase resolution
+          useCORS: true, // Prevent cross-origin issues
+        });
+  
+        const imgData = canvas.toDataURL("image/png");
+  
+        // Generate PDF
+        const pdf = new jsPDF("p", "mm", "a4");
+        const imgWidth = 210; // A4 width in mm
+        const imgHeight = (canvas.height * imgWidth) / canvas.width; // Maintain aspect ratio
+  
+        pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+  
+        console.log("Saving PDF...");
+        pdf.save("DAFAC_Form.pdf"); // Trigger download
+  
+        setNotification({
+          type: "success",
+          title: "Success",
+          message: "Form data saved successfully",
+        });
+  
+        setTimeout(() => {
+          setIsModalOpen(false);
+        }, 2000);
+      }, 100); // **Wait 100ms to allow UI to refresh**
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+  
+      setLoading(false); // Ensure loading is turned off in case of an error
+  
+      let errorTitle = "Error";
+      let errorMessage =
+        "An error occurred while generating the PDF. Please try again.";
+  
+      if (!error.response) {
+        errorTitle = "Network Error";
+        errorMessage =
+          "Please check your internet connection and try again.";
+      } else if (error.response.status === 400) {
+        errorTitle = "Invalid Data";
+        errorMessage =
+          "There is an issue with the provided data. Please check and try again.";
+      } else if (error.response.status === 401 || error.response.status === 403) {
+        errorTitle = "Unauthorized Access";
+        errorMessage = "You do not have permission to perform this action.";
+      } else if (error.response.status === 500) {
+        errorTitle = "Server Error";
+        errorMessage =
+          "An error occurred on the server. Please try again later.";
+      } else if (error.message.includes("Failed to update disaster data")) {
+        errorTitle = "Update Failed";
+        errorMessage =
+          "An error occurred while updating the disaster data. Please try again.";
+      }
+  
+      setNotification({
+        type: "error",
+        title: errorTitle,
+        message: errorMessage,
+      });
+  
+      setTimeout(() => {
+        setNotification(null);
+      }, 3000);
     }
   };
+  
+  
 
   return (
     <div className="dafac">
