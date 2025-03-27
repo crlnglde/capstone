@@ -434,7 +434,7 @@ const AddDisaster = () => {
                 setNotification(null);
                 setLoading(false); 
                 navigate("/disaster");
-            }, 3000); 
+            }, 1000); 
 
         } catch (error) {
             setNotification({ type: "error", title: "Error Occurred", message: error.message || "An error occurred while saving data. Please try again."});
