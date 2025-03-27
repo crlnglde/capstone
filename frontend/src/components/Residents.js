@@ -427,13 +427,22 @@ const addResidentsToTop = (newResidents) => {
           // Apply search filtering
           const searchResidents = useMemo(() => {
             return sortedResidents.filter((resident) => {
+              const fullName = `${resident.firstName} ${resident.middleName} ${resident.lastName}`.toLowerCase();
+              const hasMatchingDependent = resident.dependents?.some((dependent) => 
+                dependent.name.toLowerCase().includes(searchQuery)
+              );
+          
+              if (fullName.includes(searchQuery) || hasMatchingDependent) {
+                return true;
+              }
+          
               return Object.keys(resident).some((key) => {
                 const value = resident[key];
-
+          
                 if (typeof value === "string" && value.toLowerCase().includes(searchQuery)) {
                   return true;
                 }
-
+          
                 if (Array.isArray(value)) {
                   return value.some((item) =>
                     Object.values(item).some(
@@ -442,11 +451,11 @@ const addResidentsToTop = (newResidents) => {
                     )
                   );
                 }
-
+          
                 return false;
               });
             });
-          }, [sortedResidents, searchQuery]);
+          }, [sortedResidents, searchQuery]);          
         
           // Calculate total pages dynamically
           const totalPages = Math.ceil(searchResidents.length / residentsPerPage);

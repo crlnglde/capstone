@@ -5,6 +5,7 @@ import 'leaflet/dist/leaflet.css';
 import iliganData from '../../data/iligan.json'; 
 import "../../css/visualizations/Iligan.css";
 import Filter from "../again/Filter";
+import DisasterLegend from "../again/Legend";
 
 const ChoroplethGraph = () => {
   const [disasterTypeFilter, setDisasterTypeFilter] = useState("All");
@@ -326,6 +327,8 @@ const ChoroplethGraph = () => {
             "No data available for the selected filters. Please adjust the criteria for more insights."
           }
         </p>
+
+        <DisasterLegend />
 
       </div>
 

@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo, useCallback  } from "react";
 import { MapContainer, TileLayer, GeoJSON,  CircleMarker, Popup } from 'react-leaflet';
+import DisasterLegend from "../again/Legend";
 import axios from "axios";
 import 'leaflet/dist/leaflet.css';
 import iliganData from '../../data/iligan.json'; 
@@ -204,9 +205,10 @@ const ChoroplethGraph = () => {
               }
               return null;
               })}
-
           </MapContainer>
+          <DisasterLegend />
         </div>
+        
       </div>
       
 

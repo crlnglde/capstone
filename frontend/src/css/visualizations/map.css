@@ -114,4 +114,38 @@
     font-size: 1em;
     color: white;
 }
+
+/*for legend*/
+
+.legend {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  background: white;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.3);
+  font-size: 14px;
+}
+
+.legend h4 {
+  margin: 0 0 5px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.legend-color {
+  width: 15px;
+  height: 15px;
+  display: inline-block;
+  margin-right: 8px;
+  border-radius: 3px;
+}
+
   
