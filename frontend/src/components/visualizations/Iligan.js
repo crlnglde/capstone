@@ -7,7 +7,7 @@ import "../../css/visualizations/Iligan.css";
 import Filter from "../again/Filter";
 import DisasterLegend from "../again/Legend";
 
-const ChoroplethGraph = () => {
+const MapDisaster = () => {
   const [disasterTypeFilter, setDisasterTypeFilter] = useState("All");
   const [disasterMonthFilter, setDisasterMonthFilter] = useState("All");
   const [disasters, setDisasters] = useState([]);
@@ -307,9 +307,9 @@ const ChoroplethGraph = () => {
                 return null;
               })}
 
-          <div className="filters-right"> 
-            <Filter disasters={disasters} onFilter={handleFilter} filters={filtersForMap} graphType={graphType}/>
-          </div>
+            <div className="filters-right"> 
+              <Filter disasters={disasters} onFilter={handleFilter} filters={filtersForMap} graphType={graphType}/>
+            </div>
 
             <DisasterLegend />
 
@@ -357,4 +357,4 @@ const ChoroplethGraph = () => {
   );
 };
 
-export default ChoroplethGraph;
+export default MapDisaster;
