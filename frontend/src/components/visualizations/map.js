@@ -206,6 +206,7 @@ const ChoroplethGraph = () => {
               return null;
               })}
           </MapContainer>
+          
           <DisasterLegend />
         </div>
         

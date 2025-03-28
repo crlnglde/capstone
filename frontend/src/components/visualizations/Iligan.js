@@ -156,7 +156,7 @@ const ChoroplethGraph = () => {
       opacity: 1,
       color: 'white',
       dashArray: '3',
-      fillOpacity: 0.7,
+      fillOpacity: 0.9,
     };
   };
  
@@ -234,66 +234,89 @@ const ChoroplethGraph = () => {
 
         <div className="map-filter">
 
-            <h2>Iligan City</h2>
 
-          <div className="filters-right">
-          
-          <Filter disasters={disasters} onFilter={handleFilter} filters={filtersForMap} graphType={graphType}/>
 
-          </div>
+
 
         </div>
 
         <div className="map-wrapper">
           <MapContainer
-            style={{ height: '100%', width: '100%' }}
+            style={{ height: '100%', width: '100%'}}
             center={[8.228, 124.370]} // Approximate center of Iligan City
-            zoom={10.5}  // Adjust the zoom level for wider view
+            zoom={11}  // Adjust the zoom level for wider view
             scrollWheelZoom={false}
             minZoom={8} // Set minimum zoom level
-            maxZoom={15} 
+            maxZoom={14}
           >
+            { /* original ni
             <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              url="https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png"
+              attribution="&copy; <a href='https://carto.com/'>CARTO</a>"
             />
+            */}
+
+          
+            <TileLayer
+              url="https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png"
+              attribution="&copy; <a href='https://carto.com/'>CARTO</a>"
+            />
+
+
+
+
+
             <GeoJSON data={iliganData} style={styleFeature} />
 
               {/* Add bubble markers based on the disaster count per barangay */}
               {Object.entries(filteredDisastersByBarangay).map(([barangay, disasterTypes]) => {
-              const barangayData = iliganData.features.find(
-                (feature) => feature.properties.adm4_en === barangay
-              );
+                const barangayData = iliganData.features.find(
+                  (feature) => feature.properties.adm4_en === barangay
+                );
 
+                if (barangayData) {
+                  const centroid = calculateCentroid(barangayData.geometry);
+                  const offsetFactor = 0.0005; // Small adjustment to separate overlapping markers
 
-              if (barangayData) {
-                const centroid = calculateCentroid(barangayData.geometry);
+                  return Object.entries(disasterTypes).map(([disasterType, count], index, array) => {
+                    // Compute a slight offset for each disaster type
+                    const angle = (index / array.length) * (2 * Math.PI); // Spread markers in a circular pattern
+                    const offsetLat = centroid[0] + offsetFactor * Math.sin(angle);
+                    const offsetLng = centroid[1] + offsetFactor * Math.cos(angle);
 
-
-                return Object.entries(disasterTypes).map(([disasterType, count]) => (
-                  <CircleMarker
-                    key={`${barangay}-${disasterType}`}
-                    center={centroid}
-                    radius={getMarkerSize(count)}
-                    color={getColorForBubble(disasterType)}
-                    fillColor={getColorForBubble(disasterType)}
-                    fillOpacity={0.5}
-                  >
-                    <Popup>
-                      <strong>{barangay}</strong>
-                      <br />
-                      Disaster Type: {disasterType}
-                      <br />
-                      Disaster Count: {count}
-                    </Popup>
-                  </CircleMarker>
-                ));
-              }
-              return null;
+                    return (
+                      <CircleMarker
+                        key={`${barangay}-${disasterType}`}
+                        center={[offsetLat, offsetLng]}
+                        radius={getMarkerSize(count)}
+                        color={getColorForBubble(disasterType)}
+                        fillColor={getColorForBubble(disasterType)}
+                        fillOpacity={0.5}
+                      >
+                        <Popup>
+                          <strong>{barangay}</strong>
+                          <br />
+                          Disaster Type: {disasterType}
+                          <br />
+                          Disaster Count: {count}
+                        </Popup>
+                      </CircleMarker>
+                    );
+                  });
+                }
+                return null;
               })}
+
+          <div className="filters-right"> 
+            <Filter disasters={disasters} onFilter={handleFilter} filters={filtersForMap} graphType={graphType}/>
+          </div>
+
+            <DisasterLegend />
 
           </MapContainer>
         </div>
+
+
       </div>
       
 
@@ -327,8 +350,6 @@ const ChoroplethGraph = () => {
             "No data available for the selected filters. Please adjust the criteria for more insights."
           }
         </p>
-
-        <DisasterLegend />
 
       </div>
 
