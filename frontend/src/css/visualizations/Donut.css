@@ -1,0 +1,129 @@
+/* donut.css */
+.donut-graph-container {
+    max-width: 400px;
+    width: 100%;
+  }
+
+  .donut{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+    margin: 0px auto;
+    /* padding: 20px; */
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 10px 10px 0 0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    /*height: 400px;*/
+    height: 100%;
+  }
+
+  .donut-filter > h2{
+    margin: 0 0 0px 0;
+    padding: 0 0 0px 0;
+    font-size: 18px;
+  }
+
+  .donut-filter{
+    /* width: 100%; Set a fixed width */
+    flex-shrink: 0; /* Prevent shrinking */
+    display: flex;
+    flex-direction: row;;
+    gap: 10px;
+    margin: 0 0 10px 0;
+    padding: 10px;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+    .donut-filter-container {
+      font-size: 1.1em;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      gap: 10px;
+      padding: 0 10px 0 10px;
+    }
+
+    .col{
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .donut-filter label {
+      font-weight: bold;
+    }
+    
+    .donut-filter-container select {
+      padding: 8px 12px;
+      font-size: 15px;
+      border: none;
+      outline: none;
+      background-color: #ffffff00;
+      transition: border-color 0.3s ease;
+    }
+
+    .donut-filter-container option {
+      padding: 8px 12px;
+      font-size: 15px;
+      border: none;
+      outline: none;
+      background-color: #fff;
+      transition: border-color 0.3s ease;
+    }
+    
+    
+    .donut-filter-container select:focus {
+      border-color: #0056b3;
+    }
+    
+    .donut-filter-container select option {
+      padding: 10px;
+    }
+  
+  .donut-graph-container > h2 {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    color: #333;
+    text-align: center;
+  }
+
+  .donut-wrapper{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0px auto;
+    
+    /* height: 300px; */
+    position: inherit;
+  }
+
+  .donut-text-overlay {
+    position: relative;
+    background-color: rgb(10 25 78 / 69%);
+    color: white;
+    padding: 20px;
+    border-radius: 0px 0px 20px 20px;
+    text-align: left;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    height: 100px;
+    width: -webkit-fill-available;
+  }
+
+  .donut-text-overlay h2 {
+    margin: 0; 
+    font-size: 15px; 
+    color: white;
+    padding: 0;
+}
+
+.donut-text-overlay p {
+    margin: 10px 0 0;
+    font-size: 15px;
+    color: white;
+}
+
+ 
+
+  
