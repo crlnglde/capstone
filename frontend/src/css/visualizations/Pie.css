@@ -1,5 +1,5 @@
-/* donut.css */
-.donut-graph-container {
+/* pie.css */
+.pie-graph-container {
     max-width: 400px;
     width: 100%;
   }
@@ -10,26 +10,29 @@
     align-items: center;
     justify-content: space-around;
     margin: 0px auto;
-    padding: 20px;
+    /* padding: 20px; */
     background-color: #f9f9f9;
     border: 1px solid #ddd;
     border-radius: 10px 10px 0 0;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    height: 400px;
+    /* height: 400px; */
+    height: 100%;
   }
 
   .pie-filter > h2{
     margin: 0 0 0px 0;
     padding: 0 0 0px 0;
+    font-size: 18px;
   }
 
   .pie-filter{
-    width: 100%; /* Set a fixed width */
+    /* width: 100%; Set a fixed width */
     flex-shrink: 0; /* Prevent shrinking */
     display: flex;
     flex-direction: row;;
     gap: 10px;
     margin: 0 0 10px 0;
+    padding: 10px;
     justify-content: space-between;
     align-items: center;
   }
@@ -92,7 +95,7 @@
     justify-content: center;
     margin: 0px auto;
     
-    height: 300px;
+    /* height: 300px; */
     position: inherit;
   }
 
@@ -105,6 +108,7 @@
     text-align: left;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     height: 100px;
+    width: -webkit-fill-available;
   }
 
   .pie-text-overlay h2 {
@@ -119,10 +123,3 @@
     font-size: 15px;
     color: white;
 }
-
- 
-canvas {
-  width: 100% !important;   /* Responsive graph */
-  height: 100% !important; /* Maintain aspect ratio */
-}
-  
