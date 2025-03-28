@@ -7,13 +7,14 @@ const Payroll= ({ report}) => {
 
     console.log("report",report)
 
-    const employees = report?.families?.map((family, index) => ({
+    const employees = report?.families
+    ?.filter(family => family.dafacStatus === "Confirmed")
+    .map((family, index) => ({
         name: `${family.firstName} ${family.middleName} ${family.lastName}`,
         category: family.extentDamage || "None",
-        address:  `PRK ${family.purok}, ${report.barangays}` || "Unknown",
+        address: `${family.purok}, ${report.barangays}` || "Unknown",
         amount: family.costDamage || 0,
     })) || [];
-
 
     const maxRows = 15;
     const emptyRows = maxRows - employees.length;

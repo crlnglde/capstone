@@ -8,10 +8,12 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 const FDR= ({ report, distribution }) => {
 
     console.log("FDR ditribution: ", distribution)
+    console.log("Report: ", report)
 
     const [totalDependents, setTotalDependents] = useState(0);
     const [totalPersonsAffected, setTotalPersonsAffected] = useState(0);
     const [totalCostDamage, setTotalCostDamage] = useState(0);
+    const [evacuation, setEvacuation] = useState("");
     const [totalAssistance, setTotalAssistance] = useState(0);
     const [totalEstimatedCost, setTotalEstimatedCost] = useState(0);
   
@@ -19,13 +21,16 @@ const FDR= ({ report, distribution }) => {
       let dependents = 0;
       let personsAffected = 0;
       let costDamage = 0;
+      let evacuation = "";
   
       report.families.forEach(family => {
         dependents += family.dependents.length;
         personsAffected += 1 + family.dependents.length;
         costDamage += family.costDamage;
+        evacuation = family.evacuation
       });
-  
+
+      setEvacuation(evacuation);
       setTotalDependents(dependents);
       setTotalPersonsAffected(personsAffected);
       setTotalCostDamage(costDamage);
@@ -113,7 +118,7 @@ const FDR= ({ report, distribution }) => {
                 </div>
 
                 <div className="col1">
-                    <p>Heavy Rain</p>
+                    <p>{evacuation}</p>
                 </div>
             </div>
 
