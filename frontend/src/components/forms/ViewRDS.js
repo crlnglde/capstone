@@ -124,8 +124,17 @@ const ViewRDS = ({selectedBarangay, distributionId, setDistributionDate, setPage
                   <td>{family.familyHead || ""}</td>
                   <td>{family.rationCount || ""}</td>
                   <td>{currentDistribution.reliefItems.map(item => `${item.name} - ${item.quantity}`).join(" | ")}</td>
-                  <td>
-                    {family.status === "Done" ? "Done" : "Unclaimed"}
+
+                  <td className="signature-cell">
+                    {family.status === "Done" ? (
+                      <img
+                        src={family.signature} 
+                        alt="Signature"
+                        className="signature-image"
+                      />
+                    ) : (
+                    <p>Unclaimed</p>
+                    )}
                   </td>
                 </tr>
               ))

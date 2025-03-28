@@ -99,21 +99,17 @@ const DAFAC= ({ activeResident, disasterData, setIsModalOpen, mode}) => {
     }
   }, [activeResident]);  
 
-  const damageCostMap = {
+{/*const damageCostMap = {
     Totally: 10000,
     Partially: 5000,
     Flooded: 3000,
-  };
+  };*/}
 
   // Handle single selection for "Extent of Damage"
   const handleExtentChange = (event) => {
-    const { value, checked } = event.target;
-    setFormData({
-      ...formData,
-      extentDamage: checked ? value : "",
-      costDamage: checked ? damageCostMap[value] || "" : "",
-    });
+    setFormData({ ...formData, extentDamage: event.target.checked ? event.target.value : "" });
   };
+
 
   // Handle single selection for "Occupancy Status"
   const handleOccupancyChange = (event) => {
@@ -184,6 +180,11 @@ const DAFAC= ({ activeResident, disasterData, setIsModalOpen, mode}) => {
       };
     });
   };
+
+  const evacuationOptions = ["Ditucalan Gym", "Maria Cristina Gym ", "Upper Tominobo Gym ", "Sta. Elena Gym ", "Villa Verde Gym", "San Miguel Children Park", "Buru-un Gym Evacuation Center",
+    "Mandulog Gym", "Saray Gym", "Tibanga Gym", "Sto. Rosario Gym", "Bagong Silang Brgy Hall/Gym", "Upper Hinaplanon Gym", "Lunab Brgy. Gym", "San Roque Brgy. Hall", "Kiwalan Gym", "Dalipuga Gym", "Hindang Gym", 
+    "Kabacsanan Brgy. Hall", "Suarez Gym", "City Evacuation Center", "Laville Gym"
+  ];
   
 
  /* const handleSave = async (event) => {
@@ -481,7 +482,20 @@ const DAFAC= ({ activeResident, disasterData, setIsModalOpen, mode}) => {
                         <div className="form-row serial1">
                           <label>District / Cluster: <input type="text" value="Iligan City"/></label>
                           <label>Purok & Barangay: <input type="text" value={`${formData.purok}, ${formData.barangay}`}  /></label>
-                          <label> Evacuation: <input type="text" value={formData.evacuation} onChange={(e) => setFormData({ ...formData, evacuation: e.target.value })}/></label>
+                          <label>
+                            Evacuation:
+                            <select
+                              value={formData.evacuation}
+                              onChange={(e) => setFormData({ ...formData, evacuation: e.target.value })}
+                            >
+                              <option value="">Select Evacuation Center</option>
+                              {evacuationOptions.map((option, index) => (
+                                <option key={index} value={option}>
+                                  {option}
+                                </option>
+                              ))}
+                            </select>
+                          </label>                       
                         </div>
 
                     </div>
@@ -660,7 +674,7 @@ const DAFAC= ({ activeResident, disasterData, setIsModalOpen, mode}) => {
 
                     <div className="cost-of-damage">
                       <span>Cost of Damage:</span>
-                      <input type="text" value={formData.costDamage} />
+                      <input type="number" disabled={!formData.extentDamage && !formData.occupancy && formData.casualty.length === 0} value={formData.costDamage} onChange={(e) => setFormData({ ...formData, costDamage: e.target.value })}/>
                     </div>
                   </div>
 

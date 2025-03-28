@@ -212,7 +212,6 @@ const LineGraph = () => {
 
                      {/* Dynamic Insights */}
             <div className="pie-text-overlay">
-                <h2>Disaster Insights</h2>
                 {disasterInsights.totalOccurrences === 0 ? (
                     <p>No disaster data available.</p>
                 ) : (
