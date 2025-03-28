@@ -63,6 +63,17 @@ const addResidentsToTop = (newResidents) => {
   setResidents((prevResidents) => [...newResidents, ...prevResidents]);
 };
 
+const fetchExistingResidents = async () => {
+  try {
+    const response = await axios.get("http://localhost:3003/get-residents");
+    return response.data; // Ensure the backend returns an array of existing residents
+  } catch (error) {
+    console.error("Error fetching residents:", error);
+    return [];
+  }
+};
+
+
   //CSV Upload
   const handleFileChange = (event) => {
     setCsvFile(event.target.files[0]);
@@ -72,70 +83,70 @@ const addResidentsToTop = (newResidents) => {
   const handleFileUpload = async (event) => {
     event.preventDefault();
     setNotification(null);
-  
-    // Check if a file was selected
+
+    // 1️⃣ Check if a file is selected
     if (!csvFile) {
-      setNotification({ 
-        type: "error", 
-        title: "No File Selected", 
+      setNotification({
+        type: "error",
+        title: "No File Selected",
         message: "Please select a CSV file to upload."
       });
-      setTimeout(() => {
-        setNotification(null);
-      }, 3000);
+      setTimeout(() => setNotification(null), 3000);
       return;
     }
 
-    // Check if the uploaded file is a CSV
-    const allowedFileTypes = ['text/csv', 'application/vnd.ms-excel']; // mime types for CSV
+    // 2️⃣ Validate the file type (CSV only)
+    const allowedFileTypes = ['text/csv', 'application/vnd.ms-excel']; // CSV MIME types
     if (!allowedFileTypes.includes(csvFile.type)) {
       setNotification({
-        type: 'error',
-        title: 'Invalid File Type',
-        message: 'Please upload a valid CSV file.'
+        type: "error",
+        title: "Invalid File Type",
+        message: "Only CSV files are allowed. Please upload a valid file."
       });
-      setTimeout(() => {
-        setNotification(null);
-      }, 3000);
+      setTimeout(() => setNotification(null), 3000);
       return;
     }
-    
+
     setIsUploading(true);
-    setNotification(null); 
-  
+    setNotification(null);
+
     const reader = new FileReader();
     reader.onload = async (e) => {
       const text = e.target.result;
 
-          // Check if the file is empty
-          if (!text.trim()) {
-            setNotification({
-              type: 'error',
-              title: 'Empty File',
-              message: 'The file you uploaded is empty.'
-            });
-            setTimeout(() => {
-              setNotification(null);
-            }, 3000);
-            setIsUploading(false);
-            return;
-          }
-  
+      // 3️⃣ Check if the file is empty
+      if (!text.trim()) {
+        setNotification({
+          type: "error",
+          title: "Empty File",
+          message: "The file you uploaded is empty."
+        });
+        setTimeout(() => setNotification(null), 3000);
+        setIsUploading(false);
+        return;
+      }
+
       Papa.parse(text, {
         complete: async (result) => {
           const data = result.data;
+
           if (!data || data.length === 0) {
-            console.error("No data found in CSV.");
+            console.error("🚨 No data found in CSV.");
             alert("No data found in the CSV.");
             setIsUploading(false);
             return;
           }
-  
+
+          console.log("📂 Parsed CSV Data:", data);
+
+          const existingResidents = await fetchExistingResidents();
+
+          // 4️⃣ Format the CSV data for the API
           const formattedData = data.map((row, index) => {
-            if (!row || Object.values(row).every(val => !val)) {
+            if (!row || Object.values(row).every(val => !val || val.toString().trim() === "")) {
               return null;
             }
-  
+
             return {
               memId: row['memId'] ? row['memId'].trim() : `MEM${Date.now() + index}`,
               firstName: row['firstName']?.trim() || '',
@@ -150,17 +161,43 @@ const addResidentsToTop = (newResidents) => {
               occupation: row['occupation']?.trim() || '',
               education: row['education']?.trim() || '',
               income: row['income'] ? parseFloat(row['income']) : 0,
-              dependents: row['dependents'] ? JSON.parse(row['dependents']) : [],
+              dependents: row['dependents']
+              ? JSON.parse(row['dependents']).map(dep => ({
+                  ...dep,
+                  sex: dep.sex === "M" ? "Male" : dep.sex === "F" ? "Female" : dep.sex
+                }))
+              : [],
             };
           }).filter(item => item !== null);
-  
+
+          console.log("✅ Formatted Data Ready for API:", formattedData);
+
+                  // ✅ Filter out already existing residents
+            const newResidents = formattedData.filter(newResident => {
+              return !existingResidents.some(existing => existing.memId === newResident.memId);
+            });
+
+            if (newResidents.length === 0) {
+              setNotification({ type: "error", title: "No New Residents", message: "All residents in the file are already in the list." });
+              setIsUploading(false);
+              return;
+            }
+
           try {
-            await new Promise((resolve) => setTimeout(resolve, 2000));
+            await new Promise((resolve) => setTimeout(resolve, 2000)); // Simulate a delay for better UX
 
-            await axios.post("http://localhost:3003/add-csvresidents", { residents: formattedData });
+            // 5️⃣ Send data to backend
+            const response = await axios.post("http://localhost:3003/add-csvresidents", { residents: newResidents });
 
-            setNotification({ type: "success", title: "CSV Upload Successful", message: "Your file has been uploaded successfully!" });
+            console.log("✅ Server Response:", response.data);
 
+            setNotification({
+              type: "success",
+              title: "CSV Upload Successful",
+              message: `${response.data.added} residents added! ${response.data.skipped} duplicates skipped.`
+            });
+
+            // 6️⃣ Update UI & Reset Form
             setTimeout(() => {
               addResidentsToTop(formattedData);
               resetForm();
@@ -169,10 +206,12 @@ const addResidentsToTop = (newResidents) => {
             }, 3000);
 
           } catch (error) {
-            let errorTitle = "Error";
-            let errorMessage = "Failed to upload CSV. Please try again.";
-          
+            console.error("❌ Upload Error:", error.response ? error.response.data : error.message);
 
+            let errorTitle = "Upload Failed";
+            let errorMessage = "Something went wrong! Please try again.";
+
+            // 7️⃣ Handle Specific API Errors
             if (!error.response) {
               errorTitle = "Network Error";
               errorMessage = "Please check your internet connection and try again.";
@@ -193,17 +232,15 @@ const addResidentsToTop = (newResidents) => {
               errorMessage = "The uploaded CSV file is empty. Please provide a valid file.";
             }
 
-              setNotification({ 
-                type: "error", 
-                title: errorTitle, 
-                message: errorMessage 
-              });
+            setNotification({
+              type: "error",
+              title: errorTitle,
+              message: errorMessage
+            });
 
-            setTimeout(() => {
-              setNotification(null);
-            }, 3000);
-          }finally {
-            setIsUploading(false); // Stop Loading after success/error
+            setTimeout(() => setNotification(null), 3000);
+          } finally {
+            setIsUploading(false); // Stop loading spinner
           }
         },
         header: true,
@@ -212,9 +249,10 @@ const addResidentsToTop = (newResidents) => {
         delimiter: ',',
       });
     };
-  
+
     reader.readAsText(csvFile);
   };
+
 
   //Add Manually
   const handleSubmit = async (event) => {

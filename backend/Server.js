@@ -126,14 +126,46 @@ app.post("/add-residents", async (req, res) => {
   }
 });
 
-app.post('/add-csvresidents', async (req, res) => {
+app.post("/add-csvresidents", async (req, res) => {
   try {
-      console.log(req.body); // Debugging: Check if data is received properly
-      // Your database logic here
-      res.status(200).json({ message: "CSV uploaded successfully" });
+    const { residents } = req.body;
+
+    if (!residents || !Array.isArray(residents) || residents.length === 0) {
+      return res.status(400).json({ error: "Invalid or empty data" });
+    }
+
+    // Fetch all existing residents from the database
+    const existingResidents = await Resident.find({}, "firstName lastName barangay");
+
+    // Convert existing residents into a Set for fast lookup
+    const existingSet = new Set(
+      existingResidents.map(resident => 
+        `${resident.firstName.toLowerCase()} ${resident.lastName.toLowerCase()}-${resident.barangay.toLowerCase()}`
+      )
+    );
+
+    // Filter out duplicates before inserting
+    const newResidents = residents.filter(resident => {
+      const residentKey = `${resident.firstName.toLowerCase()} ${resident.lastName.toLowerCase()}-${resident.barangay.toLowerCase()}`;
+      return !existingSet.has(residentKey);
+    });
+
+    if (newResidents.length === 0) {
+      return res.status(409).json({ error: "All residents already exist" });
+    }
+
+    // Insert only non-duplicate residents
+    await Resident.insertMany(newResidents);
+
+    res.status(201).json({ 
+      message: "Bulk residents uploaded successfully!", 
+      added: newResidents.length, 
+      skipped: residents.length - newResidents.length 
+    });
+
   } catch (error) {
-      console.error("Error processing CSV:", error);
-      res.status(500).json({ error: "Internal Server Error" });
+    console.error("Error uploading residents:", error);
+    res.status(500).json({ error: "Failed to upload residents", details: error.message });
   }
 });
 
