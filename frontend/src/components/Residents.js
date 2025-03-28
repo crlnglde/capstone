@@ -241,6 +241,7 @@ const fetchExistingResidents = async () => {
             setTimeout(() => setNotification(null), 3000);
           } finally {
             setIsUploading(false); // Stop loading spinner
+            window.location.reload();
           }
         },
         header: true,

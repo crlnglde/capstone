@@ -24,7 +24,7 @@ const ProtectedRoute = ({ allowedRoles }) => {
         return <Navigate to="/" />;
     }
 
-    if (userRole === "admin") {
+    if (userRole === "CSWD") {
         console.log("Admin detected - Granting access.");
         return <Outlet />;
     }
