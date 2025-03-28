@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
-import "../../css/visualizations/Pie-ch.css"; 
+import "../../css/visualizations/Donut.css"; 
 import axios from "axios";
 import Filter from "../again/Filter";
 
@@ -152,20 +152,20 @@ const DonutGraph = () => {
 
   return (
     <div className="donut-graph-container">
-      <div className='pie'>
+      <div className='donut'>
 
-        <div className="pie-filter">
+        <div className="donut-filter">
           <h2>Casualties Breakdown</h2>
           <Filter disasters={disasters} onFilter={handleDonutFilter} filters={filtersForDonut} graphType={graphType}/>
         </div>
 
 
-        <div className="pie-wrapper">
+        <div className="donut-wrapper">
           <Doughnut data={data} options={options} />
         </div>
       </div>
 
-      <div className="pie-text-overlay">
+      <div className="donut-text-overlay">
         <h2>Disaster Insights</h2>
         {totalCasualties === 0 ? (
           <p>No casualty data available.</p>

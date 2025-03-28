@@ -48,7 +48,7 @@
     gap: 15px;
     max-height: none;  /* Ensure it doesn't cut off */
     overflow-y: auto; 
-    
+    width: 220px;
   }
 
   .filter-section {

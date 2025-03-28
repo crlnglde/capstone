@@ -9,7 +9,7 @@ import dswd3 from '../pic/dswd3.jpg';
 import videoBackground from '../pic/vid.mp4';
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
-import Map from './visualizations/map'
+import HomeMap from './visualizations/map'
 
 const Home = () => {
 
@@ -225,12 +225,7 @@ useEffect(() => {
     </div>
 
       <div className="home-container2">
-      
-       
-        
-
-        <Map/>
-
+        <HomeMap/>
       </div>
 
     </div>

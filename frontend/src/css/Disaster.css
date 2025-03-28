@@ -1,5 +1,5 @@
 
-.dashboard{
+.disaster{
   padding: 20px;
   flex: 1;
 }
@@ -54,7 +54,7 @@
   }
 
         /*para ni sa button duha list and visualization*/
-        .dashboard .toggle-container {
+        .disaster .toggle-container {
           display: flex;
           width: 100%;
           background-color: #7c8396; /* Default background */
@@ -64,7 +64,7 @@
           box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2); /* Soft button-like shadow */
         }
         
-        .dashboard .toggle-container button {
+        .disaster .toggle-container button {
           flex: 1;
           padding: 10px 20px;
           border: none;
@@ -77,47 +77,27 @@
         }
         
         /* Remove border-radius from middle edges */
-        .dashboard .toggle-container button:first-child {
+        .disaster .toggle-container button:first-child {
           border-top-left-radius: 20px;
           border-bottom-left-radius: 20px;
         }
         
-        .dashboard .toggle-container button:last-child {
+        .disaster .toggle-container button:last-child {
           border-top-right-radius: 20px;
           border-bottom-right-radius: 20px;
         }
         
         /* Active state */
-        .dashboard .toggle-container button.active {
+        .disaster .toggle-container button.active {
           background-color: #2f3651; /* Active button background */
           color: white;
         }
         
         /* Smooth hover effect */
-        .dashboard .toggle-container button:hover {
+        .disaster .toggle-container button:hover {
           background-color: rgba(47, 54, 81, 0.8); 
         }
         
-        
-        
-
-  .ch1{
-    padding: 20px;
-    max-width: 100%;
-  }
-
-  .ch2{
-    display: flex;
-    padding: 20px;
-    gap: 50px;
-  }
-  .ch3{
-    display: flex;
-    padding: 20px;
-    gap: 50px;
-    flex-direction: column;
-    height: 100px;
-  }
   
 
   .dstr-container{
@@ -130,7 +110,10 @@
   }
 
   .disasters-visualizations{
-    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
   }
 
   .disasters-visualizations > h2{
@@ -140,7 +123,72 @@
     padding: 0px 20px 10px 0px;
     margin: 0;
     border-bottom: 2px solid #0A194E;
+    
   }
+
+
+          .disasters-visualizations .ch1{
+            padding: 20px;
+            max-width: 100%;
+          }
+
+          
+          .disasters-visualizations .ch3{
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-gap: 20px;
+            width: 100%;
+          }
+
+
+          .disasters-visualizations .ch2{
+              display: flex;  /* Use flexbox instead of grid */
+              justify-content: space-between;
+              align-items: stretch; /* Ensures children (charts) match in height */
+              gap: 20px;
+          }
+
+                  .disasters-visualizations .ch3 {
+                    display: flex;
+                    gap: 20px;
+                    width: 100%;
+                }
+                
+                .pie-graph-container,
+                .donut-graph-container {
+                    display: flex;
+                    flex-direction: column;
+                    flex: 1; /* Takes up less space */
+                }
+                
+                .line-graph-container {
+                    flex: 1.5; /* Takes up more space */
+                }
+                
+
+
+          .pie-graph-container,
+          .donut-graph-container,
+          .line-graph-container {
+              display: flex;
+              flex-direction: column;
+              justify-content: center; /* Ensures full height usage */
+              align-items: center;
+         
+              height: auto; /* Prevent fixed height from restricting */
+              min-height: 400px; /* Ensures equal size */
+          }
+          
+
+          .pie-wrapper canvas,
+          .donut-wrapper canvas,
+          .line-graph-container canvas {
+              width: 100% !important;
+              height: 100% !important;
+              max-height: none; /* Remove fixed restriction */
+          }
+          
+
 
   .dis-filter{
     display: flex;
@@ -602,7 +650,7 @@
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.dashboard .backButton {
+.disaster .backButton {
   background-color: #0A194E;
   color: white;
   border-radius: 5px;
