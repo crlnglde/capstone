@@ -8,9 +8,9 @@ import { GiConfirmed } from "react-icons/gi";
 import { RiEdit2Line } from "react-icons/ri";
 import { FaLock } from "react-icons/fa";
 import Ling from './visualizations/Line-gr'
-import Piec from './visualizations/Pie-ch'
+import DonutGraph from './visualizations/Donut'
 import PieChart from "./visualizations/Pie";
-import Map from './visualizations/Iligan';
+import MapDisaster from "./visualizations/Iligan";
 import Modal from "./Modal";
 import AddAffFam from "./reusable/AddAffFam";
 import EditAffFam from "./reusable/EditAffFam";
@@ -262,7 +262,7 @@ useEffect(() => {
       );
 
   return (
-    <div className="dashboard">
+    <div className="disaster">
 
         {step !== 2 && (
         <div className="toggle-container">
@@ -452,19 +452,25 @@ useEffect(() => {
             </div>
   
             <div className="ch1">
-              <Map barangay={selectedBarangay} year={selectedYear}/>
+              <MapDisaster barangay={selectedBarangay} year={selectedYear}/>
             </div>
 
+            <div className="ch3">
+
                 <div className="ch2">
-                  <Piec barangay={selectedBarangay} year={selectedYear}/>
+                  <DonutGraph barangay={selectedBarangay} year={selectedYear}/>
                   <PieChart barangay={selectedBarangay} year={selectedYear}/>
 
                 </div>
 
-                <div className="ch2">
-
+                <div className="ch1">
                   <Ling/>
                 </div>
+
+                
+              </div>
+
+
 
           </div>
 
