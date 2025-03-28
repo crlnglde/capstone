@@ -7,9 +7,6 @@ import EditRDS from "./forms/EditRDS"
 import ViewRDS from "./forms/ViewRDS"
 import Modal from "./Modal";
 import BarGraph from "./visualizations/Bar-ch";
-import Piec from './visualizations/Pie-ch'
-import Map from './visualizations/Iligan'
-import LineGraph from "./visualizations/Line-gr";
 import "../css/Distribution.css";
 
 import SignaturePad from "./Signature";
