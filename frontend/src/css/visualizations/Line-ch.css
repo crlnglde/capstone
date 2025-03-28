@@ -4,6 +4,7 @@
 
   border-radius: 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  height: 100%;
 }
 
 .line-graph-container .filter-section {
@@ -13,6 +14,12 @@
   margin-bottom: 20px;
   padding: 20px 20px 0 20px;
   flex-direction: row;
+}
+
+.filter-section > h2{
+  margin: 0 0 0px 0;
+  padding: 0 0 0px 0;
+  font-size: 18px;
 }
 
 .filters {
@@ -26,12 +33,29 @@
 
 }
 
-.insights {
-  background: #0A195E;
+.line-text-overlay {
+  position: relative;
+  background-color: rgb(10 25 78 / 69%);
   color: white;
-  padding: 15px;
-  border-radius: 10px;
-  margin-top: 15px;
+  padding: 20px;
+  border-radius: 0px 0px 20px 20px;
+  text-align: left;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  height: 100px;
+  width: -webkit-fill-available;
+}
+
+.line-text-overlay h2 {
+  margin: 0; 
+  font-size: 15px; 
+  color: white;
+  padding: 0;
+}
+
+.line-text-overlay p {
+  margin: 10px 0 0;
+  font-size: 15px;
+  color: white;
 }
 
 
