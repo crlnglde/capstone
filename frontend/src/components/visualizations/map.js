@@ -6,7 +6,7 @@ import 'leaflet/dist/leaflet.css';
 import iliganData from '../../data/iligan.json'; 
 import "../../css/visualizations/map.css";
 
-const ChoroplethGraph = () => {
+const HomeMap = () => {
   const [disasterTypeFilter, setDisasterTypeFilter] = useState("All");
   const [disasterMonthFilter, setDisasterMonthFilter] = useState("All");
   const [disasters, setDisasters] = useState([]);
@@ -205,9 +205,11 @@ const ChoroplethGraph = () => {
               }
               return null;
               })}
+
+            <DisasterLegend />
           </MapContainer>
           
-          <DisasterLegend />
+
         </div>
         
       </div>
@@ -217,4 +219,4 @@ const ChoroplethGraph = () => {
   );
 };
 
-export default ChoroplethGraph;
+export default HomeMap;
