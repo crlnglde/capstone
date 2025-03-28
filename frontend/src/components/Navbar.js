@@ -45,7 +45,7 @@ const Navbar = ({ isSidebarMinimized, customTitle }) => {
             </div>
 
             <div className="notifications">
-                <i className="fa-regular fa-bell"></i>
+               {/* <i className="fa-regular fa-bell"></i>*/}
             </div>
         </div>
     );

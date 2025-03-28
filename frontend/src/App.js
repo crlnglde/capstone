@@ -90,14 +90,14 @@ function App() {
             <Route path="/" element={<Login />} />
             <Route path="/login" element={<Login />} />
 
-            <Route element={<ProtectedRoute allowedRoles={["admin", "user"]} />}>
+            <Route element={<ProtectedRoute allowedRoles={["CSWD", "daycare worker"]} />}>
                 <Route path="/home" element={<Home />} />
                 <Route path="/disaster" element={<Disaster setNavbarTitle={setNavbarTitle} />} />
                 <Route path="/disaster/add-disaster" element={<AddDisaster />} />
                 <Route path="/residents" element={<Residents />} />
             </Route>
 
-            <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
+            <Route element={<ProtectedRoute allowedRoles={["CSWD"]} />}>
               
               <Route path="/distribution" element={<Distribution setNavbarTitle={setNavbarTitle} />}>
                 <Route path="rds" element={<RDS/>} />

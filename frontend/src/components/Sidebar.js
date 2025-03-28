@@ -91,7 +91,7 @@ const Sidebar = ({isMinimized, setIsMinimized, setLoading }) => {
               </a>
           </li>
 
-          {(role === "admin" || role === "user") && (
+          {(role === "CSWD" || role === "daycare worker") && (
             <li>
               <a
                 href="/disaster"
@@ -103,7 +103,7 @@ const Sidebar = ({isMinimized, setIsMinimized, setLoading }) => {
             </li>
           )}
 
-          {role === "admin" && (
+          {role === "CSWD" && (
             <li>
               <a
                 href="/distribution"
@@ -115,7 +115,7 @@ const Sidebar = ({isMinimized, setIsMinimized, setLoading }) => {
             </li>
            )}
 
-          {role === "admin" && (
+          {role === "CSWD" && (
             <li>
               <a
                 href="/reports"
@@ -127,7 +127,7 @@ const Sidebar = ({isMinimized, setIsMinimized, setLoading }) => {
             </li>
            )}
 
-          {(role === "admin" || role === "user") && (
+          {(role === "CSWD" || role === "daycare worker") && (
             <li >
               <a
                 href="/residents"
@@ -160,7 +160,7 @@ const Sidebar = ({isMinimized, setIsMinimized, setLoading }) => {
           {!isMinimizedState && (
             <div className="user-box">
               <h1>{username ? username.toUpperCase() : "USERNAME"}</h1>
-              <h3>{role ? role.charAt(0).toUpperCase() + role.slice(1) : "Role"}</h3>
+              <h3 style={{ textTransform: "capitalize" }}>{role || "Role"}</h3>
               <button className="logout-btn" onClick={handleLogout}>Logout</button>
             </div>
           )}
