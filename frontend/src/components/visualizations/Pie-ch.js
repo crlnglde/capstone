@@ -121,7 +121,10 @@ const DonutGraph = () => {
   }, [filteredDisasters, barangay]);  
 
   const totalCasualties = casualtyStats.dead + casualtyStats.missing + casualtyStats.injured;
-  const latestDisasterDate = latestDisaster ? new Date(latestDisaster.disasterDateTime).toLocaleDateString() : "N/A";
+  const latestFilteredDisaster = filteredDisasters.length > 0 ? filteredDisasters[0] : latestDisaster;
+  const latestDisasterDate = latestFilteredDisaster ? new Date(latestFilteredDisaster.disasterDateTime).toLocaleDateString() : "N/A";
+
+
 
   const data = totalCasualties === 0 ? {
     labels: ['No Data'],

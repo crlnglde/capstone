@@ -39,7 +39,8 @@ const Reports = () => {
         const data = response.data;
   
         // Aggregate data by disaster
-        const aggregatedReports = data.map(disaster => {
+        const aggregatedReports = data.sort((a, b) => new Date(b.disasterDateTime) - new Date(a.disasterDateTime))
+        .map(disaster => {
           const totalFamilies = disaster.barangays.reduce((sum, barangay) => 
             sum + barangay.affectedFamilies.length, 0
           );

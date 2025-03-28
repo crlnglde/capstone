@@ -240,9 +240,14 @@ const AddDisaster = () => {
                                 <span className="icon"><i className="fa-regular fa-calendar-days"></i></span>
                                
                                 <input
-                                    type="datetime-local" placeholder="Date and Time" value={date}
-                                    onChange={handleDateChange} required
+                                    type="datetime-local"
+                                    placeholder="Date and Time"
+                                    value={date}
+                                    onChange={handleDateChange}
+                                    required
+                                    max={new Date().toISOString().split("T")[0] + "T23:59"} // Allows selection up to today 11:59 PM
                                 />
+
                             </div>
                         </div>
                     </div>
