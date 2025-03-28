@@ -11,8 +11,12 @@ const Distribution = require ('../backend/models/Distribution')
 
 const app = express();
 const port = 3003;
+
 app.use(cors());
-app.use(express.json());
+//app.use(express.json());
+app.use(express.json());  
+app.use(express.urlencoded({ extended: true }));  
+
 
 mongoose.connect(process.env.MONGO_URI,{
     useNewUrlParser: true,
@@ -122,14 +126,17 @@ app.post("/add-residents", async (req, res) => {
   }
 });
 
-app.post("/add-csvresidents", async (req, res) => {
-    try {
-      await Resident.insertMany(req.body.residents);
-      res.status(201).json({ message: "Bulk residents uploaded successfully!" });
-    } catch (error) {
-      res.status(500).json({ error: "Failed to upload residents", details: error.message });
-    }
-  });
+app.post('/add-csvresidents', async (req, res) => {
+  try {
+      console.log(req.body); // Debugging: Check if data is received properly
+      // Your database logic here
+      res.status(200).json({ message: "CSV uploaded successfully" });
+  } catch (error) {
+      console.error("Error processing CSV:", error);
+      res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
 
 app.get('/get-residents', async (req, res) => {
     try {

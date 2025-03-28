@@ -10,7 +10,7 @@ import { FaLock } from "react-icons/fa";
 import Ling from './visualizations/Line-gr'
 import Piec from './visualizations/Pie-ch'
 import PieChart from "./visualizations/Pie";
-import Map from './visualizations/Iligan'
+import Map from './visualizations/Iligan';
 import Modal from "./Modal";
 import AddAffFam from "./reusable/AddAffFam";
 import EditAffFam from "./reusable/EditAffFam";

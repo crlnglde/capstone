@@ -8,7 +8,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: space-around;
     margin: 0px auto;
     padding: 20px;
     background-color: #f9f9f9;
@@ -18,15 +18,20 @@
     height: 400px;
   }
 
-  .pie > h2{
+  .pie-filter > h2{
     margin: 0 0 0px 0;
-    padding: 0 0 20px 0;
+    padding: 0 0 0px 0;
   }
 
   .pie-filter{
+    width: 100%; /* Set a fixed width */
+    flex-shrink: 0; /* Prevent shrinking */
     display: flex;
-    padding: 0 20px 20px 20px;
+    flex-direction: row;;
     gap: 10px;
+    margin: 0 0 10px 0;
+    justify-content: space-between;
+    align-items: center;
   }
 
     .pie-filter-container {

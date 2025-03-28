@@ -24,24 +24,42 @@
   }
   
   /* Dropdown positioning */
+
+
   .filter-dropdown {
+    max-height: 300px;  /* Adjust as needed */
+    overflow-y: auto;   /* Enable vertical scrolling */
+    overflow-x: hidden; /* Hide horizontal scrolling */
     position: absolute;
-    top: 110%;
-    right: 0;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-    padding: 15px;
-    width: 270px;
+    top: 100%; 
+    right: 0%;
     z-index: 1000;
+    background: white;
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
+  
+  
   
   /* Filter modal */
   .filter-modal {
     display: flex;
     flex-direction: column;
     gap: 15px;
+    max-height: none;  /* Ensure it doesn't cut off */
+    overflow-y: auto; 
+    
   }
+
+  .filter-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    padding: 0px 10px 0 10px;
+    flex-direction: column;
+}
+  
   
   /* Filter section labels */
   .filter-section label {
@@ -127,7 +145,16 @@
   .filter-actions {
     display: flex;
     justify-content: space-between;
-    margin-top: 10px;
+    margin: 0 10px 10px 10px;
+  }
+
+  .clear-btn{
+    background: #e0e0e0;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 10px;
   }
   
   .cancel-btn {

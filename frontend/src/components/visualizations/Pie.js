@@ -152,13 +152,15 @@ const dafacStatusStats = useMemo(() => {
     <div className="pie-graph-container">
       <div className="pie">
         <div className="pie-filter">
+          <h2>Validation and Status of Encoding</h2>
           <Filter disasters={disasters} onFilter={handleDonutFilter} filters={filtersForDonut} graphType={graphType}/>
         </div>
-        <h2>Validation and Status of Encoding</h2>
+
         <div className="pie-wrapper">
           <Pie data={data} options={options} />
         </div>
       </div>
+      
       <div className="pie-text-overlay">
         <h2>Disaster Insights</h2>
         {dafacLabels.length === 0 || Object.values(dafacStatusStats).every(count => count === 0) ? (

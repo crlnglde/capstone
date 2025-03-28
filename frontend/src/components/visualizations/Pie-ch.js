@@ -153,15 +153,18 @@ const DonutGraph = () => {
   return (
     <div className="donut-graph-container">
       <div className='pie'>
-        <div className="pie-filter">
 
-        <Filter disasters={disasters} onFilter={handleDonutFilter} filters={filtersForDonut} graphType={graphType}/>
+        <div className="pie-filter">
+          <h2>Casualties Breakdown</h2>
+          <Filter disasters={disasters} onFilter={handleDonutFilter} filters={filtersForDonut} graphType={graphType}/>
         </div>
-        <h2>Casualties Breakdown</h2>
+
+
         <div className="pie-wrapper">
           <Doughnut data={data} options={options} />
         </div>
       </div>
+
       <div className="pie-text-overlay">
         <h2>Disaster Insights</h2>
         {totalCasualties === 0 ? (
