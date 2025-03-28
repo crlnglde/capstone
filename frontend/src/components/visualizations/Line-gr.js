@@ -152,10 +152,9 @@ const LineGraph = () => {
             disaster.barangays.forEach(({ name }) => {
                 if (selectedBarangays.length === 0 || selectedBarangays.some(b => b.value === name)) {
                     barangayOccurrences[name] = (barangayOccurrences[name] || 0) + 1;
+                    totalOccurrences += 1;
                 }
             });
-
-            totalOccurrences += 1;
         });
 
         Object.entries(barangayOccurrences).forEach(([barangay, count]) => {
@@ -212,12 +211,12 @@ const LineGraph = () => {
             </div>
 
                      {/* Dynamic Insights */}
-            <div className="pie-text-overlay">
+            <div className="line-text-overlay">
                 {disasterInsights.totalOccurrences === 0 ? (
                     <p>No disaster data available.</p>
                 ) : (
                     <div>
-                        <p><strong>Total occurrences for all barangays:</strong> {disasterInsights.totalOccurrences}</p>
+                        <p><strong>Total occurrences:</strong> {disasterInsights.totalOccurrences}</p>
                         <p><strong>Most affected barangay:</strong> {disasterInsights.mostAffectedBarangay} ({disasterInsights.mostAffectedCount} occurrences)</p>
                         <p><strong>Year with highest disasters:</strong> {disasterInsights.yearWithMostDisasters}</p>
                     </div>
