@@ -345,7 +345,6 @@ const fetchExistingResidents = async () => {
   };
   
   //Retrieve Residents
-  useEffect(() => {
     const fetchResidents = async () => {
       try {
         const response = await axios.get("http://localhost:3003/get-residents");
@@ -366,7 +365,9 @@ const fetchExistingResidents = async () => {
       }
     };
 
-    fetchResidents();  // Call function to fetch data
+
+  useEffect(() => {
+    fetchResidents();  // Fetch residents data when the component mounts
   }, []);
   
   
@@ -428,6 +429,7 @@ const fetchExistingResidents = async () => {
   const handleViewMore = (resident) => {
     setSelectedResident(resident);
     setModalType("view");
+    setIsEditing(false); 
     setIsModalOpen(true);
   };
 
@@ -514,9 +516,78 @@ const fetchExistingResidents = async () => {
           }, [searchResidents, currentPage]);
     
 
+          const sanitizeResidentData = (selectedResident) => {
+            return {
+              ...selectedResident,
+              age: Number(selectedResident.age),
+              income: Number(selectedResident.income),
+              phone: Number(selectedResident.phone),
+              bdate: selectedResident.bdate ? new Date(selectedResident.bdate) : null, 
+              dependents: selectedResident.dependents.map((dep) => ({
+                ...dep,
+                age: Number(dep.age),
+              })),
+            };
+          };
+          
+
+          const handleSave = async () => {
+            setIsEditing(false); 
+            const updatedResidentData = sanitizeResidentData(selectedResident);
+            console.log("Updated data:", updatedResidentData)
+
+            try {
+              const response = await fetch(`http://localhost:3003/update-resident/${updatedResidentData.memId}`, {
+                  method: 'PUT',
+                  headers: {
+                      'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify(updatedResidentData),
+              });
+      
+                if (response.ok) {
+                    const data = await response.json();
+                    setSelectedResident(data); 
+                    fetchResidents();
+                    alert('Resident data updated successfully!');
+                } else {
+                    const errorData = await response.json();
+                    alert(errorData.message || 'Error updating resident data');
+                }
+              } catch (error) {
+                  console.error('Error saving data:', error);
+                  alert('An error occurred while saving the data');
+            }
+
+          };
 
           const toggleEdit = () => {
             setIsEditing(!isEditing);
+          };
+
+          const handleCancel = () => {
+            setIsEditing(false); 
+            setSelectedResident((prev) => ({ ...prev }));
+          };
+        
+          const handleDelete = async () => {
+            if (!selectedResident) return;
+        
+            const confirmDelete = window.confirm("Are you sure you want to delete this resident?");
+            if (!confirmDelete) return;
+        
+            try {
+              const response = await axios.delete(`http://localhost:3003/delete-resident/${selectedResident.memId}`);
+              if (response.status === 200) {
+                alert('Resident deleted successfully');
+                setResidents((prevResidents) => prevResidents.filter((resident) => resident.memId !== selectedResident.memId)); // Update state to remove the deleted resident
+                setSelectedResident(null); 
+                closeModal();
+              }
+            } catch (error) {
+              console.error("Error deleting resident:", error);
+              alert('An error occurred while deleting the resident');
+            }
           };
 
           const updateResidentData = (newData) => {
@@ -1054,8 +1125,8 @@ const fetchExistingResidents = async () => {
             {modalType === "view" && selectedResident && (
               <div>
                 <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginBottom: "10px" }}>
-                  <button onClick={toggleEdit}>{isEditing ? "Save" : "Edit"}</button>
-                  <button>Delete</button>
+                  <button onClick={isEditing ? handleSave : toggleEdit }>{isEditing ? "Save" : "Edit"}</button>
+                  <button onClick={handleDelete}>Delete</button>
                 </div>
 
                 <RES 
