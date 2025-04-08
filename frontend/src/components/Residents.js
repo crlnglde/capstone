@@ -47,6 +47,13 @@ const Residents = () => {
 
   const [notification, setNotification] = useState(null);
 
+  const [activeTab, setActiveTab] = useState("list");
+  const [step, setStep] = useState(1);
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [residentData, setResidentData] = useState({ ...selectedResident });
+
+
   //list of barangays
   const barangays = [
     'Abuno', 'Acmac-Mariano Badelles Sr.', 'Bagong Silang', 'Bonbonon', 'Bunawan', 'Buru-un', 'Dalipuga',
@@ -253,7 +260,6 @@ const fetchExistingResidents = async () => {
 
     reader.readAsText(csvFile);
   };
-
 
   //Add Manually
   const handleSubmit = async (event) => {
@@ -508,125 +514,177 @@ const fetchExistingResidents = async () => {
           }, [searchResidents, currentPage]);
     
 
+
+          const toggleEdit = () => {
+            setIsEditing(!isEditing);
+          };
+
+          const updateResidentData = (newData) => {
+            setResidentData(newData);
+          };
+
   return (
     <div className="residents">
-      
-      <div className="res-btn">
-        <button className="add-resident" onClick={handleAddResidentClick}>
-          <i className="fa-solid fa-circle-plus"></i>
-          Add Resident
-        </button>
-          
-        <button className="upload-csv" onClick={handleUploadCsvClick}>
-          <i className="fa-solid fa-upload"></i>
-          Upload CSV
-        </button>
-      </div>
+
+        {step !== 2 && (
+        <div className="toggle-container">
+          <button
+            className={activeTab === "list" ? "active" : ""}
+            onClick={() => setActiveTab("list")}
+          >
+            List
+          </button>
+          <button
+            className={activeTab === "visualization" ? "active" : ""}
+            onClick={() => setActiveTab("visualization")}
+          >
+            Visualization
+          </button>
+        </div>
+        )}
+
+
+      {activeTab === "list" && (
+        <div className="res-btn">
+          <button className="add-resident" onClick={handleAddResidentClick}>
+            <i className="fa-solid fa-circle-plus"></i>
+            Add Resident
+          </button>
+            
+          <button className="upload-csv" onClick={handleUploadCsvClick}>
+            <i className="fa-solid fa-upload"></i>
+            Upload CSV
+          </button>
+        </div>
+      )}
+
 
       <div className="residents-container">
 
-        {/* Filter Dropdown */}
-        <div className="res-top-row">
+        {activeTab === "list" ? (
 
-          <div className="res-top-col">
-            <div className="resident-count-card">
-              <div className="rcc-label">
-                <label>Total Residents</label>
-              </div>
+              <>
+                {/* Filter Dropdown */}
+                <div className="res-top-row">
 
-              <p><i className="fa-solid fa-people-group"></i>{totalResidents}</p>
-            </div>
+                  <div className="res-top-col">
+                    <div className="resident-count-card">
+                      <div className="rcc-label">
+                        <label>Total Residents</label>
+                      </div>
 
-            <div className="resident-count-card">
-              <div className="rcc-label">
-                <label>Total Families</label>
-              </div>
-              
-              <p><i className="fa-solid fa-people-roof"></i>{residentCount}</p>
-            </div>
-          </div>
+                      <p><i className="fa-solid fa-people-group"></i>{totalResidents}</p>
+                    </div>
 
-          <div className="dstr-search">
-            <div className="dstr-search-container">
-              <i className="fa-solid fa-magnifying-glass"></i>
-              <input 
-                type="text" 
-                placeholder="Search..." 
-                onChange={handleSearchChange} 
-                className="search-bar"
-              />
-            </div>
-          </div>
-    
-          <div className="res-filter-container">
-            <label htmlFor="barangayFilter"><i className="fa-solid fa-filter"></i> Filter: </label>
-            <select
-              id="barangayFilter"
-              value={selectedBarangay}
-              onChange={handleFilterChange}
-            >
-              <option value="">All Barangays</option>
-              {barangays.map((barangay, index) => (
-                <option key={index} value={barangay}>
-                  {barangay}
-                </option>
-              ))}
-            </select>
-          </div>
-
-        </div>
-
-        <div className="residents-table">
-          <table>
-              <thead>
-              <tr>
-                <th>Barangay</th>
-                <th>Purok</th>
-                <th>Family Head</th>
-                <th>Age</th>
-                <th>Sex</th>
-                <th>Occupation</th>
-                <th>Contact No.</th>
-                <th>Education</th>
-                <th>View More</th>
-              </tr>
-              </thead>
-              <tbody>
-                
-              {tableResidents.length > 0 ? (
-                  tableResidents.map((resident, index) => (
-                    <tr key={index}>
-                      <td>{resident.barangay}</td> {/* barangay */}
-                      <td>{resident.purok}</td> {/* Purok */}
-                      <td>{resident.firstName} {resident.middleName} {resident.lastName}</td> {/* Family Head (name) */}
-                      <td>{resident.age}</td> {/* Family Head's Age */}
-                      <td>{resident.sex}</td> {/* Family Head's Sex */}
-                      <td>{resident.occupation}</td> {/* Occupation */}
-                      <td>{resident.phone}</td> {/* Contact No. */}
-                      <td>{resident.education || "Not Provided"}</td> {/* Education */}
+                    <div className="resident-count-card">
+                      <div className="rcc-label">
+                        <label>Total Families</label>
+                      </div>
                       
-                      <td> 
-                      <button className="res-viewmore-btn" onClick={() => handleViewMore(resident)}>
-                        <i className="fa-solid fa-ellipsis"></i>
-                      </button>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="9">No residents found.</td>
-                  </tr>
-                )}
-                                      
-              </tbody>
-          </table>
-        </div>
+                      <p><i className="fa-solid fa-people-roof"></i>{residentCount}</p>
+                    </div>
+                  </div>
 
-        {totalPages > 1 && (
-            <div className="pagination-wrapper">
-              <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+                  <div className="dstr-search">
+                    <div className="dstr-search-container">
+                      <i className="fa-solid fa-magnifying-glass"></i>
+                      <input 
+                        type="text" 
+                        placeholder="Search..." 
+                        onChange={handleSearchChange} 
+                        className="search-bar"
+                      />
+                    </div>
+                  </div>
+            
+                  <div className="res-filter-container">
+                    <label htmlFor="barangayFilter"><i className="fa-solid fa-filter"></i> Filter: </label>
+                    <select
+                      id="barangayFilter"
+                      value={selectedBarangay}
+                      onChange={handleFilterChange}
+                    >
+                      <option value="">All Barangays</option>
+                      {barangays.map((barangay, index) => (
+                        <option key={index} value={barangay}>
+                          {barangay}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                </div>
+
+                <div className="residents-table">
+                  <table>
+                      <thead>
+                      <tr>
+                        <th>Barangay</th>
+                        <th>Purok</th>
+                        <th>Family Head</th>
+                        <th>Age</th>
+                        <th>Sex</th>
+                        <th>Occupation</th>
+                        <th>Contact No.</th>
+                        <th>Education</th>
+                        <th>View More</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                        
+                      {tableResidents.length > 0 ? (
+                          tableResidents.map((resident, index) => (
+                            <tr key={index}>
+                              <td>{resident.barangay}</td> {/* barangay */}
+                              <td>{resident.purok}</td> {/* Purok */}
+                              <td>{resident.firstName} {resident.middleName} {resident.lastName}</td> {/* Family Head (name) */}
+                              <td>{resident.age}</td> {/* Family Head's Age */}
+                              <td>{resident.sex}</td> {/* Family Head's Sex */}
+                              <td>{resident.occupation}</td> {/* Occupation */}
+                              <td>{resident.phone}</td> {/* Contact No. */}
+                              <td>{resident.education || "Not Provided"}</td> {/* Education */}
+                              
+                              <td> 
+                              <button className="res-viewmore-btn" onClick={() => handleViewMore(resident)}>
+                                <i className="fa-solid fa-ellipsis"></i>
+                              </button>
+                              </td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan="9">No residents found.</td>
+                          </tr>
+                        )}
+                                              
+                      </tbody>
+                  </table>
+                </div>
+
+                {totalPages > 1 && (
+                    <div className="pagination-wrapper">
+                      <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+                    </div>
+                )}
+              </>
+
+        ):(  
+
+          <div className="residdents-visualizations">
+
+            <div className="header-container">
+              <h2 className="header-title">Visualizations</h2>
+    
+              <div className="dis-filter">
+              </div>
             </div>
-          )}
+
+           
+          </div>
+
+        )}  
+
+
 
       </div>
 
@@ -994,7 +1052,19 @@ const fetchExistingResidents = async () => {
             )}      
 
             {modalType === "view" && selectedResident && (
-              <RES residentData={selectedResident} />
+              <div>
+                <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginBottom: "10px" }}>
+                  <button onClick={toggleEdit}>{isEditing ? "Save" : "Edit"}</button>
+                  <button>Delete</button>
+                </div>
+
+                <RES 
+                  residentData={selectedResident} 
+                  isEditing={isEditing} 
+                  setResidentData={setSelectedResident}
+                />
+
+              </div>
             )}
 
       </Modal>

@@ -112,8 +112,8 @@
   .disasters-visualizations{
     display: flex;
     flex-direction: column;
-    align-items: center;
-    width: 100%;
+
+    padding: 20px;
   }
 
   .disasters-visualizations > h2{
