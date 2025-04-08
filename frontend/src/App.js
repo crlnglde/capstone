@@ -90,28 +90,30 @@ function App() {
             <Route path="/" element={<Login />} />
             <Route path="/login" element={<Login />} />
 
-            <Route element={<ProtectedRoute allowedRoles={["CSWD", "daycare worker"]} />}>
-                <Route path="/home" element={<Home />} />
-                <Route path="/disaster" element={<Disaster setNavbarTitle={setNavbarTitle} />} />
-                <Route path="/disaster/add-disaster" element={<AddDisaster />} />
-                <Route path="/residents" element={<Residents />} />
-            </Route>
-
-            <Route element={<ProtectedRoute allowedRoles={["CSWD"]} />}>
-              
-              <Route path="/distribution" element={<Distribution setNavbarTitle={setNavbarTitle} />}>
-                <Route path="rds" element={<RDS/>} />
-                <Route path="edit-rds" element={<EditRDS/>} />
-                <Route path="view-rds" element={<ViewRDS/>} />
+              <Route element={<ProtectedRoute allowedRoles={["CSWD", "daycare worker"]} />}>
+                  <Route path="/home" element={<Home />} />
+                  <Route path="/disaster" element={<Disaster setNavbarTitle={setNavbarTitle} />} />
+                  <Route path="/disaster/add-disaster" element={<AddDisaster />} />
+                  <Route path="/residents" element={<Residents />} />
               </Route>
 
-              <Route path="/rds" element={<RDS />} />
-              <Route path="/dafac" element={<DAFAC />} />
-              <Route path="/sporadic" element={<SPORADIC />} />
-              <Route path="/fdr" element={<FDR />} />
-              <Route path="/reports" element={<Reports />} />
-          ``</Route>
-          </Routes>
+              <Route element={<ProtectedRoute allowedRoles={["CSWD", "Enumerator"]} />}>
+                <Route path="/distribution" element={<Distribution setNavbarTitle={setNavbarTitle} />}>
+                  <Route path="rds" element={<RDS/>} />
+                  <Route path="edit-rds" element={<EditRDS/>} />
+                  <Route path="view-rds" element={<ViewRDS/>} />
+                </Route>
+              </Route>
+
+              <Route element={<ProtectedRoute allowedRoles={["CSWD"]} />}>
+                <Route path="/rds" element={<RDS />} />
+                <Route path="/dafac" element={<DAFAC />} />
+                <Route path="/sporadic" element={<SPORADIC />} />
+                <Route path="/fdr" element={<FDR />} />
+                <Route path="/reports" element={<Reports />} />
+              </Route>
+
+            </Routes>
 
           </ConditionalLayout>
         </Router>

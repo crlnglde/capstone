@@ -9,81 +9,180 @@ import ICImage from '../../pic/IC.png';
 import cswdImage from '../../pic/cswd.jpg';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
-const RES = ({ residentData }) => {
+
+const RES = ({ residentData, isEditing, setResidentData }) => {
+  const [formData, setFormData] = useState(residentData);
+
+  // Keep formData in sync with incoming residentData when it's updated externally
+  useEffect(() => {
+    setFormData(residentData);
+  }, [residentData]);
+
+  const handleChange = (field, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+    setResidentData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleDependentChange = (index, field, value) => {
+    const updatedDependents = [...formData.dependents];
+    updatedDependents[index][field] = value;
+    setFormData((prev) => ({
+      ...prev,
+      dependents: updatedDependents,
+    }));
+  };
+
+  const handleAddDependent = () => {
+    const newDependent = {
+      name: "",
+      relationToHead: "",
+      age: "",
+      sex: "M", // default value
+      education: "",
+      occupationSkills: "",
+    };
+    setFormData((prev) => ({
+      ...prev,
+      dependents: [...prev.dependents, newDependent],
+    }));
+  };
+
   return (
     <div className="resvw">
       <form className="res-form">
-        {/* Head of the Family Section */}
-
+        {/* Head of the Family */}
         <div className="form-header">
           <span>Head of the Family</span>
-          
           <span className="contact">
-            <label>Contact No.: </label><input type="text" value={residentData.phone || ""} disabled />
+            <label>Contact No.: </label>
+            <input
+              type="text"
+              value={formData.phone || ""}
+              onChange={(e) => handleChange("phone", e.target.value)}
+              disabled={!isEditing}
+            />
           </span>
         </div>
 
         {/* Name and Basic Details */}
         <div className="row">
           <div className="col">
-            <input type="text" value={residentData.lastName || ""} disabled />
+            <input
+              type="text"
+              value={formData.lastName || ""}
+              onChange={(e) => handleChange("lastName", e.target.value)}
+              disabled={!isEditing}
+            />
             <label>Surname</label>
           </div>
           <div className="col">
-            <input type="text" value={residentData.firstName || ""} disabled />
+            <input
+              type="text"
+              value={formData.firstName || ""}
+              onChange={(e) => handleChange("firstName", e.target.value)}
+              disabled={!isEditing}
+            />
             <label>First Name</label>
           </div>
           <div className="col">
-            <input type="text" value={residentData.middleName || ""} disabled />
+            <input
+              type="text"
+              value={formData.middleName || ""}
+              onChange={(e) => handleChange("middleName", e.target.value)}
+              disabled={!isEditing}
+            />
             <label>Middle Name</label>
           </div>
 
           <div className="col gender">
             <label>Gender: </label>
-            <select value={residentData.sex} disabled>
+            <select
+              value={formData.sex}
+              onChange={(e) => handleChange("sex", e.target.value)}
+              disabled={!isEditing}
+            >
               <option value="M">M</option>
               <option value="F">F</option>
             </select>
           </div>
+
           <div className="col age">
             <label>Age: </label>
-            <input type="number" min="0" value={residentData.age || ""} disabled />
+            <input
+              type="number"
+              min="0"
+              value={formData.age || ""}
+              onChange={(e) => handleChange("age", e.target.value)}
+              disabled={!isEditing}
+            />
           </div>
         </div>
 
-        {/* Address, Date of Birth, Occupation, Income */}
+        {/* Address, DOB, Occupation, Income */}
         <div className="row">
           <div className="col address">
-            <input type="text" value={`${residentData.purok}, ${residentData.barangay}`} disabled />
+            <input
+              type="text"
+              value={`${formData.purok || ""}, ${formData.barangay || ""}`}
+              disabled
+            />
             <label>Home Address</label>
           </div>
           <div className="col">
-            <input type="date" value={residentData.bdate ? residentData.bdate.split("T")[0] : ""}  disabled />
+            <input
+              type="date"
+              value={formData.bdate ? formData.bdate.split("T")[0] : ""}
+              onChange={(e) => handleChange("bdate", e.target.value)}
+              disabled={!isEditing}
+            />
             <label>Date of Birth</label>
           </div>
           <div className="col">
-            <input type="text" value={residentData.occupation || ""} disabled />
+            <input
+              type="text"
+              value={formData.occupation || ""}
+              onChange={(e) => handleChange("occupation", e.target.value)}
+              disabled={!isEditing}
+            />
             <label>Occupation</label>
           </div>
           <div className="col">
-            <input type="number" min="0" step="0.01" value={residentData.income || ""} disabled />
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value={formData.income || ""}
+              onChange={(e) => handleChange("income", e.target.value)}
+              disabled={!isEditing}
+            />
             <label>Monthly Income</label>
           </div>
         </div>
 
-        {/* Educational Attainment and Family Members */}
+        {/* Education and Family Members Count */}
         <div className="row">
           <div className="col">
-            <input type="text" value={residentData.education || ""} disabled />
+            <input
+              type="text"
+              value={formData.education || ""}
+              onChange={(e) => handleChange("education", e.target.value)}
+              disabled={!isEditing}
+            />
             <label>Educational Attainment</label>
           </div>
           <div className="col">
-          <input 
-            type="number" 
-            min="1" 
-            value={1 + (residentData.dependents ? residentData.dependents.length : 0)} 
-            disabled 
-          />
+            <input
+              type="number"
+              min="1"
+              value={1 + (formData.dependents?.length || 0)}
+              disabled
+            />
             <label>No. of Family Members</label>
           </div>
         </div>
@@ -101,15 +200,89 @@ const RES = ({ residentData }) => {
             </tr>
           </thead>
           <tbody>
-            {residentData?.dependents?.length > 0 ? (
-              residentData.dependents.map((dependent, index) => (
+            {formData?.dependents?.length > 0 ? (
+              formData.dependents.map((dependent, index) => (
                 <tr key={index}>
-                  <td>{dependent.name}</td>
-                  <td>{dependent.relationToHead}</td>
-                  <td>{dependent.age}</td>
-                  <td>{dependent.sex}</td>
-                  <td>{dependent.education}</td>
-                  <td>{dependent.occupationSkills}</td>
+                  <td>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        value={dependent.name}
+                        onChange={(e) =>
+                          handleDependentChange(index, "name", e.target.value)
+                        }
+                      />
+                    ) : (
+                      dependent.name
+                    )}
+                  </td>
+                  <td>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        value={dependent.relationToHead}
+                        onChange={(e) =>
+                          handleDependentChange(index, "relationToHead", e.target.value)
+                        }
+                      />
+                    ) : (
+                      dependent.relationToHead
+                    )}
+                  </td>
+                  <td>
+                    {isEditing ? (
+                      <input
+                        type="number"
+                        value={dependent.age}
+                        onChange={(e) =>
+                          handleDependentChange(index, "age", e.target.value)
+                        }
+                      />
+                    ) : (
+                      dependent.age
+                    )}
+                  </td>
+                  <td>
+                    {isEditing ? (
+                      <select
+                        value={dependent.sex}
+                        onChange={(e) =>
+                          handleDependentChange(index, "sex", e.target.value)
+                        }
+                      >
+                        <option value="M">M</option>
+                        <option value="F">F</option>
+                      </select>
+                    ) : (
+                      dependent.sex
+                    )}
+                  </td>
+                  <td>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        value={dependent.education}
+                        onChange={(e) =>
+                          handleDependentChange(index, "education", e.target.value)
+                        }
+                      />
+                    ) : (
+                      dependent.education
+                    )}
+                  </td>
+                  <td>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        value={dependent.occupationSkills}
+                        onChange={(e) =>
+                          handleDependentChange(index, "occupationSkills", e.target.value)
+                        }
+                      />
+                    ) : (
+                      dependent.occupationSkills
+                    )}
+                  </td>
                 </tr>
               ))
             ) : (
@@ -119,9 +292,18 @@ const RES = ({ residentData }) => {
             )}
           </tbody>
         </table>
+
+        {/* Button to add a new family member */}
+        {isEditing && (
+          <button type="button" onClick={handleAddDependent}>
+            Add Family Member
+          </button>
+        )}
+
       </form>
     </div>
   );
 };
 
 export default RES;
+
