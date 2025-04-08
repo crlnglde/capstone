@@ -169,3 +169,99 @@
       font-style: italic;
       color: #777;
     }
+
+
+    /* Remove input field box when editing */
+.res-form .family-table input,
+.res-form .family-table select {
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  padding: 5px;
+  text-align: center;
+  font-weight: bolder;
+  text-transform: capitalize;
+}
+
+.res-form .family-table input:focus,
+.res-form .family-table select:focus {
+  outline: none; /* Prevents focus outline */
+  box-shadow: none; /* Remove box shadow */
+}
+
+.res-form .family-table td input,
+.res-form .family-table td select {
+  font-size: 14px;
+  background-color: transparent;
+  color: #555;
+}   
+
+.res-form .family-table td {
+  text-align: center;
+  font-size: 14px;
+  font-weight: normal;
+}
+
+/* Button to add a new family member */
+button[type="button"] {
+  background-color: #191919;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  margin-top: 15px;
+  font-size: 16px;
+}
+
+button[type="button"]:hover {
+  background-color: #1202a4;
+}
+
+
+
+.res-form .family-table .remove-icon {
+  text-align: center;
+}
+
+.res-form .family-table .remove-icon button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #ff4d4d;
+  font-size: 18px;
+  transition: color 0.3s ease;
+}
+
+.res-form .family-table .remove-icon button:hover {
+  color: #ff0000;
+}
+
+.res-form .family-table .remove-icon button i {
+  margin: 0;
+  padding: 0;
+}
+
+.res-form .family-table .remove-icon button[disabled] {
+  cursor: not-allowed;
+  color: #ccc;
+}
+
+.res-form .add-family-member-btn {
+  text-align: center;
+  margin-top: 5px;
+}
+
+.res-form .add-family-member-btn button {
+  background-color: #212121;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.3s ease;
+}
+
+.res-form .add-family-member-btn button:hover {
+  background-color: #0056b3;
+}
