@@ -53,6 +53,17 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
     }));
   };
 
+  const handleRemoveDependent = (index) => {
+    const updatedDependents = formData.dependents.filter(
+      (dependent, i) => i !== index
+    );
+    setFormData((prev) => ({
+      ...prev,
+      dependents: updatedDependents,
+    }));
+  };
+
+
   return (
     <div className="resvw">
       <form className="res-form">
@@ -283,6 +294,19 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
                       dependent.occupationSkills
                     )}
                   </td>
+
+                  {/* Remove icon in the last column */}
+                    {isEditing && (
+                      <td className="remove-icon">
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveDependent(index)}
+                          title="Remove Dependent"
+                        >
+                          <i className="fas fa-trash-alt"></i>
+                        </button>
+                      </td>
+                    )}
                 </tr>
               ))
             ) : (
@@ -291,14 +315,18 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
               </tr>
             )}
           </tbody>
+
         </table>
 
         {/* Button to add a new family member */}
         {isEditing && (
-          <button type="button" onClick={handleAddDependent}>
-            Add Family Member
-          </button>
+          <div className="add-family-member-btn">
+            <button type="button" onClick={handleAddDependent}>
+              Add Family Member
+            </button>
+          </div>
         )}
+
 
       </form>
     </div>
