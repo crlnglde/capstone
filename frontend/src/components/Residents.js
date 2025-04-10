@@ -772,7 +772,7 @@ const fetchExistingResidents = async () => {
 
             </div>
 
-            <ResidentsVis/>
+            <ResidentsVis selectedBarangay={selectedBarangay}/>
 
            
           </div>
