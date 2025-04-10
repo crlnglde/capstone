@@ -47,7 +47,7 @@
 }
 
 /* Content */
-.content {
+.notification.content {
     margin-left: 60px;
     flex-grow: 1;
 }

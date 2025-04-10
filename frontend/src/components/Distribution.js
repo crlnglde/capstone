@@ -376,9 +376,38 @@ const validateFields = () => {
         (a, b) => new Date(b.disasterDate) - new Date(a.disasterDate)
       );
 
+            // Flatten the pending distributions array
+            const flattenedDistributions = sortedPending.flatMap((distItem) =>
+              distItem.barangays.flatMap((barangay) =>
+                barangay.distribution.map((dist) => ({
+                  ...dist,
+                  disasterCode: distItem.disasterCode,
+                  disasterType: disasterTypeMapping[distItem.disasterCode.split('-')[0]] || "Unknown Disaster",
+                  barangayName: barangay.name,
+                }))
+              )
+            ).sort((a, b) => new Date(b.dateDistributed) - new Date(a.dateDistributed)); 
+
+      const totalDistributions = flattenedDistributions.length;
       const totalDisasterPages = Math.ceil(sortedDisasters.length / disastersPerPage);
-      const totalPendingPages = Math.ceil(sortedPending.length / pendingPerPage);
+      const totalPendingPages = Math.ceil(totalDistributions / pendingPerPage);
       const totalDistributionHistoryPages = Math.ceil(sortedHistory.length / historyPerPage);
+
+          // Slice the data to show only the required page data
+          const displayedDisasters = sortedDisasters.slice(
+            (currentDisastersPage - 1) * disastersPerPage,
+            currentDisastersPage * disastersPerPage
+          );
+          
+          const displayedPending = flattenedDistributions.slice(
+            (pendingDistributionsPage - 1) * pendingPerPage,
+            pendingDistributionsPage * pendingPerPage
+          );
+    
+          const displayedHistory = sortedHistory.slice(
+            (historyPage - 1) * historyPerPage,
+            historyPage * historyPerPage
+          );
 
     // Handle pagination for Current Disasters
       const handleNextDisasters = () => {
@@ -418,22 +447,6 @@ const validateFields = () => {
           setHistoryPage(historyPage - 1);
         }
       };
-
-    // Slice the data to show only the required page data
-      const displayedDisasters = sortedDisasters.slice(
-        (currentDisastersPage - 1) * disastersPerPage,
-        currentDisastersPage * disastersPerPage
-      );
-      
-      const displayedPending = sortedPending.slice(
-        (pendingDistributionsPage - 1) * pendingPerPage,
-        pendingDistributionsPage * pendingPerPage
-      );
-
-      const displayedHistory = sortedHistory.slice(
-        (historyPage - 1) * historyPerPage,
-        historyPage * historyPerPage
-      );
 
   return (
     <div className="distribution">
@@ -537,43 +550,32 @@ const validateFields = () => {
                     </div>
 
                     <div className="container">
-                      {displayedPending.length > 0 ? (
-                        displayedPending.map((distItem, index) => (
-                          <div key={index} >
-                            {/* Loop through barangays */}
-                            {distItem.barangays.map((barangay, bIndex) => (
-                              <div key={bIndex}>
-                                {barangay.distribution.map((dist, dIndex) => (
-                                  <div key={dIndex} className="transactionItem">
-                                    {/* Date Box */}
-                                    <div className="dateBox">
-                                      <span className="date">{new Date(dist.dateDistributed).getDate()}</span>
-                                      <span className="month">
-                                        {new Date(dist.dateDistributed).toLocaleString("default", { month: "short" })}
-                                      </span>
-                                    </div>
+                    {displayedPending.length > 0 ? (
+                        displayedPending.map((dist, index) => (
+                          <div key={index} className="transactionItem">
+                            {/* Date Box */}
+                            <div className="dateBox">
+                              <span className="date">{new Date(dist.dateDistributed).getDate()}</span>
+                              <span className="month">
+                                {new Date(dist.dateDistributed).toLocaleString("default", { month: "short" })}
+                              </span>
+                            </div>
 
-                                    {/* Disaster Code */}
-                                    <div className="details">
-                                      <span className="title">{distItem.disasterCode}</span>
-                                      <span className="subtitle">
-                                        {disasterTypeMapping[distItem.disasterCode.split('-')[0]] || "Unknown Disaster"}
-                                      </span>
-                                    </div>
+                            {/* Disaster Code */}
+                            <div className="details">
+                              <span className="title">{dist.disasterCode}</span>
+                              <span className="subtitle">{dist.disasterType}</span>
+                            </div>
 
-                                    {/* Barangay Name */}
-                                    <div className="brgy">
-                                      <span className="subtitle">{barangay.name}</span>
-                                    </div>
+                            {/* Barangay Name */}
+                            <div className="brgy">
+                              <span className="subtitle">{dist.barangayName}</span>
+                            </div>
 
-                                    {/* Actions */}
-                                    <div className="actions">
-                                      <button className="doneButton" onClick={() => handleEdit(dist._id)} >Edit</button>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            ))}
+                            {/* Actions */}
+                            <div className="actions">
+                              <button className="doneButton" onClick={() => handleEdit(dist._id)} >Edit</button>
+                            </div>
                           </div>
                         ))
                       ) : (
