@@ -1,10 +1,27 @@
 /* Grid Layout */
+
+.residdents-visualizations .header-container .res-top-row{
+    display: flex;
+    justify-content: space-between;
+    padding: 0px 20px 0 0px;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+
 .grid-container {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 2fr;
     grid-template-rows: auto auto;
     gap: 2rem;
     padding: 2rem;
+  }
+
+  .grid-item-1 {
+    grid-template-columns: 3fr 1fr;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
   }
   
   .grid-item {
@@ -48,51 +65,63 @@
   }
   
 
-  .total-senior-card {
-    width: 100%;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    background-color: #f1f1f1;
-  }
-  
-  .total-senior-card .card-header {
-    background-color: #1e3a8a; /* Navy blue */
-    color: white;
-    text-align: center;
-    padding: 0.75rem 0;
-    font-weight: bold;
-    font-size: 2rem;
-    letter-spacing: 1px;
-  }
+        .total-senior-card {
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            background-color: #f1f1f1;
+        }
+        
+        .total-senior-card .card-header {
+            background-color: #1e3a8a;
+            color: white;
+            text-align: center;
+            padding: 0.75rem 0;
+            font-weight: bold;
+            letter-spacing: 1px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
 
-  .total-senior-card .card-header p{
-    margin: 0;
-  }
-  
-  .total-senior-card .card-body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 1rem;
-  }
-  
-  .icon-and-number {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-  
-  .icon-and-number .icon {
-    font-size: 2rem;
-    color: #0f2984; 
-  }
-  
-  .icon-and-number .card-number {
-    font-size: 2rem;
-    font-weight: bold;
-    color: black;
-  }
+        .total-senior-card .card-header p{
+            margin: 0;
+        }
+
+        .total-senior-card .card-header .title{
+            font-size: 20px;
+            color: white;
+        }
+
+        .total-senior-card .card-header .age{
+            font-size: 15px;
+        }
+        
+        .total-senior-card .card-body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: .75rem;
+        }
+        
+        .icon-and-number {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .icon-and-number .icon {
+            font-size: 1.2rem;
+            color: #0f2984; 
+        }
+        
+        .icon-and-number .card-number {
+            font-size: 20px;
+            font-weight: bold;
+            color: black;
+        }
 
   
   .pie-chart-card,
@@ -110,7 +139,7 @@
   /* Adjust the pie chart size */
   .pie-chart-container {
     position: relative;
-    width: 60%;
+    width: 80%;
     height: 300px;  
     margin: 0 auto;
   }

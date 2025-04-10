@@ -16,12 +16,14 @@ import {
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
 
-const ResidentsVis = () => {
+const ResidentsVis = ({ selectedBarangay }) => {
   const [stats, setStats] = useState(null);
 
   // Static data to simulate the API response
   const mockData = {
     seniorCitizens: 150,
+    minors: 150,
+    adults: 150,
     totalMale: 1200,
     totalFemale: 1300,
     educationStats: {
@@ -31,8 +33,8 @@ const ResidentsVis = () => {
     },
     occupationStats: {
       "Fishermen": 800,
-      "Unemployed": 600,
-      "Self-Employed": 400,
+      "Teacher": 600,
+      "Work from home hehe": 400,
     },
     totalDependents: 500,
     maleDependents: 250,
@@ -50,133 +52,161 @@ const ResidentsVis = () => {
 
   return (
     <div className="grid-container">
-      {/* Row 1: Senior Card + Educational Attainment Bar */}
-      <div className="grid-item grid-item-1">
+    {/* Row 1: Senior Card + Educational Attainment Bar */}
+    <div className="grid-item grid-item-1">
         <Card className="card total-senior-card">
-            <div className="card-header">
-                <p>Senior Citizen</p>
+        <div className="card-header">
+            <p className="title">Minors</p>
+            <p className="age">(0–17)</p>
+        </div>
+        <CardContent className="card-body">
+            <div className="icon-and-number">
+            <span className="icon"><FaUsers /></span>
+            <h2 className="card-number">{stats.minors}</h2>
             </div>
-            <CardContent className="card-body">
-                <div className="icon-and-number">
-                    <span className="icon"><FaUsers /></span>
-                    <h2 className="card-number">{stats.seniorCitizens}</h2>
-                </div>
-            </CardContent>
+        </CardContent>
         </Card>
 
-      </div>
-
-      <div className="grid-item grid-item-2">
-        <Card className="card full-width">
-          <CardContent>
-            <p className="chart-title">Educational Attainment</p>
-            <Bar
-                data={{
-                    labels: Object.keys(stats.educationStats),
-                    datasets: [
-                    {
-                        label: "Residents",
-                        data: Object.values(stats.educationStats),
-                        backgroundColor: ["#93c5fd", "#60a5fa", "#3b82f6"], // light to darker blue shades
-                        borderRadius: 5,
-                    },
-                    ],
-                }}
-                options={{
-                    responsive: true,
-                    plugins: {
-                    legend: {
-                        display: false,
-                    },
-                    },
-                    scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                        color: "#333",
-                        },
-                    },
-                    x: {
-                        ticks: {
-                        color: "#333",
-                        },
-                    },
-                    },
-                }}
-            />
-
-          </CardContent>
+        <Card className="card total-senior-card">
+        <div className="card-header">
+            <p className="title">Adults</p>
+            <p className="age">(18–59)</p>
+        </div>
+        <CardContent className="card-body">
+            <div className="icon-and-number">
+            <span className="icon"><FaUsers /></span>
+            <h2 className="card-number">{stats.adults}</h2>
+            </div>
+        </CardContent>
         </Card>
-      </div>
 
-      {/* Row 2: Dependents by Gender Pie + Occupation Distribution Bar */}
-      <Card className="card pie-chart-card">
+        <Card className="card total-senior-card">
+        <div className="card-header">
+            <p className="title">Senior Citizen</p>
+            <p className="age">(60+)</p>
+        </div>
+        <CardContent className="card-body">
+            <div className="icon-and-number">
+            <span className="icon"><FaUsers /></span>
+            <h2 className="card-number">{stats.seniorCitizens}</h2>
+            </div>
+        </CardContent>
+        </Card>
+    </div>
+
+    <Card className="card full-width">
         <CardContent>
-            <p className="chart-title">Dependents by Gender</p>
-            <div className="pie-chart-container">
+        <p className="chart-title">Educational Attainment</p>
+        <Bar
+            data={{
+            labels: Object.keys(stats.educationStats),
+            datasets: [
+                {
+                label: "Residents",
+                data: Object.values(stats.educationStats),
+                backgroundColor: ["#93c5fd", "#60a5fa", "#3b82f6"],
+                borderRadius: 5,
+                },
+            ],
+            }}
+            options={{
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+            },
+            scales: {
+                y: {
+                beginAtZero: true,
+                ticks: { color: "#333" },
+                },
+                x: {
+                ticks: { color: "#333" },
+                },
+            },
+            }}
+        />
+        </CardContent>
+    </Card>
+
+    {/* Row 2: Dependents by Gender Pie + Occupation Distribution Bar */}
+    <Card className="card pie-chart-card">
+        <CardContent>
+        <p className="chart-title">Dependents by Gender</p>
+        <div className="pie-chart-container">
             <Pie
-                data={{
+            data={{
                 labels: ["Male", "Female"],
                 datasets: [
-                    {
+                {
                     data: [stats.maleDependents, stats.femaleDependents],
-                    backgroundColor: ["#3B82F6", "#F472B6"], // Blue & Pink
+                    backgroundColor: ["#3B82F6", "#F472B6"],
                     borderColor: "#fff",
                     borderWidth: 2,
-                    },
+                },
                 ],
-                }}
-                options={{
+            }}
+            options={{
                 responsive: true,
                 plugins: {
-                    legend: {
+                legend: {
                     position: "top",
                     labels: {
-                        color: "#444", // darker gray text
-                        font: {
+                    color: "#444",
+                    font: {
                         size: 14,
                         weight: "500",
-                        },
                     },
                     },
-                    tooltip: {
+                },
+                tooltip: {
                     backgroundColor: "#1e3a8a",
                     titleColor: "#fff",
                     bodyColor: "#ddd",
                     borderColor: "#ccc",
                     borderWidth: 1,
                     padding: 10,
-                    },
                 },
-                }}
+                },
+            }}
             />
-            </div>
+        </div>
         </CardContent>
-      </Card>
-
-
+    </Card>
 
     <Card className="card full-width">
         <CardContent>
-            <p className="chart-title">Occupation Distribution</p>
-            <div className="chart-container">
+        <p className="chart-title">Occupation Distribution</p>
+        <div className="chart-container">
             <Bar
-                data={{
+            data={{
                 labels: Object.keys(stats.occupationStats),
                 datasets: [
-                    {
+                {
                     label: "Residents",
                     data: Object.values(stats.occupationStats),
-                    backgroundColor: "#10B981",
-                    },
+                    backgroundColor: ["#93c5fd", "#60a5fa", "#3b82f6"],
+                    borderRadius: 5,
+                },
                 ],
-                }}
-                options={{ responsive: true }}
+            }}
+            options={{
+                indexAxis: "y",
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                x: {
+                    beginAtZero: true,
+                    ticks: { color: "#333" },
+                },
+                y: { ticks: { color: "#333" } },
+                },
+            }}
             />
-            </div>
+        </div>
         </CardContent>
     </Card>
     </div>
+
   );
 };
 

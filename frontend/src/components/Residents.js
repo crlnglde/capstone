@@ -685,6 +685,7 @@ const fetchExistingResidents = async () => {
                     </select>
                   </div>
 
+
                 </div>
 
                 <div className="residents-table">
@@ -746,8 +747,27 @@ const fetchExistingResidents = async () => {
 
             <div className="header-container">
               <h2 className="header-title">Visualizations</h2>
-    
-              <div className="dis-filter">
+  
+
+              <div className="res-top-row">
+
+                <div className="res-filter-container">
+                  <label htmlFor="barangayFilter"><i className="fa-solid fa-filter"></i> Filter: </label>
+                  <select
+                    id="barangayFilter"
+                    value={selectedBarangay}
+                    onChange={handleFilterChange}
+                  >
+                    <option value="">All Barangays</option>
+                    {barangays.map((barangay, index) => (
+                      <option key={index} value={barangay}>
+                        {barangay}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+
               </div>
 
             </div>
