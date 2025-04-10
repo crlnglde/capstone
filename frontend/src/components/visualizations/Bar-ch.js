@@ -11,7 +11,8 @@ const BarGraph = ({ isBarGraph }) => {
   const [barangayFilter, setBarangayFilter] = useState("");
   const [disasters, setDisasters] = useState([]);
   const [distributions, setDistributions] = useState([]);
-
+  const [selectedDisaster, setSelectedDisaster] = useState("");
+  const [disDate, setdisDate] = useState("");
   const [graphType, setGraphType] = useState("bar"); 
   const [availableBarangays, setAvailableBarangays] = useState([]);
 
@@ -50,7 +51,7 @@ const BarGraph = ({ isBarGraph }) => {
   
     const selectedDisaster = disasters.find(d => d.disasterCode === disasterCodeFilter);
     if (!selectedDisaster) return null;
-  
+    setSelectedDisaster(selectedDisaster);
     // Get total affected families based on barangay filter
     const affectedFamiliesCount = selectedDisaster.barangays
       .filter(barangay => !barangayFilter || barangay.name === barangayFilter)
@@ -79,6 +80,12 @@ const BarGraph = ({ isBarGraph }) => {
     const receivedFamiliesData = allDistributions.map(distribution => 
       distribution.families.filter(fam => fam.status === "Done").length
     );
+
+    const date= new Date(selectedDisaster.disasterDateTime);
+    const disDate= date.toLocaleString('en-US', { 
+        month: 'short', day: '2-digit', year: 'numeric' 
+      });
+    setdisDate(disDate);
     
   
     return {
@@ -208,7 +215,7 @@ const BarGraph = ({ isBarGraph }) => {
       </div>
 
       <div className="pie-text-overlay">
-        <h2>Disaster Insights</h2>
+        <h3>{selectedDisaster.disasterType} last {disDate}</h3>
         {chartData && chartData.labels.length > 0 ? (
           <>
             {chartData.datasets[1].data.some((received, index) => received < chartData.datasets[0].data[index]) ? (
