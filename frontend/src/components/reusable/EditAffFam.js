@@ -139,7 +139,7 @@ const EditAffFam = ({disBarangay, disCode, setStep}) => {
                 setError(""); // Clear previous errors
         
                 try {
-                    const response = await fetch(`http://localhost:3003/get-disaster/${disCode}`);
+                    const response = await fetch(`http://192.168.1.24:3003/get-disaster/${disCode}`);
                     const data = await response.json();
         
                     if (!data || !data.barangays) {
@@ -189,6 +189,10 @@ const EditAffFam = ({disBarangay, disCode, setStep}) => {
         }, [disCode, disBarangay]);    
     
         const handleFinalSubmit = async () => {
+
+            const confirmSubmit = window.confirm("Are you sure you want to submit the forms?");
+            if (!confirmSubmit) return;
+
             const disasterData = JSON.parse(localStorage.getItem("disasterData")) || null;
             const residentData = JSON.parse(localStorage.getItem("savedForms")) || [];
 
@@ -213,7 +217,7 @@ const EditAffFam = ({disBarangay, disCode, setStep}) => {
                 await new Promise((resolve) => setTimeout(resolve, 2000));
 
                 // Fetch existing disaster data
-                const checkResponse = await fetch(`http://localhost:3003/get-disaster/${disasterCode}`);
+                const checkResponse = await fetch(`http://192.168.1.24:3003/get-disaster/${disasterCode}`);
                 const existingDisaster = await checkResponse.json();
             
                 if (checkResponse.ok && existingDisaster) {
@@ -260,7 +264,7 @@ const EditAffFam = ({disBarangay, disCode, setStep}) => {
                     console.log("Updated Barangays Data:", updatedBarangays);
             
                     // Send the updated barangays data to backend
-                    const updateResponse = await fetch(`http://localhost:3003/update-disaster/${disasterCode}`, {
+                    const updateResponse = await fetch(`http://192.168.1.24:3003/update-disaster/${disasterCode}`, {
                         method: "PUT",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ barangays: updatedBarangays }),

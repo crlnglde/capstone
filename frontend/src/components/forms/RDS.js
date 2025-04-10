@@ -64,7 +64,7 @@ const RDS= () => {
   useEffect(() => {
     const fetchFamilies = async () => {
       try {
-        const response = await axios.get("http://localhost:3003/get-disasters");
+        const response = await axios.get("http://192.168.1.24:3003/get-disasters");
         const disasterData = response.data;
   
         // Find the disaster matching the given disasterId
@@ -101,8 +101,12 @@ const RDS= () => {
   }, [families]);
 
   const handleSaveDistribution = async () => {
+
+    const confirmSubmit = window.confirm("Are you sure you want to submit this form?");
+    if (!confirmSubmit) return;
+
     try {
-      await axios.post("http://localhost:3003/save-distribution", {
+      await axios.post("http://192.168.1.24:3003/save-distribution", {
         disasterCode: forDistribution.disasterCode,
         disasterDate: forDistribution.disasterDate,
         barangay: forDistribution.barangay,

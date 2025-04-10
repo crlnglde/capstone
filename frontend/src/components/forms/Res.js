@@ -190,12 +190,24 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
         {/* Education and Family Members Count */}
         <div className="row">
           <div className="col">
-            <input
-              type="text"
+            <select
               value={formData.education || ""}
               onChange={(e) => handleChange("education", e.target.value)}
               disabled={!isEditing}
-            />
+            >
+              <option value="">Select Educational Attainment</option>
+              <option value="Elementary Level">Elementary Level</option>
+              <option value="Elementary Graduate">Elementary Graduate</option>
+              <option value="Junior High School level">Junior High School level</option>
+              <option value="Junior High School Graduate">Junior High School Graduate</option>
+              <option value="Senior High School Level">Senior High School Level</option>
+              <option value="Senior High School Graduate">Senior High School Graduate</option>
+              <option value="College Level">College Level</option>
+              <option value="Bachelor's Degree">Bachelor's Degree</option>
+              <option value="Master's Degree">Master's Degree</option>
+              <option value="Doctorate Degree">Doctorate Degree</option>
+              <option value="Vocational">Vocational</option>
+            </select>
             <label>Educational Attainment</label>
           </div>
           <div className="col">
@@ -285,13 +297,24 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
                   </td>
                   <td>
                     {isEditing ? (
-                      <input
-                        type="text"
+                      <select
                         value={dependent.education}
                         onChange={(e) =>
-                          handleDependentChange(index, "education", e.target.value)
+                        handleDependentChange(index, "education", e.target.value)
                         }
-                      />
+                      >
+                        <option value="Elementary Level">Elementary Level</option>
+                        <option value="Elementary Graduate">Elementary Graduate</option>
+                        <option value="Junior High School level">Junior High School level</option>
+                        <option value="Junior High School Graduate">Junior High School Graduate</option>
+                        <option value="Senior High School Level">Senior High School Level</option>
+                        <option value="Senior High School Graduate">Senior High School Graduate</option>
+                        <option value="College Level">College Level</option>
+                        <option value="Bachelor's Degree">Bachelor's Degree</option>
+                        <option value="Master's Degree">Master's Degree</option>
+                        <option value="Doctorate Degree">Doctorate Degree</option>
+                        <option value="Vocational">Vocational</option>
+                      </select>
                     ) : (
                       dependent.education
                     )}

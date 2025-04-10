@@ -73,7 +73,7 @@ const addResidentsToTop = (newResidents) => {
 
 const fetchExistingResidents = async () => {
   try {
-    const response = await axios.get("http://localhost:3003/get-residents");
+    const response = await axios.get("http://192.168.1.24:3003/get-residents");
     return response.data; 
   } catch (error) {
     console.error("Error fetching residents:", error);
@@ -89,6 +89,9 @@ const fetchExistingResidents = async () => {
 
   //CSV Upload
   const handleFileUpload = async (event) => {
+    const confirmSubmit = window.confirm("Are you sure you want to upload this file?");
+    if (!confirmSubmit) return;
+
     event.preventDefault();
     setNotification(null);
 
@@ -195,7 +198,7 @@ const fetchExistingResidents = async () => {
             await new Promise((resolve) => setTimeout(resolve, 2000)); // Simulate a delay for better UX
 
             // 5️⃣ Send data to backend
-            const response = await axios.post("http://localhost:3003/add-csvresidents", { residents: newResidents });
+            const response = await axios.post("http://192.168.1.24:3003/add-csvresidents", { residents: newResidents });
 
             console.log("✅ Server Response:", response.data);
 
@@ -264,6 +267,10 @@ const fetchExistingResidents = async () => {
 
   //Add Manually
   const handleSubmit = async (event) => {
+
+    const confirmSubmit = window.confirm("Are you sure you want to submit this form?");
+    if (!confirmSubmit) return;
+
     event.preventDefault();
     setIsUploading(true); 
     setNotification(null); 
@@ -300,7 +307,7 @@ const fetchExistingResidents = async () => {
 
       await new Promise((resolve) => setTimeout(resolve, 2000));
       
-      const response = await axios.post("http://localhost:3003/add-residents", formattedData);
+      const response = await axios.post("http://192.168.1.24:3003/add-residents", formattedData);
 
       
       setNotification({ type: "success", message: "Resident added successfully!" });
@@ -348,7 +355,7 @@ const fetchExistingResidents = async () => {
   //Retrieve Residents
     const fetchResidents = async () => {
       try {
-        const response = await axios.get("http://localhost:3003/get-residents");
+        const response = await axios.get("http://192.168.1.24:3003/get-residents");
         const residentsData = response.data;
         setResidents(residentsData); 
 
@@ -533,12 +540,15 @@ const fetchExistingResidents = async () => {
           
 
           const handleSave = async () => {
+            const confirmSubmit = window.confirm("Are you sure you want to submit this form?");
+            if (!confirmSubmit) return;
+
             setIsEditing(false); 
             const updatedResidentData = sanitizeResidentData(selectedResident);
             console.log("Updated data:", updatedResidentData)
 
             try {
-              const response = await fetch(`http://localhost:3003/update-resident/${updatedResidentData.memId}`, {
+              const response = await fetch(`http://192.168.1.24:3003/update-resident/${updatedResidentData.memId}`, {
                   method: 'PUT',
                   headers: {
                       'Content-Type': 'application/json',
@@ -578,7 +588,7 @@ const fetchExistingResidents = async () => {
             if (!confirmDelete) return;
         
             try {
-              const response = await axios.delete(`http://localhost:3003/delete-resident/${selectedResident.memId}`);
+              const response = await axios.delete(`http://192.168.1.24:3003/delete-resident/${selectedResident.memId}`);
               if (response.status === 200) {
                 alert('Resident deleted successfully');
                 setResidents((prevResidents) => prevResidents.filter((resident) => resident.memId !== selectedResident.memId)); // Update state to remove the deleted resident
@@ -922,19 +932,30 @@ const fetchExistingResidents = async () => {
                       </div>                      
                       
                        {/*educAt*/}
-                      <div className="form-group">
+                       <div className="form-group">
                         <div className="input-group">
                           <span className="icon"><i className="fa-solid fa-user-graduate"></i></span>
-                          <input 
-                            type="text" 
+                          <select 
                             value={education} 
-                            onChange={(e) => setEducation(e.target.value)}
-                            placeholder="Educational Attainment" 
-                            required 
-                          />
+                            onChange={(e) => setEducation(e.target.value)} 
+                            required
+                            className="form-control"
+                          >
+                            <option value="">Select Educational Attainment</option>
+                            <option value="Elementary Level">Elementary Level</option>
+                            <option value="Elementary Graduate">Elementary Graduate</option>
+                            <option value="Junior High School level">Junior High School level</option>
+                            <option value="Junior High School Graduate">Junior High School Graduate</option>
+                            <option value="Senior High School Level">Senior High School Level</option>
+                            <option value="Senior High School Graduate">Senior High School Graduate</option>
+                            <option value="College Level">College Level</option>
+                            <option value="Bachelor's Degree">Bachelor's Degree</option>
+                            <option value="Master's Degree">Master's Degree</option>
+                            <option value="Doctorate Degree">Doctorate Degree</option>
+                            <option value="Vocational">Vocational</option>
+                          </select>
                         </div>
-                      </div>
-                      
+                      </div>         
                      
                     </div>
                     
@@ -1075,16 +1096,27 @@ const fetchExistingResidents = async () => {
                                         <span className="icon">
                                           <i className="fa-solid fa-school"></i>
                                         </span>
-                                        <input
-                                          type="text"
-                                          placeholder="Educational Attainment"
+                                        <select
                                           value={member.education || ''}
                                           onChange={(e) => handleMemberChange(index, 'education', e.target.value)}
                                           required
-                                        />
+                                          className="form-control"
+                                        >
+                                          <option value="">Select Educational Attainment</option>
+                                          <option value="Elementary Level">Elementary Level</option>
+                                          <option value="Elementary Graduate">Elementary Graduate</option>
+                                          <option value="Junior High School level">Junior High School level</option>
+                                          <option value="Junior High School Graduate">Junior High School Graduate</option>
+                                          <option value="Senior High School Level">Senior High School Level</option>
+                                          <option value="Senior High School Graduate">Senior High School Graduate</option>
+                                          <option value="College Level">College Level</option>
+                                          <option value="Bachelor's Degree">Bachelor's Degree</option>
+                                          <option value="Master's Degree">Master's Degree</option>
+                                          <option value="Doctorate Degree">Doctorate Degree</option>
+                                          <option value="Vocational">Vocational</option>
+                                        </select>
                                       </div>
                                     </div>
-
                                     {/*Occupation*/}
                                     <div className="form-group"> 
                                       <div className="input-group">

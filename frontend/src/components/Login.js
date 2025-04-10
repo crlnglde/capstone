@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import CSWD from "../pic/cswdlogo.png"
 import Loading from "./again/Loading";
 import Notification from "./again/Notif";
+import { jwtDecode } from 'jwt-decode';
 
 const Login = () => {
     const navigate = useNavigate();
@@ -39,7 +40,7 @@ const Login = () => {
                 password: password.trim(),
             };
     
-            const response = await axios.post("http://localhost:3003/login", userdata);
+            const response = await axios.post("http://192.168.1.24:3003/login", userdata);
     
             console.log("Login Response:", response.data); // Debug API response
     
@@ -48,7 +49,8 @@ const Login = () => {
                 localStorage.setItem("role", response.data.user.role);
                 localStorage.setItem("username", response.data.user.username); 
     
-                console.log("Stored Role:", localStorage.getItem("role")); // Verify it's stored correctly
+                const decodedToken = jwtDecode( response.data.token);
+                const expireTime = decodedToken.exp * 1000;
                 
                 setNotification({ 
                   type: "success", 
@@ -56,12 +58,13 @@ const Login = () => {
                   message: "Welcome hehe!" 
               });
 
+              navigate("/home");
 
               setTimeout(() => {
-                setNotification(null);
-                setLoading(false); 
-                navigate("/home");
-              }, 1000);
+                localStorage.clear();
+                navigate("/login");
+              }, expireTime - Date.now());
+              
             } else {
                 console.error("Missing token or role in response");
                 setNotification({

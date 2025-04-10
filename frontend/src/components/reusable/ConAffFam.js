@@ -173,7 +173,7 @@ const [step, setStep] = useState(1);
                 setError(""); // Clear previous errors
         
                 try {
-                    const response = await fetch(`http://localhost:3003/get-disaster/${disCode}`);
+                    const response = await fetch(`http://192.168.1.24:3003/get-disaster/${disCode}`);
                     const data = await response.json();
         
                     if (!data || !data.barangays) {
@@ -224,9 +224,12 @@ const [step, setStep] = useState(1);
 
         
         const handleConfirm = async (disCode, disBarangay, familyId) => {
+            const confirmConfirm = window.confirm("Are you sure you want to confirm this form?");
+            if (!confirmConfirm) return;
+
             try {
                 const response = await axios.put(
-                    `http://localhost:3003/update-dafac-status/${disCode}/${disBarangay}/${familyId}`
+                    `http://192.168.1.24:3003/update-dafac-status/${disCode}/${disBarangay}/${familyId}`
                 );
 
                 setNotification({

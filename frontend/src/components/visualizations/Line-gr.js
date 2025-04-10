@@ -27,7 +27,7 @@ const LineGraph = () => {
     useEffect(() => {
         const fetchDisasters = async () => {
             try {
-                const response = await axios.get("http://localhost:3003/get-disasters");
+                const response = await axios.get("http://192.168.1.24:3003/get-disasters");
                 setDisasters(response.data);
             } catch (error) {
                 console.error("Error fetching disasters:", error);

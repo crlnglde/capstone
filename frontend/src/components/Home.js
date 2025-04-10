@@ -39,7 +39,7 @@ const Home = () => {
 useEffect(() => {
   const fetchResidents = async () => {
     try {
-      const response = await axios.get("http://localhost:3003/get-residents");
+      const response = await axios.get("http://192.168.1.24:3003/get-residents");
         console.log(response.data);
         const residentsData = response.data;
         setResidents(residentsData); 
@@ -65,7 +65,7 @@ useEffect(() => {
 useEffect(() => {
   const fetchDisasters = async () => {
     try {
-      const response = await axios.get("http://localhost:3003/get-disasters");
+      const response = await axios.get("http://192.168.1.24:3003/get-disasters");
       const disasterData = response.data;
       setDisasters(disasterData); // Store disasters data in state
 
