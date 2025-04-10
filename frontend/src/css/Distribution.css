@@ -512,3 +512,21 @@
     opacity: 1;
   }
 }
+
+
+/* Tablet-friendly layout */
+@media screen and (max-width: 992px) {
+  .content-container .column {
+    flex-direction: column;
+  }
+
+  .column {
+    flex-direction: column;
+    display: flex;
+    gap: 20px;
+  }
+
+  .distribution-table {
+    width: 100%;
+  }
+}
