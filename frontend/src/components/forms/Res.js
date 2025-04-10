@@ -18,6 +18,7 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
     setFormData(residentData);
   }, [residentData]);
 
+  console.log("res", residentData)
   const handleChange = (field, value) => {
     setFormData((prev) => ({
       ...prev,
@@ -36,6 +37,11 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
       ...prev,
       dependents: updatedDependents,
     }));
+
+    setResidentData((prev) => ({
+      ...prev,
+      dependents: updatedDependents,
+    }));
   };
 
   const handleAddDependent = () => {
@@ -43,7 +49,7 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
       name: "",
       relationToHead: "",
       age: "",
-      sex: "M", // default value
+      sex: "Male", 
       education: "",
       occupationSkills: "",
     };
@@ -58,6 +64,11 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
       (dependent, i) => i !== index
     );
     setFormData((prev) => ({
+      ...prev,
+      dependents: updatedDependents,
+    }));
+
+    setResidentData((prev) => ({
       ...prev,
       dependents: updatedDependents,
     }));
@@ -261,8 +272,12 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
                           handleDependentChange(index, "sex", e.target.value)
                         }
                       >
-                        <option value="M">M</option>
-                        <option value="F">F</option>
+                        <option value={dependent.sex}>
+                          {dependent.sex === "Male" ? "M" : "F"}
+                        </option>
+                        <option value={dependent.sex === "Male" ? "Female" : "Male"}>
+                          {dependent.sex === "Male" ? "F" : "M"}
+                        </option>
                       </select>
                     ) : (
                       dependent.sex

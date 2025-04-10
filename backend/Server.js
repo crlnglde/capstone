@@ -178,6 +178,48 @@ app.get('/get-residents', async (req, res) => {
     }
 });
 
+app.put('/update-resident/:memId', async (req, res) => {
+  try {
+      const { memId } = req.params;
+      const updatedData = req.body;
+
+      const updatedResident = await Resident.findOneAndUpdate(
+          { memId },   
+          updatedData, 
+          { new: true, runValidators: true } 
+      );
+
+      if (!updatedResident) {
+          return res.status(404).json({ message: 'Resident not found' });
+      }
+
+      res.status(200).json(updatedResident); // Send updated resident data as response
+  } catch (error) {
+      console.error('Error:', error); 
+      res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
+// Delete a resident by memId
+app.delete('/delete-resident/:memId', async (req, res) => {
+  try {
+    const { memId } = req.params;
+
+    // Find and delete the resident by memId
+    const deletedResident = await Resident.findOneAndDelete({ memId });
+
+    if (!deletedResident) {
+      return res.status(404).json({ message: 'Resident not found' });
+    }
+
+    res.status(200).json({ message: 'Resident deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
 app.get("/get-brgyresidents", async (req, res) => {
   try {
     const { barangay } = req.query; // Expect a single brgy
