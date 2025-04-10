@@ -660,6 +660,58 @@ app.put("/update-distribution/:id", async (req, res) => {
 });
 
 
+//residents stat
+
+// Helper to count field values
+const countByField = (residents, field) => {
+  return residents.reduce((acc, curr) => {
+    const key = curr[field] || "Unknown";
+    acc[key] = (acc[key] || 0) + 1;
+    return acc;
+  }, {});
+};
+
+// API Route
+app.get("/get-resident-stats", async (req, res) => {
+  try {
+    const residents = await ResidentsModel.find();
+
+    const seniorCitizens = residents.filter((r) => r.age >= 60).length;
+    const totalMale = residents.filter((r) => r.sex === "M").length;
+    const totalFemale = residents.filter((r) => r.sex === "F").length;
+
+    const educationStats = countByField(residents, "education");
+    const occupationStats = countByField(residents, "occupation");
+
+    // Dependents
+    let totalDependents = 0;
+    let maleDependents = 0;
+    let femaleDependents = 0;
+
+    residents.forEach((r) => {
+      totalDependents += r.dependents.length;
+      r.dependents.forEach((d) => {
+        if (d.sex === "Male") maleDependents++;
+        else if (d.sex === "Female") femaleDependents++;
+      });
+    });
+
+    res.json({
+      seniorCitizens,
+      totalMale,
+      totalFemale,
+      educationStats,
+      occupationStats,
+      totalDependents,
+      maleDependents,
+      femaleDependents,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server error");
+  }
+});
+
 
 app.listen(port,()=>{
     console.log('Example app listening on port ${port}');

@@ -103,7 +103,7 @@ const Sidebar = ({isMinimized, setIsMinimized, setLoading }) => {
             </li>
           )}
 
-          {role === "CSWD" && (
+          {(role === "CSWD" || role === "Enumerator") && (
             <li>
               <a
                 href="/distribution"

@@ -9,6 +9,7 @@ import "../css/Residents.css";
 import Loading from "./again/Loading";
 import Notification from "./again/Notif";
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import ResidentsVis from "./visualizations/ResidentsVis";
 
 const Residents = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -677,7 +678,10 @@ const fetchExistingResidents = async () => {
     
               <div className="dis-filter">
               </div>
+
             </div>
+
+            <ResidentsVis/>
 
            
           </div>

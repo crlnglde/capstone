@@ -90,8 +90,11 @@ function App() {
             <Route path="/" element={<Login />} />
             <Route path="/login" element={<Login />} />
 
-              <Route element={<ProtectedRoute allowedRoles={["CSWD", "daycare worker"]} />}>
+            <Route element={<ProtectedRoute allowedRoles={["CSWD", "daycare worker", "Enumerator"]} />}>
                   <Route path="/home" element={<Home />} />
+              </Route>
+
+              <Route element={<ProtectedRoute allowedRoles={["CSWD", "daycare worker"]} />}>
                   <Route path="/disaster" element={<Disaster setNavbarTitle={setNavbarTitle} />} />
                   <Route path="/disaster/add-disaster" element={<AddDisaster />} />
                   <Route path="/residents" element={<Residents />} />

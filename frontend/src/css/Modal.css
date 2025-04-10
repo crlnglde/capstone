@@ -48,6 +48,12 @@
     transition: color 0.3sease, transform 0.2sease;
   }
 
+  .modal-close:hover {
+    color: #0A194E; 
+    transform: scale(1.1); 
+    background-color: transparent;
+  }
+
   .children{
     display: flex;
   }
