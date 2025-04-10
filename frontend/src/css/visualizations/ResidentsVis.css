@@ -85,6 +85,15 @@
             align-items: center;
             gap: 10px;
         }
+            .total-senior-card .card-header.m{
+                background-color: #5b9cec;
+            }
+            .total-senior-card .card-header.a{
+                background-color: #3a89e4;
+            }
+            .total-senior-card .card-header.s{
+                background-color: #3177e7;
+            }
 
         .total-senior-card .card-header p{
             margin: 0;
@@ -114,8 +123,19 @@
         
         .icon-and-number .icon {
             font-size: 1.2rem;
-            color: #0f2984; 
         }
+
+                .icon-and-number .icon.m {
+                    color: #5b9cec; 
+                }
+                
+                .icon-and-number .icon.a {
+                    color: #3a89e4; 
+                }
+                
+                .icon-and-number .icon.s {
+                    color: #3177e7; 
+                }
         
         .icon-and-number .card-number {
             font-size: 20px;

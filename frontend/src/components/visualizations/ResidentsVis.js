@@ -92,39 +92,39 @@ const ResidentsVis = ({ selectedBarangay }) => {
     {/* Row 1: Senior Card + Educational Attainment Bar */}
     <div className="grid-item grid-item-1">
         <Card className="card total-senior-card">
-        <div className="card-header">
+        <div className="card-header m">
             <p className="title">Minors</p>
             <p className="age">(0–17)</p>
         </div>
         <CardContent className="card-body">
             <div className="icon-and-number">
-            <span className="icon"><FaUsers /></span>
+            <span className="icon m"><FaUsers /></span>
             <h2 className="card-number">{stats.minors}</h2>
             </div>
         </CardContent>
         </Card>
 
         <Card className="card total-senior-card">
-        <div className="card-header">
+        <div className="card-header a">
             <p className="title">Adults</p>
             <p className="age">(18–59)</p>
         </div>
         <CardContent className="card-body">
             <div className="icon-and-number">
-            <span className="icon"><FaUsers /></span>
+            <span className="icon a"><FaUsers /></span>
             <h2 className="card-number">{stats.adults}</h2>
             </div>
         </CardContent>
         </Card>
 
         <Card className="card total-senior-card">
-        <div className="card-header">
+        <div className="card-header s">
             <p className="title">Senior Citizen</p>
             <p className="age">(60+)</p>
         </div>
         <CardContent className="card-body">
             <div className="icon-and-number">
-            <span className="icon"><FaUsers /></span>
+            <span className="icon s"><FaUsers /></span>
             <h2 className="card-number">{stats.seniorCitizens}</h2>
             </div>
         </CardContent>
