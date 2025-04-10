@@ -22,36 +22,100 @@ const ResidentsVis = ({ selectedBarangay }) => {
   const [residents, setResidents] = useState([]);
   const [maleCount, setTotalMale] = useState(0);
   const [femaleCount, setTotalFemale] = useState(0);
+  const [minorCount, setMinorCount] = useState(0);
+  const [adultCount, setAdultCount] = useState(0);
+  const [seniorCount, setSeniorCount] = useState(0);
+  const [education, setEducation] = useState(0);
+  const [occupation, setOccupation] = useState(0);
 
+console.log(selectedBarangay)
   useEffect(() => {
     const fetchExistingResidents = async () => {
       try {
         const response = await axios.get("http://localhost:3003/get-residents");
         const data= response.data;
-        setResidents(data);
+         // If a barangay is selected, filter the data for that barangay
+         if (selectedBarangay) {
+          const filteredData = data.filter(
+            (resident) => resident.barangay === selectedBarangay
+          );
+          setResidents(filteredData);
+        } else {
+          setResidents(data); // No barangay selected, set all residents
+        }
       } catch (error) {
         console.error("Error fetching residents:", error);
         return [];
       }
     };
     fetchExistingResidents();
-  }, []);
+  }, [selectedBarangay]);
 
   useEffect(() => {
     let maleCount = 0;
     let femaleCount = 0;
+
+    let minorCount = 0;
+    let adultCount = 0;
+    let seniorCount = 0;
     
+    let educationLevels = {};
+    let occupationCounts = {};
+
     residents.forEach(resident => {
+       // Count gender
       if (resident.sex === "M") maleCount++;
       if (resident.sex === "F") femaleCount++;
+
+       // Categorize resident age
+       const residentAge = resident.age; // Assuming 'age' is available
+       if (residentAge >= 0 && residentAge <= 17) minorCount++;
+       else if (residentAge >= 18 && residentAge <= 59) adultCount++;
+       else if (residentAge >= 60) seniorCount++;
     
+      // Categorize resident's educational attainment
+       if (resident.education) {
+        educationLevels[resident.education] = (educationLevels[resident.education] || 0) + 1;
+      }
+
+      // Categorize resident's occupation
+      if (resident.occupation) {
+        occupationCounts[resident.occupation] = (occupationCounts[resident.occupation] || 0) + 1;
+      }
+
       resident.dependents.forEach(dep => {
         if (dep.sex === "Male") maleCount++;
         if (dep.sex === "Female") femaleCount++;
+
+        const dependentAge = dep.age; // Assuming 'age' is available
+        if (dependentAge >= 0 && dependentAge <= 17) minorCount++;
+        else if (dependentAge >= 18 && dependentAge <= 59) adultCount++;
+        else if (dependentAge >= 60) seniorCount++;
+
+        // Categorize dependent's educational attainment
+        if (dep.education) {
+          educationLevels[dep.education] = (educationLevels[dep.education] || 0) + 1;
+        }
+        // Categorize dependent's occupation
+        if (dep.occupationSkills) {
+          occupationCounts[dep.occupationSkills] = (occupationCounts[dep.occupationSkills] || 0) + 1;
+        }
       });
+
     });
+
+    const sortedOccupations = Object.keys(occupationCounts).sort().reduce((acc, key) => {
+      acc[key] = occupationCounts[key];
+      return acc;
+    }, {});
+
     setTotalMale(maleCount);
     setTotalFemale(femaleCount);
+    setMinorCount(minorCount);
+    setAdultCount(adultCount);
+    setSeniorCount(seniorCount);
+    setEducation(educationLevels);
+    setOccupation(sortedOccupations);
   }, [residents]);
 
   // Static data to simulate the API response
@@ -98,8 +162,9 @@ const ResidentsVis = ({ selectedBarangay }) => {
         </div>
         <CardContent className="card-body">
             <div className="icon-and-number">
+              
             <span className="icon m"><FaUsers /></span>
-            <h2 className="card-number">{stats.minors}</h2>
+            <h2 className="card-number">{minorCount}</h2>
             </div>
         </CardContent>
         </Card>
@@ -111,8 +176,11 @@ const ResidentsVis = ({ selectedBarangay }) => {
         </div>
         <CardContent className="card-body">
             <div className="icon-and-number">
+
             <span className="icon a"><FaUsers /></span>
-            <h2 className="card-number">{stats.adults}</h2>
+
+            <h2 className="card-number">{adultCount}</h2>
+
             </div>
         </CardContent>
         </Card>
@@ -124,8 +192,11 @@ const ResidentsVis = ({ selectedBarangay }) => {
         </div>
         <CardContent className="card-body">
             <div className="icon-and-number">
+
             <span className="icon s"><FaUsers /></span>
-            <h2 className="card-number">{stats.seniorCitizens}</h2>
+
+            <h2 className="card-number">{seniorCount}</h2>
+
             </div>
         </CardContent>
         </Card>
@@ -136,11 +207,11 @@ const ResidentsVis = ({ selectedBarangay }) => {
         <p className="chart-title">Educational Attainment</p>
         <Bar
             data={{
-            labels: Object.keys(stats.educationStats),
+            labels: Object.keys(education),
             datasets: [
                 {
                 label: "Residents",
-                data: Object.values(stats.educationStats),
+                data: Object.values(education),
                 backgroundColor: ["#93c5fd", "#60a5fa", "#3b82f6"],
                 borderRadius: 5,
                 },
@@ -218,11 +289,11 @@ const ResidentsVis = ({ selectedBarangay }) => {
         <div className="chart-container">
             <Bar
             data={{
-                labels: Object.keys(stats.occupationStats),
+                labels: Object.keys(occupation),
                 datasets: [
                 {
                     label: "Residents",
-                    data: Object.values(stats.occupationStats),
+                    data: Object.values(occupation),
                     backgroundColor: ["#93c5fd", "#60a5fa", "#3b82f6"],
                     borderRadius: 5,
                 },
