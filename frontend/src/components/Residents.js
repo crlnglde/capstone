@@ -74,7 +74,7 @@ const addResidentsToTop = (newResidents) => {
 const fetchExistingResidents = async () => {
   try {
     const response = await axios.get("http://localhost:3003/get-residents");
-    return response.data; // Ensure the backend returns an array of existing residents
+    return response.data; 
   } catch (error) {
     console.error("Error fetching residents:", error);
     return [];

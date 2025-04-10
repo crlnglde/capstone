@@ -1,5 +1,6 @@
 import "../../css/visualizations/ResidentsVis.css";
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 import { Card, CardContent } from "../again/Card";
 import { Bar, Pie } from "react-chartjs-2";
 import { FaUsers } from "react-icons/fa";
@@ -18,6 +19,40 @@ ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarEle
 
 const ResidentsVis = ({ selectedBarangay }) => {
   const [stats, setStats] = useState(null);
+  const [residents, setResidents] = useState([]);
+  const [maleCount, setTotalMale] = useState(0);
+  const [femaleCount, setTotalFemale] = useState(0);
+
+  useEffect(() => {
+    const fetchExistingResidents = async () => {
+      try {
+        const response = await axios.get("http://localhost:3003/get-residents");
+        const data= response.data;
+        setResidents(data);
+      } catch (error) {
+        console.error("Error fetching residents:", error);
+        return [];
+      }
+    };
+    fetchExistingResidents();
+  }, []);
+
+  useEffect(() => {
+    let maleCount = 0;
+    let femaleCount = 0;
+    
+    residents.forEach(resident => {
+      if (resident.sex === "M") maleCount++;
+      if (resident.sex === "F") femaleCount++;
+    
+      resident.dependents.forEach(dep => {
+        if (dep.sex === "Male") maleCount++;
+        if (dep.sex === "Female") femaleCount++;
+      });
+    });
+    setTotalMale(maleCount);
+    setTotalFemale(femaleCount);
+  }, [residents]);
 
   // Static data to simulate the API response
   const mockData = {
@@ -26,6 +61,7 @@ const ResidentsVis = ({ selectedBarangay }) => {
     adults: 150,
     totalMale: 1200,
     totalFemale: 1300,
+
     educationStats: {
       "High School": 400,
       "College": 600,
@@ -36,10 +72,11 @@ const ResidentsVis = ({ selectedBarangay }) => {
       "Teacher": 600,
       "Work from home hehe": 400,
     },
-    totalDependents: 500,
-    maleDependents: 250,
-    femaleDependents: 250,
+    totalMale: maleCount,
+    totalFemale: femaleCount,
   };
+
+
 
   useEffect(() => {
     // Simulating a delay to mimic an API call
@@ -131,15 +168,17 @@ const ResidentsVis = ({ selectedBarangay }) => {
     {/* Row 2: Dependents by Gender Pie + Occupation Distribution Bar */}
     <Card className="card pie-chart-card">
         <CardContent>
-        <p className="chart-title">Dependents by Gender</p>
-        <div className="pie-chart-container">
+            <p className="chart-title">Gender Distribution</p>
+            <div className="pie-chart-container">
+
             <Pie
             data={{
                 labels: ["Male", "Female"],
                 datasets: [
-                {
-                    data: [stats.maleDependents, stats.femaleDependents],
-                    backgroundColor: ["#3B82F6", "#F472B6"],
+                    {
+                    data: [maleCount, femaleCount],
+                    backgroundColor: ["#3B82F6", "#F472B6"], // Blue & Pink
+
                     borderColor: "#fff",
                     borderWidth: 2,
                 },
