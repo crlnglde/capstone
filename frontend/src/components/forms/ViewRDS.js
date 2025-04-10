@@ -20,7 +20,7 @@ const ViewRDS = ({selectedBarangay, distributionId, setDistributionDate, setPage
     const fetchDisasterDistribution = async () => {
       try {
         console.log("Fetching disaster distribution with ID:", distributionId);
-        const response = await axios.get(`http://localhost:3003/get-disdistribution/${distributionId}`);
+        const response = await axios.get(`http://192.168.1.24:3003/get-disdistribution/${distributionId}`);
         const data = response.data;
         
         setforDisasterMonth(data.disasterDate)

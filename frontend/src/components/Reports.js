@@ -35,7 +35,7 @@ const Reports = () => {
   useEffect(() => { 
     const fetchReports = async () => {
       try {
-        const response = await axios.get("http://localhost:3003/get-disasters");
+        const response = await axios.get("http://192.168.1.24:3003/get-disasters");
         const data = response.data;
   
         // Aggregate data by disaster
@@ -88,7 +88,7 @@ const Reports = () => {
   useEffect(() => {
     const fetchDistribution = async () => {
       try {
-        const response = await axios.get("http://localhost:3003/get-distribution");
+        const response = await axios.get("http://192.168.1.24:3003/get-distribution");
         const distributionData = response.data;
         setDistribution(distributionData);
       } catch (error) {
@@ -256,6 +256,10 @@ const Reports = () => {
   
 
     const handleDownloadPDF = async () => {
+
+      const confirmDownload = window.confirm("Are you sure you want to download this form?");
+      if (!confirmDownload) return;
+
       const activeRef = activeTab === "SPORADIC" ? sporadicRef : activeTab === "FDR" ? fdrRef : payrollRef;
      
       // Set page size and orientation based on activeTab

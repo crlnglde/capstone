@@ -77,7 +77,7 @@ const EditRDS = () => {
     const fetchDistribution = async () => {
       try {
         console.log(distributionId);
-        const response = await axios.get(`http://localhost:3003/get-distribution/${distributionId}`);
+        const response = await axios.get(`http://192.168.1.24:3003/get-distribution/${distributionId}`);
 
         const data = response.data;
 
@@ -113,11 +113,15 @@ const EditRDS = () => {
   const formattedMonth = disasterDate ? disasterDate.toLocaleString("default", { month: "long" }) : "";
 
   const handleSaveDistribution = async () => {
+
+    const confirmSubmit = window.confirm("Are you sure you want to submit this form?");
+    if (!confirmSubmit) return;
+    
     try {
       // Send only the updated families array to the backend to update their status
       const updatedFamilies = distributionData.families;
   
-      const response = await axios.put(`http://localhost:3003/update-distribution/${distributionId}`, {
+      const response = await axios.put(`http://192.168.1.24:3003/update-distribution/${distributionId}`, {
         families: updatedFamilies
       });
   

@@ -287,6 +287,9 @@ const DAFAC= ({ activeResident, disasterData, setIsModalOpen, mode}) => {
   };*/
 
   const handleSave = async (event) => {
+    const confirmSubmit = window.confirm("Are you sure you want to save this form?");
+    if (!confirmSubmit) return;
+    
     if (event) event.preventDefault(); // Prevent form refresh
   
     const savedData = JSON.parse(localStorage.getItem("savedForms")) || [];

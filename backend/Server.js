@@ -64,7 +64,7 @@ app.post("/login", async (req, res) => {
 
     // Generate token
     const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
+      expiresIn: "1m",
     });
 
     res.json({ token, user: { id: user._id, username: user.username, role: user.role } });
@@ -755,6 +755,6 @@ app.get("/get-resident-stats", async (req, res) => {
 });
 
 
-app.listen(port,()=>{
-    console.log('Example app listening on port ${port}');
+app.listen(port, '0.0.0.0', () => {
+  console.log(`Example app listening on port ${port}`);
 });
