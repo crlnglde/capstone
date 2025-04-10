@@ -4,15 +4,15 @@
   }
   
   .residents h2 {
-    font-size: 28px;
+    font-size: 25px;
     font-weight: bold;
     color: #333;
     margin: 0;
-    margin-bottom: 20px;
+
   }
 
   .res-h2{
-    font-size: 28px;
+    font-size: 25px;
     font-weight: bold;
     color: #333;
     padding: 20px 20px 0 0px;
@@ -606,6 +606,30 @@ select:focus, select:not(:focus):valid {
         /* Smooth hover effect */
         .residents .toggle-container button:hover {
           background-color: rgba(47, 54, 81, 0.8); 
+        }
+
+        .residdents-visualizations{
+          display: flex;
+          flex-direction: column;
+          padding: 20px;
+        }
+      
+        .residdents-visualizations > h2{
+          font-size: 25px;
+          font-weight: bold;
+          color: #333;
+          padding: 0px 20px 10px 0px;
+          margin: 0;
+          border-bottom: 2px solid #0A194E;
+        }
+
+        .residdents-visualizations .header-container {
+          display: flex; /* Use Flexbox */
+          justify-content: space-between; /* Place h2 on the left and search bar on the right */
+          align-items: center; /* Vertically center items */
+          position: relative; /* For the line pseudo-element */
+          padding-bottom: 10px; /* Add some space for the line */
+          margin: 0 0 20px 0;
         }
 
 

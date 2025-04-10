@@ -1,0 +1,137 @@
+/* Grid Layout */
+.grid-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 2rem;
+    padding: 2rem;
+  }
+  
+  .grid-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  /* Card Styles */
+  .card {
+    border-radius: 10px;
+    overflow: hidden;
+    width: 100%;
+  }
+  
+  .card:hover {
+    
+  }
+  
+  .card-content {
+    padding: 2rem;
+    text-align: center;
+  }
+  
+  .card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #333;
+  }
+  
+  .card-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #333;
+  }
+  
+  /* Specific Card Styles */
+  .senior-card {
+    background: linear-gradient(135deg, #4f46e5, #4338ca);
+    color: white;
+  }
+  
+
+  .total-senior-card {
+    width: 100%;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    background-color: #f1f1f1;
+  }
+  
+  .total-senior-card .card-header {
+    background-color: #1e3a8a; /* Navy blue */
+    color: white;
+    text-align: center;
+    padding: 0.75rem 0;
+    font-weight: bold;
+    font-size: 2rem;
+    letter-spacing: 1px;
+  }
+
+  .total-senior-card .card-header p{
+    margin: 0;
+  }
+  
+  .total-senior-card .card-body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+  }
+  
+  .icon-and-number {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  
+  .icon-and-number .icon {
+    font-size: 2rem;
+    color: #0f2984; 
+  }
+  
+  .icon-and-number .card-number {
+    font-size: 2rem;
+    font-weight: bold;
+    color: black;
+  }
+
+  
+  .pie-chart-card,
+  .full-width {
+    background: none;  /* Remove background */
+    box-shadow: none;   /* Remove shadow */
+  }
+
+  /* Styling the charts for consistent size */
+.chart-container {
+    width: 100%;
+    height: 300px;  /* Set a fixed height */
+  }
+  
+  /* Adjust the pie chart size */
+  .pie-chart-container {
+    position: relative;
+    width: 60%;
+    height: 300px;  
+    margin: 0 auto;
+  }
+
+  .pie-chart-container canvas {
+    width: 100% !important;  /* Force the pie chart to take full width */
+    height: 90% !important; /* Force the pie chart to take full height */
+  }
+  
+  /* Chart Title */
+  .chart-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 1rem;
+  }
+  
+  /* Adjusting grid items for responsive behavior */
+  @media (max-width: 768px) {
+    .grid-container {
+      grid-template-columns: 1fr; /* Single column layout on smaller screens */
+    }
+  }
+  
