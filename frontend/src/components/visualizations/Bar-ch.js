@@ -20,7 +20,7 @@ const BarGraph = ({ isBarGraph }) => {
   useEffect(() => {
     const fetchDisasters = async () => {
       try {
-        const response = await axios.get("http://192.168.1.24:3003/get-disasters");
+        const response = await axios.get("http://172.20.10.2:3003/get-disasters");
         const disasterData = response.data.filter(disaster => disaster.disasterStatus === "Current");
         setDisasters(disasterData);
   
@@ -35,7 +35,7 @@ const BarGraph = ({ isBarGraph }) => {
   
     const fetchDistributions = async () => {
       try {
-        const response = await axios.get("http://192.168.1.24:3003/get-distribution");
+        const response = await axios.get("http://172.20.10.2:3003/get-distribution");
         setDistributions(response.data);
       } catch (error) {
         console.error("Error fetching distribution data:", error);

@@ -526,7 +526,11 @@
     gap: 20px;
   }
 
+  .column .distribution-table{
+    width:90%;
+  }
+
   .distribution-table {
-    width: 100%;
+    /*width: 100%;*/
   }
 }

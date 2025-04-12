@@ -32,7 +32,7 @@ console.log(selectedBarangay)
   useEffect(() => {
     const fetchExistingResidents = async () => {
       try {
-        const response = await axios.get("http://192.168.1.24:3003/get-residents");
+        const response = await axios.get("http://172.20.10.2:3003/get-residents");
         const data= response.data;
          // If a barangay is selected, filter the data for that barangay
          if (selectedBarangay) {
@@ -283,38 +283,69 @@ console.log(selectedBarangay)
         </CardContent>
     </Card>
 
+    
     <Card className="card full-width">
-        <CardContent>
-        <p className="chart-title">Occupation Distribution</p>
-        <div className="chart-container">
-            <Bar
-            data={{
-                labels: Object.keys(occupation),
-                datasets: [
-                {
-                    label: "Residents",
-                    data: Object.values(occupation),
-                    backgroundColor: ["#93c5fd", "#60a5fa", "#3b82f6"],
-                    borderRadius: 5,
+  <CardContent>
+    <p className="chart-title">Occupation Distribution</p>
+    <div className="chart-wrapper">
+      <div
+        className="chart-container"
+        style={{
+          height: '300px',
+          overflowY: 'auto',
+          maxHeight: '400px', // Limit the height for scroll
+        }}
+      >
+        <Bar
+          data={{
+            labels: Object.keys(occupation), // All occupations (labels)
+            datasets: [
+              {
+                label: "Residents",
+                data: Object.values(occupation), // Occupation data
+                backgroundColor: ["#93c5fd", "#60a5fa", "#3b82f6"],
+                borderRadius: 5,
+              },
+            ],
+          }}
+          options={{
+            indexAxis: "y", // Horizontal bars
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: {
+                beginAtZero: true,
+                ticks: { color: "#333" },
+              },
+              y: {
+                ticks: {
+                  autoSkip: false, // Do not skip labels
+                  maxRotation: 0,  // Keep labels straight
+                  minRotation: 0,
+                  color: "#333",
                 },
-                ],
-            }}
-            options={{
-                indexAxis: "y",
-                responsive: true,
-                plugins: { legend: { display: false } },
-                scales: {
-                x: {
-                    beginAtZero: true,
-                    ticks: { color: "#333" },
-                },
-                y: { ticks: { color: "#333" } },
-                },
-            }}
-            />
-        </div>
-        </CardContent>
-    </Card>
+                // Dynamically limit how many rows are displayed
+                suggestedMin: Math.min(Object.keys(occupation).length, 6), // Limit to a minimum of 6 rows or fewer if there are less
+                suggestedMax: 6, // Display a maximum of 6 rows at a time
+              },
+            },
+          }}
+        />
+      </div>
+    </div>
+  </CardContent>
+</Card>
+
+
+
+
+
+
+
+
+
+
     </div>
 
   );

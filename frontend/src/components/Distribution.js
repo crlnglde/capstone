@@ -205,7 +205,7 @@ const Distribution = ({ setNavbarTitle }) => {
     useEffect(() => {
       const fetchDisasters = async () => {
         try {
-          const response = await axios.get("http://192.168.1.24:3003/get-disasters");
+          const response = await axios.get("http://172.20.10.2:3003/get-disasters");
           const disasterData = response.data;
     
           // Filter disasters that happened **after** three days ago
@@ -227,7 +227,7 @@ const Distribution = ({ setNavbarTitle }) => {
     useEffect(() => {
       const fetchDistribution = async () => {
         try {
-          const response = await axios.get("http://192.168.1.24:3003/get-distribution");
+          const response = await axios.get("http://172.20.10.2:3003/get-distribution");
           const distributionData = response.data;
           setDistribution(distributionData);
         } catch (error) {
@@ -251,11 +251,11 @@ const Distribution = ({ setNavbarTitle }) => {
     
 
     const handleDoneClick = async (disasterCode) => {
-      const confirmDone = window.confirm("Are you sure this disaster is over?");
+      const confirmDone = window.confirm("Are you sure that the relief distribution is completed?");
       if (!confirmDone) return;
 
       try {
-        const response = await axios.put(`http://192.168.1.24:3003/update-status/${disasterCode}`);
+        const response = await axios.put(`http://172.20.10.2:3003/update-status/${disasterCode}`);
 
         alert(response.data.message);
           window.location.reload()
@@ -481,7 +481,7 @@ const validateFields = () => {
                   {/* Current */}
                   <div className="distribution-table">
                     <div className="header-container">
-                      <h2 className="header-title">Current Disaster</h2>
+                      <h2 className="header-title">Current Disaster Distribution</h2>
                     </div>
 
                     <div className="container">
@@ -511,7 +511,7 @@ const validateFields = () => {
                               localStorage.setItem("selectedDisasterCode", disaster.disasterCode);
                               openModal(disaster);
                             }}>
-                              Add
+                              Add RDS
                             </button>
                             <button className="doneButton" onClick={() => handleDoneClick(disaster.disasterCode)}>
                               Done
@@ -577,7 +577,7 @@ const validateFields = () => {
 
                             {/* Actions */}
                             <div className="actions">
-                              <button className="doneButton" onClick={() => handleEdit(dist._id)} >Edit</button>
+                              <button className="doneButton" onClick={() => handleEdit(dist._id)} >Distribute</button>
                             </div>
                           </div>
                         ))
