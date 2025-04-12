@@ -91,6 +91,7 @@
   .addButton {
     background-color: #2d70ce;
     color: white;
+    width: 80px;
   }
   
   .doneButton {

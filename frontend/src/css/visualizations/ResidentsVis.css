@@ -155,6 +155,13 @@
     width: 100%;
     height: 300px;  /* Set a fixed height */
   }
+
+  .chart-container .ey{
+    width: 100%;
+    max-height: 300px;  /* Set the max height to allow scrolling */
+    overflow-y: auto;   /* Enable vertical scrolling if content overflows */
+  }
+  
   
   /* Adjust the pie chart size */
   .pie-chart-container {
@@ -183,4 +190,5 @@
       grid-template-columns: 1fr; /* Single column layout on smaller screens */
     }
   }
+  
   
