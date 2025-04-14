@@ -454,7 +454,9 @@
 }
 
 .submit-btn:hover {
-  background-color: #0056b3;
+ 
+  transform: scale(1.02);
+   background-color: #0056b3;
 }
 
 .submit-btn:disabled {

@@ -30,13 +30,23 @@
   margin-bottom: 10px;
 }
 
+    .disaster-count-section{
+      display: flex;
+        flex-direction: row;
+        align-items: center;
+    }
+
 
     .disaster-count {
 
       font-size: 16px;
       color: #424242; 
       border-radius: 8px;
-      margin: 0px 0px 0 10px ;
+      margin: 0px 0px 0 0px ;
+    }
+
+    .disaster-count-section .download-btn{
+      color:#007bff ;
     }
 
     .search-wrapper {

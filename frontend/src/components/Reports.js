@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { FaUsers, FaDownload, FaFire, FaTint, FaFlag } from "react-icons/fa";
-
+import { FiDownload } from "react-icons/fi";
+import * as XLSX from "xlsx";
 import jsPDF  from "jspdf";
 import autoTable from "jspdf-autotable";
 import html2canvas from "html2canvas";
@@ -665,6 +666,31 @@ const Reports = () => {
       console.log("Filtered Reports:", filteredData);
       setFilteredReports(filteredData);
     };
+
+    const handleDownloadAllReports = () => {
+      if (!filteredReports.length) return;
+    
+      const formattedData = filteredReports.map((disaster) => ({
+        "Disaster Code": disaster.disasterCode || "",
+        "Disaster Type": disaster.disasterType || "",
+        "Disaster Date": disaster.disasterDateTime || "",
+        "Affected Barangay": disaster.barangay || "",
+        "No. of Affected Families": disaster.affectedFamilies ?? 0,
+        "No. of Affected People": disaster.affectedPersons ?? 0,
+        "Sex Breakdown": `M: ${disaster.sexBreakdown?.males ?? 0} | F: ${disaster.sexBreakdown?.females ?? 0}`,
+        "No. of Pregnant Women/Lactating Mothers": disaster.isPreg ?? 0,
+        "No. of 4P's": disaster.is4ps ?? 0,
+        "No. of PWDs": disaster.isPWD ?? 0,
+        "No. of Solo Parents": disaster.isSolo ?? 0,
+        "No. of IP": disaster.isIps ?? 0,
+      }));
+    
+      const worksheet = XLSX.utils.json_to_sheet(formattedData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Disaster Reports");
+      XLSX.writeFile(workbook, "Disaster_Reports.xlsx");
+    };
+    
     
     
 
@@ -706,11 +732,21 @@ const Reports = () => {
 
           <div className="search-row">
             {/* Disaster Count on the Left */}
-            <div className="disaster-count">
-              {filteredReports.length === 0
-                ? ""
-                : `${filteredReports.length} ${filteredReports.length === 1 ? "disaster" : "disasters"} reported`}
+            <div className="disaster-count-section">
+              <button className="download-btn" onClick={handleDownloadAllReports}>
+                <FiDownload style={{ marginRight: "6px" }} />
+              </button>
+
+              <div className="disaster-count">
+                {filteredReports.length === 0
+                  ? ""
+                  : `${filteredReports.length} ${filteredReports.length === 1 ? "disaster" : "disasters"} reported`}
+              </div>
+
+
+
             </div>
+
 
 
 

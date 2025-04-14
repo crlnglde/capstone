@@ -46,7 +46,7 @@ const Sidebar = ({isMinimized, setIsMinimized, setLoading }) => {
       localStorage.removeItem("username"); 
       
       window.location.href = "/"; 
-  }, 1000);
+  }, 500);
 };
 
 

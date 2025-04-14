@@ -633,6 +633,45 @@ select:focus, select:not(:focus):valid {
         }
 
 
+        .button-container {
+          display: flex;
+          justify-content: flex-end;
+          gap: 10px;
+          margin-bottom: 10px;
+        }
+        
+        .button-container button {
+          padding: 8px 16px;
+          font-size: 15px;
+          border-radius: 5px;
+          border: none;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Edit/Save Button */
+        .button-container button:first-child {
+          background-color: #1976d2;
+          color: white;
+        }
+        
+        .button-container button:first-child:hover {
+          background-color: #1565c0;
+        }
+        
+        /* Delete Button */
+        .button-container button:last-child {
+          background-color: #e53935;
+          color: white;
+        }
+        
+        .button-container button:last-child:hover {
+          background-color: #c62828;
+        }
+        
+
+
 /* Modal animation */
 @keyframes fadeIn {
   from {

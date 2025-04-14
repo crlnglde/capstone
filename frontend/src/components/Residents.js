@@ -1180,10 +1180,14 @@ const fetchExistingResidents = async () => {
 
             {modalType === "view" && selectedResident && (
               <div>
-                <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginBottom: "10px" }}>
-                  <button onClick={isEditing ? handleSave : toggleEdit }>{isEditing ? "Save" : "Edit"}</button>
+
+                <div className="button-container">
+                  <button onClick={isEditing ? handleSave : toggleEdit}>
+                    {isEditing ? "Save" : "Edit"}
+                  </button>
                   <button onClick={handleDelete}>Delete</button>
                 </div>
+
 
                 <RES 
                   residentData={selectedResident} 

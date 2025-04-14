@@ -2,7 +2,11 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 950px;
+
+
+  width: 1000px; /* or whatever fixed width you want */
+  max-width: 1000px;
+  overflow-x:auto;
 }
 
   .res-form {
@@ -195,6 +199,7 @@
   font-size: 14px;
   background-color: transparent;
   color: #555;
+  width: 100%;
 }   
 
 .res-form .family-table td {
@@ -265,4 +270,13 @@ button[type="button"]:hover {
 
 .res-form .add-family-member-btn button:hover {
   background-color: #0056b3;
+}
+
+
+.static-cell {
+  display: block;
+  width: 100%;
+  padding: 6px;
+  min-height: 38px; /* same height as an input for consistency */
+  box-sizing: border-box;
 }

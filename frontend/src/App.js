@@ -39,7 +39,7 @@ function App() {
   useEffect(() => {
     setTimeout(() => {
       setLoading(false);
-    }, 1000);
+    }, 200);
   }, []);
 
   return(
@@ -64,57 +64,34 @@ function App() {
             setLoading={setLoading}
           >
             <Routes>
-              {/*<Route path="/" element={<Login />} />
-              <Route path="/login" element={<Login />} />
-              {/*<Route path="/" element={<Navigate to="/home" />} />
-              <Route path="/home" element={<Home />} />
-              <Route path="/disaster" element={<Disaster setNavbarTitle={setNavbarTitle} />} /> 
-              <Route path="/disaster/add-disaster" element={<AddDisaster />} />
-
-              <Route path="/distribution" element={<Distribution setNavbarTitle={setNavbarTitle} />}>
-                <Route path="rds" element={<RDS/>} />
-                <Route path="edit-rds" element={<EditRDS/>} />
-                <Route path="view-rds" element={<ViewRDS/>} />
-              </Route>
-
-              <Route path="/residents" element={<Residents />} />
-              
-              <Route path="/reports" element={<Reports />} />
-              <Route path="/rds" element={<RDS />} />
-              <Route path="/dafac" element={<DAFAC />} />
-              <Route path="/sporadic" element={<SPORADIC />} />
-              <Route path="/fdr" element={<FDR />} />*/}
-           
+              <Route path="/" element={<Login />} />
 
 
-            <Route path="/" element={<Login />} />
-            <Route path="/login" element={<Login />} />
-
-            <Route element={<ProtectedRoute allowedRoles={["CSWD", "daycare worker", "Enumerator"]} />}>
-                  <Route path="/home" element={<Home />} />
-              </Route>
-
-              <Route element={<ProtectedRoute allowedRoles={["CSWD", "daycare worker"]} />}>
-                  <Route path="/disaster" element={<Disaster setNavbarTitle={setNavbarTitle} />} />
-                  <Route path="/disaster/add-disaster" element={<AddDisaster />} />
-                  <Route path="/residents" element={<Residents />} />
-              </Route>
-
-              <Route element={<ProtectedRoute allowedRoles={["CSWD", "Enumerator"]} />}>
-                <Route path="/distribution" element={<Distribution setNavbarTitle={setNavbarTitle} />}>
-                  <Route path="rds" element={<RDS/>} />
-                  <Route path="edit-rds" element={<EditRDS/>} />
-                  <Route path="view-rds" element={<ViewRDS/>} />
+              <Route element={<ProtectedRoute allowedRoles={["CSWD", "daycare worker", "Enumerator"]} />}>
+                    <Route path="/home" element={<Home />} />
                 </Route>
-              </Route>
 
-              <Route element={<ProtectedRoute allowedRoles={["CSWD"]} />}>
-                <Route path="/rds" element={<RDS />} />
-                <Route path="/dafac" element={<DAFAC />} />
-                <Route path="/sporadic" element={<SPORADIC />} />
-                <Route path="/fdr" element={<FDR />} />
-                <Route path="/reports" element={<Reports />} />
-              </Route>
+                <Route element={<ProtectedRoute allowedRoles={["CSWD", "daycare worker"]} />}>
+                    <Route path="/disaster" element={<Disaster setNavbarTitle={setNavbarTitle} />} />
+                    <Route path="/disaster/add-disaster" element={<AddDisaster />} />
+                    <Route path="/residents" element={<Residents />} />
+                </Route>
+
+                <Route element={<ProtectedRoute allowedRoles={["CSWD", "Enumerator"]} />}>
+                  <Route path="/distribution" element={<Distribution setNavbarTitle={setNavbarTitle} />}>
+                    <Route path="rds" element={<RDS/>} />
+                    <Route path="edit-rds" element={<EditRDS/>} />
+                    <Route path="view-rds" element={<ViewRDS/>} />
+                  </Route>
+                </Route>
+
+                <Route element={<ProtectedRoute allowedRoles={["CSWD"]} />}>
+                  <Route path="/rds" element={<RDS />} />
+                  <Route path="/dafac" element={<DAFAC />} />
+                  <Route path="/sporadic" element={<SPORADIC />} />
+                  <Route path="/fdr" element={<FDR />} />
+                  <Route path="/reports" element={<Reports />} />
+                </Route>
 
             </Routes>
 

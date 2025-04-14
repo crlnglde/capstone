@@ -138,6 +138,37 @@
     justify-content: space-around;
     align-items: center;
   }
+
+  .save-btn {
+    background-color: #0a194e; /* Green background */
+    color: white; /* White text */
+    border: none; /* Remove border */
+    padding: 12px 24px; /* Add some padding */
+    text-align: center; /* Center the text */
+    text-decoration: none; /* Remove underline */
+    display: inline-block; /* Keep the button inline */
+    font-size: 16px; /* Set the font size */
+    border-radius: 8px; /* Round the corners */
+    cursor: pointer; /* Change cursor to pointer when hovering */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s, transform 0.2s ease; /* Add transition effects */
+}
+
+.save-btn:hover {
+    background-color: #13276e; /* Darker green when hovered */
+    transform: scale(1.02); /* Slightly increase button size on hover */
+}
+
+.save-btn:focus {
+    outline: none; /* Remove outline on focus */
+    box-shadow: 0 0 5px rgba(0, 6, 128, 0.6); /* Add a shadow on focus */
+}
+
+.save-btn:active {
+    background-color: #38488e; /* Even darker green on click */
+    transform: scale(1); /* Return to normal size when clicked */
+}
+
   
   @media (max-width: 768px) {
     .rds-header {

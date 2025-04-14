@@ -79,9 +79,15 @@ console.log(selectedBarangay)
       }
 
       // Categorize resident's occupation
-      if (resident.occupation) {
-        occupationCounts[resident.occupation] = (occupationCounts[resident.occupation] || 0) + 1;
+
+      let occupation = resident.occupation;
+      if (occupation && (occupation.toLowerCase() === "n/a" || occupation.toLowerCase() === "none")) {
+        occupation = "Not Available"; // Standardize the occupation to "Not Available"
       }
+
+    if (occupation) {
+      occupationCounts[occupation] = (occupationCounts[occupation] || 0) + 1;
+    }
 
       resident.dependents.forEach(dep => {
         if (dep.sex === "Male") maleCount++;
@@ -97,8 +103,14 @@ console.log(selectedBarangay)
           educationLevels[dep.education] = (educationLevels[dep.education] || 0) + 1;
         }
         // Categorize dependent's occupation
-        if (dep.occupationSkills) {
-          occupationCounts[dep.occupationSkills] = (occupationCounts[dep.occupationSkills] || 0) + 1;
+
+        let depOccupation = dep.occupationSkills;
+        if (depOccupation && (depOccupation.toLowerCase() === "n/a" || depOccupation.toLowerCase() === "none")) {
+          depOccupation = "Not Available"; // Standardize the occupation to "Not Available"
+        }
+
+        if (depOccupation) {
+        occupationCounts[depOccupation] = (occupationCounts[depOccupation] || 0) + 1;
         }
       });
 
@@ -118,38 +130,7 @@ console.log(selectedBarangay)
     setOccupation(sortedOccupations);
   }, [residents]);
 
-  // Static data to simulate the API response
-  const mockData = {
-    seniorCitizens: 150,
-    minors: 150,
-    adults: 150,
-    totalMale: 1200,
-    totalFemale: 1300,
-
-    educationStats: {
-      "High School": 400,
-      "College": 600,
-      "Graduate School": 300,
-    },
-    occupationStats: {
-      "Fishermen": 800,
-      "Teacher": 600,
-      "Work from home hehe": 400,
-    },
-    totalMale: maleCount,
-    totalFemale: femaleCount,
-  };
-
-
-
-  useEffect(() => {
-    // Simulating a delay to mimic an API call
-    setTimeout(() => {
-      setStats(mockData);
-    }, 1000); // Simulating API delay
-  }, []);
-
-  if (!stats) return <p>Loading...</p>;
+  if (!residents) return <p>Loading...</p>;
 
   return (
     <div className="grid-container">
