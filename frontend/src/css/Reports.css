@@ -47,6 +47,8 @@
 
     .disaster-count-section .download-btn{
       color:#007bff ;
+      margin: 5px;
+      padding: 0;
     }
 
     .search-wrapper {
