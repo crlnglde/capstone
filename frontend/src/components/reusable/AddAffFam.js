@@ -121,7 +121,7 @@ const AddAffFam = ({disBarangay, disCode, setStep}) => {
                 }
         
                 try {
-                    const response = await axios.get(`http://172.20.10.2:3003/get-brgyresidents?barangay=${barangay}`);
+                    const response = await axios.get(`http://192.168.1.127:3003/get-brgyresidents?barangay=${barangay}`);
                     if (!response.data || response.data.length === 0) {
                         console.warn(`No residents found for '${barangay}'`);
                         setResidents([]);
@@ -149,7 +149,7 @@ const AddAffFam = ({disBarangay, disCode, setStep}) => {
                 setError("");
         
                 try {
-                    const response = await axios.get(`http://172.20.10.2:3003/get-disaster/${disCode}`);
+                    const response = await axios.get(`http://192.168.1.127:3003/get-disaster/${disCode}`);
                     const disasterData = response.data;
 
                     function formatDate(datetime) {
@@ -240,7 +240,7 @@ const AddAffFam = ({disBarangay, disCode, setStep}) => {
                 }, {});
         
                 // Fetch existing disaster data
-                const checkResponse = await fetch(`http://172.20.10.2:3003/get-disaster/${disasterCode}`);
+                const checkResponse = await fetch(`http://192.168.1.127:3003/get-disaster/${disasterCode}`);
                 const existingDisaster = await checkResponse.json();
         
                 if (checkResponse.ok && existingDisaster) {
@@ -259,7 +259,7 @@ const AddAffFam = ({disBarangay, disCode, setStep}) => {
                         return existingBarangay;
                     });
         
-                    const updateResponse = await fetch(`http://172.20.10.2:3003/update-disaster/${disasterCode}`, {
+                    const updateResponse = await fetch(`http://192.168.1.127:3003/update-disaster/${disasterCode}`, {
                         method: "PUT",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ barangays: updatedBarangays }),

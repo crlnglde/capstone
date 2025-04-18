@@ -388,7 +388,7 @@ const AddDisaster = () => {
             console.log("Barangays",barangays);
     
             // Check if disaster already exists
-            const checkResponse = await fetch(`http://172.20.10.2:3003/get-disaster/${disasterCode}`);
+            const checkResponse = await fetch(`http://192.168.1.127:3003/get-disaster/${disasterCode}`);
             const existingDisaster = await checkResponse.json();
     
             if (checkResponse.ok && existingDisaster) {
@@ -404,7 +404,7 @@ const AddDisaster = () => {
                     }
                 });
                     console.log("hehe")
-                const updateResponse = await fetch(`http://172.20.10.2:3003/update-disaster/${disasterCode}`, {
+                const updateResponse = await fetch(`http://192.168.1.127:3003/update-disaster/${disasterCode}`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ barangays: updatedBarangays })
@@ -426,7 +426,7 @@ const AddDisaster = () => {
                     barangays
                 };
     
-                const createResponse = await fetch("http://172.20.10.2:3003/add-disaster", {
+                const createResponse = await fetch("http://192.168.1.127:3003/add-disaster", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(disasterDocument)
@@ -650,7 +650,7 @@ const AddDisaster = () => {
        
         console.log(barangay);
         try {
-            const response = await axios.get(`http://172.20.10.2:3003/get-brgyresidents?barangay=${barangay}`);
+            const response = await axios.get(`http://192.168.1.127:3003/get-brgyresidents?barangay=${barangay}`);
             if (response.data.length === 0) {
                 console.log(`No residents found for '${barangay}'`);
             }

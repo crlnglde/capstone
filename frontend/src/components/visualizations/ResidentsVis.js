@@ -32,7 +32,7 @@ console.log(selectedBarangay)
   useEffect(() => {
     const fetchExistingResidents = async () => {
       try {
-        const response = await axios.get("http://172.20.10.2:3003/get-residents");
+        const response = await axios.get("http://192.168.1.127:3003/get-residents");
         const data= response.data;
          // If a barangay is selected, filter the data for that barangay
          if (selectedBarangay) {

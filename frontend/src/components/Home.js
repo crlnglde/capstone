@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import axios from "axios";
 import "../css/Home.css";
 import dswd1 from '../pic/dswd1.jpg'; 
@@ -11,7 +12,9 @@ import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 import HomeMap from './visualizations/map'
 
-const Home = () => {
+const Home = ({setNavbarTitle}) => {
+  const location = useLocation();
+  const [reload, setReload] = useState(false);
 
   const images = [dswd1, dswd, dswd2, dswd3];
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -25,6 +28,14 @@ const Home = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { triggerOnce: false, margin: "-50px" });
 
+
+  useEffect(() => {
+    if (location.pathname === "/home") {
+      setNavbarTitle("Home");
+    }
+  }, [location.pathname, setNavbarTitle]);
+
+  
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length); 
@@ -34,12 +45,27 @@ const Home = () => {
     return () => clearInterval(interval);
   }, [images.length]);
 
+  useEffect(() => {
+    // Force a re-render when navigating away from /home
+    if (location.pathname !== "/home") {
+      setReload(true);
+    } else {
+      setReload(false);
+    }
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (reload) {
+      // Here you can reset any state or force certain actions based on the reload
+      console.log("Force re-rendering Home");
+    }
+  }, [reload]);
 
 // Fetch Residents Data and Calculate Counts
 useEffect(() => {
   const fetchResidents = async () => {
     try {
-      const response = await axios.get("http://172.20.10.2:3003/get-residents");
+      const response = await axios.get("http://192.168.1.127:3003/get-residents");
         console.log(response.data);
         const residentsData = response.data;
         setResidents(residentsData); 
@@ -65,7 +91,7 @@ useEffect(() => {
 useEffect(() => {
   const fetchDisasters = async () => {
     try {
-      const response = await axios.get("http://172.20.10.2:3003/get-disasters");
+      const response = await axios.get("http://192.168.1.127:3003/get-disasters");
       const disasterData = response.data;
       setDisasters(disasterData); // Store disasters data in state
 
@@ -78,21 +104,6 @@ useEffect(() => {
 
   fetchDisasters();
 }, []);  
-  
-  const goToNext = () => {
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
-  };
-
-  
-  const goToPrevious = () => {
-    setCurrentIndex(
-      (prevIndex) => (prevIndex - 1 + images.length) % images.length
-    );
-  };
-
-  const goToImage = (index) => {
-    setCurrentIndex(index);
-  };
 
   return (
     <div className="home">

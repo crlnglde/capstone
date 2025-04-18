@@ -1,5 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { BrowserRouter as Router, Route, Routes, useLocation, Navigate  } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+  Outlet,
+  useLocation,
+} from "react-router-dom";
+
 import { ToastContextProvider } from "./context/ToastContextProvider";
 
 import Sidebar from "./components/Sidebar";
@@ -16,114 +24,112 @@ import ViewRDS from "./components/forms/ViewRDS";
 import DAFAC from "./components/forms/DAFAC";
 import SPORADIC from "./components/forms/SPORADIC";
 import FDR from "./components/forms/FDR";
-import Landing from "./components/landing";
 import Login from "./components/Login";
 import Loading from "./components/again/Loading";
-import { motion } from "framer-motion";
-import "./App.css";
-import Minlogo from "./pic/logo-min.png";
 import ProtectedRoute from "./ProtectedRoute";
+
+import "./App.css";
 
 function App() {
   const [isSidebarMinimized, setIsSidebarMinimized] = useState(() => {
-    // Check localStorage to persist the minimized state
     const storedState = JSON.parse(localStorage.getItem("sidebarState"));
-    return storedState !== null ? storedState : false; // Default to false if no state in localStorage
+    return storedState !== null ? storedState : false;
   });
 
   const [navbarTitle, setNavbarTitle] = useState("");
-
-  const [showLogo, setShowLogo] = useState(true);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setTimeout(() => {
-      setLoading(false);
-    }, 200);
+    setTimeout(() => setLoading(false), 200);
   }, []);
 
-  return(
+  return (
     <div className="app">
-
-
       <ToastContextProvider>
         <Router>
-
-
-        {loading && (
+          {loading && (
             <div className="full-page-loading">
               <Loading />
             </div>
           )}
 
+          <Routes>
+            {/* Public Route */}
+            <Route path="/" element={<Login />} />
 
-          <ConditionalLayout 
-            isSidebarMinimized={isSidebarMinimized} 
-            setIsSidebarMinimized={setIsSidebarMinimized} // Pass the setter here
-            navbarTitle={navbarTitle} 
-            setLoading={setLoading}
-          >
-            <Routes>
-              <Route path="/" element={<Login />} />
-
-
+            {/* Protected Routes with Layout */}
+            <Route
+              element={
+                <Layout
+                  isSidebarMinimized={isSidebarMinimized}
+                  setIsSidebarMinimized={setIsSidebarMinimized}
+                  navbarTitle={navbarTitle}
+                  setNavbarTitle={setNavbarTitle}
+                  setLoading={setLoading}
+                />
+              }
+            >
               <Route element={<ProtectedRoute allowedRoles={["CSWD", "daycare worker", "Enumerator"]} />}>
-                    <Route path="/home" element={<Home />} />
-                </Route>
+                <Route path="/home" element={<Home  setNavbarTitle={setNavbarTitle}/>}/>
+              </Route>
 
-                <Route element={<ProtectedRoute allowedRoles={["CSWD", "daycare worker"]} />}>
-                    <Route path="/disaster" element={<Disaster setNavbarTitle={setNavbarTitle} />} />
-                    <Route path="/disaster/add-disaster" element={<AddDisaster />} />
-                    <Route path="/residents" element={<Residents />} />
-                </Route>
+              <Route element={<ProtectedRoute allowedRoles={["CSWD", "daycare worker"]} />}>
+                <Route path="/disaster" element={<Disaster setNavbarTitle={setNavbarTitle} />} />
+                <Route path="/disaster/add-disaster" element={<AddDisaster />} />
+                <Route path="/residents" element={<Residents setNavbarTitle={setNavbarTitle}/>} />
+              </Route>
 
-                <Route element={<ProtectedRoute allowedRoles={["CSWD", "Enumerator"]} />}>
-                  <Route path="/distribution" element={<Distribution setNavbarTitle={setNavbarTitle} />}>
-                    <Route path="rds" element={<RDS/>} />
-                    <Route path="edit-rds" element={<EditRDS/>} />
-                    <Route path="view-rds" element={<ViewRDS/>} />
-                  </Route>
-                </Route>
+              <Route element={<ProtectedRoute allowedRoles={["CSWD", "Enumerator"]} />}>
+                <Route path="/distribution" element={<Distribution setNavbarTitle={setNavbarTitle} />} />
+                <Route path="/distribution/rds" element={<RDS />} />
+                <Route path="/distribution/edit-rds" element={<EditRDS />} />
+                <Route path="/distribution/view-rds" element={<ViewRDS />} />
+              </Route>
 
-                <Route element={<ProtectedRoute allowedRoles={["CSWD"]} />}>
-                  <Route path="/rds" element={<RDS />} />
-                  <Route path="/dafac" element={<DAFAC />} />
-                  <Route path="/sporadic" element={<SPORADIC />} />
-                  <Route path="/fdr" element={<FDR />} />
-                  <Route path="/reports" element={<Reports />} />
-                </Route>
+              <Route element={<ProtectedRoute allowedRoles={["CSWD"]} />}>
+                <Route path="/rds" element={<RDS />} />
+                <Route path="/dafac" element={<DAFAC />} />
+                <Route path="/sporadic" element={<SPORADIC />} />
+                <Route path="/fdr" element={<FDR />} />
+                <Route path="/reports" element={<Reports setNavbarTitle={setNavbarTitle}/>} />
+              </Route>
+            </Route>
 
-            </Routes>
-
-          </ConditionalLayout>
+            {/* Catch-all redirect */}
+            <Route path="*" element={<Navigate to="/home" replace />} />
+          </Routes>
         </Router>
       </ToastContextProvider>
     </div>
   );
 }
 
-function ConditionalLayout({ isSidebarMinimized, setIsSidebarMinimized,  navbarTitle, setLoading, children }) {
+// Layout wrapper that includes Sidebar and Navbar only when not on login page
+function Layout({
+  isSidebarMinimized,
+  setIsSidebarMinimized,
+  navbarTitle,
+  setLoading,
+  setNavbarTitle,
+}) {
   const location = useLocation();
+  const isLogin = location.pathname === "/";
 
-  // Check if the current route is the Landing page
-  const isLandingPage = location.pathname === "/";
+  if (isLogin) {
+    return <Outlet />;
+  }
 
   return (
     <>
-     {!isLandingPage && (
-        <>
-          <Sidebar
-            isMinimized={isSidebarMinimized}
-            setIsMinimized={setIsSidebarMinimized}
-            setLoading={setLoading}
-          />
-          <div className={`main-content ${isSidebarMinimized ? "adjusted" : ""}`}>
-            <Navbar isSidebarMinimized={isSidebarMinimized} customTitle={navbarTitle} />
-            {children}
-          </div>
-        </>
-      )}
-      {isLandingPage && <div className="full-screen">{children}</div>}
+      <Sidebar
+        isMinimized={isSidebarMinimized}
+        setIsMinimized={setIsSidebarMinimized}
+        setLoading={setLoading}
+      />
+      <div className={`main-content ${isSidebarMinimized ? "adjusted" : ""}`}>
+        <Navbar isSidebarMinimized={isSidebarMinimized} customTitle={navbarTitle} />
+        <Outlet key={location.pathname} /> 
+      </div>
     </>
   );
 }
