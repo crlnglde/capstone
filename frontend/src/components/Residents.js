@@ -11,7 +11,7 @@ import Notification from "./again/Notif";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import ResidentsVis from "./visualizations/ResidentsVis";
 
-const Residents = () => {
+const Residents = ({ setNavbarTitle }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState("");
   
@@ -55,6 +55,10 @@ const Residents = () => {
   const [residentData, setResidentData] = useState({ ...selectedResident });
 
 
+    useEffect(() => {
+      setNavbarTitle(`Residents > ${activeTab === "list" ? "List" : "Visualization"}`);
+    }, [activeTab, setNavbarTitle]);
+
   //list of barangays
   const barangays = [
     'Abuno', 'Acmac-Mariano Badelles Sr.', 'Bagong Silang', 'Bonbonon', 'Bunawan', 'Buru-un', 'Dalipuga',
@@ -73,7 +77,7 @@ const addResidentsToTop = (newResidents) => {
 
 const fetchExistingResidents = async () => {
   try {
-    const response = await axios.get("http://172.20.10.2:3003/get-residents");
+    const response = await axios.get("http://192.168.1.127:3003/get-residents");
     return response.data; 
   } catch (error) {
     console.error("Error fetching residents:", error);
@@ -198,7 +202,7 @@ const fetchExistingResidents = async () => {
             await new Promise((resolve) => setTimeout(resolve, 2000)); // Simulate a delay for better UX
 
             // 5️⃣ Send data to backend
-            const response = await axios.post("http://172.20.10.2:3003/add-csvresidents", { residents: newResidents });
+            const response = await axios.post("http://192.168.1.127:3003/add-csvresidents", { residents: newResidents });
 
             console.log("✅ Server Response:", response.data);
 
@@ -307,7 +311,7 @@ const fetchExistingResidents = async () => {
 
       await new Promise((resolve) => setTimeout(resolve, 2000));
       
-      const response = await axios.post("http://172.20.10.2:3003/add-residents", formattedData);
+      const response = await axios.post("http://192.168.1.127:3003/add-residents", formattedData);
 
       
       setNotification({ type: "success", message: "Resident added successfully!" });
@@ -355,7 +359,7 @@ const fetchExistingResidents = async () => {
   //Retrieve Residents
     const fetchResidents = async () => {
       try {
-        const response = await axios.get("http://172.20.10.2:3003/get-residents");
+        const response = await axios.get("http://192.168.1.127:3003/get-residents");
         const residentsData = response.data;
         setResidents(residentsData); 
 
@@ -548,7 +552,7 @@ const fetchExistingResidents = async () => {
             console.log("Updated data:", updatedResidentData)
 
             try {
-              const response = await fetch(`http://172.20.10.2:3003/update-resident/${updatedResidentData.memId}`, {
+              const response = await fetch(`http://192.168.1.127:3003/update-resident/${updatedResidentData.memId}`, {
                   method: 'PUT',
                   headers: {
                       'Content-Type': 'application/json',
@@ -588,7 +592,7 @@ const fetchExistingResidents = async () => {
             if (!confirmDelete) return;
         
             try {
-              const response = await axios.delete(`http://172.20.10.2:3003/delete-resident/${selectedResident.memId}`);
+              const response = await axios.delete(`http://192.168.1.127:3003/delete-resident/${selectedResident.memId}`);
               if (response.status === 200) {
                 alert('Resident deleted successfully');
                 setResidents((prevResidents) => prevResidents.filter((resident) => resident.memId !== selectedResident.memId)); // Update state to remove the deleted resident

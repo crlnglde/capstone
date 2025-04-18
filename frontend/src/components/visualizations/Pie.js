@@ -43,7 +43,7 @@ const PieChart = () => {
     useEffect(() => {
       const fetchDisasters = async () => {
         try {
-          const response = await axios.get("http://172.20.10.2:3003/get-disasters");
+          const response = await axios.get("http://192.168.1.127:3003/get-disasters");
           setDisasters(response.data);
         } catch (error) {
           console.error("Error fetching disasters data:", error);

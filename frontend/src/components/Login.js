@@ -40,7 +40,7 @@ const Login = () => {
                 password: password.trim(),
             };
     
-            const response = await axios.post("http://172.20.10.2:3003/login", userdata);
+            const response = await axios.post("http://192.168.1.127:3003/login", userdata);
     
             console.log("Login Response:", response.data); // Debug API response
     

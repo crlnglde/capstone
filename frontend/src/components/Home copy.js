@@ -5,7 +5,7 @@ import dswd1 from '../pic/dswd1.jpg';
 import dswd from '../pic/dswd.jpg'; 
 import dswd2 from '../pic/dswd2.png'; 
 import dswd3 from '../pic/dswd3.jpg'; 
-const Home = () => {
+const Home1 = () => {
 
 
   {/*old ni */}
@@ -124,4 +124,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default Home1;

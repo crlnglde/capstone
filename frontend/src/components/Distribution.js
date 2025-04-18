@@ -205,7 +205,7 @@ const Distribution = ({ setNavbarTitle }) => {
     useEffect(() => {
       const fetchDisasters = async () => {
         try {
-          const response = await axios.get("http://172.20.10.2:3003/get-disasters");
+          const response = await axios.get("http://192.168.1.127:3003/get-disasters");
           const disasterData = response.data;
     
           // Filter disasters that happened **after** three days ago
@@ -227,7 +227,7 @@ const Distribution = ({ setNavbarTitle }) => {
     useEffect(() => {
       const fetchDistribution = async () => {
         try {
-          const response = await axios.get("http://172.20.10.2:3003/get-distribution");
+          const response = await axios.get("http://192.168.1.127:3003/get-distribution");
           const distributionData = response.data;
           setDistribution(distributionData);
         } catch (error) {
@@ -255,7 +255,7 @@ const Distribution = ({ setNavbarTitle }) => {
       if (!confirmDone) return;
 
       try {
-        const response = await axios.put(`http://172.20.10.2:3003/update-status/${disasterCode}`);
+        const response = await axios.put(`http://192.168.1.127:3003/update-status/${disasterCode}`);
 
         alert(response.data.message);
           window.location.reload()

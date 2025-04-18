@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
+import { useLocation } from "react-router-dom";
 import { FaUsers, FaDownload, FaFire, FaTint, FaFlag } from "react-icons/fa";
 import { FiDownload } from "react-icons/fi";
 import * as XLSX from "xlsx";
@@ -23,7 +24,8 @@ import armedConflict from "../pic/armedconflict.png";
 import Search from "./again/Search-filter";
 import Pagination from "./again/Pagination";
 
-const Reports = () => {
+const Reports = ({setNavbarTitle}) => {
+  const location = useLocation();
   const [reports, setReports] = useState([]);
   const [disasters, setDisasters] = useState([]);
   const [distribution, setDistribution] = useState([]);
@@ -33,10 +35,17 @@ const Reports = () => {
   const sporadicRef = useRef(null);
   const payrollRef = useRef(null);
 
+    useEffect(() => {
+      if (location.pathname === "/reports") {
+        setNavbarTitle("Reports");
+      }
+    }, [location.pathname, setNavbarTitle]);
+
+
   useEffect(() => { 
     const fetchReports = async () => {
       try {
-        const response = await axios.get("http://172.20.10.2:3003/get-disasters");
+        const response = await axios.get("http://192.168.1.127:3003/get-disasters");
         const data = response.data;
   
         // Aggregate data by disaster
@@ -89,7 +98,7 @@ const Reports = () => {
   useEffect(() => {
     const fetchDistribution = async () => {
       try {
-        const response = await axios.get("http://172.20.10.2:3003/get-distribution");
+        const response = await axios.get("http://192.168.1.127:3003/get-distribution");
         const distributionData = response.data;
         setDistribution(distributionData);
       } catch (error) {
