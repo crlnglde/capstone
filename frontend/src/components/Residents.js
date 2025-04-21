@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useRef }  from "react";
 import Papa from 'papaparse';
 import CryptoJS from "crypto-js";
 import axios from "axios";
@@ -10,6 +10,7 @@ import Loading from "./again/Loading";
 import Notification from "./again/Notif";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import ResidentsVis from "./visualizations/ResidentsVis";
+import { FiDownload } from "react-icons/fi";
 
 const Residents = ({ setNavbarTitle }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -77,7 +78,7 @@ const addResidentsToTop = (newResidents) => {
 
 const fetchExistingResidents = async () => {
   try {
-    const response = await axios.get("http://192.168.1.127:3003/get-residents");
+    const response = await axios.get("http://172.20.10.2:3003/get-residents");
     return response.data; 
   } catch (error) {
     console.error("Error fetching residents:", error);
@@ -146,8 +147,7 @@ const fetchExistingResidents = async () => {
           const data = result.data;
 
           if (!data || data.length === 0) {
-            console.error("🚨 No data found in CSV.");
-            alert("No data found in the CSV.");
+            setNotification({ type: "error", title: "No data found in CSV", message: "No data found in the CSV." });
             setIsUploading(false);
             return;
           }
@@ -202,7 +202,7 @@ const fetchExistingResidents = async () => {
             await new Promise((resolve) => setTimeout(resolve, 2000)); // Simulate a delay for better UX
 
             // 5️⃣ Send data to backend
-            const response = await axios.post("http://192.168.1.127:3003/add-csvresidents", { residents: newResidents });
+            const response = await axios.post("http://172.20.10.2:3003/add-csvresidents", { residents: newResidents });
 
             console.log("✅ Server Response:", response.data);
 
@@ -311,7 +311,7 @@ const fetchExistingResidents = async () => {
 
       await new Promise((resolve) => setTimeout(resolve, 2000));
       
-      const response = await axios.post("http://192.168.1.127:3003/add-residents", formattedData);
+      const response = await axios.post("http://172.20.10.2:3003/add-residents", formattedData);
 
       
       setNotification({ type: "success", message: "Resident added successfully!" });
@@ -359,7 +359,7 @@ const fetchExistingResidents = async () => {
   //Retrieve Residents
     const fetchResidents = async () => {
       try {
-        const response = await axios.get("http://192.168.1.127:3003/get-residents");
+        const response = await axios.get("http://172.20.10.2:3003/get-residents");
         const residentsData = response.data;
         setResidents(residentsData); 
 
@@ -552,7 +552,7 @@ const fetchExistingResidents = async () => {
             console.log("Updated data:", updatedResidentData)
 
             try {
-              const response = await fetch(`http://192.168.1.127:3003/update-resident/${updatedResidentData.memId}`, {
+              const response = await fetch(`http://172.20.10.2:3003/update-resident/${updatedResidentData.memId}`, {
                   method: 'PUT',
                   headers: {
                       'Content-Type': 'application/json',
@@ -592,7 +592,7 @@ const fetchExistingResidents = async () => {
             if (!confirmDelete) return;
         
             try {
-              const response = await axios.delete(`http://192.168.1.127:3003/delete-resident/${selectedResident.memId}`);
+              const response = await axios.delete(`http://172.20.10.2:3003/delete-resident/${selectedResident.memId}`);
               if (response.status === 200) {
                 alert('Resident deleted successfully');
                 setResidents((prevResidents) => prevResidents.filter((resident) => resident.memId !== selectedResident.memId)); // Update state to remove the deleted resident
@@ -607,6 +607,36 @@ const fetchExistingResidents = async () => {
 
           const updateResidentData = (newData) => {
             setResidentData(newData);
+          };
+
+          const [showDownloadMenu, setShowDownloadMenu] = useState(false);
+          const residentsVisRef = useRef();
+          const [menuVisible, setMenuVisible] = useState(false);
+         
+          
+          const buttonRef = useRef(null); // Reference to the button for position calculation
+          const menuRef = useRef(null);
+
+          // Function to toggle the menu visibility
+          const toggleMenu = () => {
+            setMenuVisible((prev) => !prev);
+          };
+        
+          // Function to handle mouse enter and leave
+      
+
+          const handleDownloadVisualization = () => {
+            if (residentsVisRef.current) {
+              residentsVisRef.current.downloadVisualization();
+            }
+            setShowDownloadMenu(false);
+          };
+        
+          const handleDownloadExcel = () => {
+            if (residentsVisRef.current) {
+              residentsVisRef.current.downloadExcelData();
+            }
+            setShowDownloadMenu(false);
           };
 
   return (
@@ -758,12 +788,37 @@ const fetchExistingResidents = async () => {
         ):(  
 
           <div className="residdents-visualizations">
-
             <div className="header-container">
-              <h2 className="header-title">Visualizations</h2>
-  
-
+              <h2 className="header-title">Visualizations</h2>  
               <div className="res-top-row">
+                <div
+                  className="download-container"
+
+                >
+                  <button
+                    className="download-button"
+                    onClick={toggleMenu}
+                    ref={buttonRef}
+                  >
+                    <FiDownload style={{ marginRight: "6px" }} />
+                    Download
+                  </button>
+
+                  {menuVisible && (
+                    <div
+                      className="download-menu"
+                      ref={menuRef}
+                      style={{
+                        position: 'absolute',
+                        zIndex: 10,
+                        transition: 'top 0.3s, left 0.3s',
+                      }}
+                    >
+                      <button onClick={() => residentsVisRef.current.downloadVisualization()}>Download Visualization</button>
+                      <button onClick={() => residentsVisRef.current.downloadExcel()}>Download Excel File</button>
+                    </div>
+                  )}
+                </div>
 
                 <div className="res-filter-container">
                   <label htmlFor="barangayFilter"><i className="fa-solid fa-filter"></i> Filter: </label>
@@ -780,15 +835,12 @@ const fetchExistingResidents = async () => {
                     ))}
                   </select>
                 </div>
-
-
               </div>
-
             </div>
 
-            <ResidentsVis selectedBarangay={selectedBarangay}/>
 
-           
+
+            <ResidentsVis  ref={residentsVisRef} selectedBarangay={selectedBarangay}/>
           </div>
 
         )}  

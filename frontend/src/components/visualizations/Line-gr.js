@@ -48,7 +48,7 @@ const StackedBarChart = () => {
     useEffect(() => {
         const fetchDisasters = async () => {
             try {
-                const response = await axios.get("http://192.168.1.127:3003/get-disasters");
+                const response = await axios.get("http://172.20.10.2:3003/get-disasters");
                 setDisasters(response.data);
             } catch (error) {
                 console.error("Error fetching disasters:", error);
@@ -99,7 +99,7 @@ const StackedBarChart = () => {
         maintainAspectRatio: false,
         plugins: {
             legend: {
-                position: "bottom",
+                position: "top",
                 labels: {
                     font: { size: 10 },
                     boxWidth: 16,

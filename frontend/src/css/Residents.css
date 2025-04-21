@@ -337,6 +337,7 @@
   font-size: 16px;
   outline: none;
   transition: border-color 0.3s ease;
+  margin: 10px 0 0 0;
 }
 
 .upload-form input[type="file"]:hover {
@@ -632,7 +633,6 @@ select:focus, select:not(:focus):valid {
           margin: 0 0 20px 0;
         }
 
-
         .button-container {
           display: flex;
           justify-content: flex-end;
@@ -668,7 +668,7 @@ select:focus, select:not(:focus):valid {
         
         .button-container button:last-child:hover {
           background-color: #c62828;
-        }
+        }        
         
 
 

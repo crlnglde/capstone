@@ -1,5 +1,5 @@
 import "../../css/visualizations/ResidentsVis.css";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, forwardRef, useImperativeHandle, useRef, } from "react";
 import axios from "axios";
 import { Card, CardContent } from "../again/Card";
 import { Bar, Pie } from "react-chartjs-2";
@@ -13,12 +13,13 @@ import {
   LinearScale,
   BarElement,
 } from "chart.js";
-
+import * as XLSX from "xlsx";
+import html2canvas from 'html2canvas';
+import jsPDF from "jspdf";
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
 
-const ResidentsVis = ({ selectedBarangay }) => {
-  const [stats, setStats] = useState(null);
+const ResidentsVis = forwardRef(({ selectedBarangay }, ref) => {
   const [residents, setResidents] = useState([]);
   const [maleCount, setTotalMale] = useState(0);
   const [femaleCount, setTotalFemale] = useState(0);
@@ -28,11 +29,17 @@ const ResidentsVis = ({ selectedBarangay }) => {
   const [education, setEducation] = useState(0);
   const [occupation, setOccupation] = useState(0);
 
+  const [eduChart, setEduChart] = useState(null);
+  const [occChart, setOccChart] = useState(null);
+  const [genderChart, setGenderChart] = useState(null);
+
+  const internalRef = useRef();
+
 console.log(selectedBarangay)
   useEffect(() => {
     const fetchExistingResidents = async () => {
       try {
-        const response = await axios.get("http://192.168.1.127:3003/get-residents");
+        const response = await axios.get("http://172.20.10.2:3003/get-residents");
         const data= response.data;
          // If a barangay is selected, filter the data for that barangay
          if (selectedBarangay) {
@@ -130,10 +137,131 @@ console.log(selectedBarangay)
     setOccupation(sortedOccupations);
   }, [residents]);
 
+  useImperativeHandle(ref, () => ({
+    downloadExcel() {
+      const wb = XLSX.utils.book_new();
+  
+      const summaryData = [
+        ["Category", "Count"],
+        ["Minors", minorCount],
+        ["Adults", adultCount],
+        ["Seniors", seniorCount],
+        ["Male", maleCount],
+        ["Female", femaleCount],
+      ];
+      const summarySheet = XLSX.utils.aoa_to_sheet(summaryData);
+      XLSX.utils.book_append_sheet(wb, summarySheet, "Demographics");
+  
+      const educationSheet = XLSX.utils.json_to_sheet(
+        Object.entries(education).map(([key, value]) => ({
+          Education: key,
+          Count: value,
+        }))
+      );
+      XLSX.utils.book_append_sheet(wb, educationSheet, "Education");
+  
+      const occupationSheet = XLSX.utils.json_to_sheet(
+        Object.entries(occupation).map(([key, value]) => ({
+          Occupation: key,
+          Count: value,
+        }))
+      );
+      XLSX.utils.book_append_sheet(wb, occupationSheet, "Occupation");
+  
+      const residentsData = [];
+      residents.forEach((resident) => {
+        const base = {
+          Name: `${resident.firstName} ${resident.middleName || ""} ${resident.lastName}`,
+          Age: resident.age,
+          Sex: resident.sex === "M" ? "Male" : "Female",
+          Education: resident.education || "N/A",
+          Occupation: resident.occupation || "N/A",
+          Barangay: resident.barangay,
+        };
+        residentsData.push(base);
+  
+        resident.dependents.forEach((dep) => {
+          const dependentRow = {
+            Name: "",
+            Age: "",
+            Sex: "",
+            Education: "",
+            Occupation: "",
+            Barangay: "",
+            Dependents_Name: dep.name,
+            Dependents_Age: dep.age,
+            Dependents_Sex: dep.sex === "M" ? "Male" : "Female",
+            Dependents_Education: dep.education || "N/A",
+            Dependents_Occupation: dep.occupationSkills || "N/A",
+          };
+          residentsData.push(dependentRow);
+        });
+
+        
+      });
+  
+      const residentsSheet = XLSX.utils.json_to_sheet(residentsData);
+      XLSX.utils.book_append_sheet(wb, residentsSheet, "Resident List");
+  
+      // Add visualization summary sheet
+      const visualizationSummary = [
+        ["--- DEMOGRAPHIC CHART DATA ---"],
+        [],
+        ["Age Groups"],
+        ["Minors (0–17)", minorCount],
+        ["Adults (18–59)", adultCount],
+        ["Seniors (60+)", seniorCount],
+        [],
+        ["Gender Distribution"],
+        ["Male", maleCount],
+        ["Female", femaleCount],
+        [],
+        ["Educational Attainment"],
+        ...Object.entries(education).map(([level, count]) => [level, count]),
+        [],
+        ["Occupations"],
+        ...Object.entries(occupation).map(([job, count]) => [job, count]),
+      ];
+      const visualSheet = XLSX.utils.aoa_to_sheet(visualizationSummary);
+      XLSX.utils.book_append_sheet(wb, visualSheet, "Visualization Summary");
+  
+      XLSX.writeFile(
+        wb,
+        selectedBarangay
+          ? `Residents_${selectedBarangay}_Visualizations.xlsx`
+          : "Residents_Visualizations.xlsx"
+      );
+    },
+
+    async downloadVisualization() {
+      const chartElement = document.getElementById("chart-container"); // or use chartRef.current
+      if (!chartElement) return;
+  
+      const canvas = await html2canvas(chartElement, { scale: 2 });
+      const imgData = canvas.toDataURL("image/png");
+  
+      const pdf = new jsPDF({
+        orientation: "landscape",
+        unit: "px",
+        format: [canvas.width, canvas.height],
+      });
+  
+      pdf.addImage(imgData, "PNG", 0, 0, canvas.width, canvas.height);
+      pdf.save(
+        selectedBarangay
+          ? `Residents_${selectedBarangay}_Visualization.pdf`
+          : "Residents_Visualization.pdf"
+      );
+    }
+  }));
+  
+
+  
+
   if (!residents) return <p>Loading...</p>;
 
   return (
-    <div className="grid-container">
+    <div className="grid-container"  id="chart-container" ref={internalRef}>
     {/* Row 1: Senior Card + Educational Attainment Bar */}
     <div className="grid-item grid-item-1">
         <Card className="card total-senior-card">
@@ -184,37 +312,37 @@ console.log(selectedBarangay)
     </div>
 
     <Card className="card full-width">
-        <CardContent>
-        <p className="chart-title">Educational Attainment</p>
-        <Bar
-            data={{
-            labels: Object.keys(education),
-            datasets: [
-                {
-                label: "Residents",
-                data: Object.values(education),
-                backgroundColor: ["#93c5fd", "#60a5fa", "#3b82f6"],
-                borderRadius: 5,
-                },
-            ],
-            }}
-            options={{
-            responsive: true,
-            plugins: {
-                legend: { display: false },
-            },
-            scales: {
-                y: {
-                beginAtZero: true,
-                ticks: { color: "#333" },
-                },
-                x: {
-                ticks: { color: "#333" },
-                },
-            },
-            }}
-        />
-        </CardContent>
+      <CardContent>
+      <p className="chart-title">Educational Attainment</p>
+      <Bar
+          data={{
+          labels: Object.keys(education),
+          datasets: [
+              {
+              label: "Residents",
+              data: Object.values(education),
+              backgroundColor: ["#93c5fd", "#60a5fa", "#3b82f6"],
+              borderRadius: 5,
+              },
+          ],
+          }}
+          options={{
+          responsive: true,
+          plugins: {
+              legend: { display: false },
+          },
+          scales: {
+              y: {
+              beginAtZero: true,
+              ticks: { color: "#333" },
+              },
+              x: {
+              ticks: { color: "#333" },
+              },
+          },
+          }}
+      />
+      </CardContent>
     </Card>
 
     {/* Row 2: Dependents by Gender Pie + Occupation Distribution Bar */}
@@ -264,72 +392,62 @@ console.log(selectedBarangay)
         </CardContent>
     </Card>
 
-    
     <Card className="card full-width">
-  <CardContent>
-    <p className="chart-title">Occupation Distribution</p>
-    <div className="chart-wrapper">
-      <div
-        className="chart-container"
-        style={{
-          height: '300px',
-          overflowY: 'auto',
-          maxHeight: '400px', // Limit the height for scroll
-        }}
-      >
-        <Bar
-          data={{
-            labels: Object.keys(occupation), // All occupations (labels)
-            datasets: [
-              {
-                label: "Residents",
-                data: Object.values(occupation), // Occupation data
-                backgroundColor: ["#93c5fd", "#60a5fa", "#3b82f6"],
-                borderRadius: 5,
-              },
-            ],
-          }}
-          options={{
-            indexAxis: "y", // Horizontal bars
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-              x: {
-                beginAtZero: true,
-                ticks: { color: "#333" },
-              },
-              y: {
-                ticks: {
-                  autoSkip: false, // Do not skip labels
-                  maxRotation: 0,  // Keep labels straight
-                  minRotation: 0,
-                  color: "#333",
+      <CardContent>
+        <p className="chart-title">Occupation Distribution</p>
+        <div className="chart-wrapper">
+          <div
+            className="chart-container"
+            style={{
+              height: '300px',
+              overflowY: 'auto',
+              maxHeight: '400px', // Limit the height for scroll
+            }}
+          >
+            <Bar
+              data={{
+                labels: Object.keys(occupation), // All occupations (labels)
+                datasets: [
+                  {
+                    label: "Residents",
+                    data: Object.values(occupation), // Occupation data
+                    backgroundColor: ["#93c5fd", "#60a5fa", "#3b82f6"],
+                    borderRadius: 5,
+                  },
+                ],
+              }}
+              options={{
+                indexAxis: "y", // Horizontal bars
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                  x: {
+                    beginAtZero: true,
+                    ticks: { color: "#333" },
+                  },
+                  y: {
+                    ticks: {
+                      autoSkip: false, // Do not skip labels
+                      maxRotation: 0,  // Keep labels straight
+                      minRotation: 0,
+                      color: "#333",
+                    },
+                    // Dynamically limit how many rows are displayed
+                    suggestedMin: Math.min(Object.keys(occupation).length, 6), // Limit to a minimum of 6 rows or fewer if there are less
+                    suggestedMax: 6, // Display a maximum of 6 rows at a time
+                  },
                 },
-                // Dynamically limit how many rows are displayed
-                suggestedMin: Math.min(Object.keys(occupation).length, 6), // Limit to a minimum of 6 rows or fewer if there are less
-                suggestedMax: 6, // Display a maximum of 6 rows at a time
-              },
-            },
-          }}
-        />
-      </div>
-    </div>
-  </CardContent>
-</Card>
-
-
-
-
-
-
-
-
-
+              }}
+            />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
 
     </div>
 
   );
-};
+});
 
 export default ResidentsVis;
