@@ -52,7 +52,7 @@ const Reports = ({setNavbarTitle}) => {
   useEffect(() => { 
     const fetchReports = async () => {
       try {
-        const response = await axios.get("http://192.168.1.127:3003/get-disasters");
+        const response = await axios.get("http://172.20.10.2:3003/get-disasters");
         const data = response.data;
   
         // Aggregate data by disaster
@@ -82,7 +82,8 @@ const Reports = ({setNavbarTitle}) => {
   
           return {
             id: disaster.disasterCode,
-            date: dateTime,
+            date: formattedDate,
+            time: formattedTime,
             year: date.getFullYear(),
             month: date.getMonth() + 1,
             barangays: barangayNames,
@@ -105,7 +106,7 @@ const Reports = ({setNavbarTitle}) => {
   useEffect(() => {
     const fetchDistribution = async () => {
       try {
-        const response = await axios.get("http://192.168.1.127:3003/get-distribution");
+        const response = await axios.get("http://172.20.10.2:3003/get-distribution");
         const distributionData = response.data;
         setDistribution(distributionData);
       } catch (error) {
@@ -693,7 +694,7 @@ const Reports = ({setNavbarTitle}) => {
         // Function to transform data per barangay (only for download)
         const transformDataForDownload = async () => {
           try {
-            const response = await axios.get("http://192.168.1.127:3003/get-disasters");
+            const response = await axios.get("http://172.20.10.2:3003/get-disasters");
             const disasterData = response.data;
         
             const transformed = disasterData.flatMap(disaster =>
@@ -764,8 +765,6 @@ const Reports = ({setNavbarTitle}) => {
             return [];
           }
         };
-        
-        
 
         const handleDownloadAllReports = async () => {
           const formattedData = await transformDataForDownload();
@@ -809,12 +808,7 @@ const Reports = ({setNavbarTitle}) => {
                   : `${filteredReports.length} ${filteredReports.length === 1 ? "disaster" : "disasters"} reported`}
               </div>
 
-
-
             </div>
-
-
-
 
             {/* Search in the Center */}
             <div className="search-wrapper" >
@@ -838,7 +832,19 @@ const Reports = ({setNavbarTitle}) => {
                     </span>
                   </div>
                   <div className="report-content">
-                    <h3>{report.date}</h3>
+
+                  <div style={{ display: 'flex', gap: '8px', justifyContent: 'space-between', width: '100%', margin: '0 0 10px 0' }}>
+                  <h3>
+                    {new Date(report.date).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric'
+                    })} — {report.time}
+                  </h3>
+
+                  </div>
+
+                
                     <p className="barangay-name">{report.barangays}</p>
                     <p className="report-type">{report.type}</p>
                     <div className="report-info">

@@ -34,6 +34,8 @@ const Distribution = ({ setNavbarTitle }) => {
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [isViewMode, setIsViewMode] = useState(false);
+  const [isInRDSFlow, setIsInRDSFlow] = useState(false);
+  
 
   const [distributionDate, setDistributionDate] = useState(null);
   const [page, setPage] = useState(0);
@@ -41,21 +43,21 @@ const Distribution = ({ setNavbarTitle }) => {
   const [disasterTypeFilter, setDisasterTypeFilter] = useState("All");
   const [disasterDateFilter, setDisasterDateFilter] = useState("All");
 
-   // Update navbar title when tab changes
-   useEffect(() => {
-    let title = `Distribution > ${activeTab === "list" ? "List" : "Visualization"}`;
+    // Update navbar title when tab changes
+    useEffect(() => {
+      let title = `Distribution > ${activeTab === "list" ? "List" : "Visualization"}`;
 
-   // Get the last segment of the path
-   const pathSegments = location.pathname.split("/").filter(Boolean);
-   const lastSegment = pathSegments[pathSegments.length - 1];
+    // Get the last segment of the path
+    const pathSegments = location.pathname.split("/").filter(Boolean);
+    const lastSegment = pathSegments[pathSegments.length - 1];
 
-   // If the last segment is a subpage of "list", append it
-   if (lastSegment === "rds") title += " > RDS";
-   if (lastSegment === "edit-rds") title += " > Edit RDS";
-   if (lastSegment === "view-rds") title += " > View RDS";
+    // If the last segment is a subpage of "list", append it
+    if (lastSegment === "rds") title += " > RDS";
+    if (lastSegment === "edit-rds") title += " > Edit RDS";
+    if (lastSegment === "view-rds") title += " > View RDS";
 
-    setNavbarTitle(title);
-}, [location.pathname, activeTab, setNavbarTitle]);
+      setNavbarTitle(title);
+  }, [location.pathname, activeTab, setNavbarTitle]);
 
   //list of barangays
   const barangays = [
@@ -82,10 +84,22 @@ const Distribution = ({ setNavbarTitle }) => {
     setSelectedYear(event.target.value);
   };
 
-
   useEffect(() => {
-    setNavbarTitle(`Distribution > ${activeTab === "list" ? "List" : "Visualization"}`);
-  }, [activeTab, setNavbarTitle]);
+    let title = `Distribution > ${activeTab === "list" ? "List" : "Visualization"}`;
+  
+    if (activeTab === "list" && isInRDSFlow) {
+      if (isEditMode) {
+        title += " > Edit RDS";
+      } else if (isViewMode) {
+        title += " > View RDS";
+      } else {
+        title += " > Add RDS";
+      }
+    }
+  
+    setNavbarTitle(title);
+  }, [activeTab, isInRDSFlow, isEditMode, isViewMode, setNavbarTitle]);
+  
 
 
           // Static list of affected barangays FOR VIEW MORE
@@ -170,32 +184,47 @@ const Distribution = ({ setNavbarTitle }) => {
       localStorage.setItem("forDistribution", JSON.stringify(forDistribution));
       alert("Form data saved!");
       setIsModalOpen(false);
+
       setIsEditMode(false);
+      setIsViewMode(false);
+      setIsInRDSFlow(true);
       setStep(2);
-      navigate("/distribution/rds");
+      //navigate("/distribution/rds");
 
     }
   };
 
   const handleEdit = (distributionId) => {
-    setIsEditMode(true)
+    setIsEditMode(true);
+    setIsViewMode(false);
+    setIsInRDSFlow(true);
     setStep(2);
     localStorage.setItem("distributionId", distributionId);
-    navigate("/distribution/edit-rds");
+    //navigate("/distribution/edit-rds");
 };
 
   //for viewmore content sa distribution history 
   const handleViewMore = (barangays, id) => {
-    setModalType("viewmore");
-    setIsModalOpen(true);
+    setIsEditMode(false);
+    setIsViewMode(true);
+    setIsInRDSFlow(true);
+    setStep(2);
+
     setAffectedBarangays(barangays.map(barangay => barangay.name)); 
     setViewDistribution(id); 
+ 
+
+    setModalType("viewmore");
+    setIsModalOpen(false);
+
   };
   
     const handleBackClick = () => {
       if (step > 1) {
         setStep(step - 1);
         setIsEditMode(false);
+        setIsViewMode(false);
+        setIsInRDSFlow(false);
         navigate("/distribution"); 
       } else {
         navigate(-1); 
@@ -205,7 +234,7 @@ const Distribution = ({ setNavbarTitle }) => {
     useEffect(() => {
       const fetchDisasters = async () => {
         try {
-          const response = await axios.get("http://192.168.1.127:3003/get-disasters");
+          const response = await axios.get("http://172.20.10.2:3003/get-disasters");
           const disasterData = response.data;
     
           // Filter disasters that happened **after** three days ago
@@ -227,7 +256,7 @@ const Distribution = ({ setNavbarTitle }) => {
     useEffect(() => {
       const fetchDistribution = async () => {
         try {
-          const response = await axios.get("http://192.168.1.127:3003/get-distribution");
+          const response = await axios.get("http://172.20.10.2:3003/get-distribution");
           const distributionData = response.data;
           setDistribution(distributionData);
         } catch (error) {
@@ -255,7 +284,7 @@ const Distribution = ({ setNavbarTitle }) => {
       if (!confirmDone) return;
 
       try {
-        const response = await axios.put(`http://192.168.1.127:3003/update-status/${disasterCode}`);
+        const response = await axios.put(`http://172.20.10.2:3003/update-status/${disasterCode}`);
 
         alert(response.data.message);
           window.location.reload()
@@ -481,7 +510,7 @@ const validateFields = () => {
                   {/* Current */}
                   <div className="distribution-table">
                     <div className="header-container">
-                      <h2 className="header-title">Current Disaster Distribution</h2>
+                      <h2 className="header-title">Current Disaster for Distribution</h2>
                     </div>
 
                     <div className="container">
@@ -690,9 +719,42 @@ const validateFields = () => {
                 {isEditMode ? (
                     <EditRDS />
                 ) : isViewMode ? (
-                  <ViewRDS />
+
+                  <div className="view-more-content">
+
+                  <div className="tabs-container">
+                    <div className="tabs">
+                      {affectedBarangays.map((barangay) => (
+                        <button
+                          key={barangay}
+                          className={activeBarangay === barangay ? "tab active" : "tab"}
+                          onClick={() => setActiveBarangay(barangay)}
+                        >
+                          {barangay}
+                        </button>   
+                      ))}
+                    </div>
+    
+                    <div className="dateday-container">
+                      <div className="day-box">Day {page + 1}</div>
+                      
+                      <div className="date-box">
+    
+                        <span className="year">{distributionDate ? distributionDate.year : "YYYY"}</span>
+                        <div className="month-year">
+                          <span className="month">{distributionDate ? distributionDate.month : "Month"}</span>
+                          <span className="day-number">{distributionDate ? distributionDate.day : "DD"}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <ViewRDS selectedBarangay={activeBarangay} distributionId= {ViewDistribution} setDistributionDate={setDistributionDate} setPage={setPage}/>
+                
+              </div>
+
                 ) : (
-                    <RDS />
+                  <RDS />
                 )}
               </div>
             )

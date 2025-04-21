@@ -77,7 +77,7 @@ const EditRDS = () => {
     const fetchDistribution = async () => {
       try {
         console.log(distributionId);
-        const response = await axios.get(`http://192.168.1.127:3003/get-distribution/${distributionId}`);
+        const response = await axios.get(`http://172.20.10.2:3003/get-distribution/${distributionId}`);
 
         const data = response.data;
 
@@ -121,7 +121,7 @@ const EditRDS = () => {
       // Send only the updated families array to the backend to update their status
       const updatedFamilies = distributionData.families;
   
-      const response = await axios.put(`http://192.168.1.127:3003/update-distribution/${distributionId}`, {
+      const response = await axios.put(`http://172.20.10.2:3003/update-distribution/${distributionId}`, {
         families: updatedFamilies
       });
   

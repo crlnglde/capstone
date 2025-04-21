@@ -196,7 +196,7 @@
 
 .res-form .family-table td input,
 .res-form .family-table td select {
-  font-size: 14px;
+  font-size: 12px;
   background-color: transparent;
   color: #555;
   width: 100%;
@@ -219,7 +219,7 @@ button[type="button"] {
   font-size: 16px;
 }
 
-button[type="button"]:hover {
+.add-family-member-btn button[type="button"]:hover {
   background-color: #1202a4;
 }
 
