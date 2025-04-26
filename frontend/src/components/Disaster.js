@@ -15,6 +15,8 @@ import Modal from "./Modal";
 import AddAffFam from "./reusable/AddAffFam";
 import EditAffFam from "./reusable/EditAffFam";
 import ConAffFam from "./reusable/ConAffFam";
+import { syncDAFACData } from "../components/sync/syncDisaster";
+import Notification from "./again/Notif";
 import "../css/Disaster.css";
 
 const Disaster = ({ setNavbarTitle }) => {
@@ -36,6 +38,7 @@ const Disaster = ({ setNavbarTitle }) => {
   const [activeTab, setActiveTab] = useState("list");
   const [step, setStep] = useState(1);
   const [step2Type, setStep2Type] = useState("");
+  const [notification, setNotification] = useState(null); 
   const [isEditMode, setIsEditMode] = useState(false);
   const [isViewMode, setIsViewMode] = useState(false);
 
@@ -105,6 +108,12 @@ const Disaster = ({ setNavbarTitle }) => {
     setIsModalOpen(true);
   };
 
+  const handleSyncDataClick = () => {
+    if (navigator.onLine) {
+      syncDAFACData(setNotification); 
+    }
+  };
+
   const handleStepChange = (type, disCode, disBarangay) => {
     setStep(2); // Move to step 2
     setStep2Type(type); // Set the type of content to show
@@ -126,6 +135,7 @@ const closeModal = () => {
   const handleBackClick = () => {
     if (step > 1) {
       setStep(step - 1);
+      localStorage.removeItem("savedForms");
       navigate("/disaster"); 
     } else {
       navigate(-1); 
@@ -139,72 +149,86 @@ const closeModal = () => {
 //fetch disaster
 useEffect(() => {
   const fetchDisasters = async () => {
-    try {
-      const response = await axios.get("http://172.20.10.2:3003/get-disasters");
-      const disasterData = response.data;
+    let disasterData = [];
 
-      if (!Array.isArray(disasterData)) {
-        console.error("Error: Expected an array but got", disasterData);
-        return;
+    // Load from localStorage first (if available)
+    const localData = localStorage.getItem("disasters");
+    if (localData) {
+      try {
+        const parsed = JSON.parse(localData);
+        if (Array.isArray(parsed)) {
+          disasterData = parsed;
+          transformAndSetDisasters(parsed);
+        }
+      } catch (e) {
+        console.error("Failed to parse local disasters data", e);
       }
+    }
 
-
-      // Transform data so each barangay has its own row
-      const transformedData = disasterData.flatMap((disaster) =>
-        (disaster.barangays || []).map((brgy) => {
-          // Initialize gender counts
-          let maleCount = 0, femaleCount = 0,  is4ps = 0, isPWD = 0, isPreg = 0, isIps = 0, isSolo = 0;;
-
-          // Count males and females in affected families
-          brgy.affectedFamilies.forEach(family => {
-            if (family.sex === "M") maleCount++;
-            if (family.sex === "F") femaleCount++;
-
-            // Count dependents' genders
-            family.dependents?.forEach(dependent => {
-              if (dependent.sex === "Male") maleCount++;
-              if (dependent.sex === "Female") femaleCount++;
-            });
-
-            if (family.is4ps) is4ps++;
-            if (family.isPWD) isPWD++;
-            if (family.isPreg) isPreg++;
-            if (family.isIps) isIps++;
-            if (family.isSolo) isSolo++;
-          });
-
-          return {
-            disasterCode: disaster.disasterCode,
-            disasterType: disaster.disasterType,
-            disasterStatus: disaster.disasterStatus,
-            disasterDateTime: moment(disaster.disasterDateTime).format("MMMM D, YYYY h:mm A"),
-            barangay: brgy.name || "Unknown",
-            affectedFamilies: Array.isArray(brgy.affectedFamilies) ? brgy.affectedFamilies.length : 0,
-            affectedPersons: brgy.affectedFamilies.reduce(
-              (sum, family) => sum + 1 + (family.dependents ? family.dependents.length : 0),
-              0
-            ),
-            sexBreakdown: {
-              males: maleCount,
-              females: femaleCount
-            },
-            is4ps: is4ps,
-            isPWD: isPWD,
-            isSolo: isSolo,
-            isPreg: isPreg,
-            isIps: isIps,
-          };
-        })
-      );
-
-      setDisasters(transformedData);
+    // Fetch updated data from API
+    try {
+      const response = await axios.get("http://localhost:3003/get-disasters");
+      if (Array.isArray(response.data)) {
+        disasterData = response.data;
+        transformAndSetDisasters(disasterData);
+      } else {
+        console.error("Expected an array but got", response.data);
+      }
     } catch (error) {
       console.error("Error fetching disasters data:", error);
     }
   };
 
-    fetchDisasters();  // Call the function to fetch data
-  }, []);
+  const transformAndSetDisasters = (data) => {
+    const transformedData = data.flatMap((disaster) =>
+      (disaster.barangays || []).map((brgy) => {
+        let maleCount = 0, femaleCount = 0, is4ps = 0, isPWD = 0, isPreg = 0, isIps = 0, isSolo = 0;
+
+        (brgy.affectedFamilies || []).forEach((family) => {
+          if (family.sex === "M") maleCount++;
+          if (family.sex === "F") femaleCount++;
+
+          family.dependents?.forEach((dependent) => {
+            if (dependent.sex === "Male") maleCount++;
+            if (dependent.sex === "Female") femaleCount++;
+          });
+
+          if (family.is4ps) is4ps++;
+          if (family.isPWD) isPWD++;
+          if (family.isPreg) isPreg++;
+          if (family.isIps) isIps++;
+          if (family.isSolo) isSolo++;
+        });
+
+        return {
+          disasterCode: disaster.disasterCode,
+          disasterType: disaster.disasterType,
+          disasterStatus: disaster.disasterStatus,
+          disasterDateTime: moment(disaster.disasterDateTime).format("MMMM D, YYYY h:mm A"),
+          barangay: brgy.name || "Unknown",
+          affectedFamilies: (brgy.affectedFamilies || []).length,
+          affectedPersons: (brgy.affectedFamilies || []).reduce(
+            (sum, family) => sum + 1 + (family.dependents?.length || 0),
+            0
+          ),
+          sexBreakdown: {
+            males: maleCount,
+            females: femaleCount,
+          },
+          is4ps,
+          isPWD,
+          isSolo,
+          isPreg,
+          isIps,
+        };
+      })
+    );
+
+    setDisasters(transformedData);
+  };
+
+  fetchDisasters();
+}, []);
 
   const handleSearchChange = (event) => {
     const query = event.target.value.toLowerCase();
@@ -262,6 +286,15 @@ useEffect(() => {
   return (
     <div className="disaster">
 
+          {notification && (
+                  <Notification
+                    type={notification.type}
+                    title={notification.title}
+                    message={notification.message}
+                    onClose={() => setNotification(null)}  // Close notification when user clicks ✖
+                  />
+                )}
+
         {step !== 2 && (
         <div className="toggle-container">
           <button
@@ -317,12 +350,12 @@ useEffect(() => {
                   <i className="fa-solid fa-file-circle-plus"></i>
                   Add Disaster
                 </button>
-                {/** 
-                <button className="upload-csv" onClick={handleUploadCsvClick}>
-                  <i className="fa-solid fa-upload"></i>
-                  Upload CSV
+                
+                <button className="upload-csv" onClick={handleSyncDataClick}>
+                  <i className="fa-solid fa-sync"></i>
+                  Sync Draft
                 </button>
-                */}
+                
               </div>
 
               <div className="distab">
@@ -404,6 +437,7 @@ useEffect(() => {
                               </button>
                             </td>
                           )}
+
 
                           {/*view*/}
                           <td className="action-column">

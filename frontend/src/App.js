@@ -27,8 +27,8 @@ import FDR from "./components/forms/FDR";
 import Login from "./components/Login";
 import Loading from "./components/again/Loading";
 import ProtectedRoute from "./ProtectedRoute";
-
-import "./App.css";
+import axios from "axios";
+import Notification from "../src/components/again/Notif";
 
 function App() {
   const [isSidebarMinimized, setIsSidebarMinimized] = useState(() => {
@@ -38,6 +38,28 @@ function App() {
 
   const [navbarTitle, setNavbarTitle] = useState("");
   const [loading, setLoading] = useState(true);
+  const [notification, setNotification] = useState(null); 
+
+  const fetchData = async () => {
+    try {
+        const [residentsRes, disastersRes, distributionsRes] = await Promise.all([
+            axios.get("http://localhost:3003/get-residents"),
+            axios.get("http://localhost:3003/get-disasters"),
+            axios.get("http://localhost:3003/get-distributions"),
+        ]);
+        localStorage.setItem("residents", JSON.stringify(residentsRes.data));
+        localStorage.setItem("disasters", JSON.stringify(disastersRes.data));
+        localStorage.setItem("distributions", JSON.stringify(distributionsRes.data));
+    } catch (error) {
+        console.error("Error fetching data:", error);
+    }
+};
+
+  useEffect(() => {
+    if (navigator.onLine) {
+        fetchData();
+    }
+  }, []);
 
   useEffect(() => {
     setTimeout(() => setLoading(false), 200);
@@ -53,8 +75,37 @@ function App() {
             </div>
           )}
 
-          <Routes>
-            {/* Public Route */}
+           {notification && (
+                  <Notification
+                    type={notification.type}
+                    title={notification.title}
+                    message={notification.message}
+                    onClose={() => setNotification(null)}  // Close notification when user clicks ✖
+                  />
+                )}
+
+            <Routes>
+              {/*<Route path="/" element={<Login />} />
+              <Route path="/login" element={<Login />} />
+              {/*<Route path="/" element={<Navigate to="/home" />} />
+              <Route path="/home" element={<Home />} />
+              <Route path="/disaster" element={<Disaster setNavbarTitle={setNavbarTitle} />} /> 
+              <Route path="/disaster/add-disaster" element={<AddDisaster />} />
+
+              <Route path="/distribution" element={<Distribution setNavbarTitle={setNavbarTitle} />}>
+                <Route path="rds" element={<RDS/>} />
+                <Route path="edit-rds" element={<EditRDS/>} />
+                <Route path="view-rds" element={<ViewRDS/>} />
+              </Route>
+
+              <Route path="/residents" element={<Residents />} />
+              
+              <Route path="/reports" element={<Reports />} />
+              <Route path="/rds" element={<RDS />} />
+              <Route path="/dafac" element={<DAFAC />} />
+              <Route path="/sporadic" element={<SPORADIC />} />
+              <Route path="/fdr" element={<FDR />} />*/}
+
             <Route path="/" element={<Login />} />
 
             {/* Protected Routes with Layout */}

@@ -41,8 +41,13 @@ const DonutGraph = () => {
 
   useEffect(() => {
     const fetchDisasters = async () => {
+      const localData = localStorage.getItem("disasters");
+      if (localData) {
+        const parsed = JSON.parse(localData);
+        setDisasters(parsed);
+      }
       try {
-        const response = await axios.get("http://172.20.10.2:3003/get-disasters");
+        const response = await axios.get("http://localhost:3003/get-disasters");
         setDisasters(response.data);
       } catch (error) {
         console.error("Error fetching disasters data:", error);
@@ -50,6 +55,8 @@ const DonutGraph = () => {
     };
     fetchDisasters();
   }, []);
+
+  console.log(disasters)
 
   const latestDisaster = useMemo(() => {
     if (disasters.length === 0) return null;

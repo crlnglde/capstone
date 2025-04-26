@@ -36,27 +36,44 @@ const ResidentsVis = forwardRef(({ selectedBarangay }, ref) => {
   const internalRef = useRef();
 
 console.log(selectedBarangay)
-  useEffect(() => {
-    const fetchExistingResidents = async () => {
+useEffect(() => {
+  const fetchExistingResidents = async () => {
+    const localData = localStorage.getItem("residents");
+
+    // Use cached data immediately
+    if (localData) {
       try {
-        const response = await axios.get("http://172.20.10.2:3003/get-residents");
-        const data= response.data;
-         // If a barangay is selected, filter the data for that barangay
-         if (selectedBarangay) {
-          const filteredData = data.filter(
-            (resident) => resident.barangay === selectedBarangay
-          );
-          setResidents(filteredData);
-        } else {
-          setResidents(data); // No barangay selected, set all residents
-        }
-      } catch (error) {
-        console.error("Error fetching residents:", error);
-        return [];
+        const parsed = JSON.parse(localData);
+        const cachedResidents = selectedBarangay
+          ? parsed.filter(resident => resident.barangay === selectedBarangay)
+          : parsed;
+        setResidents(cachedResidents);
+      } catch (e) {
+        console.error("Failed to parse cached residents:", e);
       }
-    };
-    fetchExistingResidents();
-  }, [selectedBarangay]);
+    }
+
+    // Try fetching fresh data
+    try {
+      const response = await axios.get("http://localhost:3003/get-residents");
+      const data = response.data;
+
+      // Save fresh data to localStorage
+      localStorage.setItem("residents", JSON.stringify(data));
+
+      // Apply filter after fetching
+      const filteredResidents = selectedBarangay
+        ? data.filter(resident => resident.barangay === selectedBarangay)
+        : data;
+
+      setResidents(filteredResidents);
+    } catch (error) {
+      console.error("Error fetching residents:", error);
+    }
+  };
+
+  fetchExistingResidents();
+}, [selectedBarangay]);
 
   useEffect(() => {
     let maleCount = 0;

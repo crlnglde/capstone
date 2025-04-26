@@ -32,8 +32,6 @@ const Login = () => {
         "Villa Verde"
       ];
 
-
-
       useEffect(() => {
         const token = localStorage.getItem("token");
         if (token) {
@@ -55,7 +53,7 @@ const Login = () => {
             password: password.trim(),
           };
     
-          const response = await axios.post("http://172.20.10.2:3003/login", userdata);
+          const response = await axios.post("http://localhost:3003/login", userdata);
     
           if (response.data.token && response.data.user.role) {
             localStorage.setItem("token", response.data.token);
@@ -73,6 +71,7 @@ const Login = () => {
                 type: "success",
                 title: "Login Successful",
                 message: "Welcome!",
+
               });
     
               navigate("/home");

@@ -78,7 +78,7 @@ const addResidentsToTop = (newResidents) => {
 
 const fetchExistingResidents = async () => {
   try {
-    const response = await axios.get("http://172.20.10.2:3003/get-residents");
+    const response = await axios.get("http://localhost:3003/get-residents");
     return response.data; 
   } catch (error) {
     console.error("Error fetching residents:", error);
@@ -202,7 +202,7 @@ const fetchExistingResidents = async () => {
             await new Promise((resolve) => setTimeout(resolve, 2000)); // Simulate a delay for better UX
 
             // 5️⃣ Send data to backend
-            const response = await axios.post("http://172.20.10.2:3003/add-csvresidents", { residents: newResidents });
+            const response = await axios.post("http://localhost:3003/add-csvresidents", { residents: newResidents });
 
             console.log("✅ Server Response:", response.data);
 
@@ -311,7 +311,7 @@ const fetchExistingResidents = async () => {
 
       await new Promise((resolve) => setTimeout(resolve, 2000));
       
-      const response = await axios.post("http://172.20.10.2:3003/add-residents", formattedData);
+      const response = await axios.post("http://localhost:3003/add-residents", formattedData);
 
       
       setNotification({ type: "success", message: "Resident added successfully!" });
@@ -357,25 +357,44 @@ const fetchExistingResidents = async () => {
   };
   
   //Retrieve Residents
-    const fetchResidents = async () => {
-      try {
-        const response = await axios.get("http://172.20.10.2:3003/get-residents");
-        const residentsData = response.data;
-        setResidents(residentsData); 
-
-        // Calculate total residents and total families
-        const total = residentsData.reduce((sum, resident) => {
-          return sum + 1 + resident.dependents.length;
-        }, 0);
-        setTotalResidents(total);
-
-        // Calculate total families (unique family heads)
-        const families = new Set(residentsData.map(resident => resident.FamilyHead));
-        setTotalFamilies(families.size);
-      } catch (error) {
-        console.error("Error fetching residents data:", error);
-      }
-    };
+  const fetchResidents = async () => {
+    const localData = localStorage.getItem('residents');
+    
+    if (localData) {
+      const residentsData = JSON.parse(localData);
+      console.log("Loaded from localStorage:", residentsData);
+      setResidents(residentsData);
+  
+      // Calculate total residents and total families
+      const total = residentsData.reduce((sum, resident) => {
+        return sum + 1 + resident.dependents.length;
+      }, 0);
+      setTotalResidents(total);
+  
+      const families = new Set(residentsData.map(resident => resident.FamilyHead));
+      setTotalFamilies(families.size);
+    }
+  
+    try {
+      const response = await axios.get("http://localhost:3003/get-residents");
+      localStorage.setItem('residents', JSON.stringify(response.data));
+  
+      // If you're online, update the UI with fresh data too
+      const freshData = response.data;
+      setResidents(freshData);
+  
+      const total = freshData.reduce((sum, resident) => {
+        return sum + 1 + resident.dependents.length;
+      }, 0);
+      setTotalResidents(total);
+  
+      const families = new Set(freshData.map(resident => resident.FamilyHead));
+      setTotalFamilies(families.size);
+    } catch (error) {
+      console.error("Error fetching residents data:", error);
+    }
+  };
+  
 
 
   useEffect(() => {
@@ -412,7 +431,7 @@ const fetchExistingResidents = async () => {
   
 
   const handleAddMember = () => {
-    setDependents([...dependents, ""]); // Add a new empty member field when "Add More Member" is clicked
+    setDependents([...dependents, ""]); 
   };
 
   const handleMemberChange = (index, field, value) => {
@@ -552,7 +571,7 @@ const fetchExistingResidents = async () => {
             console.log("Updated data:", updatedResidentData)
 
             try {
-              const response = await fetch(`http://172.20.10.2:3003/update-resident/${updatedResidentData.memId}`, {
+              const response = await fetch(`http://localhost:3003/update-resident/${updatedResidentData.memId}`, {
                   method: 'PUT',
                   headers: {
                       'Content-Type': 'application/json',
@@ -592,7 +611,7 @@ const fetchExistingResidents = async () => {
             if (!confirmDelete) return;
         
             try {
-              const response = await axios.delete(`http://172.20.10.2:3003/delete-resident/${selectedResident.memId}`);
+              const response = await axios.delete(`http://localhost:3003/delete-resident/${selectedResident.memId}`);
               if (response.status === 200) {
                 alert('Resident deleted successfully');
                 setResidents((prevResidents) => prevResidents.filter((resident) => resident.memId !== selectedResident.memId)); // Update state to remove the deleted resident

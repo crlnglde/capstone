@@ -64,34 +64,56 @@ const Home = ({setNavbarTitle}) => {
 // Fetch Residents Data and Calculate Counts
 useEffect(() => {
   const fetchResidents = async () => {
+    let residentsData = [];
+
+    // Load from localStorage first (for faster initial display)
+    const localData = localStorage.getItem("residents");
+    if (localData) {
+      try {
+        const parsed = JSON.parse(localData);
+        residentsData = parsed;
+        setResidents(parsed);
+        updateStats(parsed);
+      } catch (e) {
+        console.error("Failed to parse local residents data", e);
+      }
+    }
+
+    // Then attempt to fetch fresh data from server
     try {
-      const response = await axios.get("http://172.20.10.2:3003/get-residents");
-        console.log(response.data);
-        const residentsData = response.data;
-        setResidents(residentsData); 
-
-
-      // Calculate total residents (1 per resident + the length of their family dependents)
-      const total = residentsData.reduce((sum, resident) => {
-        return sum + 1 + (resident.dependents ? resident.dependents.length : 0); // Check if Familydependents exists
-      }, 0);
-      setTotalResidents(total);
-
-      // Calculate total families 
-      setTotalFamilies(residentsData.length);
-
+      const response = await axios.get("http://localhost:3003/get-residents");
+      residentsData = response.data;
+      setResidents(residentsData);
+      updateStats(residentsData);
+      localStorage.setItem("residents", JSON.stringify(residentsData)); // Optional: Update localStorage
     } catch (error) {
       console.error("Error fetching residents data:", error);
     }
   };
 
+  const updateStats = (data) => {
+    const total = data.reduce(
+      (sum, resident) => sum + 1 + (resident.dependents?.length || 0),
+      0
+    );
+    setTotalResidents(total);
+    setTotalFamilies(data.length);
+  };
+
   fetchResidents();
 }, []);
 
+
 useEffect(() => {
   const fetchDisasters = async () => {
+    const localData = localStorage.getItem("disasters");
+    if (localData) {
+      const parsed = JSON.parse(localData);
+      setDisasters(parsed);
+      setTotalDisasters(parsed.length);
+    }
     try {
-      const response = await axios.get("http://172.20.10.2:3003/get-disasters");
+      const response = await axios.get("http://localhost:3003/get-disasters");
       const disasterData = response.data;
       setDisasters(disasterData); // Store disasters data in state
 
