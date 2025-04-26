@@ -571,22 +571,6 @@ const validateFields = () => {
         }
       };
 
-    // Slice the data to show only the required page data
-      const displayedDisasters = sortedDisasters.slice(
-        (currentDisastersPage - 1) * disastersPerPage,
-        currentDisastersPage * disastersPerPage
-      );
-      
-      const displayedPending = sortedPending.slice(
-        (pendingDistributionsPage - 1) * pendingPerPage,
-        pendingDistributionsPage * pendingPerPage
-      );
-
-      const displayedHistory = sortedHistory.slice(
-        (historyPage - 1) * historyPerPage,
-        historyPage * historyPerPage
-      );
-
 
   return (
     <div className="distribution">

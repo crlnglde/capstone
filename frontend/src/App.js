@@ -84,13 +84,6 @@ function App() {
                   />
                 )}
 
-
-          <ConditionalLayout 
-            isSidebarMinimized={isSidebarMinimized} 
-            setIsSidebarMinimized={setIsSidebarMinimized} // Pass the setter here
-            navbarTitle={navbarTitle} 
-            setLoading={setLoading}
-          >
             <Routes>
               {/*<Route path="/" element={<Login />} />
               <Route path="/login" element={<Login />} />
