@@ -68,7 +68,7 @@
     .res-form  .row  .col:last-child {
       margin-right: 0;
     }
-
+    
     .res-form  .row  .col input, 
     .res-form  .row  .col select {
 
@@ -80,6 +80,7 @@
       text-align: center;
       font-weight:bolder;
       text-transform: capitalize;
+      color: black;
     }
 
     .res-form  .row .col label {
@@ -279,4 +280,5 @@ button[type="button"] {
   padding: 6px;
   min-height: 38px; /* same height as an input for consistency */
   box-sizing: border-box;
+  color: black;
 }

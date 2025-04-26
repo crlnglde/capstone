@@ -60,12 +60,18 @@
     font-size: 14px;
     margin: 0;
   }
-  
+
   .container .subtitle {
     font-size: 12px;
     font-style: normal;
     color: gray;
+    word-wrap: break-word; /* Ensures the text wraps within the container */
+    white-space: normal;
+    max-width: 95%;
+    text-overflow: ellipsis; 
+    overflow: hidden; 
   }
+  
   
   .amount {
     font-size: 14px;

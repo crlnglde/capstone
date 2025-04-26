@@ -60,6 +60,11 @@
             background-color: white;
           }
 
+          .distribution-visualizations{
+            background-color: white;
+            padding: 20px;
+          }
+
 
   .content-container .column{
     display: flex;
@@ -275,7 +280,7 @@
             }
 
             .rds-form-container{
-              background-color: none;
+              background-color:#00000000;
 
             }
           

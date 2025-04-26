@@ -18,6 +18,21 @@ const Login = () => {
     const [loading, setLoading] = useState(false);
     const [notification, setNotification] = useState(null); 
 
+    const [needsBarangaySelection, setNeedsBarangaySelection] = useState(false);
+    const [selectedBarangay, setSelectedBarangay] = useState("");
+
+    // Add this function at the top (outside the LoginPage component)
+      const getBarangays = () => [
+        "Abuno", "Acmac-Mariano Badelles Sr.", "Bagong Silang", "Bonbonon", "Bunawan", "Buru-un", "Dalipuga",
+        "Del Carmen", "Digkilaan", "Ditucalan", "Dulag", "Hinaplanon", "Hindang", "Kabacsanan", "Kalilangan",
+        "Kiwalan", "Lanipao", "Luinab", "Mahayahay", "Mainit", "Mandulog", "Maria Cristina", "Pala-o",
+        "Panoroganan", "Poblacion", "Puga-an", "Rogongon", "San Miguel", "San Roque", "Santa Elena",
+        "Santa Filomena", "Santiago", "Santo Rosario", "Saray", "Suarez", "Tambacan", "Tibanga",
+        "Tipanoy", "Tomas L. Cabili (Tominobo Proper)", "Upper Tominobo", "Tubod", "Ubaldo Laya", "Upper Hinaplanon",
+        "Villa Verde"
+      ];
+
+
 
       useEffect(() => {
         const token = localStorage.getItem("token");
@@ -29,91 +44,144 @@ const Login = () => {
       const togglePasswordVisibility = () => {
         setShowPassword((prevShowPassword) => !prevShowPassword);
       };
-      
+
       const handleLogin = async (e) => {
         e.preventDefault();
         setLoading(true);
-
+    
         try {
-            const userdata = {
-                username: userName.trim(),
-                password: password.trim(),
-            };
+          const userdata = {
+            username: userName.trim(),
+            password: password.trim(),
+          };
     
-            const response = await axios.post("http://172.20.10.2:3003/login", userdata);
+          const response = await axios.post("http://172.20.10.2:3003/login", userdata);
     
-            console.log("Login Response:", response.data); // Debug API response
+          if (response.data.token && response.data.user.role) {
+            localStorage.setItem("token", response.data.token);
+            localStorage.setItem("role", response.data.user.role);
+            localStorage.setItem("username", response.data.user.username);
     
-            if (response.data.token && response.data.user.role) {
-                localStorage.setItem("token", response.data.token);
-                localStorage.setItem("role", response.data.user.role);
-                localStorage.setItem("username", response.data.user.username); 
+            const decodedToken = jwtDecode(response.data.token);
+            const expireTime = decodedToken.exp * 1000;
     
-                const decodedToken = jwtDecode( response.data.token);
-                const expireTime = decodedToken.exp * 1000;
-                
-                setNotification({ 
-                  type: "success", 
-                  title: "Login Successful", 
-                  message: "Welcome hehe!" 
+            if (response.data.user.role.toLowerCase() === "daycare worker") {
+              setNeedsBarangaySelection(true); // Show barangay selection
+              setLoading(false);
+            } else {
+              setNotification({
+                type: "success",
+                title: "Login Successful",
+                message: "Welcome!",
               });
-
+    
               navigate("/home");
-
+    
               setTimeout(() => {
                 localStorage.clear();
                 navigate("/login");
               }, expireTime - Date.now());
-              
-            } else {
-                console.error("Missing token or role in response");
-                setNotification({
-                  type: "error",
-                  title: "Login Failed",
-                  message: "Unexpected response from server. Please try again.",
-              });
             }
-        } catch (error) {
-            console.error("Error logging in:", error);
+          } else {
+            console.error("Missing token or role in response");
             setNotification({
-                type: "error",
-                title: "Login Failed",
-                message: "Invalid credentials. Please try again.",
+              type: "error",
+              title: "Login Failed",
+              message: "Unexpected response from server. Please try again.",
             });
-
-            setTimeout(() => {
-              setNotification(null);
-              setLoading(false);
+          }
+        } catch (error) {
+          console.error("Error logging in:", error);
+          setNotification({
+            type: "error",
+            title: "Login Failed",
+            message: "Invalid credentials. Please try again.",
+          });
+          setTimeout(() => {
+            setNotification(null);
+            setLoading(false);
           }, 500);
         }
+      };
+
+    const handleBarangaySubmit = (e) => {
+      e.preventDefault();
+      if (selectedBarangay) {
+        localStorage.setItem("barangay", selectedBarangay);
+  
+        setNotification({
+          type: "success",
+          title: "Login Successful",
+          message: `Welcome, ${selectedBarangay}!`,
+        });
+  
+        navigate("/home");
+      }
     };
     
 
     return (
       <div className="login">
         <div className="loginBox">
+              {/* Left Panel */}
           <div className="leftPanel">
-            <h2 className="title">Log In</h2>
-            <p className="subtitle">Please enter your details</p>
-            <form className="form" onSubmit={handleLogin}>
-                <input type="username" value={userName}  onChange={(e) => setUserName(e.target.value)} placeholder="Username" className="input" />
-                <div className="passwordContainer">
-                    <input 
-                        type={showPassword ? "text" : "password"}
-                        value={password} 
-                        onChange={(e) => setUserPassword(e.target.value)}
-                        placeholder="Password" 
-                        className="input"
+            {!needsBarangaySelection ? (
+              <>
+                <h2 className="title">Log In</h2>
+                <p className="subtitle">Please enter your details</p>
+                <form className="form" onSubmit={handleLogin}>
+                  <input
+                    type="text"
+                    value={userName}
+                    onChange={(e) => setUserName(e.target.value)}
+                    placeholder="Username"
+                    className="input"
+                  />
+                  <div className="passwordContainer">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setUserPassword(e.target.value)}
+                      placeholder="Password"
+                      className="input"
                     />
                     <span className="eyeIcon" onClick={togglePasswordVisibility}>
-                        {showPassword ? <FaEyeSlash /> : <FaEye />}
+                      {showPassword ? <FaEyeSlash /> : <FaEye />}
                     </span>
-                </div>
-                <div className="forgotPassword">forgot password?</div>
-                <button className="loginButton">Log in</button>
-            </form>
-            
+                  </div>
+                  <div className="forgotPassword">forgot password?</div>
+                  <button className="loginButton" type="submit" disabled={loading}>
+                    {loading ? "Logging in..." : "Log in"}
+                  </button>
+                </form>
+              </>
+            ) : (
+              <>
+                <h2 className="title">Select Your Barangay</h2>
+                <p className="subtitle">Please select your assigned barangay</p>
+                <form className="form" onSubmit={handleBarangaySubmit}>
+                <select
+                  className="input"
+                  value={selectedBarangay}
+                  onChange={(e) => setSelectedBarangay(e.target.value)}
+                >
+                  <option value="">Select Barangay</option>
+                  {getBarangays().map((barangay, index) => (
+                    <option key={index} value={barangay}>
+                      {barangay}
+                    </option>
+                  ))}
+                </select>
+
+                  <button type="submit" className="loginButton" disabled={!selectedBarangay}>
+                    Continue
+                  </button>
+                </form>
+              </>
+            )}
           </div>
+
+          
           <motion.div
           className="rightPanel"
           initial={{ opacity: 0, x: 50 }}  // Initial animation when the page loads
@@ -125,43 +193,43 @@ const Login = () => {
             opacity: 1, 
             transition: { duration: 0.3 },
           }}  
-        >
-          <motion.div 
-            className="cswdContent"
-            initial={{ opacity: 0, y: -50 }}  // Image comes from top
-            animate={{ opacity: 1, y: 0 }}    // Image animates to original position
-            transition={{ duration: 1, ease: "easeOut" }}
-            whileHover={{ opacity: 1, y: -10 }} // Hover effect on the content (image)
           >
-            <motion.img
-              src={CSWD}
-              alt="CSWD Logo"
-              className="image"
-              initial={{ opacity: 0, y: -50 }}  // Image comes from top on page load
-              animate={{ opacity: 1, y: 0 }}
+            <motion.div 
+              className="cswdContent"
+              initial={{ opacity: 0, y: -50 }}  // Image comes from top
+              animate={{ opacity: 1, y: 0 }}    // Image animates to original position
               transition={{ duration: 1, ease: "easeOut" }}
-              whileHover={{ scale: 1.1 }} // Hover effect for the image (slight zoom)
-            />
-            <motion.h3
-              className="cswdText"
-              initial={{ opacity: 0, x: -50 }}  // Text comes from the left
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 1, delay: 0.5 }}
-              whileHover={{ x: 10 }}  // Hover effect for the text (slight shift)
+              whileHover={{ opacity: 1, y: -10 }} // Hover effect on the content (image)
             >
-              City Social Welfare and Development Office
-            </motion.h3>
-            <motion.p
-              className="cswdDescription"
-              initial={{ opacity: 0, x: 50 }}  // Description comes from the right
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 1, delay: 0.7 }}
-              whileHover={{ x: 10 }}  // Hover effect for the description (slight shift)
-            >
-              Dedicated to serving the community and strengthening resilience through timely disaster relief and support in times of crisis.
-            </motion.p>
+              <motion.img
+                src={CSWD}
+                alt="CSWD Logo"
+                className="image"
+                initial={{ opacity: 0, y: -50 }}  // Image comes from top on page load
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1, ease: "easeOut" }}
+                whileHover={{ scale: 1.1 }} // Hover effect for the image (slight zoom)
+              />
+              <motion.h3
+                className="cswdText"
+                initial={{ opacity: 0, x: -50 }}  // Text comes from the left
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 1, delay: 0.5 }}
+                whileHover={{ x: 10 }}  // Hover effect for the text (slight shift)
+              >
+                City Social Welfare and Development Office
+              </motion.h3>
+              <motion.p
+                className="cswdDescription"
+                initial={{ opacity: 0, x: 50 }}  // Description comes from the right
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 1, delay: 0.7 }}
+                whileHover={{ x: 10 }}  // Hover effect for the description (slight shift)
+              >
+                Dedicated to serving the community and strengthening resilience through timely disaster relief and support in times of crisis.
+              </motion.p>
+            </motion.div>
           </motion.div>
-        </motion.div>
         </div>
 
         {loading && <Loading />} {/* Show loading spinner */}

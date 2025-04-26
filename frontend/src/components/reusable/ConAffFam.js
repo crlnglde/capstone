@@ -8,6 +8,8 @@ import DAFAC from "../forms/DAFAC";
 import "../../css/reusable/AffFam.css";
 import Loading from "../again/Loading";
 import Notification from "../again/Notif";
+import { IoMdOpen } from "react-icons/io";
+import { BiSolidBadgeCheck } from "react-icons/bi";
 
 const ConAffFam = ({disBarangay, disCode, handleStepChange}) => {
 const [step, setStep] = useState(1);
@@ -369,7 +371,7 @@ const [step, setStep] = useState(1);
                                     <th>Contact No.</th>
                                     <th>Education</th>
                                     <th>Dependents</th>
-                                    <th>Generate Form</th>
+                                    <th>View DAFAC</th>
                                     <th>Confirmation</th>
                                 </tr>
                             </thead>
@@ -403,9 +405,9 @@ const [step, setStep] = useState(1);
                                                 disabled={affectedFamilies.some(family => family.id === resident.memId) || isResidentSaved(resident)}
                                             >
                                                  {affectedFamilies.some(family => family.id === resident.memId) || isResidentSaved(resident) ? (
-                                                    <i className="fa-solid fa-check-circle"></i>
+                                                    <BiSolidBadgeCheck />
                                                 ) : (
-                                                    <i className="fa-solid fa-pen-to-square"></i> 
+                                                    <IoMdOpen />
                                                 )}
 
                                             </button>
@@ -413,10 +415,23 @@ const [step, setStep] = useState(1);
                                             </td>
 
                                             <td>
-                                                
-                                                <button className="res-submit-btn" disabled={resident.dafacStatus === "Confirmed"} onClick={() => handleConfirm(disCode, disBarangay, resident.id)}>
-                                                    <i class="fa-regular fa-circle-check"></i> Confirm
-                                                </button>
+
+                                            <button
+                                            className={`res-submit-btn ${resident.dafacStatus === "Confirmed" ? "confirmed" : ""}`}
+                                            
+                                            onClick={() => handleConfirm(disCode, disBarangay, resident.id)}
+                                            >
+                                                <span className="icon-text-wrapper">
+                                                    {resident.dafacStatus === "Confirmed" ? (
+                                                    <BiSolidBadgeCheck className="icon green-icon" />
+                                                    ) : (
+                                                    <i className="fa-regular fa-circle-check icon"></i>
+                                                    )}
+                                                    {resident.dafacStatus === "Confirmed" ? "Confirmed" : "Confirm"}
+                                                </span>
+                                            </button>
+
+
                                             </td>
                                         </tr>
                                     ))

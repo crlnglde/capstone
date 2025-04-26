@@ -64,7 +64,7 @@ app.post("/login", async (req, res) => {
 
     // Generate token
     const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
-      expiresIn: "5m",
+      expiresIn: "1h",
     });
 
     res.json({ token, user: { id: user._id, username: user.username, role: user.role } });
