@@ -47,8 +47,15 @@ const StackedBarChart = () => {
 
     useEffect(() => {
         const fetchDisasters = async () => {
+
+            const localData = localStorage.getItem("disasters");
+            if (localData) {
+              const parsed = JSON.parse(localData);
+              setDisasters(parsed);
+            }
+            
             try {
-                const response = await axios.get("http://172.20.10.2:3003/get-disasters");
+                const response = await axios.get("http://localhost:3003/get-disasters");
                 setDisasters(response.data);
             } catch (error) {
                 console.error("Error fetching disasters:", error);
@@ -133,6 +140,19 @@ const StackedBarChart = () => {
             easing: "easeInOutQuart",
         },
     };
+
+    const updatedChartData = useMemo(() => {
+        if (!chartData) return null;
+        
+        return {
+          labels: [0, ...chartData.labels],
+          datasets: chartData.datasets.map((dataset) => ({
+            ...dataset,
+            data: [0, ...dataset.data],
+          })),
+        };
+      }, [chartData]);
+      
 
     const disasterInsights = useMemo(() => {
         let totalOccurrences = 0;

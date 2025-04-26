@@ -15,12 +15,22 @@ const BarGraph = ({ isBarGraph }) => {
   const [disDate, setdisDate] = useState("");
   const [graphType, setGraphType] = useState("bar"); 
   const [availableBarangays, setAvailableBarangays] = useState([]);
+  const [chartData, setChartData] = useState(null);
 
   const [barangayOptions, setBarangayOptions] = useState([]);
   useEffect(() => {
     const fetchDisasters = async () => {
+      const localData = localStorage.getItem("disasters");
+      if (localData) {
+        const parsed = JSON.parse(localData);
+        const disasterData = parsed.filter(disaster => disaster.disasterStatus === "Current");
+        setDisasters(disasterData);
+        if (disasterData.length > 0) {
+          setDisasterCodeFilter(disasterData[0].disasterCode);
+        }
+      }
       try {
-        const response = await axios.get("http://172.20.10.2:3003/get-disasters");
+        const response = await axios.get("http://localhost:3003/get-disasters");
         const disasterData = response.data.filter(disaster => disaster.disasterStatus === "Current");
         setDisasters(disasterData);
   
@@ -33,81 +43,120 @@ const BarGraph = ({ isBarGraph }) => {
       }
     };
   
-    const fetchDistributions = async () => {
-      try {
-        const response = await axios.get("http://172.20.10.2:3003/get-distribution");
-        setDistributions(response.data);
-      } catch (error) {
-        console.error("Error fetching distribution data:", error);
+    const fetchDistributions = async ({ disasterCode, barangay, status } = {}) => {
+      let distributionData = [];
+    
+      const localData = localStorage.getItem("parsedDistributions");
+    
+      if (localData) {
+        try {
+          let parsed = JSON.parse(localData);
+    
+          // Filter from cached local data
+          if (disasterCode) {
+            parsed = parsed.filter(d => d.disasterCode === disasterCode);
+          }
+    
+          if (status) {
+            parsed = parsed.filter(d => d.status === status);
+          }
+    
+          if (barangay) {
+            parsed = parsed.map(d => {
+              const filteredBarangays = (d.barangays || []).filter(b => b.name === barangay);
+              return { ...d, barangays: filteredBarangays };
+            }).filter(d => d.barangays.length > 0);
+          }
+    
+          distributionData = parsed;
+          setDistributions(distributionData);
+        } catch (e) {
+          console.error("Error parsing cached distributions:", e);
+        }
       }
-    };
+    
+      // Fetch from server for fresh data
+      try {
+        const response = await axios.get("http://localhost:3003/get-distribution", {
+          params: { disasterCode, barangay, status }
+        });
+    
+        if (Array.isArray(response.data)) {
+          setDistributions(response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching fresh filtered distribution data:", error);
+      }
+    };    
   
     fetchDisasters();
     fetchDistributions();
   }, []);
 
-  const chartData = useMemo(() => {
-    if (!disasterCodeFilter || !disasters.length) return null;
+  console.log(distributions)
+
+  useEffect(() => {
+    if (!disasterCodeFilter || !disasters.length) return;
   
     const selectedDisaster = disasters.find(d => d.disasterCode === disasterCodeFilter);
-    if (!selectedDisaster) return null;
+    if (!selectedDisaster) return;
+  
     setSelectedDisaster(selectedDisaster);
-    // Get total affected families based on barangay filter
+
+    console.log("hehe", distributions)
+  
     const affectedFamiliesCount = selectedDisaster.barangays
       .filter(barangay => !barangayFilter || barangay.name === barangayFilter)
       .reduce((sum, barangay) => sum + (barangay.affectedFamilies?.length || 0), 0);
   
-    // Get all distributions for the selected disaster and barangay
+    console.log("code filter", disasterCodeFilter)
+    console.log("barangays", barangayFilter)
     const allDistributions = distributions
       .filter(d => d.disasterCode === disasterCodeFilter)
       .flatMap(d => d.barangays)
-      .filter(barangay => !barangayFilter || barangay.name === barangayFilter) // Apply barangay filter
+      .filter(barangay => !barangayFilter || barangay.name === barangayFilter)
       .flatMap(barangay => barangay.distribution || []);
+    console.log("haha", allDistributions)
   
-    // Generate labels
     const labels = allDistributions.map((distribution, index) => {
       const date = new Date(distribution.dateDistributed);
-      const formatted = date.toLocaleString('en-US', { 
-        month: 'short', day: '2-digit', year: 'numeric' 
-      }); // Extracts "MMM DD YYYY"
-      return `Distribution ${index + 1} (${formatted})`;
-    });      
+      return `Distribution ${index + 1} (${date.toLocaleDateString("en-US", {
+        month: "short", day: "2-digit", year: "numeric"
+      })})`;
+    });
   
-    // Affected Families remains the same for each distribution
     const affectedFamiliesData = Array(allDistributions.length).fill(affectedFamiliesCount);
-  
-    // Count families that received assistance
-    const receivedFamiliesData = allDistributions.map(distribution => 
+    const receivedFamiliesData = allDistributions.map(distribution =>
       distribution.families.filter(fam => fam.status === "Done").length
     );
-
-    const date= new Date(selectedDisaster.disasterDateTime);
-    const disDate= date.toLocaleString('en-US', { 
-        month: 'short', day: '2-digit', year: 'numeric' 
-      });
-    setdisDate(disDate);
-    
   
-    return {
+    const date = new Date(selectedDisaster.disasterDateTime);
+    setdisDate(date.toLocaleDateString("en-US", {
+      month: "short", day: "2-digit", year: "numeric"
+    }));
+  
+    setChartData({
       labels,
       datasets: [
         {
           label: "Affected Families",
           data: affectedFamiliesData,
-          backgroundColor: "rgba(0, 76, 153, 0.7)", // Darker blue
+          backgroundColor: "rgba(0, 76, 153, 0.7)",
           borderColor: "rgba(0, 76, 153, 1)",
           borderWidth: 1,
         },
         {
           label: "Families Received Assistance",
           data: receivedFamiliesData,
-          backgroundColor: "rgba(30, 144, 255, 0.7)", // Medium blue
+          backgroundColor: "rgba(30, 144, 255, 0.7)",
           borderColor: "rgba(30, 144, 255, 1)",
           borderWidth: 1,
-        }        
+        },
       ],
-    };
+    });
   }, [disasterCodeFilter, barangayFilter, disasters, distributions]);
+  
+  console.log(chartData)
   
   const availableDisasterCodes = useMemo(() => {
     return Array.from(new Set(disasters.map(d => d.disasterCode)));
@@ -120,10 +169,12 @@ const BarGraph = ({ isBarGraph }) => {
   
       setBarangayOptions(newBarangayOptions);
   
-      // Reset barangay filter if the new disaster has no barangays
-      setBarangayFilter(newBarangayOptions.length > 0 ? newBarangayOptions[0] : "All");
+      // Only reset the barangay filter if it's not already set (i.e., if it's "All")
+      if (barangayFilter === "All" && newBarangayOptions.length > 0) {
+        setBarangayFilter(newBarangayOptions[0]);
+      }
     }
-  }, [disasterCodeFilter, disasters]);
+  }, [disasterCodeFilter, disasters, barangayFilter]);  
   
 
   //filter

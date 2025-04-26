@@ -84,8 +84,10 @@ const AddDisaster = () => {
    
         if (step > 1) {
             setStep(step - 1);
+            localStorage.removeItem("savedForms");
         } else {
             navigate(-1);  
+            localStorage.removeItem("disasterData");
         }
     };
 
@@ -188,8 +190,181 @@ const AddDisaster = () => {
         if (hasClickedNext) validateFields();
     }, [disasterType, date, selectedBarangays]);
 
+    const syncData = async () => {
+        // Retrieve disasterData and residentData from localStorage
+        const disasterData = JSON.parse(localStorage.getItem("disasterData")) || null;
+        const residentData = JSON.parse(localStorage.getItem("savedForms")) || [];
+   
+        if (!disasterData || residentData.length === 0) {
+            setNotification({ type: "error", title: "Error", message: "No data found in localStorage to save." });
+            setTimeout(() => setNotification(null), 3000);
+            return;
+        }
+
+        if (!disasterData){
+            setNotification({ type: "error", title: "Error", message: "No data found in localStorage to save." });
+            setTimeout(() => setNotification(null), 3000);
+            return;
+        }
+        setLoading(true);
+
+        try {
+            const { disasterCode, disasterStatus, disasterType, date } = disasterData;
+            
+            const barangayName = disasterData.selectedBarangays || "Unknown Barangay";
+
+            {/*const groupedByBarangay = {
+                [barangayName]: residentData.filter(res => res.barangay === barangayName)
+            };
+            
+            // Prepare barangays array
+            let barangays = Object.entries(groupedByBarangay).map(([barangayName, residents]) => ({
+                name: barangayName,
+                affectedFamilies: [],
+            }));*/}
+
+             // Group resident data by barangay
+             const groupedByBarangay = residentData.reduce((acc, resident) => {
+                const barangay = resident.barangay || "Unknown Barangay";
+                if (!acc[barangay]) {
+                    acc[barangay] = [];
+                }
+                acc[barangay].push(resident);
+                return acc;
+            }, {});
+            
+            // Prepare barangays array
+            let barangays = Object.entries(groupedByBarangay).map(([barangayName, residents]) => ({
+                name: barangayName,
+                affectedFamilies: residents.map(resident => ({
+                    id: resident.id,
+                    firstName: resident.firstName,
+                    middleName: resident.middleName || "",
+                    lastName: resident.lastName,
+                    age: resident.age,
+                    sex: resident.sex,
+                    phone: resident.phone,
+                    bdate: resident.bdate,
+                    occupation: resident.occupation || "",
+                    education: resident.education || "",
+                    income: resident.income || 0,
+                    purok: resident.purok,
+                    dependents: resident.dependents || [],
+                    is4ps: resident.is4ps || false,
+                    isPWD: resident.isPWD || false,
+                    isPreg: resident.isPreg || false,
+                    isSenior: resident.isSenior || false,
+                    isIps: resident.isIps || false,
+                    isSolo: resident.isSolo || false,
+                    numFam: resident.numFam || 0,
+                    evacuation: resident.evacuation || "",
+                    extentDamage: resident.extentDamage || "",
+                    occupancy: resident.occupancy || "",
+                    costDamage: resident.costDamage || 0,
+                    casualty: resident.casualty || [],
+                    regDate: resident.regDate || "",
+                    dafacStatus: resident.dafacStatus || "",
+                })),
+            }));
+
+            console.log("Barangays",barangays);
+    
+            // Check if disaster already exists
+            const checkResponse = await fetch(`http://localhost:3003/get-disaster/${disasterCode}`);
+            const existingDisaster = await checkResponse.json();
+    
+            if (checkResponse.ok && existingDisaster) {
+                // Disaster exists, update affected families
+                const updatedBarangays = [...existingDisaster.barangays];
+    
+                barangays.forEach(newBarangay => {
+                    const existingBarangay = updatedBarangays.find(b => b.name === newBarangay.name);
+                    if (existingBarangay) {
+                        existingBarangay.affectedFamilies.push(...newBarangay.affectedFamilies);
+                    } else {
+                        updatedBarangays.push(newBarangay);
+                    }
+                });
+                    console.log("hehe")
+                const updateResponse = await fetch(`http://localhost:3003/update-disaster/${disasterCode}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ barangays: updatedBarangays })
+                });
+    
+                if (!updateResponse.ok) throw new Error("Failed to update disaster data.");
+
+                setNotification({ type: "success", title: "Success", message: "Disaster data updated successfully!" });
+
+            } else {
+
+                console.log("haha")
+                // Disaster does not exist, create new disaster
+                const disasterDocument = {
+                    disasterCode,
+                    disasterType,
+                    disasterStatus,
+                    disasterDateTime: new Date(date),
+                    barangays
+                };
+    
+                const createResponse = await fetch("http://localhost:3003/add-disaster", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(disasterDocument)
+                });
+    
+                if (!createResponse.ok) throw new Error("Failed to save data.");
+                setNotification({ type: "success", title: "Success", message: "New disaster record created successfully!" });
+            }
+    
+            localStorage.removeItem("savedForms");
+            localStorage.removeItem("disasterData");
+
+            setTimeout(() => {
+                setNotification(null);
+                setLoading(false); 
+                navigate("/disaster");
+            }, 1000); 
+
+        } catch (error) {
+            setNotification({ type: "error", title: "Error Occurred", message: error.message || "An error occurred while saving data. Please try again."});
+            setTimeout(() => setNotification(null), 3000);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+     //modified
+     const handleFinalSubmit = async (e) => {
+        e.preventDefault();
+
+        // On first click, set isSubmitted to true to trigger validation
+        setHasClickedNext(true);
+
+        // Check if all required fields are filled
+        const isValid = validateFields();
+        if (!isValid) {
+            setNotification({ type: "error", title: "Invalid Form", message: "Please fill out all required fields before submitting." });
+            setTimeout(() => setNotification(null), 3000);
+            return;
+        }
+
+        const confirmSubmit = window.confirm("Are you sure you want to record new disaster?");
+        if (!confirmSubmit) return;
+
+        if(navigator.onLine){
+            syncData();
+        } else{
+            // Retrieve disasterData and residentData from localStorage
+            const disasterData = JSON.parse(localStorage.getItem("disasterData")) || null;
+            const residentData = JSON.parse(localStorage.getItem("savedForms")) || [];
+
+        }
+    };    
+
     const Step1 = (
-        <form className="add-form">
+        <form className="add-form" onSubmit={handleNextClick}>
 
 
             <div className="add-form-h2">
@@ -297,7 +472,7 @@ const AddDisaster = () => {
 
 
                     <div className="dstr-btn">
-                        <button type="submit" className="dstr-submit-btn" onClick={handleNextClick}>
+                        <button type="submit" className="dstr-submit-btn">
                         Next
                         </button>
                     </div>
@@ -320,138 +495,6 @@ const AddDisaster = () => {
           data.purok === resident.purok
         );
     };
-      
-     //modified
-    const handleFinalSubmit = async () => {
-
-        const confirmSubmit = window.confirm("Are you sure you want to submit the forms?");
-        if (!confirmSubmit) return;
-
-        // Retrieve disasterData and residentData from localStorage
-        const disasterData = JSON.parse(localStorage.getItem("disasterData")) || null;
-        const residentData = JSON.parse(localStorage.getItem("savedForms")) || [];
-   
-        if (!disasterData || residentData.length === 0) {
-            setNotification({ type: "error", title: "Error", message: "No data found in localStorage to save." });
-            setTimeout(() => setNotification(null), 3000);
-            return;
-        }
-        setLoading(true);
-
-        try {
-            const { disasterCode, disasterStatus, disasterType, date } = disasterData;
-            
-            // Group resident data by barangay
-            const groupedByBarangay = residentData.reduce((acc, resident) => {
-                const barangay = resident.barangay || "Unknown Barangay";
-                if (!acc[barangay]) {
-                    acc[barangay] = [];
-                }
-                acc[barangay].push(resident);
-                return acc;
-            }, {});
-            
-            // Prepare barangays array
-            let barangays = Object.entries(groupedByBarangay).map(([barangayName, residents]) => ({
-                name: barangayName,
-                affectedFamilies: residents.map(resident => ({
-                    id: resident.id,
-                    firstName: resident.firstName,
-                    middleName: resident.middleName || "",
-                    lastName: resident.lastName,
-                    age: resident.age,
-                    sex: resident.sex,
-                    phone: resident.phone,
-                    bdate: resident.bdate,
-                    occupation: resident.occupation || "",
-                    education: resident.education || "",
-                    income: resident.income || 0,
-                    purok: resident.purok,
-                    dependents: resident.dependents || [],
-                    is4ps: resident.is4ps || false,
-                    isPWD: resident.isPWD || false,
-                    isPreg: resident.isPreg || false,
-                    isSenior: resident.isSenior || false,
-                    isIps: resident.isIps || false,
-                    isSolo: resident.isSolo || false,
-                    numFam: resident.numFam || 0,
-                    evacuation: resident.evacuation || "",
-                    extentDamage: resident.extentDamage || "",
-                    occupancy: resident.occupancy || "",
-                    costDamage: resident.costDamage || 0,
-                    casualty: resident.casualty || [],
-                    regDate: resident.regDate || "",
-                    dafacStatus: resident.dafacStatus || "",
-                })),
-            }));
-
-            console.log("Barangays",barangays);
-    
-            // Check if disaster already exists
-            const checkResponse = await fetch(`http://172.20.10.2:3003/get-disaster/${disasterCode}`);
-            const existingDisaster = await checkResponse.json();
-    
-            if (checkResponse.ok && existingDisaster) {
-                // Disaster exists, update affected families
-                const updatedBarangays = [...existingDisaster.barangays];
-    
-                barangays.forEach(newBarangay => {
-                    const existingBarangay = updatedBarangays.find(b => b.name === newBarangay.name);
-                    if (existingBarangay) {
-                        existingBarangay.affectedFamilies.push(...newBarangay.affectedFamilies);
-                    } else {
-                        updatedBarangays.push(newBarangay);
-                    }
-                });
-                    console.log("hehe")
-                const updateResponse = await fetch(`http://172.20.10.2:3003/update-disaster/${disasterCode}`, {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ barangays: updatedBarangays })
-                });
-    
-                if (!updateResponse.ok) throw new Error("Failed to update disaster data.");
-
-                setNotification({ type: "success", title: "Success", message: "Disaster data updated successfully!" });
-
-            } else {
-
-                console.log("haha")
-                // Disaster does not exist, create new disaster
-                const disasterDocument = {
-                    disasterCode,
-                    disasterType,
-                    disasterStatus,
-                    disasterDateTime: new Date(date),
-                    barangays
-                };
-    
-                const createResponse = await fetch("http://172.20.10.2:3003/add-disaster", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(disasterDocument)
-                });
-    
-                if (!createResponse.ok) throw new Error("Failed to save data.");
-                setNotification({ type: "success", title: "Success", message: "New disaster record created successfully!" });
-            }
-    
-            localStorage.removeItem("savedForms");
-            localStorage.removeItem("disasterData");
-
-            setTimeout(() => {
-                setNotification(null);
-                setLoading(false); 
-                navigate("/disaster");
-            }, 1000); 
-
-        } catch (error) {
-            setNotification({ type: "error", title: "Error Occurred", message: error.message || "An error occurred while saving data. Please try again."});
-            setTimeout(() => setNotification(null), 3000);
-        } finally {
-            setLoading(false);
-        }
-    };    
 
     //Page ni
     const handleNext = () => {
@@ -649,28 +692,52 @@ const AddDisaster = () => {
         setError(""); // Clear previous errors
        
         console.log(barangay);
-        try {
-            const response = await axios.get(`http://172.20.10.2:3003/get-brgyresidents?barangay=${barangay}`);
-            if (response.data.length === 0) {
-                console.log(`No residents found for '${barangay}'`);
+
+        if(navigator.onLine){
+            try {
+                const response = await axios.get(`http://localhost:3003/get-brgyresidents?barangay=${barangay}`);
+                if (response.data.length === 0) {
+                    console.log(`No residents found for '${barangay}'`);
+                }
+       
+                console.log("Residents fetched successfully:", response.data);
+                setResidents(response.data);
+            } catch (err) {
+                console.error("Error fetching residents:", err);
+                setError("Failed to fetch residents. Please try again.");
+            } finally {
+                setIsLoading(false);
             }
-   
-            console.log("Residents fetched successfully:", response.data);
-            setResidents(response.data);
-        } catch (err) {
-            console.error("Error fetching residents:", err);
-            setError("Failed to fetch residents. Please try again.");
-        } finally {
+        } else{
+            const localData = localStorage.getItem('residents');
+
+            let residentData=[];
+    
+            if (localData) {
+              const residentsData = JSON.parse(localData);
+
+              residentData = residentsData.filter(resident =>
+                resident.barangay === barangay
+              );
+
+              console.log("residents", residentData)
+            }
+
+            setResidents(residentData)
             setIsLoading(false);
         }
     };
    
     useEffect(() => {
         if (activeBarangay) {
-            const a= fetchResidents(activeBarangay);
-            console.log(a);
-        }
+            (async () => {
+                await fetchResidents(activeBarangay);
+            })();
+        }   
+
+        console.log(residents)
     }, [activeBarangay]);
+    
     //remove
      // Function to handle form submission in the modal
      const handleFormSubmit = (e) => {

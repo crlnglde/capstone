@@ -86,8 +86,16 @@ const MapDisaster = () => {
   
   useEffect(() => {
     const fetchDisasters = async () => {
+
+      const localData = localStorage.getItem("disasters");
+      if (localData) {
+        const parsed = JSON.parse(localData);
+        setDisasters(parsed);
+        setFilteredData(parsed);
+      }
+
       try {
-        const response = await axios.get("http://172.20.10.2:3003/get-disasters");
+        const response = await axios.get("http://localhost:3003/get-disasters");
         const disasterData = response.data;
         setDisasters(disasterData); 
         setFilteredData(disasterData); // Set filteredData with fetched data
@@ -187,9 +195,9 @@ const MapDisaster = () => {
       : disasterType === "Earthquake"
       ? 'rgba(255, 159, 64, 0.7)'
       : disasterType === "Typhoon"
-      ? 'rgba(255, 160, 173, 0.7)'
+      ? 'rgba(153, 102, 255, 0.7)'
       : disasterType === "Landslide"
-      ? 'rgba(75, 192, 192, 0.7)'
+      ? 'rgba(139,69,19)'
       : 'rgba(0, 0, 0, 0.7)';
   };
 

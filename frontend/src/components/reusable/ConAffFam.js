@@ -173,7 +173,7 @@ const [step, setStep] = useState(1);
                 setError(""); // Clear previous errors
         
                 try {
-                    const response = await fetch(`http://172.20.10.2:3003/get-disaster/${disCode}`);
+                    const response = await fetch(`http://localhost:3003/get-disaster/${disCode}`);
                     const data = await response.json();
         
                     if (!data || !data.barangays) {
@@ -229,7 +229,7 @@ const [step, setStep] = useState(1);
 
             try {
                 const response = await axios.put(
-                    `http://172.20.10.2:3003/update-dafac-status/${disCode}/${disBarangay}/${familyId}`
+                    `http://localhost:3003/update-dafac-status/${disCode}/${disBarangay}/${familyId}`
                 );
 
                 setNotification({

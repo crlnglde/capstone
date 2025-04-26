@@ -35,13 +35,14 @@ const Sidebar = ({ isMinimized, setIsMinimized, setLoading }) => {
     }
 
     setTimeout(() => {
-      localStorage.removeItem("token");
-      localStorage.removeItem("role");
+      localStorage.removeItem("token"); 
+      localStorage.removeItem("role"); 
       localStorage.removeItem("username");
-
-      window.location.href = "/";
-    }, 500);
-  };
+      localStorage.removeItem("residents");  
+      
+      window.location.href = "/"; 
+  }, 1000);
+};
 
   const linkClass = ({ isActive }) => (isActive ? "active" : "");
 

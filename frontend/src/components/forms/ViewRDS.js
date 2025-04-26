@@ -7,7 +7,7 @@ import ICImage from '../../pic/IC.png';
 import cswdImage from '../../pic/cswd.jpg';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
-const ViewRDS = ({selectedBarangay, distributionId, setDistributionDate, setPage}) => {
+const ViewRDS = ({selectedBarangay, distributionId, setDistributionDate, setPage, page}) => {
   const navigate = useNavigate();  
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -18,11 +18,23 @@ const ViewRDS = ({selectedBarangay, distributionId, setDistributionDate, setPage
 
   useEffect(() => {
     const fetchDisasterDistribution = async () => {
+      let data=[];
+
+      if (navigator.onLine){
+
+        const response = await axios.get(`http://localhost:3003/get-disdistribution/${distributionId}`);
+        data = response.data;
+      } else{
+
+        const localData = JSON.parse(localStorage.getItem("distributions") || "[]");
+        console.log(localData)
+        if (localData){
+          data = localData.find(dist => dist._id === distributionId);
+          console.log(data)
+        }
+      }
+
       try {
-        console.log("Fetching disaster distribution with ID:", distributionId);
-        const response = await axios.get(`http://172.20.10.2:3003/get-disdistribution/${distributionId}`);
-        const data = response.data;
-        
         setforDisasterMonth(data.disasterDate)
         if (!data || !data.barangays) {
           throw new Error("Invalid data format");
@@ -58,6 +70,16 @@ const ViewRDS = ({selectedBarangay, distributionId, setDistributionDate, setPage
       });
     }
   };
+
+  useEffect(() => {
+    if (page === 0) {
+      console.log("Resetting to first distribution data.");
+      const newPage = 0;
+      setCurrentPage(newPage);
+      updateDistributionDate(newPage, distributionData);
+    }
+  }, [currentPage, distributionData]);
+  
 
   const handleNext = () => {
     if (currentPage < distributionData.length - 1) {

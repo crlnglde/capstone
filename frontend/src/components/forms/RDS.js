@@ -61,11 +61,28 @@ const RDS= () => {
   const disasterDate = new Date(forDistribution.disasterDate);
   const formattedMonth = disasterDate.toLocaleString("default", { month: "long" }); 
 
+  
+
   useEffect(() => {
     const fetchFamilies = async () => {
+
+      let disasterData=[];
+
+      if (navigator.onLine){
+        const response = await axios.get("http://localhost:3003/get-disasters");
+        disasterData = response.data;
+      }else{
+        const localData = localStorage.getItem("disasters");
+        if (localData) {
+          try {
+            const parsed = JSON.parse(localData);
+            disasterData = parsed;
+          } catch (e) {
+            console.error("Failed to parse local disasters data", e);
+          }
+        }
+      }
       try {
-        const response = await axios.get("http://172.20.10.2:3003/get-disasters");
-        const disasterData = response.data;
   
         // Find the disaster matching the given disasterId
         const selectedDisaster = disasterData.find(d => d.disasterCode === forDistribution.disasterCode);
@@ -101,41 +118,59 @@ const RDS= () => {
   }, [families]);
 
   const handleSaveDistribution = async () => {
-
     const confirmSubmit = window.confirm("Are you sure you want to submit this form?");
     if (!confirmSubmit) return;
-
-    try {
-      await axios.post("http://172.20.10.2:3003/save-distribution", {
-        disasterCode: forDistribution.disasterCode,
-        disasterDate: forDistribution.disasterDate,
-        barangay: forDistribution.barangay,
-        assistanceType: forDistribution.assistanceType,
-        reliefItems: forDistribution.entries,
-        families: families.map(family => ({
-          familyHead: `${family.firstName} ${family.middleName} ${family.lastName}`,
-          memId: family.id,
-          status: family.status || "Pending",  
-          rationCount: 1 + (family.dependents ? family.dependents.length : 0),
-          signature: family.signature || "" ,
-      })),
-        status: "Pending",
-        receivedFrom: forDistribution.receivedFrom,
-        certifiedCorrect: forDistribution.certifiedCorrect,
-        submittedBy: forDistribution.submittedBy
-      });
   
-      alert("Distribution data saved successfully!");
+    const payload = {
+      disasterCode: forDistribution.disasterCode,
+      disasterDate: forDistribution.disasterDate,
+      barangay: forDistribution.barangay,
+      assistanceType: forDistribution.assistanceType,
+      reliefItems: forDistribution.entries,
+      families: families.map(family => ({
+        familyHead: `${family.firstName} ${family.middleName} ${family.lastName}`,
+        memId: family.id,
+        status: family.status || "Pending",
+        rationCount: 1 + (family.dependents ? family.dependents.length : 0),
+        signature: family.signature || "",
+      })),
+      status: "Pending",
+      receivedFrom: forDistribution.receivedFrom,
+      certifiedCorrect: forDistribution.certifiedCorrect,
+      submittedBy: forDistribution.submittedBy,
+    };
+  
+    if (navigator.onLine) {
+
+      console.log(payload)
+      try {
+        await axios.post("http://localhost:3003/save-distribution", payload);
+        alert("Distribution data saved successfully!");
+        localStorage.removeItem("forDistribution");
+        window.location.reload();
+      } catch (error) {
+        console.error("Error saving distribution data:", error);
+        alert("Failed to save distribution data.");
+      }
+    } else {
+
+      const distributionId = `dist-${Date.now()}`;
+
+      // Add the ID to the payload
+      const payloadWithId = {
+        ...payload,
+        distributionId,
+      };
+      // Offline fallback: save to localStorage
+      const offlineDistributions = JSON.parse(localStorage.getItem("offlineDistributions") || "[]");
+      offlineDistributions.push(payloadWithId);
+      localStorage.setItem("offlineDistributions", JSON.stringify(offlineDistributions));
       localStorage.removeItem("forDistribution");
-      window.location.reload()
-    } catch (error) {
-      console.error("Error saving distribution data:", error);
-      alert("Failed to save distribution data.");
+      window.location.reload();
+  
+      alert("You are offline. Data saved locally and will be submitted when online.");
     }
   };
-  
-
-  
 
   return (
     <div className="rds">
