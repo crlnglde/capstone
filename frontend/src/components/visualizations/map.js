@@ -114,16 +114,16 @@ const HomeMap = () => {
 
   const getColorForBubble = (disasterType) => {
     return disasterType === "Fire Incident"
-    ? 'rgba(255, 99, 132, 0.7)'
-    : disasterType === "Flood"
-    ? 'rgba(54, 162, 235, 0.7)'
-    : disasterType === "Earthquake"
-    ? 'rgba(255, 159, 64, 0.7)'
-    : disasterType === "Typhoon"
-    ? 'rgba(153, 102, 255, 0.7)'
-    : disasterType === "Landslide"
-    ? 'rgba(139,69,19)'
-    : 'rgba(0, 0, 0, 0.7)'; // Default color for any other disaster type
+      ? 'rgba(255, 99, 132, 0.7)'
+      : disasterType === "Flood"
+      ? 'rgba(54, 162, 235, 0.7)'
+      : disasterType === "Earthquake"
+      ? 'rgba(255, 159, 64, 0.7)'
+      : disasterType === "Typhoon"
+      ? 'rgba(153, 102, 255, 0.7)'
+      : disasterType === "Landslide"
+      ? 'rgba(139,69,19, 0.7)'
+      : 'rgba(75, 192, 192, 0.7)';
   };
 
   const getMarkerSize = (count) => {

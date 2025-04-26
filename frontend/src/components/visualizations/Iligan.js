@@ -197,8 +197,9 @@ const MapDisaster = () => {
       : disasterType === "Typhoon"
       ? 'rgba(153, 102, 255, 0.7)'
       : disasterType === "Landslide"
-      ? 'rgba(139,69,19)'
-      : 'rgba(0, 0, 0, 0.7)';
+      ? 'rgba(139,69,19, 0.7)'
+      : 'rgba(75, 192, 192, 0.7)';
+
   };
 
   const getMarkerSize = (count) => {
@@ -231,6 +232,15 @@ const MapDisaster = () => {
 
 
     return [totalLat / count, totalLng / count]; // [lat, lng]
+  };
+
+  const onEachFeature = (feature, layer) => {
+    const barangayName = feature.properties.adm4_en; // Assuming this is the barangay name
+    layer.bindTooltip(barangayName, {
+      permanent: false, // Tooltip will appear only on hover
+      direction: 'top',  // Position the tooltip above the polygon
+      offset: [0, -10]  // Offset the tooltip slightly for better placement
+    });
   };
 
 
@@ -266,11 +276,7 @@ const MapDisaster = () => {
               attribution="&copy; <a href='https://carto.com/'>CARTO</a>"
             />
 
-
-
-
-
-            <GeoJSON data={iliganData} style={styleFeature} />
+            <GeoJSON data={iliganData} style={styleFeature} onEachFeature={onEachFeature}/>
 
               {/* Add bubble markers based on the disaster count per barangay */}
               {Object.entries(filteredDisastersByBarangay).map(([barangay, disasterTypes]) => {

@@ -3,7 +3,10 @@ import axios from "axios";
 import moment from "moment";
 import { useLocation } from "react-router-dom";
 import { FaUsers, FaDownload, FaFire, FaTint, FaFlag } from "react-icons/fa";
+import { MdFlood, MdLandslide  } from "react-icons/md";
+import { GiEntangledTyphoon, GiMachineGunMagazine } from "react-icons/gi";
 import { FiDownload } from "react-icons/fi";
+import { RiEarthquakeFill } from "react-icons/ri";
 import * as XLSX from "xlsx";
 import jsPDF  from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -154,11 +157,11 @@ const Reports = ({setNavbarTitle}) => {
   const getIcon = (type) => {
     const iconMap = {
       "Fire Incident": <FaFire />,
-      "Flooding": <FaTint />,
-      "Typhoon": <FaTint />,
-      "Landslide": <FaTint />,
-      "Earthquake": <FaTint />,
-      "Armed Conflict": <FaFlag />,
+      "Flood": <MdFlood />,
+      "Typhoon": <GiEntangledTyphoon />,
+      "Landslide": <MdLandslide />,
+      "Earthquake": <RiEarthquakeFill />,
+      "Armed Conflict": <GiMachineGunMagazine />,
     };
     return iconMap[type] || null; // Default to null if type is unknown
   };

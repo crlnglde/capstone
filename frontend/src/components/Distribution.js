@@ -865,7 +865,9 @@ const validateFields = () => {
             )
 
         ):(
-          <div className="disasters-visualizations">
+          <div className="distribution-visualizations">
+
+
 
             <div className="header-container">
               <h2 className="header-title">Visualizations</h2>
@@ -877,6 +879,7 @@ const validateFields = () => {
             <div className="ch1">
               <BarGraph barangay={selectedBarangay} year={selectedYear}/>
             </div>
+            
           </div>
         )}
       </div>

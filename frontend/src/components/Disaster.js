@@ -76,8 +76,6 @@ const Disaster = ({ setNavbarTitle }) => {
 
     setNavbarTitle(title);
 }, [activeTab, step, step2Type, setNavbarTitle]);
-  
-
 
   //list of barangays
   const barangays = [
@@ -324,11 +322,10 @@ useEffect(() => {
         )}
 
       <div className="dashboard-container">
+        
 
         {activeTab === "list" ? (
-          
-
-
+  
           step === 1 ? (
             <div className="disasters-table">
 
@@ -372,9 +369,19 @@ useEffect(() => {
                       <th colSpan="5" className="action-column">Actions</th>
                     </tr>
                     <tr>
-                      <th className="action-column">Add</th>
+
+                      {role === "daycare worker" && (
+                        <th className="action-column"> Add</th>
+                      )}
+                      
+                      {role === "daycare worker" && (
                       <th className="action-column">Edit</th>
-                      <th className="action-column">Confirm</th>
+                      )}
+
+                      {role === "CSWD" && (
+                        <th className="action-column">Confirm</th>
+                      )}
+
                       <th className="action-column">View More</th>
                     </tr>
                   </thead>
@@ -388,41 +395,49 @@ useEffect(() => {
                           <td>{disaster.disasterType}</td>
                           <td>{disaster.disasterDateTime}</td>
                           <td>{disaster.barangay}</td>
+
                           {/*add*/}
-                          <td className="action-column">
-                            <button 
-                              className="dash-viewmore-btn" 
-                              disabled={disaster.disasterStatus === "Done"} 
-                              onClick={() => handleStepChange("addAffectedFamily", disaster.disasterCode, disaster.barangay)}
-                              title={disaster.disasterStatus === "Done" ? "This disaster is finalized and cannot be modified." : ""}
-                            >
-                              {disaster.disasterStatus === "Done" ? <FaLock /> : <LuClipboardPlus />}
-                            </button>
-                          </td>
+                          {role === "daycare worker" && (
+                            <td className="action-column">
+                              <button 
+                                className="dash-viewmore-btn" 
+                                disabled={disaster.disasterStatus === "Done"} 
+                                onClick={() => handleStepChange("addAffectedFamily", disaster.disasterCode, disaster.barangay)}
+                                title={disaster.disasterStatus === "Done" ? "This disaster is finalized and cannot be modified." : ""}
+                              >
+                                {disaster.disasterStatus === "Done" ? <FaLock /> : <LuClipboardPlus />}
+                              </button>
+                            </td>
+                          )}
 
                           {/*edit*/}
-                          <td className="action-column">
-                            <button 
-                              className="dash-viewmore-btn" 
-                              disabled={disaster.disasterStatus === "Done"} 
-                              onClick={() => handleStepChange("editAffectedFamily", disaster.disasterCode, disaster.barangay)}
-                              title={disaster.disasterStatus === "Done" ? "This disaster is finalized and cannot be modified." : ""}
-                            >
-                              {disaster.disasterStatus === "Done" ? <FaLock /> : <RiEdit2Line />}
-                            </button>
-                          </td>
+                          {role === "daycare worker" && (
+                            <td className="action-column">
+                              <button 
+                                className="dash-viewmore-btn" 
+                                disabled={disaster.disasterStatus === "Done"} 
+                                onClick={() => handleStepChange("editAffectedFamily", disaster.disasterCode, disaster.barangay)}
+                                title={disaster.disasterStatus === "Done" ? "This disaster is finalized and cannot be modified." : ""}
+                              >
+                                {disaster.disasterStatus === "Done" ? <FaLock /> : <RiEdit2Line />}
+                              </button>
+                            </td>
+                          )}
 
                           {/*confirm*/}
-                          <td className="action-column">
-                            <button 
-                              className="dash-viewmore-btn" 
-                              disabled={disaster.disasterStatus === "Done" || role === "daycare worker"} 
-                              onClick={() => handleStepChange("confirmDamageCategory", disaster.disasterCode, disaster.barangay)}
-                              title={disaster.disasterStatus === "Done" ? "This disaster is finalized and cannot be modified." : ""}
-                            >
-                              {disaster.disasterStatus === "Done" ? <FaLock /> : <GiConfirmed />}
-                            </button>
-                          </td>
+                          {role === "CSWD" && (
+                            <td className="action-column">
+                              <button 
+                                className="dash-viewmore-btn" 
+                                disabled={disaster.disasterStatus === "Done"} 
+                                onClick={() => handleStepChange("confirmDamageCategory", disaster.disasterCode, disaster.barangay)}
+                                title={disaster.disasterStatus === "Done" ? "This disaster is finalized and cannot be modified." : ""}
+                              >
+                                {disaster.disasterStatus === "Done" ? <FaLock /> : <GiConfirmed />}
+                              </button>
+                            </td>
+                          )}
+
 
                           {/*view*/}
                           <td className="action-column">

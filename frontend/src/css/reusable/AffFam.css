@@ -79,4 +79,53 @@
           .afffam-residents-table .upper .dstr-search {
               margin-left: auto; /* Pushes the search bar to the right */
           }
+
+          .icon-text-wrapper {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px; /* space between icon and text */
+          }
+          
+          .icon {
+            font-size: 1rem; /* adjust as needed */
+            display: flex;
+            align-items: center;
+          }
+
+          .green-icon {
+            color: #4CAF50; /* or any green you like */
+          }
+          
+          .afffam-residents-table .res-submit-btn{
+            padding: 5px;
+            background-color: #8cb1d700;
+            color: rgb(15, 58, 153);
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%;
+          }
+
+
+          .afffam-residents-table .res-submit-btn:hover{
+            background-color: #0057b300;
+            color: #0A194E;
+            transform: scale(1.05);
+          }
+
+          .afffam-residents-table .res-submit-btn.confirmed {
+            background-color: #f6f6f600; /* green */
+            color: #4CAF50;
+            pointer-events: none;
+            cursor: default;
+          }
+          
+
+          .afffam-residents-table .res-submit-btn:disabled{
+            background-color: #ccc;
+            cursor: not-allowed;
+          }
+        
         

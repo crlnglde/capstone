@@ -96,11 +96,73 @@ useEffect(() => {
        if (residentAge >= 0 && residentAge <= 17) minorCount++;
        else if (residentAge >= 18 && residentAge <= 59) adultCount++;
        else if (residentAge >= 60) seniorCount++;
+
+       const groupEducation = (level) => {
+        if (!level) return "Not Specified";
+      
+        const val = level.toLowerCase();
+      
+        // Kinder
+        if (val.includes("kinder") || val.includes("nursery") || val.includes("pre")) {
+          return "Kinder";
+        }
+      
+        // Elementary Level or Graduate
+        if (
+          val.includes("elementary") ||
+          val.match(/\bgrade\s?[1-6]\b/) ||
+          val.match(/\bg[1-6]\b/)
+        ) {
+          if (val.includes("grad")) return "Elementary Graduate";
+          return "Elementary Level";
+        }
+      
+        // High School Level or Graduate (excluding senior high)
+        if (
+          (val.includes("high school") && !val.includes("senior")) ||
+          val.includes("junior high") ||
+          val.match(/\bgrade\s?(7|8|9|10)\b/) ||
+          val.match(/\bg(7|8|9|10)\b/)
+        ) {
+          if (val.includes("grad")) return "High School Graduate";
+          return "High School Level";
+        }
+      
+        // Senior High School Level or Graduate
+        if (
+          val.includes("senior high") ||
+          val.match(/\bgrade\s?(11|12)\b/) ||
+          val.match(/\bg(11|12)\b/)
+        ) {
+          if (val.includes("grad")) return "Senior High School Graduate";
+          return "Senior High School Level";
+        }
+      
+        // Bachelor's Degree or College Level or Graduate
+        if (val.includes("college") || val.includes("bachelor")) {
+          if (val.includes("grad")) return "Bachelor's Degree";
+          return "College Level";
+        }
+      
+        // Vocational
+        if (val.includes("vocational") || val.includes("tech") || val.includes("tesda")) {
+          return "Vocational";
+        }
+      
+        // Master's Degree or Doctorate Degree
+        if (val.includes("master") || val.includes("doctor") || val.includes("post")) {
+          if (val.includes("master")) return "Master's Degree";
+          return "Doctorate Degree";
+        }
+      
+        return "Not Specified";
+      };
+      
     
       // Categorize resident's educational attainment
-       if (resident.education) {
-        educationLevels[resident.education] = (educationLevels[resident.education] || 0) + 1;
-      }
+
+      const grouped = groupEducation(resident.education);
+      educationLevels[grouped] = (educationLevels[grouped] || 0) + 1;
 
       // Categorize resident's occupation
 
@@ -123,9 +185,9 @@ useEffect(() => {
         else if (dependentAge >= 60) seniorCount++;
 
         // Categorize dependent's educational attainment
-        if (dep.education) {
-          educationLevels[dep.education] = (educationLevels[dep.education] || 0) + 1;
-        }
+        const groupedDep = groupEducation(dep.education);
+        educationLevels[groupedDep] = (educationLevels[groupedDep] || 0) + 1;
+        
         // Categorize dependent's occupation
 
         let depOccupation = dep.occupationSkills;
@@ -150,7 +212,33 @@ useEffect(() => {
     setMinorCount(minorCount);
     setAdultCount(adultCount);
     setSeniorCount(seniorCount);
-    setEducation(educationLevels);
+
+    const educationHierarchy = [
+      "Not Specified",
+      "Kinder",
+      "Elementary Level",
+      "Elementary Graduate",
+      "High School Level",
+      "High School Graduate",
+      "Senior High School Level",
+      "Senior High School Graduate",
+      "Vocational",
+      "College Level",
+      "Bachelor's Degree",
+      "Master's Degree",
+      "Doctorate Degree"
+    ];
+    
+    
+    
+    const sortedEducation = educationHierarchy.reduce((acc, level) => {
+      if (educationLevels[level]) {
+        acc[level] = educationLevels[level];
+      }
+      return acc;
+    }, {});
+    
+    setEducation(sortedEducation);
     setOccupation(sortedOccupations);
   }, [residents]);
 
@@ -251,26 +339,47 @@ useEffect(() => {
     },
 
     async downloadVisualization() {
-      const chartElement = document.getElementById("chart-container"); // or use chartRef.current
+      const chartElement = document.getElementById("chart-container");
       if (!chartElement) return;
-  
+    
       const canvas = await html2canvas(chartElement, { scale: 2 });
       const imgData = canvas.toDataURL("image/png");
-  
+    
+      const topPageMargin = 50;          // Big margin before title
+      const titleFontSize = 80;           // Font size in px
+      const titleHeight = 50;             // Approximate title text height (same as font size usually)
+      const extraPaddingBelowTitle = 10;  // Small margin between title and image
+      const bottomPageMargin = 50;        // Big margin after chart
+    
+      const totalHeight = topPageMargin + titleHeight + extraPaddingBelowTitle + canvas.height + bottomPageMargin;
+    
       const pdf = new jsPDF({
         orientation: "landscape",
         unit: "px",
-        format: [canvas.width, canvas.height],
+        format: [canvas.width, totalHeight],
       });
-  
-      pdf.addImage(imgData, "PNG", 0, 0, canvas.width, canvas.height);
+    
+      const title = selectedBarangay ? selectedBarangay : "Iligan City";
+    
+      pdf.setFontSize(titleFontSize);
+      pdf.text(title, canvas.width / 2, topPageMargin + titleFontSize / 2, { align: "center" });
+    
+      // Start the image after title + some extra space
+      const imageStartY = topPageMargin + titleHeight + extraPaddingBelowTitle;
+    
+      pdf.addImage(imgData, "PNG", 0, imageStartY, canvas.width, canvas.height);
+    
       pdf.save(
         selectedBarangay
           ? `Residents_${selectedBarangay}_Visualization.pdf`
           : "Residents_Visualization.pdf"
       );
     }
+    
+    
   }));
+
+  
   
 
   
@@ -351,7 +460,15 @@ useEffect(() => {
           scales: {
               y: {
               beginAtZero: true,
-              ticks: { color: "#333" },
+              ticks: {
+                color: "#333",
+                callback: function(value) {
+                  // Only show whole numbers
+                  if (Number.isInteger(value)) {
+                    return value;
+                  }
+                }
+              }
               },
               x: {
               ticks: { color: "#333" },
@@ -441,7 +558,15 @@ useEffect(() => {
                 scales: {
                   x: {
                     beginAtZero: true,
-                    ticks: { color: "#333" },
+                    ticks: {
+                      color: "#333",
+                      callback: function(value) {
+                        // Only show whole numbers
+                        if (Number.isInteger(value)) {
+                          return value;
+                        }
+                      }
+                    }
                   },
                   y: {
                     ticks: {
