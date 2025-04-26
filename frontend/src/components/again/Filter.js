@@ -4,14 +4,20 @@ import "../../css/again/Filter.css";
 
 const Filter = ({ disasters, setAvailableBarangays, onFilter, filters, graphType }) => {
   const [showFilter, setShowFilter] = useState(false);
+
+  const userRole = localStorage.getItem("role");
+  const userBarangay = localStorage.getItem("barangay");
+
+
   const [selectedValues, setSelectedValues] = useState({
     year: "",
     month: "",
-    barangay: "All",
+    barangay: userRole === "daycare worker" && userBarangay ? userBarangay : "All",
     disasterType: "All",
     disasterDate: "",
     disasterCode: "All",
   });
+  
 
   const filterRef = useRef(null);
 
@@ -205,7 +211,8 @@ const Filter = ({ disasters, setAvailableBarangays, onFilter, filters, graphType
                       }}                      
                       disabled={
                         (graphType === "bar" && filterKey === "barangay" && (!selectedValues.disasterCode || selectedValues.disasterCode === "All")) ||
-                        (graphType === "map" && filterKey === "month" && !selectedValues.year)
+                        (graphType === "map" && filterKey === "month" && !selectedValues.year) ||
+                        (filterKey === "barangay" && userRole === "daycare worker") 
                       }
                     >
                       <option value="">Select {filterKey === "disasterType" ? "Disaster Type" : filterKey === "barangay" ? "Barangay" : filterKey === "disasterCode" ? "Disaster Code" : filterKey}</option>

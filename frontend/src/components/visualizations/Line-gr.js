@@ -43,7 +43,24 @@ const disasterColors = {
 const StackedBarChart = () => {
     const [disasters, setDisasters] = useState([]);
     const [selectedBarangays, setSelectedBarangays] = useState([]);
-    const [selectedYear, setSelectedYear] = useState("All Years");  // Default to "All Years"
+    const [selectedYear, setSelectedYear] = useState("All Years"); 
+
+    const [user, setUser] = useState({ role: "", barangay: "" });
+
+    useEffect(() => {
+        // Fetch user role and barangay from localStorage
+        const storedRole = localStorage.getItem("role");
+        const storedBarangay = localStorage.getItem("barangay");
+
+        if (storedRole && storedBarangay) {
+            setUser({ role: storedRole, barangay: storedBarangay });
+
+            if (storedRole === "daycare worker") {
+                // If daycare worker, preselect their barangay and don't allow others
+                setSelectedBarangays([{ value: storedBarangay, label: storedBarangay }]);
+            }
+        }
+    }, []);
 
     useEffect(() => {
         const fetchDisasters = async () => {
@@ -153,16 +170,17 @@ const StackedBarChart = () => {
         };
       }, [chartData]);
       
-
-    const disasterInsights = useMemo(() => {
+      const disasterInsights = useMemo(() => {
         let totalOccurrences = 0;
         let barangayCounts = {};
-        let yearCounts = {};
+        let typeCounts = {};
+        let monthCounts = {};
 
         disasters.forEach(disaster => {
             const date = new Date(disaster.disasterDateTime);
             const year = date.getFullYear();
-            
+            const month = date.getMonth();
+
             if (selectedYear !== "All Years" && year !== Number(selectedYear)) return;
 
             const isRelevant = selectedBarangays.length === 0 ||
@@ -171,29 +189,34 @@ const StackedBarChart = () => {
             if (isRelevant) {
                 totalOccurrences += 1;
 
-                // Count occurrences by barangay
+                // For barangay counting
                 disaster.barangays.forEach(({ name }) => {
                     barangayCounts[name] = (barangayCounts[name] || 0) + 1;
                 });
 
-                // Count occurrences by year
-                yearCounts[year] = (yearCounts[year] || 0) + 1;
+                // For type counting
+                typeCounts[disaster.disasterType] = (typeCounts[disaster.disasterType] || 0) + 1;
+
+                // For month counting
+                monthCounts[month] = (monthCounts[month] || 0) + 1;
             }
         });
 
-        // Find most affected barangay
         const mostAffectedBarangay = Object.entries(barangayCounts).reduce((max, [name, count]) =>
             count > max.count ? { name, count } : max, { name: "", count: 0 });
 
-        // Find year with the highest number of disasters
-        const yearWithMostDisasters = Object.entries(yearCounts).reduce((max, [year, count]) =>
-            count > max.count ? { year, count } : max, { year: "", count: 0 });
+        const mostCommonType = Object.entries(typeCounts).reduce((max, [type, count]) =>
+            count > max.count ? { type, count } : max, { type: "", count: 0 });
+
+        const monthWithMostDisasters = Object.entries(monthCounts).reduce((max, [month, count]) =>
+            count > max.count ? { month: Number(month), count } : max, { month: "", count: 0 });
 
         return {
             totalOccurrences,
             mostAffectedBarangay: mostAffectedBarangay.name,
             mostAffectedCount: mostAffectedBarangay.count,
-            yearWithMostDisasters: yearWithMostDisasters.year,
+            mostCommonType: mostCommonType.type,
+            monthWithMostDisasters: monthLabels[monthWithMostDisasters.month] || ""
         };
     }, [disasters, selectedYear, selectedBarangays]);
 
@@ -213,16 +236,17 @@ const StackedBarChart = () => {
                             ))}
                         </select>
                     </div>
-
-
-
+                    
                     <Select
                         options={barangayList.map(name => ({ value: name, label: name }))}
-                        isMulti
+                        isMulti={user.role !== "daycare worker"} 
+                        isDisabled={user.role === "daycare worker"}
                         value={selectedBarangays}
                         onChange={setSelectedBarangays}
                         placeholder="Filter by barangays..."
                     />
+
+
                 </div>
             </div>
 
@@ -241,10 +265,19 @@ const StackedBarChart = () => {
                     <p>No disaster data available.</p>
                 ) : (
                     <div>
-                        <p><strong>Total occurrences:</strong> {disasterInsights.totalOccurrences}</p>
-                        <p><strong>Most affected barangay:</strong> {disasterInsights.mostAffectedBarangay} ({disasterInsights.mostAffectedCount} occurrences)</p>
-                        <p><strong>Year with highest disasters:</strong> {disasterInsights.yearWithMostDisasters}</p>
-                    </div>
+                    <p><strong>Total occurrences:</strong> {disasterInsights.totalOccurrences}</p>
+                    {user.role === "daycare worker" ? (
+                        <>
+                            <p><strong>Most common disaster type:</strong> {disasterInsights.mostCommonType}</p>
+                            <p><strong>Month with highest disasters:</strong> {disasterInsights.monthWithMostDisasters}</p>
+                        </>
+                    ) : (
+                        <>
+                            <p><strong>Most affected barangay:</strong> {disasterInsights.mostAffectedBarangay} ({disasterInsights.mostAffectedCount} occurrences)</p>
+                            <p><strong>Month with highest disasters:</strong> {disasterInsights.monthWithMostDisasters}</p>
+                        </>
+                    )}
+                </div>
                 )}
             </div>
         </div>

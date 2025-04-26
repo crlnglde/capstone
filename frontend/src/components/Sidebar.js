@@ -15,6 +15,8 @@ const Sidebar = ({ isMinimized, setIsMinimized, setLoading }) => {
 
   const [isMinimizedState, setIsMinimizedState] = useState(isMinimized);
   const [username, setUsername] = useState(localStorage.getItem("username") || "Us3rn4me");
+  const [barangay, setBarangay] = useState(localStorage.getItem("barangay") || "Barangay");
+
   const [role, setRole] = useState(localStorage.getItem("role") || "Role");
 
   useEffect(() => {
@@ -33,16 +35,23 @@ const Sidebar = ({ isMinimized, setIsMinimized, setLoading }) => {
     if (setLoading) {
       setLoading(true);
     }
-
+  
     setTimeout(() => {
+      const userRole = localStorage.getItem("role"); // get current role first
+  
       localStorage.removeItem("token"); 
       localStorage.removeItem("role"); 
       localStorage.removeItem("username");
-      localStorage.removeItem("residents");  
-      
-      window.location.href = "/"; 
-  }, 1000);
-};
+      localStorage.removeItem("residents");
+  
+      if (userRole === "daycare worker") {
+        localStorage.removeItem("barangay"); // only if the role is daycare
+      }
+  
+      window.location.href = "/";
+    }, 1000);
+  };
+  
 
   const linkClass = ({ isActive }) => (isActive ? "active" : "");
 
@@ -148,7 +157,7 @@ const Sidebar = ({ isMinimized, setIsMinimized, setLoading }) => {
 
         {!isMinimizedState && (
           <div className="user-box">
-            <h1>{username ? username.toUpperCase() : "USERNAME"}</h1>
+            <h1>{barangay ? barangay.toUpperCase() : "Barangay"}</h1>
             <h3 style={{ textTransform: "capitalize" }}>{role || "Role"}</h3>
             <button className="logout-btn" onClick={handleLogout}>
               Logout

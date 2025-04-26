@@ -142,6 +142,32 @@
     line-height: 1.4;
 }
 
+/* Styling for the container div */
+.select {
+  border: 1px solid #ccc; 
+  border-radius: 4px; 
+  background-color: white;
+  padding: 10px; 
+  margin-bottom: 10px;
+}
+
+/* Styling for the select element */
+.select select {
+  font-size: 16px;
+  padding: 5px; 
+  border: none; /* Remove the default border of the select */
+  border-radius: 4px; 
+  background-color: white; 
+  width: 100%;
+  margin: 0 0 0 0;
+  outline: none;
+}
+
+select:focus {
+  border: none; /* No border when focused */
+  box-shadow: none; /* Remove any shadow that might appear on focus */
+}
+
   
   
 
