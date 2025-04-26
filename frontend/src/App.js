@@ -9,6 +9,7 @@ import {
 } from "react-router-dom";
 
 import { ToastContextProvider } from "./context/ToastContextProvider";
+import "./App.css";
 
 import Sidebar from "./components/Sidebar";
 import Navbar from "./components/Navbar";
