@@ -23,6 +23,8 @@ import { motion } from "framer-motion";
 import "./App.css";
 import Minlogo from "./pic/logo-min.png";
 import ProtectedRoute from "./ProtectedRoute";
+import axios from "axios";
+import Notification from "../src/components/again/Notif";
 
 function App() {
   const [isSidebarMinimized, setIsSidebarMinimized] = useState(() => {
@@ -35,6 +37,28 @@ function App() {
 
   const [showLogo, setShowLogo] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [notification, setNotification] = useState(null); 
+
+  const fetchData = async () => {
+    try {
+        const [residentsRes, disastersRes, distributionsRes] = await Promise.all([
+            axios.get("http://localhost:3003/get-residents"),
+            axios.get("http://localhost:3003/get-disasters"),
+            axios.get("http://localhost:3003/get-distributions"),
+        ]);
+        localStorage.setItem("residents", JSON.stringify(residentsRes.data));
+        localStorage.setItem("disasters", JSON.stringify(disastersRes.data));
+        localStorage.setItem("distributions", JSON.stringify(distributionsRes.data));
+    } catch (error) {
+        console.error("Error fetching data:", error);
+    }
+};
+
+  useEffect(() => {
+    if (navigator.onLine) {
+        fetchData();
+    }
+  }, []);
 
   useEffect(() => {
     setTimeout(() => {
@@ -55,6 +79,15 @@ function App() {
               <Loading />
             </div>
           )}
+
+           {notification && (
+                  <Notification
+                    type={notification.type}
+                    title={notification.title}
+                    message={notification.message}
+                    onClose={() => setNotification(null)}  // Close notification when user clicks ✖
+                  />
+                )}
 
 
           <ConditionalLayout 
@@ -84,8 +117,6 @@ function App() {
               <Route path="/dafac" element={<DAFAC />} />
               <Route path="/sporadic" element={<SPORADIC />} />
               <Route path="/fdr" element={<FDR />} />*/}
-           
-
 
             <Route path="/" element={<Login />} />
             <Route path="/login" element={<Login />} />

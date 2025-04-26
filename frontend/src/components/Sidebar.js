@@ -43,7 +43,8 @@ const Sidebar = ({isMinimized, setIsMinimized, setLoading }) => {
     setTimeout(() => {
       localStorage.removeItem("token"); 
       localStorage.removeItem("role"); 
-      localStorage.removeItem("username"); 
+      localStorage.removeItem("username");
+      localStorage.removeItem("residents");  
       
       window.location.href = "/"; 
   }, 1000);

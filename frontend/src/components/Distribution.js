@@ -8,6 +8,9 @@ import ViewRDS from "./forms/ViewRDS"
 import Modal from "./Modal";
 import BarGraph from "./visualizations/Bar-ch";
 import "../css/Distribution.css";
+import { syncRDSData } from "../components/sync/syncDistribution";
+import { syncEditedData } from "../components/sync/syncEditedDist";
+import Notification from "./again/Notif";
 
 import SignaturePad from "./Signature";
 
@@ -40,6 +43,8 @@ const Distribution = ({ setNavbarTitle }) => {
 
   const [disasterTypeFilter, setDisasterTypeFilter] = useState("All");
   const [disasterDateFilter, setDisasterDateFilter] = useState("All");
+
+  const [notification, setNotification] = useState(null); 
 
    // Update navbar title when tab changes
    useEffect(() => {
@@ -123,7 +128,7 @@ const Distribution = ({ setNavbarTitle }) => {
   const handleAddEntry = () => {
     setforDistribution((prevData) => ({
       ...prevData,
-      entries: [...prevData.entries, { name: "", quantity: "" }],
+      entries: [...prevData.entries, { name: "", quantity: "", assistanceCost: "" }],
     }));
   };
 
@@ -143,6 +148,18 @@ const Distribution = ({ setNavbarTitle }) => {
     const updatedEntries = [...forDistribution.entries];
     updatedEntries[index][field] = value;
     setforDistribution((prevData) => ({ ...prevData, entries: updatedEntries }));
+  };
+
+  const handleBarangayClick = (barangay) => {
+    setActiveBarangay(barangay);
+    setPage(0);
+  };
+
+  const handleSyncDataClick = () => {
+    if (navigator.onLine) {
+      syncRDSData(setNotification); 
+      syncEditedData(setNotification); 
+    }
   };
 
   //open modal for "add" distribution
@@ -178,6 +195,7 @@ const Distribution = ({ setNavbarTitle }) => {
   };
 
   const handleEdit = (distributionId) => {
+    console.log("id",distributionId)
     setIsEditMode(true)
     setStep(2);
     localStorage.setItem("distributionId", distributionId);
@@ -187,6 +205,7 @@ const Distribution = ({ setNavbarTitle }) => {
   //for viewmore content sa distribution history 
   const handleViewMore = (barangays, id) => {
     setModalType("viewmore");
+    setPage(0);
     setIsModalOpen(true);
     setAffectedBarangays(barangays.map(barangay => barangay.name)); 
     setViewDistribution(id); 
@@ -204,8 +223,16 @@ const Distribution = ({ setNavbarTitle }) => {
 
     useEffect(() => {
       const fetchDisasters = async () => {
+        const localData = localStorage.getItem("disasters");
+        if (localData) {
+          const parsed = JSON.parse(localData);
+          const recentDisasters = parsed.filter(disaster =>
+            disaster.disasterStatus === "Current"
+          );
+          setDisasters(recentDisasters);
+        }
         try {
-          const response = await axios.get("http://192.168.1.24:3003/get-disasters");
+          const response = await axios.get("http://localhost:3003/get-disasters");
           const disasterData = response.data;
     
           // Filter disasters that happened **after** three days ago
@@ -222,21 +249,96 @@ const Distribution = ({ setNavbarTitle }) => {
       fetchDisasters();
     }, []);    
 
-    console.log(recentDisasters);
+
+    const normalizeOfflineData = (data) => {
+      return data.map((item, index) => ({
+        _id: item._id || `${Date.now()}-${index}`,
+        disasterCode: item.disasterCode || "",
+        disasterDate: item.disasterDate || "",
+        status: item.status || "Pending",
+        barangays: [
+          {
+            _id: item.barangayId || `${Date.now()}-${index}-bgy`,
+            name: item.barangay || item.barangayName,
+            distribution: [
+              {
+                _id: item.distributionId || `${Date.now()}-${index}-dist`,
+                assistanceType: item.assistanceType || "",
+                reliefItems: item.reliefItems || [],
+                dateDistributed: item.dateDistributed || new Date().toISOString(),
+                families: (item.families || []).map((family, famIdx) => ({
+                  ...family,
+                  _id: family._id || `${Date.now()}-${index}-fam-${famIdx}`,
+                })),
+                receivedFrom: item.receivedFrom || "",
+                certifiedCorrect: item.certifiedCorrect || "",
+                submittedBy: item.submittedBy || ""
+              }
+            ]
+          }
+        ]
+      }));
+    };    
     
     useEffect(() => {
       const fetchDistribution = async () => {
-        try {
-          const response = await axios.get("http://192.168.1.24:3003/get-distribution");
-          const distributionData = response.data;
-          setDistribution(distributionData);
-        } catch (error) {
-          console.error("Error fetching distribution data:", error);
+        if (navigator.onLine) {
+          try {
+            const response = await axios.get("http://localhost:3003/get-distribution");
+            setDistribution(response.data);
+          } catch (error) {
+            console.error("Error fetching from server:", error);
+          }
+        } else {
+          console.log("hehe");
+
+          let parsed = [];
+    
+          try {
+            const localData = JSON.parse(localStorage.getItem("distributions")) || [];
+            const editedData = JSON.parse(localStorage.getItem("editedDistributions")) || [];
+            const offlineData = JSON.parse(localStorage.getItem("offlineDistributions")) || [];
+    
+            const safeLocal = Array.isArray(localData) ? localData : [localData];
+            const safeOffline = Array.isArray(offlineData) ? offlineData : [offlineData];
+            const safeEdited = Array.isArray(editedData) ? editedData : [editedData];
+
+            const normalizedOffline = normalizeOfflineData(safeOffline);
+            const normalizedEdited = normalizeOfflineData(safeEdited);
+
+             // Step 1: Create a copy of safeLocal to modify
+            const updatedLocal = [...safeLocal];
+
+            // Step 2: Update matching entries in safeLocal with normalizedEdited
+            normalizedEdited.forEach(edited => {
+              const index = updatedLocal.findIndex(
+                original =>
+                  original.disasterCode === edited.disasterCode &&
+                  original.barangayName === edited.barangayName
+              );
+
+              if (index !== -1) {
+                updatedLocal[index] = edited; // Replace with edited version
+              } else {
+                updatedLocal.push(edited); // If not found, optionally push (if you want to treat as new)
+              }
+            });
+
+            // Step 3: Combine with offline data
+            parsed = [...updatedLocal, ...normalizedOffline];
+            localStorage.setItem("parsedDistributions", JSON.stringify(parsed));
+          } catch (error) {
+            console.error("Error parsing localStorage data:", error);
+          }
+    
+          setDistribution(parsed);
+          console.log(parsed)
         }
       };
     
       fetchDistribution();
-    }, []);  
+    }, []);
+    
 
     const getPendingDistributions = () => {
       return distribution.filter((dist) => dist.status === "Pending");
@@ -248,14 +350,14 @@ const Distribution = ({ setNavbarTitle }) => {
 
     const pendingDistributions = getPendingDistributions();
     const doneDistributions = getDoneDistributions();
-    
+    console.log(doneDistributions);
 
     const handleDoneClick = async (disasterCode) => {
       const confirmDone = window.confirm("Are you sure this disaster is over?");
       if (!confirmDone) return;
 
       try {
-        const response = await axios.put(`http://192.168.1.24:3003/update-status/${disasterCode}`);
+        const response = await axios.put(`http://localhost:3003/update-status/${disasterCode}`);
 
         alert(response.data.message);
           window.location.reload()
@@ -298,14 +400,6 @@ const Distribution = ({ setNavbarTitle }) => {
     });
   }, [doneDistributions, searchQuery]);
 
-
-  const displayDistribution = useMemo(() => {
-    return filteredDistribution.slice(
-      (currentPage - 1) * rowsPerPage,
-      currentPage * rowsPerPage
-    );
-  }, [filteredDistribution, currentPage, rowsPerPage]);
-  
     
 //input validation
 
@@ -375,9 +469,10 @@ const validateFields = () => {
         }
       );
 
-      const sortedHistory = [...displayDistribution].sort(
+      const sortedHistory = [...filteredDistribution].sort(
         (a, b) => new Date(b.disasterDate) - new Date(a.disasterDate)
       );
+
 
       const totalDisasterPages = Math.ceil(sortedDisasters.length / disastersPerPage);
       const totalPendingPages = Math.ceil(sortedPending.length / pendingPerPage);
@@ -438,8 +533,18 @@ const validateFields = () => {
         historyPage * historyPerPage
       );
 
+
   return (
     <div className="distribution">
+
+      {notification && (
+        <Notification
+          type={notification.type}
+          title={notification.title}
+          message={notification.message}
+          onClose={() => setNotification(null)}  // Close notification when user clicks ✖
+        />
+      )}
 
       {!isEditMode && step !== 2 && (
         <div className="toggle-container">
@@ -610,6 +715,10 @@ const validateFields = () => {
                   <div className="header-container">
                     <h2 className="header-title">Distribution History</h2>
                     <div className="dstr-search">
+                    <button className="upload-csv" onClick={handleSyncDataClick}>
+                      <i className="fa-solid fa-sync"></i>
+                      Sync Draft
+                    </button>
                       <div className="dstr-search-container">
                         <i className="fa-solid fa-magnifying-glass"></i>
                         <input 
@@ -816,7 +925,7 @@ const validateFields = () => {
                     <button
                       key={barangay}
                       className={activeBarangay === barangay ? "tab active" : "tab"}
-                      onClick={() => setActiveBarangay(barangay)}
+                      onClick={() => handleBarangayClick(barangay)}
                     >
                       {barangay}
                     </button>   
@@ -837,7 +946,7 @@ const validateFields = () => {
                 </div>
               </div>
               
-              <ViewRDS selectedBarangay={activeBarangay} distributionId= {ViewDistribution} setDistributionDate={setDistributionDate} setPage={setPage}/>
+              <ViewRDS selectedBarangay={activeBarangay} distributionId= {ViewDistribution} setDistributionDate={setDistributionDate} setPage={setPage} page={page}/>
             
           </div>
 

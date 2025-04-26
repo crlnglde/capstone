@@ -45,7 +45,7 @@ const DAFAC= ({ activeResident, disasterData, setIsModalOpen, mode}) => {
     evacuation:"",
     extentDamage:"",
     ocuppancy:"",
-    costDamage:"",
+    costDamage:0,
     casualty:[],
     regDate: "",
     dafacStatus: "",
@@ -292,16 +292,32 @@ const DAFAC= ({ activeResident, disasterData, setIsModalOpen, mode}) => {
     
     if (event) event.preventDefault(); // Prevent form refresh
   
-    const savedData = JSON.parse(localStorage.getItem("savedForms")) || [];
-  
-    // Generate a unique key using uuidv4()
-    const formDataWithId = { id: uuidv4(), ...formData };
-  
-    // Add new formData to the existing array
-    savedData.push(formDataWithId);
-  
-    // Store the updated array back in localStorage
+    const savedData = JSON.parse(localStorage.getItem("AffectedForms")) || [];
+
+    // Check if a matching form already exists
+    const existingIndex = savedData.findIndex((entry) =>
+      entry.barangay === formData.barangay &&
+      entry.firstName === formData.firstName &&
+      entry.middleName === formData.middleName &&
+      entry.lastName === formData.lastName &&
+      entry.bdate === formData.bdate
+    );
+
+    if (existingIndex !== -1) {
+      // If it exists, update the existing entry
+      savedData[existingIndex] = {
+        ...savedData[existingIndex],
+        ...formData
+      };
+    } else {
+      // Otherwise, add the new entry with a unique ID
+      const formDataWithId = { id: uuidv4(), ...formData };
+      savedData.push(formDataWithId);
+    }
+
+    // Save the updated array to localStorage
     localStorage.setItem("savedForms", JSON.stringify(savedData));
+
   
     try {
       setLoading(true); // Start loading
@@ -677,7 +693,8 @@ const DAFAC= ({ activeResident, disasterData, setIsModalOpen, mode}) => {
 
                     <div className="cost-of-damage">
                       <span>Cost of Damage:</span>
-                      <input type="number" disabled={!formData.extentDamage && !formData.occupancy && formData.casualty.length === 0} value={formData.costDamage} onChange={(e) => setFormData({ ...formData, costDamage: e.target.value })}/>
+                      <input type="number" disabled={!formData.extentDamage && !formData.occupancy && formData.casualty.length === 0} value={formData.costDamage} onChange={(e) => {const newCostDamage = parseInt(e.target.value);
+                        console.log("Input Value: ", newCostDamage); setFormData({ ...formData, costDamage: parseInt(newCostDamage)})}}/>
                     </div>
                   </div>
 

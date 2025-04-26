@@ -102,18 +102,6 @@ const EditAffFam = ({disBarangay, disCode, setStep}) => {
         useEffect(() => {
             if (hasClickedNext) validateFields();
         }, [disasterType, date, selectedBarangays]);
-    
-        const isResidentSaved = (resident) => {
-        const savedData = JSON.parse(localStorage.getItem("savedForms")) || [];
-        
-        return savedData.some(data => 
-            data.firstName === resident.firstName &&
-            data.middleName === resident.middleName &&
-            data.lastName === resident.lastName &&
-            data.barangay === resident.barangay &&
-            data.purok === resident.purok
-        );
-        };
 
         //Page ni
         const handleNext = () => {
@@ -129,207 +117,233 @@ const EditAffFam = ({disBarangay, disCode, setStep}) => {
         };
 
         useEffect(() => {
-            const fetchAffectedFamilies = async (disCode, disBarangay) => {
-                if (!disCode || !disBarangay) {
-                    console.warn("No disaster code or barangay provided.");
-                    return;
-                }
+            const fetchAffectedFamilies = async () => {
+                if (!disCode) return;
         
                 setIsLoading(true);
-                setError(""); // Clear previous errors
+                setError("");
+        
+                const formatDate = (datetime) => {
+                    const date = new Date(datetime);
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    const hours = String(date.getHours()).padStart(2, '0');
+                    const minutes = String(date.getMinutes()).padStart(2, '0');
+                    return `${year}-${month}-${day}T${hours}:${minutes}`;
+                };
         
                 try {
-                    const response = await fetch(`http://192.168.1.24:3003/get-disaster/${disCode}`);
-                    const data = await response.json();
+
+                 if(navigator.onLine){
+                    // Try fetching from the server
+                    const response = await axios.get(`http://localhost:3003/get-disaster/${disCode}`);
+                    const disasterData = response.data;
         
-                    if (!data || !data.barangays) {
-                        throw new Error("Invalid data received.");
-                    }
-
-                    function formatDate(datetime) {
-                        const date = new Date(datetime); // Parse ISO string
-                        const year = date.getFullYear();
-                        const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
-                        const day = String(date.getDate()).padStart(2, '0');
-                        const hours = String(date.getHours()).padStart(2, '0'); // 24-hour format
-                        const minutes = String(date.getMinutes()).padStart(2, '0');
-                    
-                        return `${year}-${month}-${day}T${hours}:${minutes}`;
-                    }
+                    setDisasterCode(disasterData.disasterCode);
+                    setDisasterStatus(disasterData.disasterStatus);
+                    setDisasterType(disasterData.disasterType);
+                    setDate(formatDate(disasterData.disasterDateTime));
         
-                    setDisasterCode(data.disasterCode)
-                    setDisasterStatus(data.disasterStatus)
-                    setDisasterType(data.disasterType)
-                    setDate(formatDate(data.disasterDateTime))
-
-
-                    // Find the specific barangay
-                    const barangay = data.barangays.find(b => b.name === disBarangay);
-                    setSelectedBarangays(disBarangay) 
-                    if (!barangay) {
-                        console.log(`No residents found for barangay '${disBarangay}'`);
+                    if (!disasterData?.barangays) {
                         setResidents([]);
+                        console.warn("No barangays data found.");
                         return;
                     }
         
-                    // Set affected families from the selected barangay
-                    setResidents(barangay.affectedFamilies || []);
+                    const barangayData = disasterData.barangays.find(b => b.name === disBarangay);
+                    setSelectedBarangays(barangayData?.name || "");
+        
+                    if (!barangayData?.affectedFamilies) {
+                        setResidents([]);
+                        console.warn("No affected families found for this barangay.");
+                        return;
+                    }
+        
+                    setResidents(barangayData.affectedFamilies);
+                    }else{
+                    // Try fallback to localStorage
+                    const localData = localStorage.getItem("disasters")
+                    const savedForms = localStorage.getItem("AffectedForms");
 
+                    const dData = JSON.parse(localData);
+                    const savedFormData = JSON.parse(savedForms || "[]");
+
+                    const disasterData = dData.find(d => d.disasterCode === disCode);
+
+                    
+                    if (disasterData) {
+                        console.log("disasterData", disasterData)
+
+                        try {
+                            if (!disasterData) {
+                                console.warn("Disaster not found in local cache.");
+                                setResidents([]);
+                                return;
+                            }
+
+                            setDisasterCode(disasterData.disasterCode);
+                            setDisasterStatus(disasterData.disasterStatus);
+                            setDisasterType(disasterData.disasterType);
+                            setDate(formatDate(disasterData.disasterDateTime));
+        
+                            const barangayData = disasterData.barangays?.find(b => b.name === disBarangay);
+                            setSelectedBarangays(barangayData?.name || "");
+        
+                            let residentsList = barangayData?.affectedFamilies || [];
+
+                            const unsyncedResidents = savedFormData.filter(form =>
+                                form.disasterCode === disCode && form.barangay === disBarangay
+                            );
+
+                            if (unsyncedResidents.length > 0) {
+                                console.log("Including unsynced residents from savedform:", unsyncedResidents);
+                                // Optional: Mark unsynced entries for UI feedback
+                                const flaggedUnsynced = unsyncedResidents.map(u => ({ ...u, unsynced: true }));
+                                residentsList = [...residentsList, ...flaggedUnsynced];
+                            }
+
+                            if (residentsList.length === 0) {
+                                console.warn("No affected families found for this barangay in offline data.");
+                            }
+        
+                            setResidents(residentsList);
+                        } catch (parseErr) {
+                            console.error("Failed to parse offline data:", parseErr);
+                            setError("No usable offline data available.");
+                            setResidents([]);
+                        }
+                    } else {
+                        console.warn("No offline data found.");
+                        setResidents([]);
+                    }
+                }
+                    
                 } catch (err) {
-                    console.error("Error fetching residents:", err);
-                    setError("Failed to fetch residents. Please try again.");
+                    console.error("Unexpected error:", err);
+                    setError("An error occurred while loading data.");
                 } finally {
                     setIsLoading(false);
                 }
             };
         
-            if (disCode && disBarangay) {
-                fetchAffectedFamilies(disCode, disBarangay);
-            }
-        }, [disCode, disBarangay]);    
+            fetchAffectedFamilies();
+        }, [disCode, disBarangay]);
     
-        const handleFinalSubmit = async () => {
-
-            const confirmSubmit = window.confirm("Are you sure you want to submit the forms?");
-            if (!confirmSubmit) return;
-
-            const disasterData = JSON.parse(localStorage.getItem("disasterData")) || null;
+        const syncData = async () => {
+            const disasterData = JSON.parse(localStorage.getItem("disasterData"));
             const residentData = JSON.parse(localStorage.getItem("savedForms")) || [];
-
-            console.log("saved forms", residentData)
         
-            if (!disasterData || residentData.length === 0) {
-                setNotification({ 
-                    type: "error", 
-                    title: "Error", 
-                    message: "No data found in localStorage to save." 
-                });
-
-                setTimeout(() => {
-                    setNotification(null);
-                }, 3000); 
-
-                return;
-            }
-            setLoading(true); 
-
+            if (!disasterData || residentData.length === 0) return;
+        
             try {
-                await new Promise((resolve) => setTimeout(resolve, 2000));
-
-                // Fetch existing disaster data
-                const checkResponse = await fetch(`http://192.168.1.24:3003/get-disaster/${disasterCode}`);
+                const { disasterCode } = disasterData;
+        
+                const groupedByBarangay = residentData.reduce((acc, resident) => {
+                    const barangay = resident.barangay || "Unknown Barangay";
+                    if (!acc[barangay]) acc[barangay] = [];
+                    acc[barangay].push(resident);
+                    return acc;
+                }, {});
+        
+                const checkResponse = await fetch(`http://localhost:3003/get-disaster/${disasterCode}`);
                 const existingDisaster = await checkResponse.json();
-            
-                if (checkResponse.ok && existingDisaster) {
-                    console.log("Existing Disaster Data:", existingDisaster);
-
-                    const groupedByBarangay = residentData.reduce((acc, resident) => {
-                        if (!acc[resident.barangay]) {
-                            acc[resident.barangay] = [];
+        
+                if (!checkResponse.ok) throw new Error("Failed to fetch disaster data");
+        
+                const updatedBarangays = existingDisaster.barangays.map(existingBarangay => {
+                    const affectedFamilies = existingBarangay.affectedFamilies || [];
+        
+                    const newFamilies = groupedByBarangay[existingBarangay.name]?.map(newFamily => {
+                        const index = affectedFamilies.findIndex(existingFamily =>
+                            existingFamily.firstName.trim().toLowerCase() === newFamily.firstName.trim().toLowerCase() &&
+                            existingFamily.lastName.trim().toLowerCase() === newFamily.lastName.trim().toLowerCase() &&
+                            existingFamily.bdate === newFamily.bdate
+                        );
+        
+                        if (index !== -1) {
+                            affectedFamilies[index] = { ...affectedFamilies[index], ...newFamily };
+                            return null;
                         }
-                        acc[resident.barangay].push(resident);
-                        return acc;
-                    }, {});
-            
-                    const updatedBarangays = existingDisaster.barangays.map(existingBarangay => {
-                        const affectedFamilies = existingBarangay.affectedFamilies || []; // Ensure it's an array
-            
-                        if (groupedByBarangay[existingBarangay.name]) {
-                            const newFamilies = groupedByBarangay[existingBarangay.name].map(newFamily => {
-                                // Check if the family already exists
-                                const existingFamilyIndex = affectedFamilies.findIndex(existingFamily =>
-                                    existingFamily.firstName.trim().toLowerCase() === newFamily.firstName.trim().toLowerCase() &&
-                                    existingFamily.lastName.trim().toLowerCase() === newFamily.lastName.trim().toLowerCase() &&
-                                    existingFamily.bdate === newFamily.bdate
-                                );
-            
-                                if (existingFamilyIndex !== -1) {
-                                    // Family exists, update their data
-                                    affectedFamilies[existingFamilyIndex] = { ...affectedFamilies[existingFamilyIndex], ...newFamily };
-                                    return null; // Skip adding to new families since it's already updated
-                                }
-                                return newFamily; // Add only if it's new
-                            }).filter(family => family !== null); // Remove null values (updated families)
-            
-                            console.log(`New Families for ${existingBarangay.name}:`, newFamilies);
-            
-                            return {
-                                ...existingBarangay,
-                                affectedFamilies: [...affectedFamilies, ...newFamilies], // Keep updated and new families
-                            };
-                        }
-                        return existingBarangay;
-                    });
-            
-                    console.log("Updated Barangays Data:", updatedBarangays);
-            
-                    // Send the updated barangays data to backend
-                    const updateResponse = await fetch(`http://192.168.1.24:3003/update-disaster/${disasterCode}`, {
-                        method: "PUT",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ barangays: updatedBarangays }),
-                    });
-            
-                    console.log("Update Response:", await updateResponse.json());
-            
-                    if (!updateResponse.ok) throw new Error("Failed to update disaster data.");
-                    setNotification({ type: "success", title: "Success", message: "Affected families updated successfully!" });
-                  
-                    localStorage.removeItem("savedForms");
-                    localStorage.removeItem("disasterData");
-
-                    setTimeout(() => {
-                        setNotification(null);
-                        setStep(1); // Redirect to step 1
-                        setLoading(false); // Stop loading
-                    }, 2000); 
-                } else {
-                    setNotification({ 
-                      type: "error", 
-                      title: "Not Found", 
-                      message: "Disaster not found!" 
-                    });
-                  
-                    setTimeout(() => {
-                      setNotification(null);
-                      setLoading(false); 
-                    }, 3000);
-                }
-            } catch (error) {
-                console.error("Error:", error);
-              
-                let errorTitle = "Error";
-                let errorMessage = "An error occurred while saving data. Please try again.";
-              
-                if (!error.response) {
-                  errorTitle = "Network Error";
-                  errorMessage = "Please check your internet connection and try again.";
-                } else if (error.response.status === 400) {
-                  errorTitle = "Invalid Data";
-                  errorMessage = "There is an issue with the provided data. Please check and try again.";
-                } else if (error.response.status === 401 || error.response.status === 403) {
-                  errorTitle = "Unauthorized Access";
-                  errorMessage = "You do not have permission to perform this action.";
-                } else if (error.response.status === 500) {
-                  errorTitle = "Server Error";
-                  errorMessage = "An error occurred on the server. Please try again later.";
-                } else if (error.message.includes("Failed to update disaster data")) {
-                  errorTitle = "Update Failed";
-                  errorMessage = "An error occurred while updating the disaster data. Please try again.";
-                }
-              
-                setNotification({ 
-                  type: "error", 
-                  title: errorTitle, 
-                  message: errorMessage 
+        
+                        return newFamily;
+                    }).filter(Boolean) || [];
+        
+                    return {
+                        ...existingBarangay,
+                        affectedFamilies: [...affectedFamilies, ...newFamilies]
+                    };
                 });
-              
+        
+                const updateResponse = await fetch(`http://localhost:3003/update-disaster/${disasterCode}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ barangays: updatedBarangays }),
+                });
+        
+                if (!updateResponse.ok) throw new Error("Failed to update disaster data");
+        
+                localStorage.removeItem("savedForms");
+                localStorage.removeItem("disasterData");
+        
+                setNotification({ type: "success", title: "Saved", message: "Data saved successfully." });
+        
                 setTimeout(() => {
                     setNotification(null);
+                    setStep(1);
                     setLoading(false);
                 }, 2000);
-            }               
-        };        
+        
+            } catch (error) {
+                console.error("Sync failed:", error);
+                setNotification({ type: "error", title: "Sync Failed", message: error.message });
+            }
+        };
+        
+        const handleFinalSubmit = () => {
+            const confirmSubmit = window.confirm("Are you sure you want to submit the forms?");
+            if (!confirmSubmit) return;
+        
+            const disasterData = JSON.parse(localStorage.getItem("disasterData"));
+            const disasterCode = disasterData?.disasterCode;
+            setLoading(true);
+        
+            if (navigator.onLine) {
+                syncData();
+            } else {
+                const savedForms = JSON.parse(localStorage.getItem("savedForms") || "[]");
+            
+                savedForms.forEach(newForm => {
+                    const index = savedForms.findIndex(existingForm =>
+                        existingForm.firstName.trim().toLowerCase() === newForm.firstName.trim().toLowerCase() &&
+                        existingForm.lastName.trim().toLowerCase() === newForm.lastName.trim().toLowerCase() &&
+                        existingForm.bdate === newForm.bdate &&
+                        existingForm.disasterCode === newForm.disasterCode &&
+                        existingForm.barangay?.trim().toLowerCase() === newForm.barangay?.trim().toLowerCase()
+                    );
+            
+                    if (index !== -1) {
+                        // Update existing form
+                        savedForms[index] = { ...savedForms[index], ...newForm };
+                    } else {
+                        // Add as new form
+                        savedForms.push(newForm);
+                    }
+                });
+            
+                localStorage.setItem("AffectedForms", JSON.stringify(savedForms));
+                localStorage.removeItem("savedForms");
+                setNotification({ type: "info", title: "Offline", message: "You're offline. Data updated locally and will sync when you're back online." });
+            
+                setTimeout(() => {
+                    setNotification(null);
+                    setStep(1);
+                    setLoading(false);
+                }, 2000);
+            }
+        };
+        
+        
 
 
     const [searchQuery, setSearchQuery] = useState("");
@@ -461,7 +475,7 @@ const EditAffFam = ({disBarangay, disCode, setStep}) => {
                                             </td> {/* Dependents information */}
                                             <td>
                                                 
-                                            <button className="res-submit-btn"disabled={resident.dafacStatus === "Confirmed" || isResidentSaved(resident)} onClick={() => handleResidentSelect(resident)}>
+                                            <button className="res-submit-btn"disabled={resident.dafacStatus === "Confirmed"} onClick={() => handleResidentSelect(resident)}>
                                                 <i class="fa-solid fa-pen-to-square" ></i>
                                             </button>
                                             </td>

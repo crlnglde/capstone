@@ -26,8 +26,15 @@ const LineGraph = () => {
 
     useEffect(() => {
         const fetchDisasters = async () => {
+
+            const localData = localStorage.getItem("disasters");
+            if (localData) {
+              const parsed = JSON.parse(localData);
+              setDisasters(parsed);
+            }
+            
             try {
-                const response = await axios.get("http://192.168.1.24:3003/get-disasters");
+                const response = await axios.get("http://localhost:3003/get-disasters");
                 setDisasters(response.data);
             } catch (error) {
                 console.error("Error fetching disasters:", error);
@@ -75,8 +82,8 @@ const LineGraph = () => {
             x: {
               ticks: {
                 color: "#000000", // White X-axis labels
-                
               },
+              min: 0, 
               grid: {
                 display: false, // Remove grid lines
               },
@@ -132,6 +139,19 @@ const LineGraph = () => {
 
         return { labels: lastFiveYears, datasets, barangayData };
     }, [disasters, selectedDisaster, selectedBarangays]);
+
+    const updatedChartData = useMemo(() => {
+        if (!chartData) return null;
+        
+        return {
+          labels: [0, ...chartData.labels],
+          datasets: chartData.datasets.map((dataset) => ({
+            ...dataset,
+            data: [0, ...dataset.data],
+          })),
+        };
+      }, [chartData]);
+      
 
     const disasterInsights = useMemo(() => {
         let totalOccurrences = 0;
@@ -202,8 +222,8 @@ const LineGraph = () => {
             </div>
 
             <div className="graph-container">
-                {chartData && chartData.datasets.length > 0 ? (
-                    <Line data={chartData} options={chartOptions} />
+                {updatedChartData  && updatedChartData .datasets.length > 0 ? (
+                    <Line data={updatedChartData } options={chartOptions} />
 
                 ) : (
                     <p>No data available for the selected criteria.</p>

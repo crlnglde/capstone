@@ -1,4 +1,5 @@
 require("dotenv").config();
+const { MongoClient, ServerApiVersion } = require('mongodb');
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -24,6 +25,9 @@ mongoose.connect(process.env.MONGO_URI,{
 .then(db=>console.log('DB is connected'))
 .catch(err=> console.log(err));
 
+mongoose.connection.once('open', () => {
+  console.log(`MongoDB connected to: ${mongoose.connection.name}`);
+});
 
   // Register Route
   app.post("/register", async (req, res) => {
@@ -56,7 +60,7 @@ app.post("/login", async (req, res) => {
 
     // Find user
     const user = await User.findOne({ username });
-    if (!user) return res.status(400).json({ message: "Invalid credentials" });
+    if (!user) return res.status(400).json({ message: "Invalid" });
 
     // Check password
     const isMatch = await bcrypt.compare(password, user.password);
@@ -64,7 +68,7 @@ app.post("/login", async (req, res) => {
 
     // Generate token
     const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
-      expiresIn: "1m",
+      expiresIn: "1h",
     });
 
     res.json({ token, user: { id: user._id, username: user.username, role: user.role } });
@@ -476,9 +480,6 @@ app.post("/save-distribution", async (req, res) => {
   try {
     const { disasterCode, disasterDate, assistanceType, barangay, families, reliefItems, receivedFrom, certifiedCorrect, submittedBy, status } = req.body;
 
-
-    console.log(families)
-    console.log("type:", assistanceType)
     // Validate required fields
     if (!disasterCode || !disasterDate || !barangay || !families || !reliefItems) {
       return res.status(400).json({ message: "Missing required fields" });
@@ -553,15 +554,23 @@ app.post("/save-distribution", async (req, res) => {
   }
 });
 
+app.get("/get-distributions", async(req, res) => {
+  try {
+    const distributions = await Distribution.find();
+    res.json(distributions);
+  } catch (error) {
+    console.error("Error fetching distributions:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+})
 
 app.get("/get-distribution", async (req, res) => {
   try {
-      const { disasterCode, barangay, status } = req.query;
+      const { disasterCode, barangay } = req.query;
 
       let query = {};
 
       if (disasterCode) query.disasterCode = disasterCode;
-      if (status) query.status = status;
 
       // Fetch matching distributions
       let distributions = await Distribution.find(query);

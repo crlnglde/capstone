@@ -16,8 +16,14 @@ const HomeMap = () => {
 
   useEffect(() => {
     const fetchDisasters = async () => {
+      const localData = localStorage.getItem("disasters");
+      if (localData) {
+        const parsed = JSON.parse(localData);
+        setDisasters(parsed);
+      }
+
       try {
-        const response = await axios.get("http://192.168.1.24:3003/get-disasters");
+        const response = await axios.get("http://localhost:3003/get-disasters");
         const disasterData = response.data;
         setDisasters(disasterData); // Store disasters data in state
   
@@ -115,16 +121,16 @@ const HomeMap = () => {
   // Define a function to get color based on density (or other property)
   const getColorForBubble = (disasterType) => {
     return disasterType === "Fire Incident"
-      ? 'rgba(255, 99, 132, 0.7)'
-      : disasterType === "Flood"
-      ? 'rgba(54, 162, 235, 0.7)'
-      : disasterType === "Earthquake"
-      ? 'rgba(255, 159, 64, 0.7)'
-      : disasterType === "Typhoon"
-      ? 'rgba(153, 102, 255, 0.7)'
-      : disasterType === "Landslide"
-      ? 'rgba(139,69,19)'
-      : 'rgba(75, 192, 192, 0.7)';  // Default color for any other disaster type
+    ? 'rgba(255, 99, 132, 0.7)'
+    : disasterType === "Flood"
+    ? 'rgba(54, 162, 235, 0.7)'
+    : disasterType === "Earthquake"
+    ? 'rgba(255, 159, 64, 0.7)'
+    : disasterType === "Typhoon"
+    ? 'rgba(153, 102, 255, 0.7)'
+    : disasterType === "Landslide"
+    ? 'rgba(139,69,19)'
+    : 'rgba(0, 0, 0, 0.7)'; // Default color for any other disaster type
   };
 
 

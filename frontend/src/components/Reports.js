@@ -32,35 +32,31 @@ const Reports = () => {
   const sporadicRef = useRef(null);
   const payrollRef = useRef(null);
 
-  useEffect(() => { 
-    const fetchReports = async () => {
-      try {
-        const response = await axios.get("http://192.168.1.24:3003/get-disasters");
-        const data = response.data;
-  
-        // Aggregate data by disaster
-        const aggregatedReports = data.sort((a, b) => new Date(b.disasterDateTime) - new Date(a.disasterDateTime))
+  useEffect(() => {
+    const transformDisasters = (data) => {
+      return data
+        .sort((a, b) => new Date(b.disasterDateTime) - new Date(a.disasterDateTime))
         .map(disaster => {
-          const totalFamilies = disaster.barangays.reduce((sum, barangay) => 
+          const totalFamilies = disaster.barangays.reduce((sum, barangay) =>
             sum + barangay.affectedFamilies.length, 0
           );
-          
+  
           const barangayNames = disaster.barangays.map(barangay => barangay.name).join(", ");
           const affectedFamilies = disaster.barangays.flatMap(barangay => barangay.affectedFamilies);
-
+  
           const date = new Date(disaster.disasterDateTime);
           const formattedDate = date.toLocaleDateString('en-US', {
             year: 'numeric',
             month: '2-digit',
             day: '2-digit',
           });
-          
+  
           const formattedTime = date.toLocaleTimeString('en-US', {
             hour: '2-digit',
             minute: '2-digit',
             hour12: true,
           });
-          
+  
           const dateTime = `${formattedDate} ${formattedTime}`;
   
           return {
@@ -71,12 +67,38 @@ const Reports = () => {
             barangays: barangayNames,
             type: disaster.disasterType,
             households: totalFamilies,
-            families: affectedFamilies, // Use the flattened array of affected families
+            families: affectedFamilies,
           };
         });
+    };
+  
+    const fetchReports = async () => {
+      const localData = localStorage.getItem("disasters");
+  
+      // Use cached and transformed data immediately (offline-friendly)
+      if (localData) {
+        try {
+          const parsed = JSON.parse(localData);
+          const cachedReports = transformDisasters(parsed);
+          setReports(cachedReports);
+          setFilteredReports(cachedReports);
+        } catch (e) {
+          console.error("Error parsing cached disaster data:", e);
+        }
+      }
+  
+      // Try to fetch fresh data
+      try {
+        const response = await axios.get("http://localhost:3003/get-disasters");
+        const data = response.data;
+  
+        const aggregatedReports = transformDisasters(data);
   
         setReports(aggregatedReports);
-        setFilteredReports(aggregatedReports); 
+        setFilteredReports(aggregatedReports);
+  
+        // Update localStorage with fresh data
+        localStorage.setItem("disasters", JSON.stringify(data));
       } catch (error) {
         console.error("Failed to fetch disaster reports:", error);
       }
@@ -84,11 +106,18 @@ const Reports = () => {
   
     fetchReports();
   }, []);
+  
 
   useEffect(() => {
+    const localData = localStorage.getItem("distributions");
+    if (localData) {
+      const parsed = JSON.parse(localData);
+      setDistribution(parsed);
+    }
+
     const fetchDistribution = async () => {
       try {
-        const response = await axios.get("http://192.168.1.24:3003/get-distribution");
+        const response = await axios.get("http://localhost:3003/get-distribution");
         const distributionData = response.data;
         setDistribution(distributionData);
       } catch (error) {

@@ -8,6 +8,10 @@
     "react-script": "^2.0.5",
     "react-scripts": "^5.0.1",
     "react-signature-canvas": "^1.1.0-alpha.1",
-    "react-to-print": "^3.0.5"
+    "react-to-print": "^3.0.5",
+    "workbox-core": "^7.3.0",
+    "workbox-expiration": "^7.3.0",
+    "workbox-routing": "^7.3.0",
+    "workbox-strategies": "^7.3.0"
   }
 }

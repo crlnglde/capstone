@@ -17,7 +17,7 @@ const Login = () => {
 
     const [loading, setLoading] = useState(false);
     const [notification, setNotification] = useState(null); 
-
+   
 
       useEffect(() => {
         const token = localStorage.getItem("token");
@@ -40,7 +40,7 @@ const Login = () => {
                 password: password.trim(),
             };
     
-            const response = await axios.post("http://192.168.1.24:3003/login", userdata);
+            const response = await axios.post("http://localhost:3003/login", userdata);
     
             console.log("Login Response:", response.data); // Debug API response
     
@@ -48,7 +48,7 @@ const Login = () => {
                 localStorage.setItem("token", response.data.token);
                 localStorage.setItem("role", response.data.user.role);
                 localStorage.setItem("username", response.data.user.username); 
-    
+
                 const decodedToken = jwtDecode( response.data.token);
                 const expireTime = decodedToken.exp * 1000;
                 

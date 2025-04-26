@@ -30,6 +30,9 @@ const EditRDS = () => {
   };
 
   const handleSaveSignature = (imageURL) => {
+    console.log("selected family", selectedFamily)
+    console.log("selectedFamily._id:", selectedFamily._id, typeof selectedFamily._id);
+
     if (!selectedFamily || !selectedFamily._id) return; 
 
     setSignature((prev) => ({
@@ -40,13 +43,15 @@ const EditRDS = () => {
     setDistributionData((prevData) => ({
       ...prevData,
       families: prevData.families.map(family =>
+      (console.log("family._id in loop:", family._id, typeof family._id),
         family._id === selectedFamily._id ? { ...family, signature: imageURL, status: "Done" } : family
-      )
+      ))
     }));
 
     setIsUpdated(true);
 
     handleCloseModal(); // Close modal automatically
+    console.log(distributionData)
   };
 
   const handleCloseModal = () => {
@@ -75,38 +80,72 @@ const EditRDS = () => {
   // Fetch distribution data
   useEffect(() => {
     const fetchDistribution = async () => {
+      let data = {};
+  
+      if (navigator.onLine) {
+        try {
+          const response = await axios.get(`http://localhost:3003/get-distribution/${distributionId}`);
+          data = response.data;
+        } catch (err) {
+          console.error("Error fetching from backend:", err);
+        }
+      } else {
+        const localData = JSON.parse(localStorage.getItem("parsedDistributions")) || [];
+
+        if (localData) {
+          try {
+
+            for (const distDoc of localData) {
+              const matchedBarangay = distDoc.barangays?.find(barangay =>
+                barangay.distribution?.some(dist => dist._id === distributionId)
+              );
+  
+              if (matchedBarangay) {
+                const specificDistribution = matchedBarangay.distribution.find(dist => dist._id === distributionId);
+                data = {
+                  disasterCode: distDoc.disasterCode,
+                  disasterDate: distDoc.disasterDate,
+                  barangayName: matchedBarangay.name,
+                  distribution: specificDistribution
+                };
+                break;
+              }
+
+              console.log("data", data)
+            }
+          } catch (e) {
+            console.error("Failed to parse local distributions data", e);
+          }
+        }
+      }
+  
       try {
-        console.log(distributionId);
-        const response = await axios.get(`http://192.168.1.24:3003/get-distribution/${distributionId}`);
-
-        const data = response.data;
-
-        // Extract relief items and families from nested structure
-
         setDistributionData({
           disasterCode: data.disasterCode || "",
           disasterDate: data.disasterDate || "",
           barangayName: data.barangayName || "",
-          assistanceType: data.assistanceType || "",
-          reliefItems: data.distribution?.reliefItems || [],  // Fix: Access as object, not array
+          assistanceType: data.distribution?.assistanceType || "",
+          reliefItems: data.distribution?.reliefItems || [],
           receivedFrom: data.distribution?.receivedFrom || "",
           certifiedCorrect: data.distribution?.certifiedCorrect || "",
           submittedBy: data.distribution?.submittedBy || "",
-          families: data.distribution?.families || []  // Fix: Access as object, not array
+          distributionId: data.distribution?._id,
+          families: data.distribution?.families || []
         });
         console.log("Distribution:", data);
       } catch (err) {
-        console.error("Error fetching distribution data:", err);
+        console.error("Error setting distribution data:", err);
         setError("Failed to fetch data");
       } finally {
         setLoading(false);
       }
     };
-
+  
     if (distributionId) {
       fetchDistribution();
     }
   }, [distributionId]);
+  
 
   // Extract disaster date and formatted month
   const disasterDate = distributionData.disasterDate ? new Date(distributionData.disasterDate) : null;
@@ -118,25 +157,85 @@ const EditRDS = () => {
     if (!confirmSubmit) return;
     
     try {
-      // Send only the updated families array to the backend to update their status
-      const updatedFamilies = distributionData.families;
-  
-      const response = await axios.put(`http://192.168.1.24:3003/update-distribution/${distributionId}`, {
-        families: updatedFamilies
-      });
-  
-      if (response.status === 200) {
-        alert("Distribution data saved successfully!");
-        setIsUpdated(false);  // Reset the update flag after successful save
-        window.location.reload()
-      } else {
-        alert("Failed to save distribution data.");
+
+      if(navigator.onLine) {  // Send only the updated families array to the backend to update their status
+        const updatedFamilies = distributionData.families;
+    
+        const response = await axios.put(`http://localhost:3003/update-distribution/${distributionId}`, {
+          families: updatedFamilies
+        });
+    
+        if (response.status === 200) {
+          alert("Distribution data saved successfully!");
+          setIsUpdated(false);  // Reset the update flag after successful save
+          window.location.reload()
+        } else {
+          alert("Failed to save distribution data.");
+        }
+        } else {
+          console.log(distributionData)
+          const editedDist = {
+            ...distributionData
+          };
+
+          console.log("edited dist", editedDist)
+        
+          // Get offlineDistributions
+          const offlineData = JSON.parse(localStorage.getItem("offlineDistributions")) || [];
+          console.log("Offline Data", offlineData)
+
+          const index = offlineData.findIndex(dist => 
+            dist.disasterCode === distributionData.disasterCode &&
+            (dist.barangay === distributionData.barangay || dist.barangayName === distributionData.barangayName) &&
+            dist.families.some(fam => fam.familyHead === selectedFamily.familyHead) &&
+            dist.distributionId === distributionData.distributionId
+          );
+          
+          console.log("index", index)
+          console.log("Offline Data", offlineData)
+          console.log("Distribution Data")
+          console.log(distributionData.disasterCode)
+          console.log(distributionData.barangayName)
+          console.log(selectedFamily.familyHead)
+          console.log(distributionData.distributionId)
+        
+          if (index !== -1) {
+            // 🔁 It exists → update the existing one
+            offlineData[index] = editedDist;
+            localStorage.setItem("offlineDistributions", JSON.stringify(offlineData));
+            alert("Changes saved offline and will sync later.");
+          } else {
+            const edited = JSON.parse(localStorage.getItem("editedDistributions")) || [];
+          
+            // Check if editedDist already exists in editedDistributions
+            const editedIndex = edited.findIndex(dist => 
+              dist.disasterCode === distributionData.disasterCode &&
+              dist.barangayName === distributionData.barangayName &&
+              dist.families.some(fam => fam.familyHead === selectedFamily.familyHead)
+            );
+          
+            if (editedIndex !== -1) {
+              //Update existing edited entry
+              edited[editedIndex] = editedDist;
+              alert("Existing offline edit updated and will sync later.");
+            } else {
+              // ➕ Add new edit
+              edited.push(editedDist);
+              alert("Edit saved offline and will sync when online.");
+            }
+          
+            localStorage.setItem("editedDistributions", JSON.stringify(edited));
+            setIsUpdated(false); // Reset your flag
+          }
+        
+          setIsUpdated(false); // Reset your flag
+          //window.location.reload()
+        }      
+      } catch (error) {
+        console.error("Error saving distribution data:", error);
+        alert("An error occurred while saving the data.");
       }
-    } catch (error) {
-      console.error("Error saving distribution data:", error);
-      alert("An error occurred while saving the data.");
-    }
-  };  
+    };  
   
 
   if (loading) return <div>Loading...</div>;
