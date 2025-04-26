@@ -489,20 +489,52 @@ useEffect(() => {
               <MapDisaster barangay={selectedBarangay} year={selectedYear}/>
             </div>
 
-            <div className="ch3">
-
-                <div className="ch2">
-                  <DonutGraph barangay={selectedBarangay} year={selectedYear}/>
-                  <PieChart barangay={selectedBarangay} year={selectedYear}/>
-
+            <div
+              className="charts-container"
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 2fr',
+                gap: '2rem',
+                height: '100%',
+                padding: '20px'
+              }}
+            >
+              {/* Left Column - Donut + Pie */}
+              <div
+                className="charts-left"
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between', // makes them evenly distributed
+                  height: '100%', // Ensures it stretches fully
+                  gap: '46px'
+                }}
+              >
+                <div className="chart-box" style={{ flex: 1 }}>
+                  <DonutGraph barangay={selectedBarangay} year={selectedYear} />
                 </div>
-
-                <div className="ch1">
-                  <Ling/>
+                <div className="chart-box" style={{ flex: 1 }}>
+                  <PieChart barangay={selectedBarangay} year={selectedYear} />
                 </div>
-
-                
               </div>
+
+              {/* Right Column - Line Chart */}
+              <div
+                className="charts-right"
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  height: '100%'
+                }}
+              >
+                <div className="chart-box" style={{ flex: 1 }}>
+                  <Ling />
+                </div>
+              </div>
+            </div>
+
+
 
 
 

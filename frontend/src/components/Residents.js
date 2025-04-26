@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useRef }  from "react";
 import Papa from 'papaparse';
 import CryptoJS from "crypto-js";
 import axios from "axios";
@@ -10,8 +10,9 @@ import Loading from "./again/Loading";
 import Notification from "./again/Notif";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import ResidentsVis from "./visualizations/ResidentsVis";
+import { FiDownload } from "react-icons/fi";
 
-const Residents = () => {
+const Residents = ({ setNavbarTitle }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState("");
   
@@ -54,6 +55,10 @@ const Residents = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [residentData, setResidentData] = useState({ ...selectedResident });
 
+
+    useEffect(() => {
+      setNavbarTitle(`Residents > ${activeTab === "list" ? "List" : "Visualization"}`);
+    }, [activeTab, setNavbarTitle]);
 
   //list of barangays
   const barangays = [
@@ -142,8 +147,7 @@ const fetchExistingResidents = async () => {
           const data = result.data;
 
           if (!data || data.length === 0) {
-            console.error("🚨 No data found in CSV.");
-            alert("No data found in the CSV.");
+            setNotification({ type: "error", title: "No data found in CSV", message: "No data found in the CSV." });
             setIsUploading(false);
             return;
           }
@@ -624,6 +628,36 @@ const fetchExistingResidents = async () => {
             setResidentData(newData);
           };
 
+          const [showDownloadMenu, setShowDownloadMenu] = useState(false);
+          const residentsVisRef = useRef();
+          const [menuVisible, setMenuVisible] = useState(false);
+         
+          
+          const buttonRef = useRef(null); // Reference to the button for position calculation
+          const menuRef = useRef(null);
+
+          // Function to toggle the menu visibility
+          const toggleMenu = () => {
+            setMenuVisible((prev) => !prev);
+          };
+        
+          // Function to handle mouse enter and leave
+      
+
+          const handleDownloadVisualization = () => {
+            if (residentsVisRef.current) {
+              residentsVisRef.current.downloadVisualization();
+            }
+            setShowDownloadMenu(false);
+          };
+        
+          const handleDownloadExcel = () => {
+            if (residentsVisRef.current) {
+              residentsVisRef.current.downloadExcelData();
+            }
+            setShowDownloadMenu(false);
+          };
+
   return (
     <div className="residents">
 
@@ -773,12 +807,37 @@ const fetchExistingResidents = async () => {
         ):(  
 
           <div className="residdents-visualizations">
-
             <div className="header-container">
-              <h2 className="header-title">Visualizations</h2>
-  
-
+              <h2 className="header-title">Visualizations</h2>  
               <div className="res-top-row">
+                <div
+                  className="download-container"
+
+                >
+                  <button
+                    className="download-button"
+                    onClick={toggleMenu}
+                    ref={buttonRef}
+                  >
+                    <FiDownload style={{ marginRight: "6px" }} />
+                    Download
+                  </button>
+
+                  {menuVisible && (
+                    <div
+                      className="download-menu"
+                      ref={menuRef}
+                      style={{
+                        position: 'absolute',
+                        zIndex: 10,
+                        transition: 'top 0.3s, left 0.3s',
+                      }}
+                    >
+                      <button onClick={() => residentsVisRef.current.downloadVisualization()}>Download Visualization</button>
+                      <button onClick={() => residentsVisRef.current.downloadExcel()}>Download Excel File</button>
+                    </div>
+                  )}
+                </div>
 
                 <div className="res-filter-container">
                   <label htmlFor="barangayFilter"><i className="fa-solid fa-filter"></i> Filter: </label>
@@ -795,15 +854,12 @@ const fetchExistingResidents = async () => {
                     ))}
                   </select>
                 </div>
-
-
               </div>
-
             </div>
 
-            <ResidentsVis selectedBarangay={selectedBarangay}/>
 
-           
+
+            <ResidentsVis  ref={residentsVisRef} selectedBarangay={selectedBarangay}/>
           </div>
 
         )}  
@@ -1199,10 +1255,14 @@ const fetchExistingResidents = async () => {
 
             {modalType === "view" && selectedResident && (
               <div>
-                <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginBottom: "10px" }}>
-                  <button onClick={isEditing ? handleSave : toggleEdit }>{isEditing ? "Save" : "Edit"}</button>
+
+                <div className="button-container">
+                  <button onClick={isEditing ? handleSave : toggleEdit}>
+                    {isEditing ? "Save" : "Edit"}
+                  </button>
                   <button onClick={handleDelete}>Delete</button>
                 </div>
+
 
                 <RES 
                   residentData={selectedResident} 

@@ -231,6 +231,7 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
               <th>Sex</th>
               <th>Education</th>
               <th>Occupation Skills</th>
+              {isEditing && <th style={{ width: "50px" }}></th>}
             </tr>
           </thead>
           <tbody>
@@ -247,7 +248,7 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
                         }
                       />
                     ) : (
-                      dependent.name
+                      <div className="static-cell">{dependent.name}</div>
                     )}
                   </td>
                   <td>
@@ -260,7 +261,7 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
                         }
                       />
                     ) : (
-                      dependent.relationToHead
+                      <div className="static-cell">{dependent.relationToHead}</div>
                     )}
                   </td>
                   <td>
@@ -273,7 +274,7 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
                         }
                       />
                     ) : (
-                      dependent.age
+                      <div className="static-cell">{dependent.age}</div>
                     )}
                   </td>
                   <td>
@@ -292,7 +293,7 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
                         </option>
                       </select>
                     ) : (
-                      dependent.sex
+                     <div className="static-cell">{dependent.sex}</div>
                     )}
                   </td>
                   <td>
@@ -316,7 +317,7 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
                         <option value="Vocational">Vocational</option>
                       </select>
                     ) : (
-                      dependent.education
+                      <div className="static-cell">{dependent.education}</div>
                     )}
                   </td>
                   <td>
@@ -329,7 +330,7 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
                         }
                       />
                     ) : (
-                      dependent.occupationSkills
+                      <div className="static-cell">{dependent.occupationSkills}</div>
                     )}
                   </td>
 

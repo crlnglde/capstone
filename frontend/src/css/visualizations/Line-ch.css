@@ -14,6 +14,7 @@
   margin-bottom: 20px;
   padding: 20px 20px 0 20px;
   flex-direction: row;
+  gap: 50px;
 }
 
 .filter-section > h2{
@@ -28,8 +29,8 @@
 }
 
 .graph-container {
-  height: 400px;
-  padding: 0 20px 0px 20px;
+  height: 515px;
+  padding: 0 20px 20px 20px;
 
 }
 
@@ -58,5 +59,46 @@
   color: white;
 }
 
+
+
+.select-wrapper {
+  position: relative;
+  display: inline-block;
+
+}
+
+.select-wrapper select {
+  height: 100%;
+  width: 100%;
+  font-size: 16px;
+  padding: 10px 40px 10px 12px; /* more room on right */
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: white;
+  color: #333;
+  appearance: none; /* remove default arrow */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  box-sizing: border-box;
+}
+
+.styled-select{
+  height: 100%;
+}
+
+/* Fake arrow with SVG icon */
+.select-wrapper::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  transform: translateY(-50%);
+  pointer-events: none;
+  width: 16px; /* Adjust size */
+  height: 16px; /* Adjust size */
+  background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 20 20%22 width=%2212%22 height=%2212%22%3E%3Cpath d=%22M4.516 7.548c0.436-0.446 1.043-0.481 1.576 0l3.908 3.747 3.908-3.747c0.533-0.481 1.141-0.446 1.574 0 0.436 0.445 0.408 1.197 0 1.615-0.406 0.418-4.695 4.502-4.695 4.502-0.217 0.223-0.502 0.335-0.787 0.335s-0.57-0.112-0.789-0.335c0 0-4.287-4.084-4.695-4.502s-0.436-1.17 0-1.615z%22%3E%3C/path%3E%3C/svg%3E');
+  background-size: contain;
+  background-repeat: no-repeat;
+}
 
 

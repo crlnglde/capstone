@@ -175,7 +175,7 @@
               align-items: center;
          
               height: auto; /* Prevent fixed height from restricting */
-              min-height: 400px; /* Ensures equal size */
+
           }
           
 
@@ -454,7 +454,9 @@
 }
 
 .submit-btn:hover {
-  background-color: #0056b3;
+ 
+  transform: scale(1.02);
+   background-color: #0056b3;
 }
 
 .submit-btn:disabled {
@@ -665,8 +667,6 @@
 .step2{
   padding: 0 20px;
 }
-
-
 /* Close button */
 
 /* Animation for fade-in */

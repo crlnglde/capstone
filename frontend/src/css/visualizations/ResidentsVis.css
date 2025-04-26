@@ -3,10 +3,97 @@
 .residdents-visualizations .header-container .res-top-row{
     display: flex;
     justify-content: space-between;
-    padding: 0px 20px 0 0px;
+    padding: 0px 0px 0 0px;
     align-items: flex-start;
     gap: 20px;
   }
+
+  /*.res-top-row .download-button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0.5rem 1rem;
+    background-color: #1e3a8a;
+    color: #fff;
+    font-weight: 500;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .res-top-row .download-button:hover {
+    background-color: #3177e7;
+  }
+  
+  .res-top-row .download-button svg {
+    font-size: 1.2rem;
+  }*/
+
+  /* Style for the Download Button */
+
+
+  /* Container for positioning the button and menu */
+.download-container {
+  position: relative;
+  display: inline-block;
+}
+
+/* Download button style */
+.download-button {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #1e3a8a; /* Green background */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.download-button:hover {
+  background-color: #3177e7;
+  transform: scale(1.05);
+}
+
+.download-button svg {
+  margin-right: 8px;
+}
+
+/* Dropdown menu style */
+.download-menu {
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+  border: 1px solid #ddd;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+}
+
+.download-menu button {
+  padding: 10px 20px;
+  background-color: #f4f4f4;
+  color: #333;
+  border: none;
+  border-top: 1px solid #ddd;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: normal;
+  text-align: left;
+  transition: background-color 0.3s ease;
+  width: 100%;
+}
+
+.download-menu button:first-child {
+  border-top: none;
+}
+
+.download-menu button:hover {
+  background-color: #e0e0e0;
+}
 
 
 .grid-container {
@@ -85,6 +172,15 @@
             align-items: center;
             gap: 10px;
         }
+            .total-senior-card .card-header.m{
+                background-color: #5b9cec;
+            }
+            .total-senior-card .card-header.a{
+                background-color: #3a89e4;
+            }
+            .total-senior-card .card-header.s{
+                background-color: #3177e7;
+            }
 
         .total-senior-card .card-header p{
             margin: 0;
@@ -114,8 +210,19 @@
         
         .icon-and-number .icon {
             font-size: 1.2rem;
-            color: #0f2984; 
         }
+
+                .icon-and-number .icon.m {
+                    color: #5b9cec; 
+                }
+                
+                .icon-and-number .icon.a {
+                    color: #3a89e4; 
+                }
+                
+                .icon-and-number .icon.s {
+                    color: #3177e7; 
+                }
         
         .icon-and-number .card-number {
             font-size: 20px;
@@ -135,6 +242,13 @@
     width: 100%;
     height: 300px;  /* Set a fixed height */
   }
+
+  .chart-container .ey{
+    width: 100%;
+    max-height: 300px;  /* Set the max height to allow scrolling */
+    overflow-y: auto;   /* Enable vertical scrolling if content overflows */
+  }
+  
   
   /* Adjust the pie chart size */
   .pie-chart-container {
@@ -163,4 +277,5 @@
       grid-template-columns: 1fr; /* Single column layout on smaller screens */
     }
   }
+  
   

@@ -37,6 +37,8 @@ const Distribution = ({ setNavbarTitle }) => {
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [isViewMode, setIsViewMode] = useState(false);
+  const [isInRDSFlow, setIsInRDSFlow] = useState(false);
+  
 
   const [distributionDate, setDistributionDate] = useState(null);
   const [page, setPage] = useState(0);
@@ -46,21 +48,21 @@ const Distribution = ({ setNavbarTitle }) => {
 
   const [notification, setNotification] = useState(null); 
 
-   // Update navbar title when tab changes
-   useEffect(() => {
-    let title = `Distribution > ${activeTab === "list" ? "List" : "Visualization"}`;
+    // Update navbar title when tab changes
+    useEffect(() => {
+      let title = `Distribution > ${activeTab === "list" ? "List" : "Visualization"}`;
 
-   // Get the last segment of the path
-   const pathSegments = location.pathname.split("/").filter(Boolean);
-   const lastSegment = pathSegments[pathSegments.length - 1];
+    // Get the last segment of the path
+    const pathSegments = location.pathname.split("/").filter(Boolean);
+    const lastSegment = pathSegments[pathSegments.length - 1];
 
-   // If the last segment is a subpage of "list", append it
-   if (lastSegment === "rds") title += " > RDS";
-   if (lastSegment === "edit-rds") title += " > Edit RDS";
-   if (lastSegment === "view-rds") title += " > View RDS";
+    // If the last segment is a subpage of "list", append it
+    if (lastSegment === "rds") title += " > RDS";
+    if (lastSegment === "edit-rds") title += " > Edit RDS";
+    if (lastSegment === "view-rds") title += " > View RDS";
 
-    setNavbarTitle(title);
-}, [location.pathname, activeTab, setNavbarTitle]);
+      setNavbarTitle(title);
+  }, [location.pathname, activeTab, setNavbarTitle]);
 
   //list of barangays
   const barangays = [
@@ -87,10 +89,22 @@ const Distribution = ({ setNavbarTitle }) => {
     setSelectedYear(event.target.value);
   };
 
-
   useEffect(() => {
-    setNavbarTitle(`Distribution > ${activeTab === "list" ? "List" : "Visualization"}`);
-  }, [activeTab, setNavbarTitle]);
+    let title = `Distribution > ${activeTab === "list" ? "List" : "Visualization"}`;
+  
+    if (activeTab === "list" && isInRDSFlow) {
+      if (isEditMode) {
+        title += " > Edit RDS";
+      } else if (isViewMode) {
+        title += " > View RDS";
+      } else {
+        title += " > Add RDS";
+      }
+    }
+  
+    setNavbarTitle(title);
+  }, [activeTab, isInRDSFlow, isEditMode, isViewMode, setNavbarTitle]);
+  
 
 
           // Static list of affected barangays FOR VIEW MORE
@@ -187,9 +201,12 @@ const Distribution = ({ setNavbarTitle }) => {
       localStorage.setItem("forDistribution", JSON.stringify(forDistribution));
       alert("Form data saved!");
       setIsModalOpen(false);
+
       setIsEditMode(false);
+      setIsViewMode(false);
+      setIsInRDSFlow(true);
       setStep(2);
-      navigate("/distribution/rds");
+      //navigate("/distribution/rds");
 
     }
   };
@@ -199,7 +216,7 @@ const Distribution = ({ setNavbarTitle }) => {
     setIsEditMode(true)
     setStep(2);
     localStorage.setItem("distributionId", distributionId);
-    navigate("/distribution/edit-rds");
+    //navigate("/distribution/edit-rds");
 };
 
   //for viewmore content sa distribution history 
@@ -209,12 +226,19 @@ const Distribution = ({ setNavbarTitle }) => {
     setIsModalOpen(true);
     setAffectedBarangays(barangays.map(barangay => barangay.name)); 
     setViewDistribution(id); 
+ 
+
+    setModalType("viewmore");
+    setIsModalOpen(false);
+
   };
   
     const handleBackClick = () => {
       if (step > 1) {
         setStep(step - 1);
         setIsEditMode(false);
+        setIsViewMode(false);
+        setIsInRDSFlow(false);
         navigate("/distribution"); 
       } else {
         navigate(-1); 
@@ -353,7 +377,7 @@ const Distribution = ({ setNavbarTitle }) => {
     console.log(doneDistributions);
 
     const handleDoneClick = async (disasterCode) => {
-      const confirmDone = window.confirm("Are you sure this disaster is over?");
+      const confirmDone = window.confirm("Are you sure that the relief distribution is completed?");
       if (!confirmDone) return;
 
       try {
@@ -474,9 +498,39 @@ const validateFields = () => {
       );
 
 
+
+            // Flatten the pending distributions array
+            const flattenedDistributions = sortedPending.flatMap((distItem) =>
+              distItem.barangays.flatMap((barangay) =>
+                barangay.distribution.map((dist) => ({
+                  ...dist,
+                  disasterCode: distItem.disasterCode,
+                  disasterType: disasterTypeMapping[distItem.disasterCode.split('-')[0]] || "Unknown Disaster",
+                  barangayName: barangay.name,
+                }))
+              )
+            ).sort((a, b) => new Date(b.dateDistributed) - new Date(a.dateDistributed)); 
+
+      const totalDistributions = flattenedDistributions.length;
       const totalDisasterPages = Math.ceil(sortedDisasters.length / disastersPerPage);
-      const totalPendingPages = Math.ceil(sortedPending.length / pendingPerPage);
+      const totalPendingPages = Math.ceil(totalDistributions / pendingPerPage);
       const totalDistributionHistoryPages = Math.ceil(sortedHistory.length / historyPerPage);
+
+          // Slice the data to show only the required page data
+          const displayedDisasters = sortedDisasters.slice(
+            (currentDisastersPage - 1) * disastersPerPage,
+            currentDisastersPage * disastersPerPage
+          );
+          
+          const displayedPending = flattenedDistributions.slice(
+            (pendingDistributionsPage - 1) * pendingPerPage,
+            pendingDistributionsPage * pendingPerPage
+          );
+    
+          const displayedHistory = sortedHistory.slice(
+            (historyPage - 1) * historyPerPage,
+            historyPage * historyPerPage
+          );
 
     // Handle pagination for Current Disasters
       const handleNextDisasters = () => {
@@ -573,7 +627,7 @@ const validateFields = () => {
                   {/* Current */}
                   <div className="distribution-table">
                     <div className="header-container">
-                      <h2 className="header-title">Current Disaster</h2>
+                      <h2 className="header-title">Current Disaster for Distribution</h2>
                     </div>
 
                     <div className="container">
@@ -603,7 +657,7 @@ const validateFields = () => {
                               localStorage.setItem("selectedDisasterCode", disaster.disasterCode);
                               openModal(disaster);
                             }}>
-                              Add
+                              Add RDS
                             </button>
                             <button className="doneButton" onClick={() => handleDoneClick(disaster.disasterCode)}>
                               Done
@@ -645,43 +699,32 @@ const validateFields = () => {
                     </div>
 
                     <div className="container">
-                      {displayedPending.length > 0 ? (
-                        displayedPending.map((distItem, index) => (
-                          <div key={index} >
-                            {/* Loop through barangays */}
-                            {distItem.barangays.map((barangay, bIndex) => (
-                              <div key={bIndex}>
-                                {barangay.distribution.map((dist, dIndex) => (
-                                  <div key={dIndex} className="transactionItem">
-                                    {/* Date Box */}
-                                    <div className="dateBox">
-                                      <span className="date">{new Date(dist.dateDistributed).getDate()}</span>
-                                      <span className="month">
-                                        {new Date(dist.dateDistributed).toLocaleString("default", { month: "short" })}
-                                      </span>
-                                    </div>
+                    {displayedPending.length > 0 ? (
+                        displayedPending.map((dist, index) => (
+                          <div key={index} className="transactionItem">
+                            {/* Date Box */}
+                            <div className="dateBox">
+                              <span className="date">{new Date(dist.dateDistributed).getDate()}</span>
+                              <span className="month">
+                                {new Date(dist.dateDistributed).toLocaleString("default", { month: "short" })}
+                              </span>
+                            </div>
 
-                                    {/* Disaster Code */}
-                                    <div className="details">
-                                      <span className="title">{distItem.disasterCode}</span>
-                                      <span className="subtitle">
-                                        {disasterTypeMapping[distItem.disasterCode.split('-')[0]] || "Unknown Disaster"}
-                                      </span>
-                                    </div>
+                            {/* Disaster Code */}
+                            <div className="details">
+                              <span className="title">{dist.disasterCode}</span>
+                              <span className="subtitle">{dist.disasterType}</span>
+                            </div>
 
-                                    {/* Barangay Name */}
-                                    <div className="brgy">
-                                      <span className="subtitle">{barangay.name}</span>
-                                    </div>
+                            {/* Barangay Name */}
+                            <div className="brgy">
+                              <span className="subtitle">{dist.barangayName}</span>
+                            </div>
 
-                                    {/* Actions */}
-                                    <div className="actions">
-                                      <button className="doneButton" onClick={() => handleEdit(dist._id)} >Edit</button>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            ))}
+                            {/* Actions */}
+                            <div className="actions">
+                              <button className="doneButton" onClick={() => handleEdit(dist._id)} >Distribute</button>
+                            </div>
                           </div>
                         ))
                       ) : (
@@ -797,9 +840,42 @@ const validateFields = () => {
                 {isEditMode ? (
                     <EditRDS />
                 ) : isViewMode ? (
-                  <ViewRDS />
+
+                  <div className="view-more-content">
+
+                  <div className="tabs-container">
+                    <div className="tabs">
+                      {affectedBarangays.map((barangay) => (
+                        <button
+                          key={barangay}
+                          className={activeBarangay === barangay ? "tab active" : "tab"}
+                          onClick={() => setActiveBarangay(barangay)}
+                        >
+                          {barangay}
+                        </button>   
+                      ))}
+                    </div>
+    
+                    <div className="dateday-container">
+                      <div className="day-box">Day {page + 1}</div>
+                      
+                      <div className="date-box">
+    
+                        <span className="year">{distributionDate ? distributionDate.year : "YYYY"}</span>
+                        <div className="month-year">
+                          <span className="month">{distributionDate ? distributionDate.month : "Month"}</span>
+                          <span className="day-number">{distributionDate ? distributionDate.day : "DD"}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <ViewRDS selectedBarangay={activeBarangay} distributionId= {ViewDistribution} setDistributionDate={setDistributionDate} setPage={setPage}/>
+                
+              </div>
+
                 ) : (
-                    <RDS />
+                  <RDS />
                 )}
               </div>
             )

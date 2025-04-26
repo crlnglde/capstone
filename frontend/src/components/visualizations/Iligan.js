@@ -242,10 +242,6 @@ const MapDisaster = () => {
 
         <div className="map-filter">
 
-
-
-
-
         </div>
 
         <div className="map-wrapper">
