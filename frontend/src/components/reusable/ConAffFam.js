@@ -175,8 +175,22 @@ const [step, setStep] = useState(1);
                 setError(""); // Clear previous errors
         
                 try {
-                    const response = await fetch(`http://localhost:3003/get-disaster/${disCode}`);
-                    const data = await response.json();
+
+                    let data=[];
+
+                    if(navigator.onLine){
+                        const response = await fetch(`http://localhost:3003/get-disaster/${disCode}`);
+                        data = await response.json();
+                    } else{
+
+                        const localData = localStorage.getItem("disasters");
+                        if (localData) {
+                          const parsedData = JSON.parse(localData); // 🛠️ Parse it first
+                          data = parsedData.find(d => d.disasterCode === disCode);
+                          console.log(data);
+                        }
+                        console.log(data)
+                    }
         
                     if (!data || !data.barangays) {
                         throw new Error("Invalid data received.");
@@ -230,17 +244,36 @@ const [step, setStep] = useState(1);
             if (!confirmConfirm) return;
 
             try {
-                const response = await axios.put(
-                    `http://localhost:3003/update-dafac-status/${disCode}/${disBarangay}/${familyId}`
-                );
-
-                setNotification({
-                    type: "success",
-                    title: "Success",
-                    message: response.data.message || "DAFAC status confirmed successfully!",
-                  });
-
-                setRefresh((prev) => !prev); 
+                if (navigator.onLine) {
+                    const response = await axios.put(
+                      `http://localhost:3003/update-dafac-status/${disCode}/${disBarangay}/${familyId}`
+                    );
+                
+                    setNotification({
+                      type: "success",
+                      title: "Success",
+                      message: response.data.message || "DAFAC status confirmed successfully!",
+                    });
+                
+                    setRefresh((prev) => !prev);
+                
+                  } else {
+                    let offlineUpdates = JSON.parse(localStorage.getItem("offlineDafacUpdates")) || [];
+                
+                    offlineUpdates.push({
+                      disCode,
+                      disBarangay,
+                      familyId
+                    });
+                
+                    localStorage.setItem("offlineDafacUpdates", JSON.stringify(offlineUpdates));
+                
+                    setNotification({
+                      type: "info",
+                      title: "Offline",
+                      message: "You are offline. Action saved and will sync automatically!",
+                    });
+                  }
             }catch (error) {
                 console.error("Error confirming DAFAC status:", error);
 
@@ -378,7 +411,11 @@ const [step, setStep] = useState(1);
                             <tbody>
 
                                 {displayResidents.length > 0 ? (
-                                    displayResidents.map((resident, index) => (
+                                    displayResidents.map((resident, index) => {
+                                        const offlineUpdates = JSON.parse(localStorage.getItem("offlineDafacUpdates")) || [];
+                                        const isOfflineConfirmed = offlineUpdates.some(update => update.familyId === resident.id);
+                                        const isConfirmed = resident.dafacStatus === "Confirmed" || isOfflineConfirmed;
+                                    return (
                                         <tr key={resident.id}>
                                             <td>{disBarangay}</td>
                                             <td>{resident.purok}</td>
@@ -417,24 +454,26 @@ const [step, setStep] = useState(1);
                                             <td>
 
                                             <button
+                                            //e modify ang css na dili maclick if true ang isConfirmed
                                             className={`res-submit-btn ${resident.dafacStatus === "Confirmed" ? "confirmed" : ""}`}
                                             
                                             onClick={() => handleConfirm(disCode, disBarangay, resident.id)}
                                             >
                                                 <span className="icon-text-wrapper">
-                                                    {resident.dafacStatus === "Confirmed" ? (
+                                                    {resident.dafacStatus === "Confirmed" || isConfirmed  ? (
                                                     <BiSolidBadgeCheck className="icon green-icon" />
                                                     ) : (
                                                     <i className="fa-regular fa-circle-check icon"></i>
                                                     )}
-                                                    {resident.dafacStatus === "Confirmed" ? "Confirmed" : "Confirm"}
+                                                    {resident.dafacStatus === "Confirmed" || isConfirmed  ? "Confirmed" : "Confirm"}
                                                 </span>
                                             </button>
 
 
                                             </td>
                                         </tr>
-                                    ))
+                                    );
+                                    })
                                   ) : (
                                     <tr>
                                       <td colSpan="6">No residents found.</td>

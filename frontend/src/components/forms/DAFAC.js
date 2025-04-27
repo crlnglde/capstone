@@ -92,7 +92,7 @@ const DAFAC= ({ activeResident, disasterData, setIsModalOpen, mode}) => {
         evacuation: activeResident.evacuation || "",
         extentDamage: activeResident.extentDamage || "",
         occupancy: activeResident.occupancy || "",
-        costDamage: activeResident.costDamage || 0,
+        costDamage: prevData.costDamage !== 0 ? prevData.costDamage : (activeResident.costDamage || 0),
         casualty: activeResident.casualty || [],
         regDate: activeResident.regDate ? activeResident.regDate.split("T")[0] : prevData.regDate,
       }));
@@ -292,10 +292,11 @@ const DAFAC= ({ activeResident, disasterData, setIsModalOpen, mode}) => {
     
     if (event) event.preventDefault(); // Prevent form refresh
   
-    const savedData = JSON.parse(localStorage.getItem("AffectedForms")) || [];
+    //const affectedData = JSON.parse(localStorage.getItem("AffectedForms")) || [];
+    const savedData = JSON.parse(localStorage.getItem("savedForms")) || [];
 
-    // Check if a matching form already exists
-    const existingIndex = savedData.findIndex((entry) =>
+  { /* // Check if a matching form already exists in AffectedForms
+    const existingIndex = affectedData.findIndex((entry) =>
       entry.barangay === formData.barangay &&
       entry.firstName === formData.firstName &&
       entry.middleName === formData.middleName &&
@@ -304,20 +305,22 @@ const DAFAC= ({ activeResident, disasterData, setIsModalOpen, mode}) => {
     );
 
     if (existingIndex !== -1) {
-      // If it exists, update the existing entry
-      savedData[existingIndex] = {
-        ...savedData[existingIndex],
+      // If it exists in AffectedForms, update it there
+      affectedData[existingIndex] = {
+        ...affectedData[existingIndex],
         ...formData
       };
+      localStorage.setItem("AffectedForms", JSON.stringify(affectedData));
     } else {
-      // Otherwise, add the new entry with a unique ID
+      // If it doesn't exist in AffectedForms, add it to savedForms
       const formDataWithId = { id: uuidv4(), ...formData };
       savedData.push(formDataWithId);
-    }
+      localStorage.setItem("savedForms", JSON.stringify(savedData));
+    }*/}
 
-    // Save the updated array to localStorage
+    const formDataWithId = { id: uuidv4(), ...formData };
+    savedData.push(formDataWithId);
     localStorage.setItem("savedForms", JSON.stringify(savedData));
-
   
     try {
       setLoading(true); // Start loading
@@ -693,8 +696,18 @@ const DAFAC= ({ activeResident, disasterData, setIsModalOpen, mode}) => {
 
                     <div className="cost-of-damage">
                       <span>Cost of Damage:</span>
-                      <input type="number" disabled={!formData.extentDamage && !formData.occupancy && formData.casualty.length === 0} value={formData.costDamage} onChange={(e) => {const newCostDamage = parseInt(e.target.value);
-                        console.log("Input Value: ", newCostDamage); setFormData({ ...formData, costDamage: parseInt(newCostDamage)})}}/>
+                      <input 
+                        type="text" 
+                        disabled={!formData.extentDamage && !formData.occupancy && formData.casualty.length === 0}
+                        value={formData.costDamage || ""}
+                        onChange={(e) => {
+                          const newValue = e.target.value;
+                          console.log("Input Value: ", newValue);
+                          setFormData(prev => ({
+                            ...prev,
+                            costDamage: newValue === "" ? "" : parseInt(newValue)
+                          }));
+                        }}/>
                     </div>
                   </div>
 
