@@ -92,18 +92,22 @@ const Distribution = ({ setNavbarTitle }) => {
   useEffect(() => {
     let title = `Distribution > ${activeTab === "list" ? "List" : "Visualization"}`;
   
-    if (activeTab === "list" && isInRDSFlow) {
+    if (activeTab === "list" && (isEditMode || isViewMode)) {
+      const stepTitles = {
+        edit: "Edit RDS",
+        view: "View RDS",
+      };
+  
       if (isEditMode) {
-        title += " > Edit RDS";
+        title += ` > ${stepTitles.edit}`;
       } else if (isViewMode) {
-        title += " > View RDS";
-      } else {
-        title += " > Add RDS";
+        title += ` > ${stepTitles.view}`;
       }
     }
   
     setNavbarTitle(title);
-  }, [activeTab, isInRDSFlow, isEditMode, isViewMode, setNavbarTitle]);
+  }, [activeTab, isEditMode, isViewMode, setNavbarTitle]);
+  
   
 
 
