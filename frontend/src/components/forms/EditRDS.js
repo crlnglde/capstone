@@ -50,9 +50,10 @@ const EditRDS = () => {
 
     setIsUpdated(true);
 
-    handleCloseModal(); // Close modal automatically
+    handleCloseModal();
     console.log(distributionData)
   };
+
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
@@ -123,7 +124,7 @@ const EditRDS = () => {
         setDistributionData({
           disasterCode: data.disasterCode || "",
           disasterDate: data.disasterDate || "",
-          barangayName: data.barangayName || "",
+          barangay: data.barangayName || "",
           assistanceType: data.distribution?.assistanceType || "",
           reliefItems: data.distribution?.reliefItems || [],
           receivedFrom: data.distribution?.receivedFrom || "",
@@ -151,86 +152,102 @@ const EditRDS = () => {
   const disasterDate = distributionData.disasterDate ? new Date(distributionData.disasterDate) : null;
   const formattedMonth = disasterDate ? disasterDate.toLocaleString("default", { month: "long" }) : "";
 
-  const handleSaveDistribution = async () => {
+  // Inside your component
+  useEffect(() => {
+    if (isUpdated) {
+      handleSignature();
+    }
+  }, [distributionData]);
+  
+  const handleSignature= async () => {
+    const confirmSubmit = window.confirm("Confirm Signature");
+    if (!confirmSubmit) return;
 
+    if(navigator.onLine) { 
+      const updatedFamilies = distributionData.families;
+
+      console.log(distributionId);
+  
+      const response = await axios.put(`http://localhost:3003/update-distribution/${distributionId}`, {
+        families: updatedFamilies
+      });
+  
+      if (response.status === 200) {
+        alert("Signature saved successfully!");
+        setIsUpdated(false);  
+      } else {
+        alert("Failed to save distribution data.");
+      }
+    }
+
+  }
+
+  const handleSaveDistribution = async () => {
     const confirmSubmit = window.confirm("Are you sure you want to submit this form?");
     if (!confirmSubmit) return;
-    
     try {
 
-      if(navigator.onLine) {  // Send only the updated families array to the backend to update their status
-        const updatedFamilies = distributionData.families;
-    
-        const response = await axios.put(`http://localhost:3003/update-distribution/${distributionId}`, {
-          families: updatedFamilies
-        });
-    
-        if (response.status === 200) {
-          alert("Distribution data saved successfully!");
-          setIsUpdated(false);  // Reset the update flag after successful save
-          window.location.reload()
-        } else {
-          alert("Failed to save distribution data.");
-        }
-        } else {
-          console.log(distributionData)
-          const editedDist = {
-            ...distributionData
+        console.log(distributionData)
+        const editedDist = {
+          ...distributionData
+        };
+
+        console.log("edited dist", editedDist)
+      
+        // Get offlineDistributions
+        const offlineData = JSON.parse(localStorage.getItem("offlineDistributions")) || [];
+        console.log("Offline Data", offlineData)
+
+        const index = offlineData.findIndex(dist => 
+          dist.disasterCode === distributionData.disasterCode &&
+          (dist.barangay === distributionData.barangay || dist.barangay === distributionData.barangayName) &&
+          dist.families.some(fam => fam.familyHead === selectedFamily.familyHead) &&
+          dist.distributionId === distributionData.distributionId
+        );
+        
+        console.log("index", index)
+        console.log("Offline Data", offlineData)
+        console.log("Distribution Data")
+        console.log(distributionData.disasterCode)
+        console.log(distributionData.barangayName)
+        console.log(selectedFamily.familyHead)
+        console.log(distributionData.distributionId)
+      
+        if (index !== -1) {
+          // 🔁 It exists → update the existing one
+          offlineData[index] = { 
+            ...editedDist, 
+            status: "Pending" // ✅ Add status here
           };
-
-          console.log("edited dist", editedDist)
+          localStorage.setItem("offlineDistributions", JSON.stringify(offlineData));
+          alert("Changes saved offline and will sync later.");
+        } else {
+          const edited = JSON.parse(localStorage.getItem("editedDistributions")) || [];
         
-          // Get offlineDistributions
-          const offlineData = JSON.parse(localStorage.getItem("offlineDistributions")) || [];
-          console.log("Offline Data", offlineData)
-
-          const index = offlineData.findIndex(dist => 
+          // Check if editedDist already exists in editedDistributions
+          const editedIndex = edited.findIndex(dist => 
             dist.disasterCode === distributionData.disasterCode &&
-            (dist.barangay === distributionData.barangay || dist.barangayName === distributionData.barangayName) &&
-            dist.families.some(fam => fam.familyHead === selectedFamily.familyHead) &&
-            dist.distributionId === distributionData.distributionId
+            dist.barangayName === distributionData.barangayName &&
+            dist.families.some(fam => fam.familyHead === selectedFamily.familyHead)
           );
-          
-          console.log("index", index)
-          console.log("Offline Data", offlineData)
-          console.log("Distribution Data")
-          console.log(distributionData.disasterCode)
-          console.log(distributionData.barangayName)
-          console.log(selectedFamily.familyHead)
-          console.log(distributionData.distributionId)
         
-          if (index !== -1) {
-            // 🔁 It exists → update the existing one
-            offlineData[index] = editedDist;
-            localStorage.setItem("offlineDistributions", JSON.stringify(offlineData));
-            alert("Changes saved offline and will sync later.");
+          if (editedIndex !== -1) {
+            //Update existing edited entry
+            edited[editedIndex] = editedDist;
+            alert("Existing offline edit updated and will sync later.");
           } else {
-            const edited = JSON.parse(localStorage.getItem("editedDistributions")) || [];
-          
-            // Check if editedDist already exists in editedDistributions
-            const editedIndex = edited.findIndex(dist => 
-              dist.disasterCode === distributionData.disasterCode &&
-              dist.barangayName === distributionData.barangayName &&
-              dist.families.some(fam => fam.familyHead === selectedFamily.familyHead)
-            );
-          
-            if (editedIndex !== -1) {
-              //Update existing edited entry
-              edited[editedIndex] = editedDist;
-              alert("Existing offline edit updated and will sync later.");
-            } else {
-              // ➕ Add new edit
-              edited.push(editedDist);
-              alert("Edit saved offline and will sync when online.");
-            }
-          
-            localStorage.setItem("editedDistributions", JSON.stringify(edited));
-            setIsUpdated(false); // Reset your flag
+            // ➕ Add new edit
+            edited.push(editedDist);
+            alert("Edit saved offline and will sync when online.");
           }
         
+          localStorage.setItem("editedDistributions", JSON.stringify(edited));
           setIsUpdated(false); // Reset your flag
-          //window.location.reload()
-        }      
+        }
+      
+        setIsUpdated(false); // Reset your flag
+        window.location.reload()
+
       } catch (error) {
         console.error("Error saving distribution data:", error);
         alert("An error occurred while saving the data.");
@@ -323,7 +340,7 @@ const EditRDS = () => {
           </p>  
         </div>
 
-        {(isUpdated || !distributionData.families.every((family) => family.status === "Done")) && (
+        {!navigator.onLine && (isUpdated || !distributionData.families.every((family) => family.status === "Done")) && (
           <button className="save-btn" onClick={handleSaveDistribution}>
             Save Distribution Data
           </button>

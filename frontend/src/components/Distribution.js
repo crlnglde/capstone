@@ -169,12 +169,12 @@ const Distribution = ({ setNavbarTitle }) => {
     setPage(0);
   };
 
-  const handleSyncDataClick = () => {
+  const handleSyncDataClick = async () => {
     if (navigator.onLine) {
-      syncRDSData(setNotification); 
-      syncEditedData(setNotification); 
+      await syncRDSData(setNotification); 
+      await syncEditedData(setNotification); 
     }
-  };
+  };  
 
   //open modal for "add" distribution
   const openModal = (disaster) => {

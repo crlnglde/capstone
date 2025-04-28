@@ -195,11 +195,11 @@ const AddDisaster = () => {
         const disasterData = JSON.parse(localStorage.getItem("disasterData")) || null;
         const residentData = JSON.parse(localStorage.getItem("savedForms")) || [];
    
-        if (!disasterData || residentData.length === 0) {
+       {/*if (!disasterData || residentData.length === 0) {
             setNotification({ type: "error", title: "Error", message: "No data found in localStorage to save." });
             setTimeout(() => setNotification(null), 3000);
             return;
-        }
+        }*/}
 
         if (!disasterData){
             setNotification({ type: "error", title: "Error", message: "No data found in localStorage to save." });
@@ -213,7 +213,7 @@ const AddDisaster = () => {
             
             const barangayName = disasterData.selectedBarangays || "Unknown Barangay";
 
-            {/*const groupedByBarangay = {
+            const groupedByBarangay = {
                 [barangayName]: residentData.filter(res => res.barangay === barangayName)
             };
             
@@ -221,10 +221,10 @@ const AddDisaster = () => {
             let barangays = Object.entries(groupedByBarangay).map(([barangayName, residents]) => ({
                 name: barangayName,
                 affectedFamilies: [],
-            }));*/}
+            }));
 
              // Group resident data by barangay
-             const groupedByBarangay = residentData.reduce((acc, resident) => {
+             {/*const groupedByBarangay = residentData.reduce((acc, resident) => {
                 const barangay = resident.barangay || "Unknown Barangay";
                 if (!acc[barangay]) {
                     acc[barangay] = [];
@@ -265,8 +265,7 @@ const AddDisaster = () => {
                     regDate: resident.regDate || "",
                     dafacStatus: resident.dafacStatus || "",
                 })),
-            }));
-
+            })); */}
             console.log("Barangays",barangays);
     
             // Check if disaster already exists
@@ -279,12 +278,17 @@ const AddDisaster = () => {
     
                 barangays.forEach(newBarangay => {
                     const existingBarangay = updatedBarangays.find(b => b.name === newBarangay.name);
+                
                     if (existingBarangay) {
-                        existingBarangay.affectedFamilies.push(...newBarangay.affectedFamilies);
+                        const newFamilies = newBarangay.affectedFamilies.filter(newFamily => 
+                            !existingBarangay.affectedFamilies.some(existingFamily => existingFamily.id === newFamily.id)
+                        );
+                        existingBarangay.affectedFamilies.push(...newFamilies);
                     } else {
                         updatedBarangays.push(newBarangay);
                     }
                 });
+                                
                     console.log("hehe")
                 const updateResponse = await fetch(`http://localhost:3003/update-disaster/${disasterCode}`, {
                     method: "PUT",
@@ -356,15 +360,53 @@ const AddDisaster = () => {
         if(navigator.onLine){
             syncData();
         } else{
-            // Retrieve disasterData and residentData from localStorage
+
             const disasterData = JSON.parse(localStorage.getItem("disasterData")) || null;
             const residentData = JSON.parse(localStorage.getItem("savedForms")) || [];
 
+            const barangayName = disasterData.selectedBarangays || "Unknown Barangay";
+
+            const groupedByBarangay = {
+                [barangayName]: residentData.filter(res => res.barangay === barangayName)
+            };
+            
+            // Prepare barangays array
+            let barangays = Object.entries(groupedByBarangay).map(([barangayName, residents]) => ({
+                name: barangayName,
+                affectedFamilies: [],
+            }));
+
+            const _id = `temp-${Date.now()}`;
+
+            const disasterDocument = {
+                _id,
+                disasterCode,
+                disasterType,
+                disasterStatus,
+                disasterDateTime: new Date(date),
+                barangays
+            };
+
+            // Load existing offline disasters first
+            const existingOfflineDisasters = JSON.parse(localStorage.getItem('offlineDisasterData')) || [];
+
+            // Add the new disasterDocument
+            const updatedOfflineDisasters = [...existingOfflineDisasters, disasterDocument];
+
+            // Save back to localStorage
+            localStorage.setItem('offlineDisasterData', JSON.stringify(updatedOfflineDisasters));
+
+            setNotification({ type: "info", title: "Offline", message: "You're offline. Data saved locally and will sync when you're back online." });
+            setTimeout(() => {
+                setNotification(null);
+                setLoading(false); 
+                navigate("/disaster");
+            }, 1000); 
         }
     };    
 
     const Step1 = (
-        <form className="add-form" onSubmit={handleNextClick}>
+        <form className="add-form" onSubmit={handleFinalSubmit}>
 
 
             <div className="add-form-h2">
@@ -473,7 +515,7 @@ const AddDisaster = () => {
 
                     <div className="dstr-btn">
                         <button type="submit" className="dstr-submit-btn">
-                        Next
+                        Save
                         </button>
                     </div>
 
