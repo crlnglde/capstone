@@ -221,26 +221,99 @@ useEffect(() => {
   const transformAndSetDisasters = (data) => {
     const transformedData = data.flatMap((disaster) =>
       (disaster.barangays || []).map((brgy) => {
-        let maleCount = 0, femaleCount = 0;
-
-        (brgy.affectedFamilies || []).forEach((family) => {
+        // Initialize counters
+        let maleCount = 0, femaleCount = 0, othersCount = 0;
+        let maleSenior = 0, femaleSenior = 0, othersSenior= 0;
+        let maleAdult = 0, femaleAdult = 0, othersAdult=0;
+        let maleMinor = 0, femaleMinor = 0, othersMinor=0 ;
+        let is4ps = 0, isPWD = 0, isPreg = 0, isIps = 0, isSolo = 0;
+    
+        // Count in affected families
+        brgy.affectedFamilies.forEach(family => {
           if (family.sex === "M") maleCount++;
           if (family.sex === "F") femaleCount++;
+          if (family.sex === "O") othersCount++;
+    
+          // Check age if available
+          if (family.age !== undefined && family.age !== null) {
+            if (family.sex === "M") {
+              if (family.age >= 60) maleSenior++;
+              else if (family.age >= 18) maleAdult++;
+              else maleMinor++;
+            } else if (family.sex === "F") {
+              if (family.age >= 60) femaleSenior++;
+              else if (family.age >= 18) femaleAdult++;
+              else femaleMinor++;
+            } else if (family.sex === "O") {
+              if (family.age >= 60) othersSenior++;
+              else if (family.age >= 18) othersAdult++;
+              else othersMinor++;
+            }
+          }
+    
+          // Dependents
+          family.dependents?.forEach(dependent => {
+            if (dependent.sex === "Male") maleCount++;
+            if (dependent.sex === "Female") femaleCount++;
+            if (family.sex === "Others") othersCount++;
+
+            if (dependent.age !== undefined && dependent.age !== null) {
+              if (dependent.sex === "Male") {
+                if (dependent.age >= 60) maleSenior++;
+                else if (dependent.age >= 18) maleAdult++;
+                else maleMinor++;
+              } else if (dependent.sex === "Female") {
+                if (dependent.age >= 60) femaleSenior++;
+                else if (dependent.age >= 18) femaleAdult++;
+                else femaleMinor++;
+              } else if (family.sex === "O") {
+                if (family.age >= 60) othersSenior++;
+                else if (family.age >= 18) othersAdult++;
+                else othersMinor++;
+              }
+            }
+          });
+    
+          if (family.is4ps) is4ps++;
+          if (family.isPWD) isPWD++;
+          if (family.isPreg) isPreg++;
+          if (family.isIps) isIps++;
+          if (family.isSolo) isSolo++;
         });
 
         return {
           disasterCode: disaster.disasterCode,
           disasterType: disaster.disasterType,
+          disasterStatus: disaster.disasterStatus,
           disasterDateTime: moment(disaster.disasterDateTime).format("MMMM D, YYYY h:mm A"),
           barangay: brgy.name || "Unknown",
-          affectedFamilies: (brgy.affectedFamilies || []).length,
+          affectedFamilies: Array.isArray(brgy.affectedFamilies) ? brgy.affectedFamilies.length : 0,
+          affectedPersons: brgy.affectedFamilies.reduce(
+            (sum, family) => sum + 1 + (family.dependents ? family.dependents.length : 0),
+            0
+          ),
           sexBreakdown: {
             males: maleCount,
             females: femaleCount,
+            others: othersCount,
+            maleSenior,
+            femaleSenior,
+            othersSenior,
+            maleAdult,
+            femaleAdult,
+            othersAdult,
+            maleMinor,
+            femaleMinor,
+            othersMinor
           },
+          is4ps: is4ps,
+          isPWD: isPWD,
+          isSolo: isSolo,
+          isPreg: isPreg,
+          isIps: isIps,
         };
       })
-    );
+    );    
 
     setDisasters(transformedData);
   };
@@ -670,13 +743,33 @@ useEffect(() => {
 
               <div className="viewmore-pop">
 
-                <div className="vm-form-group">
-                  <label>Sex Breakdown</label>
-                  <div className="vm-input-group">
-                    <span className="icon"><i className="fa-solid fa-user"></i></span>
-                    <span className="label">M: {selectedDisaster.sexBreakdown.males} F: {selectedDisaster.sexBreakdown.females}</span>
-                  </div>
+              <div className="vm-form-group">
+                <label>Sex Breakdown</label>
+                <div className="vm-input-group">
+                  <span className="icon"><i className="fa-solid fa-user"></i></span>
+                  <span className="label">
+                    Male: {selectedDisaster.sexBreakdown.males}  | Female: {selectedDisaster.sexBreakdown.females}  | Others: {selectedDisaster.sexBreakdown.others}
+                  </span>
                 </div>
+
+                {/* Breakdown by Age Groups */}
+                <div className="vm-input-group" style={{ marginTop: '8px' }}>
+                  <span className="label" style={{ fontSize: '0.9em' }}>
+                    Senior (60+): Male: {selectedDisaster.sexBreakdown.maleSenior}   | Female: {selectedDisaster.sexBreakdown.femaleSenior}   | Others: {selectedDisaster.sexBreakdown.othersSenior}
+                  </span>
+                </div>
+                <div className="vm-input-group">
+                  <span className="label" style={{ fontSize: '0.9em' }}>
+                    Adult (18-59): Male: {selectedDisaster.sexBreakdown.maleAdult}   | Female: {selectedDisaster.sexBreakdown.femaleAdult}  | Others: {selectedDisaster.sexBreakdown.othersAdult}
+                  </span>
+                </div>
+                <div className="vm-input-group">
+                  <span className="label" style={{ fontSize: '0.9em' }}>
+                    Minor (0-17): Male: {selectedDisaster.sexBreakdown.maleMinor}  | Female: {selectedDisaster.sexBreakdown.femaleMinor}  | Others: {selectedDisaster.sexBreakdown.othersMinor}
+                  </span>
+                </div>
+              </div>
+
 
               </div>
 
