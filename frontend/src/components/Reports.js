@@ -34,7 +34,7 @@ const Reports = ({setNavbarTitle}) => {
   const [distribution, setDistribution] = useState([]);
   const [selectedReport, setSelectedReport] = useState(null);
   const [activeTab, setActiveTab] = useState("SPORADIC");
-
+  const [brgyNames, setBrgyNames] = useState("SPORADIC");
   const [disasters, setDisasters] = useState([]);
   const [filteredReports, setFilteredReports] = useState([]);
 
@@ -51,44 +51,48 @@ const Reports = ({setNavbarTitle}) => {
       }
     }, [location.pathname, setNavbarTitle]);
 
+    console.log(reports)
+
 
   useEffect(() => {
+    const countAffectedFamilies = (barangays) => {
+      return barangays.reduce((total, barangay) => {
+        return total + (barangay.affectedFamilies ? barangay.affectedFamilies.length : 0);
+      }, 0);
+    };    
     const transformDisasters = (data) => {
       return data
         .sort((a, b) => new Date(b.disasterDateTime) - new Date(a.disasterDateTime))
         .map(disaster => {
-          const totalFamilies = disaster.barangays.reduce((sum, barangay) =>
-            sum + barangay.affectedFamilies.length, 0
-          );
-  
-          const barangayNames = disaster.barangays.map(barangay => barangay.name).join(", ");
-          const affectedFamilies = disaster.barangays.flatMap(barangay => barangay.affectedFamilies);
-  
+          const barangays = disaster.barangays.map(barangay => ({
+            name: barangay.name,
+            affectedFamilies: barangay.affectedFamilies,
+          }));
+    
+          const totalFamilies = countAffectedFamilies(disaster.barangays);
+    
           const date = new Date(disaster.disasterDateTime);
           const formattedDate = date.toLocaleDateString('en-US', {
             year: 'numeric',
             month: '2-digit',
             day: '2-digit',
           });
-  
+    
           const formattedTime = date.toLocaleTimeString('en-US', {
             hour: '2-digit',
             minute: '2-digit',
             hour12: true,
           });
-  
-          const dateTime = `${formattedDate} ${formattedTime}`;
-  
+    
           return {
             id: disaster.disasterCode,
             date: formattedDate,
             time: formattedTime,
             year: date.getFullYear(),
             month: date.getMonth() + 1,
-            barangays: barangayNames,
+            barangays, // now barangays is an array with { name, affectedFamilies }
             type: disaster.disasterType,
             households: totalFamilies,
-            families: affectedFamilies,
           };
         });
     };
@@ -877,7 +881,14 @@ const Reports = ({setNavbarTitle}) => {
                   </div>
 
                 
-                    <p className="barangay-name">{report.barangays}</p>
+                  <p className="barangay-name">
+                    {report.barangays.map((barangay, index) => (
+                      <React.Fragment key={index}>
+                        {barangay.name} ({barangay.affectedFamilies.length})
+                        {index !== report.barangays.length - 1 && ", "}
+                      </React.Fragment>
+                    ))}
+                  </p>
                     <p className="report-type">{report.type}</p>
                     <div className="report-info">
                       <span><FaUsers /> {report.households} Families</span>

@@ -18,23 +18,31 @@ const FDR= ({ report, distribution }) => {
     const [totalEstimatedCost, setTotalEstimatedCost] = useState(0);
   
     useEffect(() => {
-      let dependents = 0;
-      let personsAffected = 0;
-      let costDamage = 0;
-      let evacuation = "";
-  
-      report.families.forEach(family => {
-        dependents += family.dependents.length;
-        personsAffected += 1 + family.dependents.length;
-        costDamage += family.costDamage;
-        evacuation = family.evacuation
-      });
-
-      setEvacuation(evacuation);
-      setTotalDependents(dependents);
-      setTotalPersonsAffected(personsAffected);
-      setTotalCostDamage(costDamage);
-    }, [report]);
+        if (!report?.barangays || report.barangays.length === 0) return;
+      
+        let totalDependents = 0;
+        let totalPersonsAffected = 0;
+        let totalCostDamage = 0;
+        let evacuation = "";
+      
+        // Loop through each barangay
+        report.barangays.forEach(barangay => {
+          // Loop through affected families in the barangay
+          barangay.affectedFamilies.forEach(family => {
+            totalDependents += family.dependents?.length || 0;
+            totalPersonsAffected += 1 + (family.dependents?.length || 0); // 1 for the main person + dependents
+            totalCostDamage += family.costDamage || 0;
+      
+            // If we want to pick the evacuation from each family (e.g., last one overwrites)
+            evacuation = family.evacuation;
+          });
+        });
+      
+        setEvacuation(evacuation);
+        setTotalDependents(totalDependents);
+        setTotalPersonsAffected(totalPersonsAffected);
+        setTotalCostDamage(totalCostDamage);
+      }, [report]);      
 
     const barangays = distribution?.[0]?.barangays ?? [];
     

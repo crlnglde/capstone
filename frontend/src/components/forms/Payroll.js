@@ -7,14 +7,67 @@ const Payroll= ({ report}) => {
 
     console.log("report",report)
 
-    const employees = report?.families
-    ?.filter(family => family.dafacStatus === "Confirmed")
-    .map((family, index) => ({
-        name: `${family.firstName} ${family.middleName} ${family.lastName}`,
-        category: family.extentDamage || "None",
-        address: `${family.purok}, ${report.barangays}` || "Unknown",
-        amount: family.costDamage || 0,
-    })) || [];
+    const employees = [];
+
+    report?.barangays?.forEach((barangay) => {
+        barangay.affectedFamilies
+        ?.filter((family) => family.dafacStatus === "Confirmed")
+        ?.forEach((family) => {
+            // Occupancy Check
+            if (family.occupancy === "Renter" || family.occupancy === "Sharer") {
+                employees.push({
+                    name: `${family.firstName} ${family.middleName || ""} ${family.lastName}`.trim(),
+                    category: family.occupancy === "Renter" ? "Renter" : "Sharer",
+                    address: `${family.purok || ""}, ${barangay.name}`.trim() || "Unknown", // barangay.name
+                    amount: 3500,
+                });
+            } else if (family.occupancy === "Owner") {
+                let amount = 0;
+                let category = family.extentDamage || "None";
+
+                if (family.extentDamage?.toLowerCase() === "totally") {
+                    amount = 10000;
+                } else if (family.extentDamage?.toLowerCase() === "partially") {
+                    amount = 5000;
+                } else if (family.extentDamage?.toLowerCase() === "flooded") {
+                    amount = 3000;
+                }
+
+                employees.push({
+                    name: `${family.firstName} ${family.middleName || ""} ${family.lastName}`.trim(),
+                    category,
+                    address: `${family.purok || ""}, ${barangay.name}`.trim() || "Unknown",
+                    amount,
+                });
+            }
+
+            // Casualty Check (dead and injured)
+            if (Array.isArray(family.casualty) && family.casualty.length > 0) {
+                family.casualty.forEach((casualty) => {
+                    if (casualty.type.toLowerCase() === "dead") {
+                        casualty.names.forEach((name) => {
+                            employees.push({
+                                name: `${name}`.trim(),
+                                category: "Casualty (Dead)",
+                                address: `${family.purok || ""}, ${barangay.name}`.trim() || "Unknown",
+                                amount: 10000,
+                            });
+                        });
+                    } else if (casualty.type.toLowerCase() === "injured") {
+                        casualty.names.forEach((name) => {
+                            employees.push({
+                                name: `${name}`.trim(),
+                                category: "Injured",
+                                address: `${family.purok || ""}, ${barangay.name}`.trim() || "Unknown",
+                                amount: 3000,
+                            });
+                        });
+                    }
+                });
+            }
+        });
+    });
+
 
     const maxRows = 15;
     const emptyRows = maxRows - employees.length;
