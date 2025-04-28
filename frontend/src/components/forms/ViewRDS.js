@@ -7,7 +7,7 @@ import ICImage from '../../pic/IC.png';
 import cswdImage from '../../pic/cswd.jpg';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
-const ViewRDS = ({selectedBarangay, distributionId, setDistributionDate, setPage, page}) => {
+const ViewRDS = ({selectedBarangay, distributionId, setDistributionDate, page, setPage}) => {
   const navigate = useNavigate();  
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
