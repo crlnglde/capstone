@@ -2,8 +2,10 @@ export const syncRDSData = async (setNotification) => {
     if (!navigator.onLine) return;
   
     const offlineDataRaw = JSON.parse(localStorage.getItem("offlineDistributions")) || [];
-    const offlineData = offlineDataRaw.map(({ distributionId, ...rest }) => rest);
-
+    const offlineData = offlineDataRaw.map(({ distributionId, families, ...rest }) => ({
+      ...rest,
+      families: families?.map(({ _id, ...familyRest }) => familyRest) || []
+    }));
   
     try {
       // Sync newly created distributions

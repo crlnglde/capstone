@@ -16,6 +16,8 @@ import AddAffFam from "./reusable/AddAffFam";
 import EditAffFam from "./reusable/EditAffFam";
 import ConAffFam from "./reusable/ConAffFam";
 import { syncDAFACData } from "../components/sync/syncDisaster";
+import { syncDisasterData } from "../components/sync/syncAddDisaster";
+import { syncConfirmData } from "../components/sync/syncConfirmData";
 import Notification from "./again/Notif";
 import "../css/Disaster.css";
 
@@ -108,9 +110,14 @@ const Disaster = ({ setNavbarTitle }) => {
     setIsModalOpen(true);
   };
 
-  const handleSyncDataClick = () => {
+  const handleSyncDataClick = async () => {
     if (navigator.onLine) {
-      syncDAFACData(setNotification); 
+      if(role !== "CSWD"){
+        await syncDisasterData(setNotification); 
+        await syncDAFACData(setNotification); 
+      }else{
+        await syncConfirmData(setNotification); 
+      }
     }
   };
 
@@ -151,28 +158,46 @@ useEffect(() => {
   const fetchDisasters = async () => {
     let disasterData = [];
 
-    // Load from localStorage first (if available)
-    const localData = localStorage.getItem("disasters");
-    if (localData) {
-      try {
-        const parsed = JSON.parse(localData);
-        if (Array.isArray(parsed)) {
-          disasterData = parsed;
-          transformAndSetDisasters(parsed);
-        }
-      } catch (e) {
-        console.error("Failed to parse local disasters data", e);
-      }
-    }
-
     // Fetch updated data from API
     try {
-      const response = await axios.get("http://localhost:3003/get-disasters");
+      if (navigator.onLine){
+        const response = await axios.get("http://localhost:3003/get-disasters");
       if (Array.isArray(response.data)) {
         disasterData = response.data;
         transformAndSetDisasters(disasterData);
       } else {
         console.error("Expected an array but got", response.data);
+      }}
+      else{
+            // Load from localStorage first (if available)
+        const localData = localStorage.getItem("disasters");
+        const offlineData = localStorage.getItem("offlineDisasterData");
+
+        let parsedLocal = [];
+        let parsedOffline = [];
+
+        if (localData) {
+          try {
+            parsedLocal = JSON.parse(localData);
+            if (!Array.isArray(parsedLocal)) parsedLocal = [];
+          } catch (e) {
+            console.error("Failed to parse local disasters data", e);
+          }
+        }
+  
+        if (offlineData) {
+          try {
+            parsedOffline = JSON.parse(offlineData);
+            if (!Array.isArray(parsedOffline)) parsedOffline = [];
+          } catch (e) {
+            console.error("Failed to parse offline disaster data", e);
+          }
+        }
+  
+        // Combine both arrays
+        disasterData = [...parsedLocal, ...parsedOffline];
+        localStorage.setItem('offlineDisaster', JSON.stringify(disasterData));
+        transformAndSetDisasters(disasterData);
       }
     } catch (error) {
       console.error("Error fetching disasters data:", error);

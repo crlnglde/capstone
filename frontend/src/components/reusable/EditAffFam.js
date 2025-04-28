@@ -163,7 +163,7 @@ const EditAffFam = ({disBarangay, disCode, setStep}) => {
                     setResidents(barangayData.affectedFamilies);
                     }else{
                     // Try fallback to localStorage
-                    const localData = localStorage.getItem("disasters")
+                    const localData = localStorage.getItem("offlineDisaster")
                     const savedForms = localStorage.getItem("AffectedForms");
 
                     const dData = JSON.parse(localData);
@@ -231,6 +231,7 @@ const EditAffFam = ({disBarangay, disCode, setStep}) => {
         }, [disCode, disBarangay]);
     
         const syncData = async () => {
+            console.log("haha")
             const disasterData = JSON.parse(localStorage.getItem("disasterData"));
             const residentData = JSON.parse(localStorage.getItem("savedForms")) || [];
         
@@ -309,37 +310,78 @@ const EditAffFam = ({disBarangay, disCode, setStep}) => {
             setLoading(true);
         
             if (navigator.onLine) {
+                console.log("hihi")
                 syncData();
             } else {
                 const savedForms = JSON.parse(localStorage.getItem("savedForms") || "[]");
-            
+                const offlineDisasterData = JSON.parse(localStorage.getItem("offlineDisasterData") || "[]");
+                let affectedForms = JSON.parse(localStorage.getItem("AffectedForms") || "[]");
+
                 savedForms.forEach(newForm => {
-                    const index = savedForms.findIndex(existingForm =>
-                        existingForm.firstName.trim().toLowerCase() === newForm.firstName.trim().toLowerCase() &&
-                        existingForm.lastName.trim().toLowerCase() === newForm.lastName.trim().toLowerCase() &&
-                        existingForm.bdate === newForm.bdate &&
-                        existingForm.disasterCode === newForm.disasterCode &&
-                        existingForm.barangay?.trim().toLowerCase() === newForm.barangay?.trim().toLowerCase()
-                    );
-            
-                    if (index !== -1) {
-                        // Update existing form
-                        savedForms[index] = { ...savedForms[index], ...newForm };
-                    } else {
-                        // Add as new form
-                        savedForms.push(newForm);
+                    let formUpdated = false;
+
+                    // 1. Check inside OfflineDisasterData -> barangays -> affectedFamilies
+                    for (let disaster of offlineDisasterData) {
+                        for (let barangay of disaster.barangays || []) {
+                            const familyIndex = barangay.affectedFamilies?.findIndex(existingForm =>
+                                existingForm.firstName.trim().toLowerCase() === newForm.firstName.trim().toLowerCase() &&
+                                existingForm.lastName.trim().toLowerCase() === newForm.lastName.trim().toLowerCase() &&
+                                existingForm.bdate === newForm.bdate &&
+                                barangay.name.trim().toLowerCase() === newForm.barangay?.trim().toLowerCase()
+                            );
+
+                            if (familyIndex !== -1) {
+                                // Update the form inside affectedFamilies
+                                barangay.affectedFamilies[familyIndex] = { ...barangay.affectedFamilies[familyIndex], ...newForm };
+                                formUpdated = true;
+                                break; // Stop after finding and updating
+                            }
+                        }
+                        if (formUpdated) break; // Stop searching disasters once updated
+                    }
+
+                    if (formUpdated){
+                        console.log("hehe")
+                    }
+
+                    if (!formUpdated) {
+                        // 2. Check inside AffectedForms
+                        const index = affectedForms.findIndex(existingForm =>
+                            existingForm.firstName.trim().toLowerCase() === newForm.firstName.trim().toLowerCase() &&
+                            existingForm.lastName.trim().toLowerCase() === newForm.lastName.trim().toLowerCase() &&
+                            existingForm.bdate === newForm.bdate &&
+                            existingForm.barangay?.trim().toLowerCase() === newForm.barangay?.trim().toLowerCase()
+                        );
+
+                        if (index !== -1) {
+                            // Update the form inside AffectedForms
+                            affectedForms[index] = { ...affectedForms[index], ...newForm };
+                        } else {
+                            // 3. If not found anywhere, add as new to AffectedForms
+                            affectedForms.push(newForm);
+                        }
                     }
                 });
-            
-                localStorage.setItem("AffectedForms", JSON.stringify(savedForms));
+
+                // Save back updated data
+                localStorage.setItem("offlineDisasterData", JSON.stringify(offlineDisasterData));
+                localStorage.setItem("AffectedForms", JSON.stringify(affectedForms));
+
+                // Clear the temporary saved forms
                 localStorage.removeItem("savedForms");
-                setNotification({ type: "info", title: "Offline", message: "You're offline. Data updated locally and will sync when you're back online." });
-            
+
+                setNotification({
+                    type: "info",
+                    title: "Offline",
+                    message: "You're offline. Data updated locally and will sync when you're back online."
+                });
+
                 setTimeout(() => {
                     setNotification(null);
                     setStep(1);
                     setLoading(false);
                 }, 2000);
+                window.location.reload();
             }
         };
         

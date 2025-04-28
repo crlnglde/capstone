@@ -160,7 +160,8 @@ const AddAffFam = ({disBarangay, disCode, setStep}) => {
                     }
                 }
 
-                try {
+                if(navigator.onLine) {
+                    try {
                     const response = await axios.get(`http://localhost:3003/get-brgyresidents?barangay=${barangay}`);
                     if (!response.data || response.data.length === 0) {
                         console.warn(`No residents found for '${barangay}'`);
@@ -168,11 +169,12 @@ const AddAffFam = ({disBarangay, disCode, setStep}) => {
                     } else {
                         setResidents(response.data);
                     }
-                } catch (err) {
-                    console.error("Error fetching residents:", err);
-                    setError("Failed to fetch residents. Please try again.");
-                } finally {
-                    setIsLoading(false);
+                    } catch (err) {
+                        console.error("Error fetching residents:", err);
+                        setError("Failed to fetch residents. Please try again.");
+                    } finally {
+                        setIsLoading(false);
+                    }
                 }
             };
         
@@ -230,10 +232,16 @@ const AddAffFam = ({disBarangay, disCode, setStep}) => {
                     setAffectedFamilies(barangayData.affectedFamilies);
                     }else{
                     // Try fallback to localStorage
-                    const localData = localStorage.getItem("disasters")
-
+                    const localData = localStorage.getItem("offlineDisaster")
+                    const savedForms = localStorage.getItem("AffectedForms");
+                    console.log("affected forms", savedForms)
+                    
                     const dData = JSON.parse(localData);
+                    console.log("offline", dData)
+                    const savedFormData = JSON.parse(savedForms || "[]");
                     const disasterData = dData.find(d => d.disasterCode === disCode);
+                    console.log("saved form", savedFormData)
+                    console.log("offline disasters", disasterData)
 
                     
                     if (disasterData) {
@@ -253,14 +261,30 @@ const AddAffFam = ({disBarangay, disCode, setStep}) => {
         
                             const barangayData = disasterData.barangays?.find(b => b.name === disBarangay);
                             setSelectedBarangays(barangayData?.name || "");
+                            console.log("barangay data", barangayData)
         
-                            if (!barangayData?.affectedFamilies) {
-                                setAffectedFamilies([]);
+                            let residentsList = barangayData?.affectedFamilies || [];
+
+                            console.log(disCode)
+                            console.log(disBarangay)
+                            const unsyncedResidents = savedFormData.filter(form =>
+                                form.disasterCode === disCode && form.barangay === disBarangay
+                            );
+
+                            console.log(unsyncedResidents)
+
+                            if (unsyncedResidents.length > 0) {
+                                console.log("Including unsynced residents from savedform:", unsyncedResidents);
+                                // Optional: Mark unsynced entries for UI feedback
+                                const flaggedUnsynced = unsyncedResidents.map(u => ({ ...u, unsynced: true }));
+                                residentsList = [...residentsList, ...flaggedUnsynced];
+                            }
+
+                            if (residentsList.length === 0) {
                                 console.warn("No affected families found for this barangay in offline data.");
-                                return;
                             }
         
-                            setAffectedFamilies(barangayData.affectedFamilies);
+                            setAffectedFamilies(residentsList);
                         } catch (parseErr) {
                             console.error("Failed to parse offline data:", parseErr);
                             setError("No usable offline data available.");
@@ -369,28 +393,76 @@ const AddAffFam = ({disBarangay, disCode, setStep}) => {
                 syncData();
             } else {
                 const residentData = JSON.parse(localStorage.getItem("savedForms")) || [];
-
+            
                 const updatedForms = residentData.map(form => ({
                     ...form,
-                    disasterCode: disasterCode,  // make sure disasterCode is available in scope
+                    disasterCode: disasterCode, // make sure disasterCode is available
                 }));
-        
-                // Get current saved forms in localStorage
-                const existing = JSON.parse(localStorage.getItem("savedform") || "[]");
-        
-                // Merge new and existing
-                const combined = [...existing, ...updatedForms];
-        
-                // Save to localStorage
-                localStorage.setItem("AffectedForms", JSON.stringify(combined));
-                localStorage.removeItem("savedForms");
-                setNotification({ type: "info", title: "Offline", message: "You're offline. Data saved locally and will sync when you're back online." });
-                setTimeout(() => {
-                    setNotification(null);
-                    setStep(1); 
-                    setLoading(false);
-                }, 2000);
-            }
+            
+                // Get all offline disasters
+                const disasterData = JSON.parse(localStorage.getItem("offlineDisasterData")) || [];
+            
+                const disasterIndex = disasterData.findIndex(d => d.disasterCode === disasterCode);
+                console.log("offline index", disasterIndex)
+
+                if (disasterIndex !== -1) {
+                    // Disaster exists
+                    const existingDisaster = disasterData[disasterIndex];
+            
+                    // For each updated form, find the correct barangay and add to affectedFamilies
+                    residentData.forEach(form => {
+                        const barangayIndex = existingDisaster.barangays.findIndex(b => b.name === form.barangay);
+                        if (barangayIndex !== -1) {
+                            existingDisaster.barangays[barangayIndex].affectedFamilies.push(form);
+                        } else {
+                            // If barangay not found, you can optionally create it
+                            existingDisaster.barangays.push({
+                                name: form.barangay,
+                                affectedFamilies: [form]
+                            });
+                        }
+                    });
+            
+                    // Update the disaster back in the array
+                    disasterData[disasterIndex] = existingDisaster;
+            
+                    // Save back to localStorage
+                    localStorage.setItem("offlineDisasterData", JSON.stringify(disasterData));
+            
+                    // Clear saved forms
+                    localStorage.removeItem("savedForms");
+            
+                    setNotification({ type: "info", title: "Offline", message: "You're offline. Data saved locally and will sync when you're back online." });
+                    setTimeout(() => {
+                        setNotification(null);
+                        setStep(1);
+                        setLoading(false);
+                    }, 2000);
+            
+                } else {
+                    // Disaster doesn't exist - continue your original behavior
+                    const existing = JSON.parse(localStorage.getItem("AffectedForms") || "[]");
+
+                    console.log("existing", existing)
+                    console.log("updated", updatedForms)
+            
+                    const combined = [...existing, ...updatedForms];
+
+                    console.log("combined", combined)
+            
+                    localStorage.setItem("AffectedForms", JSON.stringify(combined));
+                    localStorage.removeItem("savedForms");
+            
+                    setNotification({ type: "info", title: "Offline", message: "You're offline. Data saved locally and will sync when you're back online." });
+                    setTimeout(() => {
+                        setNotification(null);
+                        setStep(1);
+                        setLoading(false);
+                    }, 2000);
+                }
+
+                window.location.reload();
+            }            
         };
 
         //search
