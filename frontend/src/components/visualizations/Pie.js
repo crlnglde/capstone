@@ -16,7 +16,10 @@ const PieChart = () => {
     const [graphType, setGraphType] = useState("pie"); 
     
     const [disasterCode, setDisasterCode] = useState(["All"]);
-    const [barangay, setBarangay] = useState("All");
+    const [barangay, setBarangay] = useState(() => {
+      const savedBarangay = localStorage.getItem('barangay');
+      return savedBarangay || "All";  // Default to "All" if no barangay is saved
+    });
     const [year, setYear] = useState("All");
 
     const filtersForDonut = [

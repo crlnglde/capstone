@@ -7,7 +7,7 @@ import { LuClipboardPlus } from "react-icons/lu";
 import { GiConfirmed } from "react-icons/gi";
 import { RiEdit2Line } from "react-icons/ri";
 import { FaLock } from "react-icons/fa";
-import Ling from './visualizations/Line-gr'
+import StackedBarChart from "./visualizations/Line-gr";
 import DonutGraph from './visualizations/Donut'
 import PieChart from "./visualizations/Pie";
 import MapDisaster from "./visualizations/Iligan";
@@ -29,7 +29,6 @@ const Disaster = ({ setNavbarTitle }) => {
   const [file, setFile] = useState(null);
   
   const [disasters, setDisasters] = useState([]);
-  const [selectedBarangay, setSelectedBarangay] = useState("All");
   const [selectedYear, setSelectedYear] = useState("All");
 
   const [selectedDisaster, setSelectedDisaster] = useState(null);
@@ -44,9 +43,13 @@ const Disaster = ({ setNavbarTitle }) => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [isViewMode, setIsViewMode] = useState(false);
 
-
   //para daw ni sa auth role and all
   const [role, setRole] = useState(null);
+
+  const [selectedBarangay, setSelectedBarangay] = useState(() => {
+    const savedBarangay = localStorage.getItem('barangay');
+    return role === "daycare worker" ? savedBarangay || "" : "All";
+  });
 
     useEffect(() => {
       const token = localStorage.getItem("token");
@@ -58,6 +61,15 @@ const Disaster = ({ setNavbarTitle }) => {
           setRole(userRole);
       }
   }, [navigate]);
+
+  useEffect(() => {
+    if (role === "daycare worker") {
+      const savedBarangay = localStorage.getItem("barangay");
+      setSelectedBarangay(savedBarangay || ""); // Update selectedBarangay for daycare workers
+    } else {
+      setSelectedBarangay("All"); // Default to "All" if not a daycare worker
+    }
+  }, [role]);
 
 
 
@@ -158,6 +170,7 @@ useEffect(() => {
   const fetchDisasters = async () => {
     let disasterData = [];
 
+
     // Fetch updated data from API
     try {
       if (navigator.onLine){
@@ -165,6 +178,7 @@ useEffect(() => {
       if (Array.isArray(response.data)) {
         disasterData = response.data;
         transformAndSetDisasters(disasterData);
+
       } else {
         console.error("Expected an array but got", response.data);
       }}
@@ -207,44 +221,23 @@ useEffect(() => {
   const transformAndSetDisasters = (data) => {
     const transformedData = data.flatMap((disaster) =>
       (disaster.barangays || []).map((brgy) => {
-        let maleCount = 0, femaleCount = 0, is4ps = 0, isPWD = 0, isPreg = 0, isIps = 0, isSolo = 0;
+        let maleCount = 0, femaleCount = 0;
 
         (brgy.affectedFamilies || []).forEach((family) => {
           if (family.sex === "M") maleCount++;
           if (family.sex === "F") femaleCount++;
-
-          family.dependents?.forEach((dependent) => {
-            if (dependent.sex === "Male") maleCount++;
-            if (dependent.sex === "Female") femaleCount++;
-          });
-
-          if (family.is4ps) is4ps++;
-          if (family.isPWD) isPWD++;
-          if (family.isPreg) isPreg++;
-          if (family.isIps) isIps++;
-          if (family.isSolo) isSolo++;
         });
 
         return {
           disasterCode: disaster.disasterCode,
           disasterType: disaster.disasterType,
-          disasterStatus: disaster.disasterStatus,
           disasterDateTime: moment(disaster.disasterDateTime).format("MMMM D, YYYY h:mm A"),
           barangay: brgy.name || "Unknown",
           affectedFamilies: (brgy.affectedFamilies || []).length,
-          affectedPersons: (brgy.affectedFamilies || []).reduce(
-            (sum, family) => sum + 1 + (family.dependents?.length || 0),
-            0
-          ),
           sexBreakdown: {
             males: maleCount,
             females: femaleCount,
           },
-          is4ps,
-          isPWD,
-          isSolo,
-          isPreg,
-          isIps,
         };
       })
     );
@@ -253,7 +246,7 @@ useEffect(() => {
   };
 
   fetchDisasters();
-}, []);
+}, [role]); // Fetch disasters when the role changes
 
   const handleSearchChange = (event) => {
     const query = event.target.value.toLowerCase();
@@ -261,12 +254,13 @@ useEffect(() => {
     console.log("Search Query: ", query); // Debugging the query
   };
  
-  const filteredDisasters = disasters.filter((disaster) => {
+  const filteredDisasters = disasters
+  .filter((disaster) => {
     const excludeColumns = [
       "affectedFamilies", "affectedPersons", "familiesInEC", "sexBreakdown",
       "pregnantWomen", "lactatingMothers", "pwds", "soloParents", "indigenousPeoples", "assistanceNeeded"
     ];
- 
+
     return Object.keys(disaster).some((key) => {
       if (!excludeColumns.includes(key)) {
         const value = disaster[key];
@@ -276,7 +270,14 @@ useEffect(() => {
       }
       return false;
     });
-  });  
+  })
+  .filter((disaster) => {
+    if (role === "daycare worker") {
+      return disaster.barangay?.toLowerCase().trim() === selectedBarangay?.toLowerCase().trim();
+    }
+    return selectedBarangay === "All" || disaster.barangay?.toLowerCase().trim() === selectedBarangay?.toLowerCase().trim();
+  })
+
 
   //page sa disasters
     const [disasterPage, setDisasterPage] = useState(1);
@@ -569,15 +570,10 @@ useEffect(() => {
                 }}
               >
                 <div className="chart-box" style={{ flex: 1 }}>
-                  <Ling />
+                  <StackedBarChart />
                 </div>
               </div>
             </div>
-
-
-
-
-
           </div>
 
         )}    

@@ -11,6 +11,7 @@ import { jwtDecode } from 'jwt-decode';
 
 const Login = () => {
     const navigate = useNavigate();
+    const [pendingUserData, setPendingUserData] = useState(null);
     const [showPassword, setShowPassword] = useState(false);
     const [userName, setUserName]= useState('');
     const [password, setUserPassword]= useState('');
@@ -46,40 +47,51 @@ const Login = () => {
       const handleLogin = async (e) => {
         e.preventDefault();
         setLoading(true);
-    
+      
         try {
           const userdata = {
             username: userName.trim(),
             password: password.trim(),
           };
-    
-          const response = await axios.post("http://localhost:3003/login", userdata);
-    
+      
+          const response = await axios.post("http://172.20.10.2:3003/login", userdata);
+      
           if (response.data.token && response.data.user.role) {
-            localStorage.setItem("token", response.data.token);
-            localStorage.setItem("role", response.data.user.role);
-            localStorage.setItem("username", response.data.user.username);
-    
-            const decodedToken = jwtDecode(response.data.token);
-            const expireTime = decodedToken.exp * 1000;
-    
-            if (response.data.user.role.toLowerCase() === "daycare worker") {
-              setNeedsBarangaySelection(true); // Show barangay selection
-              setLoading(false);
-            } else {
+            const role = response.data.user.role.toLowerCase();
+      
+            if (role === "daycare worker") {
+              setNeedsBarangaySelection(true); 
+              setPendingUserData(response.data); // Store data temporarily
+              setLoading(false); // stop loading, wait for barangay selection
+            } else if (role === "cswd" || role === "enumerator") {
+              // Direct login for CSWD and Enumerator
+              localStorage.setItem("token", response.data.token);
+              localStorage.setItem("role", response.data.user.role);
+              localStorage.setItem("username", response.data.user.username);
+      
+              const decodedToken = jwtDecode(response.data.token);
+              const expireTime = decodedToken.exp * 1000;
+      
               setNotification({
                 type: "success",
                 title: "Login Successful",
                 message: "Welcome!",
-
               });
-    
+      
               navigate("/home");
-    
+      
               setTimeout(() => {
                 localStorage.clear();
                 navigate("/login");
               }, expireTime - Date.now());
+            } else {
+              console.error("Unknown role:", role);
+              setNotification({
+                type: "error",
+                title: "Login Failed",
+                message: "Unknown role. Please contact admin.",
+              });
+              setLoading(false);
             }
           } else {
             console.error("Missing token or role in response");
@@ -88,6 +100,7 @@ const Login = () => {
               title: "Login Failed",
               message: "Unexpected response from server. Please try again.",
             });
+            setLoading(false);
           }
         } catch (error) {
           console.error("Error logging in:", error);
@@ -102,22 +115,32 @@ const Login = () => {
           }, 500);
         }
       };
-
-    const handleBarangaySubmit = (e) => {
-      e.preventDefault();
-      if (selectedBarangay) {
-        localStorage.setItem("barangay", selectedBarangay);
-  
-        setNotification({
-          type: "success",
-          title: "Login Successful",
-          message: `Welcome, ${selectedBarangay}!`,
-        });
-  
-        navigate("/home");
-      }
-    };
-    
+      
+      const handleBarangaySubmit = (e) => {
+        e.preventDefault();
+        if (selectedBarangay && pendingUserData) {
+          localStorage.setItem("barangay", selectedBarangay);
+          localStorage.setItem("token", pendingUserData.token);
+          localStorage.setItem("role", pendingUserData.user.role);
+          localStorage.setItem("username", pendingUserData.user.username);
+      
+          const decodedToken = jwtDecode(pendingUserData.token);
+          const expireTime = decodedToken.exp * 1000;
+      
+          setNotification({
+            type: "success",
+            title: "Login Successful",
+            message: `Welcome, ${selectedBarangay}!`,
+          });
+      
+          navigate("/home");
+      
+          setTimeout(() => {
+            localStorage.clear();
+            navigate("/login");
+          }, expireTime - Date.now());
+        }
+      };
 
     return (
       <div className="login">
@@ -159,18 +182,22 @@ const Login = () => {
                 <h2 className="title">Select Your Barangay</h2>
                 <p className="subtitle">Please select your assigned barangay</p>
                 <form className="form" onSubmit={handleBarangaySubmit}>
-                <select
-                  className="input"
-                  value={selectedBarangay}
-                  onChange={(e) => setSelectedBarangay(e.target.value)}
-                >
-                  <option value="">Select Barangay</option>
-                  {getBarangays().map((barangay, index) => (
-                    <option key={index} value={barangay}>
-                      {barangay}
-                    </option>
-                  ))}
-                </select>
+                
+                <div className="select">
+                  <select
+
+                    className="input"
+                    value={selectedBarangay}
+                    onChange={(e) => setSelectedBarangay(e.target.value)}
+                  >
+                    <option value="">Select Barangay</option>
+                    {getBarangays().map((barangay, index) => (
+                      <option key={index} value={barangay}>
+                        {barangay}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
                   <button type="submit" className="loginButton" disabled={!selectedBarangay}>
                     Continue

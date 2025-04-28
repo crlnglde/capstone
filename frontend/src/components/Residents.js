@@ -37,9 +37,16 @@ const Residents = ({ setNavbarTitle }) => {
   const [dependents, setDependents] = useState([""]);
 
   const [searchQuery, setSearchQuery] = useState("");
-
-  const [selectedBarangay, setSelectedBarangay] = useState(''); // Filter state
   
+  const [role, setRole] = useState(() => {
+    const savedRole = localStorage.getItem('role');
+    return savedRole ? savedRole.toLowerCase() : null;
+  });
+
+  const [selectedBarangay, setSelectedBarangay] = useState(() => {
+    const savedBarangay = localStorage.getItem('barangay');
+    return savedBarangay || "";
+  });  
  
   const rowsPerPage = 10;
 
@@ -395,8 +402,6 @@ const fetchExistingResidents = async () => {
     }
   };
   
-
-
   useEffect(() => {
     fetchResidents();  // Fetch residents data when the component mounts
   }, []);
@@ -732,21 +737,23 @@ const fetchExistingResidents = async () => {
                     </div>
                   </div>
             
-                  <div className="res-filter-container">
-                    <label htmlFor="barangayFilter"><i className="fa-solid fa-filter"></i> Filter: </label>
-                    <select
-                      id="barangayFilter"
-                      value={selectedBarangay}
-                      onChange={handleFilterChange}
-                    >
-                      <option value="">All Barangays</option>
-                      {barangays.map((barangay, index) => (
-                        <option key={index} value={barangay}>
-                          {barangay}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                  {role !== "daycare worker" && (
+                    <div className="res-filter-container">
+                      <label htmlFor="barangayFilter"><i className="fa-solid fa-filter"></i> Filter: </label>
+                      <select
+                        id="barangayFilter"
+                        value={selectedBarangay}
+                        onChange={handleFilterChange}
+                      >
+                        <option value="">All Barangays</option>
+                        {barangays.map((barangay, index) => (
+                          <option key={index} value={barangay}>
+                            {barangay}
+                          </option>
+                        ))}
+                      </select> 
+                    </div>
+                  )}
 
 
                 </div>
@@ -839,6 +846,7 @@ const fetchExistingResidents = async () => {
                   )}
                 </div>
 
+                {role !== "daycare worker" && (
                 <div className="res-filter-container">
                   <label htmlFor="barangayFilter"><i className="fa-solid fa-filter"></i> Filter: </label>
                   <select
@@ -854,6 +862,7 @@ const fetchExistingResidents = async () => {
                     ))}
                   </select>
                 </div>
+                )}
               </div>
             </div>
 
