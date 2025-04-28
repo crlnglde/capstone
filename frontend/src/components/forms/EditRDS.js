@@ -30,6 +30,8 @@ const EditRDS = () => {
   };
 
   const handleSaveSignature = (imageURL) => {
+    const confirmSubmit = window.confirm("Confirm Signature");
+    if (!confirmSubmit) return;
     console.log("selected family", selectedFamily)
     console.log("selectedFamily._id:", selectedFamily._id, typeof selectedFamily._id);
 
@@ -160,8 +162,6 @@ const EditRDS = () => {
   }, [distributionData]);
   
   const handleSignature= async () => {
-    const confirmSubmit = window.confirm("Confirm Signature");
-    if (!confirmSubmit) return;
 
     if(navigator.onLine) { 
       const updatedFamilies = distributionData.families;
