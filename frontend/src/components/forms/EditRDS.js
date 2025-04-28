@@ -9,6 +9,9 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import Modal from "../Modal";
 import SignaturePad from "../Signature";
 
+import Notification from "../again/Notif";
+import ConfirmationDialog from "../again/Confirmation";
+
 const EditRDS = () => {
   const navigate = useNavigate();  
   const [loading, setLoading] = useState(true);
@@ -22,6 +25,19 @@ const EditRDS = () => {
   //const [selectedFamilyName, setSelectedFamilyName] = useState("");
   const [selectedFamily, setSelectedFamily] = useState(null);
   const [signature, setSignature] = useState({});
+  const [notification, setNotification] = useState(null);
+  const [confirmDialog, setConfirmDialog] = useState({
+    show: false,
+    type: "",       // 'save', 'delete', 'add'
+    title: "",
+    message: "",
+    onConfirm: null,
+  });
+
+  const handleCancelConfirm = () => {
+    setConfirmDialog({ ...confirmDialog, show: false });
+  };
+
 
   const handleOpenModal = (family) => {
     //setSelectedFamilyIndex(index);
@@ -160,99 +176,119 @@ const EditRDS = () => {
   }, [distributionData]);
   
   const handleSignature= async () => {
-    const confirmSubmit = window.confirm("Confirm Signature");
-    if (!confirmSubmit) return;
-
-    if(navigator.onLine) { 
-      const updatedFamilies = distributionData.families;
-
-      console.log(distributionId);
-  
-      const response = await axios.put(`http://localhost:3003/update-distribution/${distributionId}`, {
-        families: updatedFamilies
-      });
-  
-      if (response.status === 200) {
-        alert("Signature saved successfully!");
-        setIsUpdated(false);  
-      } else {
-        alert("Failed to save distribution data.");
+    setConfirmDialog({
+      show: true,
+      type: "add",
+      title: "Confirm Signature",
+      message: "Are you sure you want to confirm the signature?",
+      onConfirm: async() => {
+        if(navigator.onLine) { 
+          const updatedFamilies = distributionData.families;
+    
+          console.log(distributionId);
+      
+          const response = await axios.put(`http://localhost:3003/update-distribution/${distributionId}`, {
+            families: updatedFamilies
+          });
+      
+          if (response.status === 200) {
+            setNotification({ type: "success", title: "Signature Saved", message: "Signature saved successfully!" });
+            setTimeout(() => setNotification(null), 3000);
+            setIsUpdated(false);  
+          } else {
+            setNotification({ type: "error", title: "Save Error", message: "Failed to save distribution data." });
+            setTimeout(() => setNotification(null), 3000);
+          }
+        }
       }
-    }
-
+    })
   }
 
   const handleSaveDistribution = async () => {
-    const confirmSubmit = window.confirm("Are you sure you want to submit this form?");
-    if (!confirmSubmit) return;
-    try {
+    setConfirmDialog({
+      show: true,
+      type: "submit",
+      title: "Submit Form",
+      message: "Are you sure you want to submit this form?",
+      onConfirm: async () => {
 
-        console.log(distributionData)
-        const editedDist = {
-          ...distributionData
-        };
+        try {
 
-        console.log("edited dist", editedDist)
-      
-        // Get offlineDistributions
-        const offlineData = JSON.parse(localStorage.getItem("offlineDistributions")) || [];
-        console.log("Offline Data", offlineData)
-
-        const index = offlineData.findIndex(dist => 
-          dist.disasterCode === distributionData.disasterCode &&
-          (dist.barangay === distributionData.barangay || dist.barangay === distributionData.barangayName) &&
-          dist.families.some(fam => fam.familyHead === selectedFamily.familyHead) &&
-          dist.distributionId === distributionData.distributionId
-        );
-        
-        console.log("index", index)
-        console.log("Offline Data", offlineData)
-        console.log("Distribution Data")
-        console.log(distributionData.disasterCode)
-        console.log(distributionData.barangayName)
-        console.log(selectedFamily.familyHead)
-        console.log(distributionData.distributionId)
-      
-        if (index !== -1) {
-          // 🔁 It exists → update the existing one
-          offlineData[index] = { 
-            ...editedDist, 
-            status: "Pending" // ✅ Add status here
+          console.log(distributionData)
+          const editedDist = {
+            ...distributionData
           };
-          localStorage.setItem("offlineDistributions", JSON.stringify(offlineData));
-          alert("Changes saved offline and will sync later.");
-        } else {
-          const edited = JSON.parse(localStorage.getItem("editedDistributions")) || [];
+  
+          console.log("edited dist", editedDist)
         
-          // Check if editedDist already exists in editedDistributions
-          const editedIndex = edited.findIndex(dist => 
+          // Get offlineDistributions
+          const offlineData = JSON.parse(localStorage.getItem("offlineDistributions")) || [];
+          console.log("Offline Data", offlineData)
+  
+          const index = offlineData.findIndex(dist => 
             dist.disasterCode === distributionData.disasterCode &&
-            dist.barangayName === distributionData.barangayName &&
-            dist.families.some(fam => fam.familyHead === selectedFamily.familyHead)
+            (dist.barangay === distributionData.barangay || dist.barangay === distributionData.barangayName) &&
+            dist.families.some(fam => fam.familyHead === selectedFamily.familyHead) &&
+            dist.distributionId === distributionData.distributionId
           );
+          
+          console.log("index", index)
+          console.log("Offline Data", offlineData)
+          console.log("Distribution Data")
+          console.log(distributionData.disasterCode)
+          console.log(distributionData.barangayName)
+          console.log(selectedFamily.familyHead)
+          console.log(distributionData.distributionId)
         
-          if (editedIndex !== -1) {
-            //Update existing edited entry
-            edited[editedIndex] = editedDist;
-            alert("Existing offline edit updated and will sync later.");
+          if (index !== -1) {
+            // 🔁 It exists → update the existing one
+            offlineData[index] = { 
+              ...editedDist, 
+              status: "Pending" // ✅ Add status here
+            };
+            localStorage.setItem("offlineDistributions", JSON.stringify(offlineData));
+  
+            setNotification({ type: "info", title: "Offline Save", message: "Changes saved offline and will sync later." });
+            setTimeout(() => setNotification(null), 3000);
+  
           } else {
-            // ➕ Add new edit
-            edited.push(editedDist);
-            alert("Edit saved offline and will sync when online.");
+            const edited = JSON.parse(localStorage.getItem("editedDistributions")) || [];
+          
+            // Check if editedDist already exists in editedDistributions
+            const editedIndex = edited.findIndex(dist => 
+              dist.disasterCode === distributionData.disasterCode &&
+              dist.barangayName === distributionData.barangayName &&
+              dist.families.some(fam => fam.familyHead === selectedFamily.familyHead)
+            );
+          
+            if (editedIndex !== -1) {
+              //Update existing edited entry
+              edited[editedIndex] = editedDist;
+              setNotification({ type: "info", title: "Offline Edit Updated", message: "Existing offline edit updated and will sync later." });
+              setTimeout(() => setNotification(null), 3000);
+            } else {
+              // ➕ Add new edit
+              edited.push(editedDist);
+              setNotification({ type: "info", title: "Edit Saved Offline", message: "Edit saved offline and will sync when online." });
+              setTimeout(() => setNotification(null), 3000);
+            }
+          
+            localStorage.setItem("editedDistributions", JSON.stringify(edited));
+            setIsUpdated(false); // Reset your flag
           }
         
-          localStorage.setItem("editedDistributions", JSON.stringify(edited));
           setIsUpdated(false); // Reset your flag
+          window.location.reload()
+  
+        } catch (error) {
+          console.error("Error saving distribution data:", error);
+          setNotification({ type: "error", title: "Save Error", message: "An error occurred while saving the data." });
+          setTimeout(() => setNotification(null), 3000);
+  
         }
-      
-        setIsUpdated(false); // Reset your flag
-        window.location.reload()
-
-      } catch (error) {
-        console.error("Error saving distribution data:", error);
-        alert("An error occurred while saving the data.");
       }
-    };  
+    })
+  };  
   
 
   if (loading) return <div>Loading...</div>;
@@ -261,6 +297,26 @@ const EditRDS = () => {
   return (
     <div className="rds">
       <div className="rds-container">
+
+      {notification && (
+        <Notification
+          type={notification.type}
+          title={notification.title} 
+          message={notification.message}
+          onClose={() => setNotification(null)}
+        />
+      )}
+
+          {confirmDialog.show && (
+            <ConfirmationDialog
+              type={confirmDialog.type}
+              title={confirmDialog.title}
+              message={confirmDialog.message}
+              onConfirm={confirmDialog.onConfirm}
+              onCancel={handleCancelConfirm}
+            />
+          )}
+
         <div className="rds-header">
           <div className="header-logo">
             <img src={ICImage} alt="Logo" />
@@ -349,6 +405,16 @@ const EditRDS = () => {
       </div>
 
       <Modal isOpen={isModalOpen} onClose={handleCloseModal} title="Signature Pad">
+
+      {confirmDialog.show && (
+            <ConfirmationDialog
+              type={confirmDialog.type}
+              title={confirmDialog.title}
+              message={confirmDialog.message}
+              onConfirm={confirmDialog.onConfirm}
+              onCancel={handleCancelConfirm}
+            />
+          )}
         <SignaturePad family={selectedFamily} onSave={handleSaveSignature} onClose={handleCloseModal} />
       </Modal>
 

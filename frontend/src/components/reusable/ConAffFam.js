@@ -8,6 +8,7 @@ import DAFAC from "../forms/DAFAC";
 import "../../css/reusable/AffFam.css";
 import Loading from "../again/Loading";
 import Notification from "../again/Notif";
+import ConfirmationDialog from "../again/Confirmation";
 import { IoMdOpen } from "react-icons/io";
 import { BiSolidBadgeCheck } from "react-icons/bi";
 
@@ -47,6 +48,17 @@ const [step, setStep] = useState(1);
 
     const [loading, setLoading] = useState(false);
     const [notification, setNotification] = useState(null); 
+    const [confirmDialog, setConfirmDialog] = useState({
+        show: false,
+        type: "",       // 'save', 'delete', 'add'
+        title: "",
+        message: "",
+        onConfirm: null,
+      });
+    
+      const handleCancelConfirm = () => {
+        setConfirmDialog({ ...confirmDialog, show: false });
+      };
 
     const handleBackClick = () => {
 
@@ -240,67 +252,72 @@ const [step, setStep] = useState(1);
 
         
         const handleConfirm = async (disCode, disBarangay, familyId) => {
-            const confirmConfirm = window.confirm("Are you sure you want to confirm this form?");
-            if (!confirmConfirm) return;
-
-            try {
-                if (navigator.onLine) {
-                    const response = await axios.put(
-                      `http://localhost:3003/update-dafac-status/${disCode}/${disBarangay}/${familyId}`
-                    );
-                
-                    setNotification({
-                      type: "success",
-                      title: "Success",
-                      message: response.data.message || "DAFAC status confirmed successfully!",
-                    });
-                
-                    setRefresh((prev) => !prev);
-                
-                  } else {
-                    let offlineUpdates = JSON.parse(localStorage.getItem("offlineDafacUpdates")) || [];
-                
-                    offlineUpdates.push({
-                      disCode,
-                      disBarangay,
-                      familyId
-                    });
-                
-                    localStorage.setItem("offlineDafacUpdates", JSON.stringify(offlineUpdates));
-                
-                    setNotification({
-                      type: "info",
-                      title: "Offline",
-                      message: "You are offline. Action saved and will sync automatically!",
-                    });
-                  }
-            }catch (error) {
-                console.error("Error confirming DAFAC status:", error);
-
-                let errorTitle = "Error";
-                let errorMessage = "Failed to confirm DAFAC status. Please try again.";
-
-                if (!error.response) {
-                errorTitle = "Network Error";
-                errorMessage = "Please check your internet connection and try again.";
-                } else if (error.response.status === 400) {
-                errorTitle = "Invalid Request";
-                errorMessage = "The request was invalid. Please check the data and try again.";
-                } else if (error.response.status === 401 || error.response.status === 403) {
-                errorTitle = "Unauthorized";
-                errorMessage = "You do not have permission to perform this action.";
-                } else if (error.response.status === 500) {
-                errorTitle = "Server Error";
-                errorMessage = "A server error occurred. Please try again later.";
+            setConfirmDialog({
+                show: true,
+                type: "confirm", // or any type you use for styling
+                title: "Confirm Action",
+                message: "Are you sure you want to confirm this form?",
+                onConfirm: async() => {
+                    try {
+                        if (navigator.onLine) {
+                            const response = await axios.put(
+                              `http://localhost:3003/update-dafac-status/${disCode}/${disBarangay}/${familyId}`
+                            );
+                        
+                            setNotification({
+                              type: "success",
+                              title: "Success",
+                              message: response.data.message || "DAFAC status confirmed successfully!",
+                            });
+                        
+                            setRefresh((prev) => !prev);
+                        
+                          } else {
+                            let offlineUpdates = JSON.parse(localStorage.getItem("offlineDafacUpdates")) || [];
+                        
+                            offlineUpdates.push({
+                              disCode,
+                              disBarangay,
+                              familyId
+                            });
+                        
+                            localStorage.setItem("offlineDafacUpdates", JSON.stringify(offlineUpdates));
+                        
+                            setNotification({
+                              type: "info",
+                              title: "Offline",
+                              message: "You are offline. Action saved and will sync automatically!",
+                            });
+                          }
+                    }catch (error) {
+                        console.error("Error confirming DAFAC status:", error);
+        
+                        let errorTitle = "Error";
+                        let errorMessage = "Failed to confirm DAFAC status. Please try again.";
+        
+                        if (!error.response) {
+                        errorTitle = "Network Error";
+                        errorMessage = "Please check your internet connection and try again.";
+                        } else if (error.response.status === 400) {
+                        errorTitle = "Invalid Request";
+                        errorMessage = "The request was invalid. Please check the data and try again.";
+                        } else if (error.response.status === 401 || error.response.status === 403) {
+                        errorTitle = "Unauthorized";
+                        errorMessage = "You do not have permission to perform this action.";
+                        } else if (error.response.status === 500) {
+                        errorTitle = "Server Error";
+                        errorMessage = "A server error occurred. Please try again later.";
+                        }
+        
+                        setNotification({ type: "error", title: errorTitle, message: errorMessage });
+                    } finally {
+                        setTimeout(() => {
+                        setNotification(null); // Hide notification after 3 seconds
+                        }, 3000);
+                        setIsLoading(false); // Stop loading
+                    }
                 }
-
-                setNotification({ type: "error", title: errorTitle, message: errorMessage });
-            } finally {
-                setTimeout(() => {
-                setNotification(null); // Hide notification after 3 seconds
-                }, 3000);
-                setIsLoading(false); // Stop loading
-            }
+            })
         };
 
     const [searchQuery, setSearchQuery] = useState("");
@@ -358,6 +375,18 @@ const [step, setStep] = useState(1);
           onClose={() => setNotification(null)}  // Close notification when user clicks ✖
         />
       )}
+
+      
+        {confirmDialog.show && (
+            <ConfirmationDialog
+              type={confirmDialog.type}
+              title={confirmDialog.title}
+              message={confirmDialog.message}
+              onConfirm={confirmDialog.onConfirm}
+              onCancel={handleCancelConfirm}
+            />
+          )}
+
 
         <div className="afffam-residents-table">
           

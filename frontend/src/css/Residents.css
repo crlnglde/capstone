@@ -26,12 +26,12 @@
     margin-right: 10px;
   }
 
-  button {
+  .residents button {
     transition: background-color 0.3s, transform 0.2s ease; /* Smooth transition for color and scale */
   }
   
-  button:hover {
-    background-color: #3498db;
+  .residents button:hover {
+    /*background-color: #3498db;*/
     transform: scale(1.05);
   }
   
