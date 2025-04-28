@@ -157,7 +157,13 @@ const Sidebar = ({ isMinimized, setIsMinimized, setLoading }) => {
 
         {!isMinimizedState && (
           <div className="user-box">
-            <h1>{barangay ? barangay.toUpperCase() : "Barangay"}</h1>
+
+            {role !== "daycare worker" ? (
+              <h1>{username ? username.toUpperCase() : "USERNAME"}</h1>
+            ):(
+              <h1>{barangay ? barangay.toUpperCase() : "Barangay"}</h1>
+            )}
+            
             <h3 style={{ textTransform: "capitalize" }}>{role || "Role"}</h3>
             <button className="logout-btn" onClick={handleLogout}>
               Logout
