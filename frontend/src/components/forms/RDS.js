@@ -8,6 +8,8 @@ import cswdImage from '../../pic/cswd.jpg';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import Modal from "../Modal";
 import SignaturePad from "../Signature";
+import Notification from "../again/Notif";
+import ConfirmationDialog from "../again/Confirmation";
 
 const RDS= () => {
   const navigate = useNavigate();  
@@ -19,6 +21,19 @@ const RDS= () => {
   //const [selectedFamilyName, setSelectedFamilyName] = useState("");
   const [selectedFamily, setSelectedFamily] = useState(null);
   const [signature, setSignature] = useState({});
+
+  const [notification, setNotification] = useState(null);
+  const [confirmDialog, setConfirmDialog] = useState({
+    show: false,
+    type: "",       // 'save', 'delete', 'add'
+    title: "",
+    message: "",
+    onConfirm: null,
+  });
+
+  const handleCancelConfirm = () => {
+    setConfirmDialog({ ...confirmDialog, show: false });
+  };
 
   const handleOpenModal = (family) => {
     //setSelectedFamilyIndex(index);
@@ -118,64 +133,93 @@ const RDS= () => {
   }, [families]);
 
   const handleSaveDistribution = async () => {
-    const confirmSubmit = window.confirm("Are you sure you want to submit this form?");
-    if (!confirmSubmit) return;
-  
-    const payload = {
-      disasterCode: forDistribution.disasterCode,
-      disasterDate: forDistribution.disasterDate,
-      barangay: forDistribution.barangay,
-      assistanceType: forDistribution.assistanceType,
-      reliefItems: forDistribution.entries,
-      families: families.map(family => ({
-        familyHead: `${family.firstName} ${family.middleName} ${family.lastName}`,
-        memId: family.id,
-        status: family.status || "Pending",
-        rationCount: 1 + (family.dependents ? family.dependents.length : 0),
-        signature: family.signature || "",
-      })),
-      status: "Pending",
-      receivedFrom: forDistribution.receivedFrom,
-      certifiedCorrect: forDistribution.certifiedCorrect,
-      submittedBy: forDistribution.submittedBy,
-    };
-  
-    if (navigator.onLine) {
-
-      console.log(payload)
-      try {
-        await axios.post("http://localhost:3003/save-distribution", payload);
-        alert("Distribution data saved successfully!");
-        localStorage.removeItem("forDistribution");
-        window.location.reload();
-      } catch (error) {
-        console.error("Error saving distribution data:", error);
-        alert("Failed to save distribution data.");
+    setConfirmDialog({
+      show: true,
+      type: "confirm",
+      title: "Submit Form",
+      message: "Are you sure you want to submit this form?",
+      onConfirm: async() =>{
+        const payload = {
+          disasterCode: forDistribution.disasterCode,
+          disasterDate: forDistribution.disasterDate,
+          barangay: forDistribution.barangay,
+          assistanceType: forDistribution.assistanceType,
+          reliefItems: forDistribution.entries,
+          families: families.map(family => ({
+            familyHead: `${family.firstName} ${family.middleName} ${family.lastName}`,
+            memId: family.id,
+            status: family.status || "Pending",
+            rationCount: 1 + (family.dependents ? family.dependents.length : 0),
+            signature: family.signature || "",
+          })),
+          status: "Pending",
+          receivedFrom: forDistribution.receivedFrom,
+          certifiedCorrect: forDistribution.certifiedCorrect,
+          submittedBy: forDistribution.submittedBy,
+        };
+      
+        if (navigator.onLine) {
+    
+          console.log(payload)
+          try {
+            await axios.post("http://localhost:3003/save-distribution", payload);
+            setNotification({ type: "success", title: "Save Successful", message: "Distribution data saved successfully!" });
+            setTimeout(() => setNotification(null), 3000);
+    
+            localStorage.removeItem("forDistribution");
+            window.location.reload();
+          } catch (error) {
+            console.error("Error saving distribution data:", error);
+            setNotification({ type: "error", title: "Save Error", message: "Failed to save distribution data." });
+            setTimeout(() => setNotification(null), 3000);
+          }
+        } else {
+    
+          const distributionId = `dist-${Date.now()}`;
+    
+          // Add the ID to the payload
+          const payloadWithId = {
+            ...payload,
+            distributionId,
+          };
+          // Offline fallback: save to localStorage
+          const offlineDistributions = JSON.parse(localStorage.getItem("offlineDistributions") || "[]");
+          offlineDistributions.push(payloadWithId);
+          localStorage.setItem("offlineDistributions", JSON.stringify(offlineDistributions));
+          localStorage.removeItem("forDistribution");
+          window.location.reload();
+      
+          setNotification({ type: "info", title: "Offline Mode", message: "You are offline. Data saved locally and will be submitted when online." });
+          setTimeout(() => setNotification(null), 3000);
+        }
       }
-    } else {
+    })
 
-      const distributionId = `dist-${Date.now()}`;
-
-      // Add the ID to the payload
-      const payloadWithId = {
-        ...payload,
-        distributionId,
-      };
-      // Offline fallback: save to localStorage
-      const offlineDistributions = JSON.parse(localStorage.getItem("offlineDistributions") || "[]");
-      offlineDistributions.push(payloadWithId);
-      localStorage.setItem("offlineDistributions", JSON.stringify(offlineDistributions));
-      localStorage.removeItem("forDistribution");
-      window.location.reload();
-  
-      alert("You are offline. Data saved locally and will be submitted when online.");
-    }
   };
 
   return (
     <div className="rds">
     
       <div className="rds-container">
+
+      {notification && (
+        <Notification
+          type={notification.type}
+          title={notification.title} 
+          message={notification.message}
+          onClose={() => setNotification(null)}
+        />
+      )}
+
+        {confirmDialog.show && (
+            <ConfirmationDialog
+              type={confirmDialog.type}
+              title={confirmDialog.title}
+              message={confirmDialog.message}
+              onConfirm={confirmDialog.onConfirm}
+              onCancel={handleCancelConfirm}
+            />
+          )}
 
         <div className="rds-header">
             {/* Left Logo */}

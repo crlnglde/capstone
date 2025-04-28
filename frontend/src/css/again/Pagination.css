@@ -14,7 +14,7 @@
     transition: background 0.3s;
   }
 
-    button:hover {
+  .pagination-button:hover {
     background-color: #3054d8;
     color: rgb(255, 255, 255);
   }

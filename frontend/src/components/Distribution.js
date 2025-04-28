@@ -11,7 +11,7 @@ import "../css/Distribution.css";
 import { syncRDSData } from "../components/sync/syncDistribution";
 import { syncEditedData } from "../components/sync/syncEditedDist";
 import Notification from "./again/Notif";
-
+import ConfirmationDialog from "./again/Confirmation";
 import SignaturePad from "./Signature";
 
 const disasterTypeMapping = {
@@ -47,6 +47,17 @@ const Distribution = ({ setNavbarTitle }) => {
   const [disasterDateFilter, setDisasterDateFilter] = useState("All");
 
   const [notification, setNotification] = useState(null); 
+  const [confirmDialog, setConfirmDialog] = useState({
+    show: false,
+    type: "",       // 'save', 'delete', 'add'
+    title: "",
+    message: "",
+    onConfirm: null,
+  });
+  
+  const handleCancelConfirm = () => {
+    setConfirmDialog({ ...confirmDialog, show: false });
+  };
 
     // Update navbar title when tab changes
     useEffect(() => {
@@ -203,7 +214,9 @@ const Distribution = ({ setNavbarTitle }) => {
     e.preventDefault(); // Prevent page reload
     if (validateFields()){
       localStorage.setItem("forDistribution", JSON.stringify(forDistribution));
-      alert("Form data saved!");
+      setNotification({ type: "success", title: "Success", message: "Form data saved!" });
+      setTimeout(() => setNotification(null), 3000);
+
       setIsModalOpen(false);
 
       setIsEditMode(false);
@@ -378,19 +391,30 @@ const Distribution = ({ setNavbarTitle }) => {
     console.log(doneDistributions);
 
     const handleDoneClick = async (disasterCode) => {
-      const confirmDone = window.confirm("Are you sure that the relief distribution is completed?");
-      if (!confirmDone) return;
-
-      try {
-        const response = await axios.put(`http://localhost:3003/update-status/${disasterCode}`);
-
-        alert(response.data.message);
-          window.location.reload()
-      } catch (error) {
-        console.error("Error updating status:", error);
-        alert("No existing distribution yet.");
-      }
+      setConfirmDialog({
+        show: true,
+        type: "save", // or "add" if you prefer
+        title: "Confirm Completion",
+        message: "Are you sure that the relief distribution is completed?",
+        onConfirm: async () => {
+          setConfirmDialog(prev => ({ ...prev, show: false })); // Close the dialog
+    
+          try {
+            const response = await axios.put(`http://localhost:3003/update-status/${disasterCode}`);
+    
+            setNotification({ type: "success", title: "Success", message: response.data.message });
+            setTimeout(() => setNotification(null), 3000);
+    
+            window.location.reload();
+          } catch (error) {
+            console.error("Error updating status:", error);
+            setNotification({ type: "info", title: "Info", message: "No existing distribution yet." });
+            setTimeout(() => setNotification(null), 3000);
+          }
+        }
+      });
     };
+    
 
   //for search
   const handleSearchChange = (event) => {
@@ -463,7 +487,9 @@ const validateFields = () => {
 
   // Return errors if any
   if (errors.length > 0) {
-    alert(errors.join("\n")); // Show errors in an alert (or use a more user-friendly method)
+    setNotification({ type: "error", title: "Validation Errors", message: errors.join("\n") });
+    setTimeout(() => setNotification(null), 3000);
+
     return false;
   }
 
@@ -584,6 +610,16 @@ const validateFields = () => {
           onClose={() => setNotification(null)}  // Close notification when user clicks ✖
         />
       )}
+
+          {confirmDialog.show && (
+            <ConfirmationDialog
+              type={confirmDialog.type}
+              title={confirmDialog.title}
+              message={confirmDialog.message}
+              onConfirm={confirmDialog.onConfirm}
+              onCancel={handleCancelConfirm}
+            />
+          )}
 
       {!isEditMode && step !== 2 && (
         <div className="toggle-container">

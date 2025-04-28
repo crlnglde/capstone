@@ -8,6 +8,7 @@ import DAFAC from "../forms/DAFAC";
 import "../../css/reusable/AffFam.css";
 import Loading from "../again/Loading";
 import Notification from "../again/Notif";
+import ConfirmationDialog from "../again/Confirmation";
 
 const EditAffFam = ({disBarangay, disCode, setStep}) => {
 
@@ -44,6 +45,17 @@ const EditAffFam = ({disBarangay, disCode, setStep}) => {
 
     const [loading, setLoading] = useState(false);
     const [notification, setNotification] = useState(null); 
+    const [confirmDialog, setConfirmDialog] = useState({
+        show: false,
+        type: "",       // 'save', 'delete', 'add'
+        title: "",
+        message: "",
+        onConfirm: null,
+      });
+    
+      const handleCancelConfirm = () => {
+        setConfirmDialog({ ...confirmDialog, show: false });
+      };
 
         const handleResidentSelect = (resident) => {
             setActiveResident(resident); // Set the active resident
@@ -302,90 +314,93 @@ const EditAffFam = ({disBarangay, disCode, setStep}) => {
         };
         
         const handleFinalSubmit = () => {
-            const confirmSubmit = window.confirm("Are you sure you want to submit the forms?");
-            if (!confirmSubmit) return;
-        
-            const disasterData = JSON.parse(localStorage.getItem("disasterData"));
-            const disasterCode = disasterData?.disasterCode;
-            setLoading(true);
-        
-            if (navigator.onLine) {
-                console.log("hihi")
-                syncData();
-            } else {
-                const savedForms = JSON.parse(localStorage.getItem("savedForms") || "[]");
-                const offlineDisasterData = JSON.parse(localStorage.getItem("offlineDisasterData") || "[]");
-                let affectedForms = JSON.parse(localStorage.getItem("AffectedForms") || "[]");
+            setConfirmDialog({
+                show: true,
+                type: "submit", // or "confirm" depending on your modal design
+                title: "Confirm Submission",
+                message: "Are you sure you want to submit the forms?",
+                onConfirm: () => {
+                    const disasterData = JSON.parse(localStorage.getItem("disasterData"));
+                    const disasterCode = disasterData?.disasterCode;
+                    setLoading(true);
+                
+                    if (navigator.onLine) {
+                        console.log("hihi")
+                        syncData();
+                    } else {
+                        const savedForms = JSON.parse(localStorage.getItem("savedForms") || "[]");
+                        const offlineDisasterData = JSON.parse(localStorage.getItem("offlineDisasterData") || "[]");
+                        let affectedForms = JSON.parse(localStorage.getItem("AffectedForms") || "[]");
 
-                savedForms.forEach(newForm => {
-                    let formUpdated = false;
+                        savedForms.forEach(newForm => {
+                            let formUpdated = false;
 
-                    // 1. Check inside OfflineDisasterData -> barangays -> affectedFamilies
-                    for (let disaster of offlineDisasterData) {
-                        for (let barangay of disaster.barangays || []) {
-                            const familyIndex = barangay.affectedFamilies?.findIndex(existingForm =>
-                                existingForm.firstName.trim().toLowerCase() === newForm.firstName.trim().toLowerCase() &&
-                                existingForm.lastName.trim().toLowerCase() === newForm.lastName.trim().toLowerCase() &&
-                                existingForm.bdate === newForm.bdate &&
-                                barangay.name.trim().toLowerCase() === newForm.barangay?.trim().toLowerCase()
-                            );
+                            // 1. Check inside OfflineDisasterData -> barangays -> affectedFamilies
+                            for (let disaster of offlineDisasterData) {
+                                for (let barangay of disaster.barangays || []) {
+                                    const familyIndex = barangay.affectedFamilies?.findIndex(existingForm =>
+                                        existingForm.firstName.trim().toLowerCase() === newForm.firstName.trim().toLowerCase() &&
+                                        existingForm.lastName.trim().toLowerCase() === newForm.lastName.trim().toLowerCase() &&
+                                        existingForm.bdate === newForm.bdate &&
+                                        barangay.name.trim().toLowerCase() === newForm.barangay?.trim().toLowerCase()
+                                    );
 
-                            if (familyIndex !== -1) {
-                                // Update the form inside affectedFamilies
-                                barangay.affectedFamilies[familyIndex] = { ...barangay.affectedFamilies[familyIndex], ...newForm };
-                                formUpdated = true;
-                                break; // Stop after finding and updating
+                                    if (familyIndex !== -1) {
+                                        // Update the form inside affectedFamilies
+                                        barangay.affectedFamilies[familyIndex] = { ...barangay.affectedFamilies[familyIndex], ...newForm };
+                                        formUpdated = true;
+                                        break; // Stop after finding and updating
+                                    }
+                                }
+                                if (formUpdated) break; // Stop searching disasters once updated
                             }
-                        }
-                        if (formUpdated) break; // Stop searching disasters once updated
+
+                            if (formUpdated){
+                                console.log("hehe")
+                            }
+
+                            if (!formUpdated) {
+                                // 2. Check inside AffectedForms
+                                const index = affectedForms.findIndex(existingForm =>
+                                    existingForm.firstName.trim().toLowerCase() === newForm.firstName.trim().toLowerCase() &&
+                                    existingForm.lastName.trim().toLowerCase() === newForm.lastName.trim().toLowerCase() &&
+                                    existingForm.bdate === newForm.bdate &&
+                                    existingForm.barangay?.trim().toLowerCase() === newForm.barangay?.trim().toLowerCase()
+                                );
+
+                                if (index !== -1) {
+                                    // Update the form inside AffectedForms
+                                    affectedForms[index] = { ...affectedForms[index], ...newForm };
+                                } else {
+                                    // 3. If not found anywhere, add as new to AffectedForms
+                                    affectedForms.push(newForm);
+                                }
+                            }
+                        });
+
+                        // Save back updated data
+                        localStorage.setItem("offlineDisasterData", JSON.stringify(offlineDisasterData));
+                        localStorage.setItem("AffectedForms", JSON.stringify(affectedForms));
+
+                        // Clear the temporary saved forms
+                        localStorage.removeItem("savedForms");
+
+                        setNotification({
+                            type: "info",
+                            title: "Offline",
+                            message: "You're offline. Data updated locally and will sync when you're back online."
+                        });
+
+                        setTimeout(() => {
+                            setNotification(null);
+                            setStep(1);
+                            setLoading(false);
+                        }, 2000);
+                        window.location.reload();
                     }
-
-                    if (formUpdated){
-                        console.log("hehe")
-                    }
-
-                    if (!formUpdated) {
-                        // 2. Check inside AffectedForms
-                        const index = affectedForms.findIndex(existingForm =>
-                            existingForm.firstName.trim().toLowerCase() === newForm.firstName.trim().toLowerCase() &&
-                            existingForm.lastName.trim().toLowerCase() === newForm.lastName.trim().toLowerCase() &&
-                            existingForm.bdate === newForm.bdate &&
-                            existingForm.barangay?.trim().toLowerCase() === newForm.barangay?.trim().toLowerCase()
-                        );
-
-                        if (index !== -1) {
-                            // Update the form inside AffectedForms
-                            affectedForms[index] = { ...affectedForms[index], ...newForm };
-                        } else {
-                            // 3. If not found anywhere, add as new to AffectedForms
-                            affectedForms.push(newForm);
-                        }
-                    }
-                });
-
-                // Save back updated data
-                localStorage.setItem("offlineDisasterData", JSON.stringify(offlineDisasterData));
-                localStorage.setItem("AffectedForms", JSON.stringify(affectedForms));
-
-                // Clear the temporary saved forms
-                localStorage.removeItem("savedForms");
-
-                setNotification({
-                    type: "info",
-                    title: "Offline",
-                    message: "You're offline. Data updated locally and will sync when you're back online."
-                });
-
-                setTimeout(() => {
-                    setNotification(null);
-                    setStep(1);
-                    setLoading(false);
-                }, 2000);
-                window.location.reload();
-            }
+                }
+            })  
         };
-        
-        
 
 
     const [searchQuery, setSearchQuery] = useState("");
@@ -443,6 +458,18 @@ const EditAffFam = ({disBarangay, disCode, setStep}) => {
           onClose={() => setNotification(null)}  // Close notification when user clicks ✖
         />
       )}
+
+      
+        {confirmDialog.show && (
+            <ConfirmationDialog
+                type={confirmDialog.type}
+                title={confirmDialog.title}
+                message={confirmDialog.message}
+                onConfirm={confirmDialog.onConfirm}
+                onCancel={handleCancelConfirm}
+            />
+        )}
+
 
         <div className="afffam-residents-table">
 
