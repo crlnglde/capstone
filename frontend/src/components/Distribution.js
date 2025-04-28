@@ -221,15 +221,12 @@ const Distribution = ({ setNavbarTitle }) => {
 
   //for viewmore content sa distribution history 
   const handleViewMore = (barangays, id) => {
-    setModalType("viewmore");
     setPage(0);
-    setIsModalOpen(true);
+    
     setAffectedBarangays(barangays.map(barangay => barangay.name)); 
     setViewDistribution(id); 
- 
-
-    setModalType("viewmore");
-    setIsModalOpen(false);
+    setIsViewMode(true)
+    setStep(2);
 
   };
   
@@ -827,34 +824,34 @@ const validateFields = () => {
 
                   <div className="view-more-content">
 
-                  <div className="tabs-container">
-                    <div className="tabs">
-                      {affectedBarangays.map((barangay) => (
-                        <button
-                          key={barangay}
-                          className={activeBarangay === barangay ? "tab active" : "tab"}
-                          onClick={() => setActiveBarangay(barangay)}
-                        >
-                          {barangay}
-                        </button>   
-                      ))}
-                    </div>
-    
-                    <div className="dateday-container">
-                      <div className="day-box">Day {page + 1}</div>
-                      
-                      <div className="date-box">
-    
-                        <span className="year">{distributionDate ? distributionDate.year : "YYYY"}</span>
-                        <div className="month-year">
-                          <span className="month">{distributionDate ? distributionDate.month : "Month"}</span>
-                          <span className="day-number">{distributionDate ? distributionDate.day : "DD"}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                    <div className="tabs-container">
+                                    <div className="tabs">
+                                      {affectedBarangays.map((barangay) => (
+                                        <button
+                                          key={barangay}
+                                          className={activeBarangay === barangay ? "tab active" : "tab"}
+                                          onClick={() => handleBarangayClick(barangay)}
+                                        >
+                                          {barangay}
+                                        </button>   
+                                      ))}
+                                    </div>
+
+                                    <div className="dateday-container">
+                                      <div className="day-box">Day {page + 1}</div>
+                                      
+                                      <div className="date-box">
+
+                                        <span className="year">{distributionDate ? distributionDate.year : "YYYY"}</span>
+                                        <div className="month-year">
+                                          <span className="month">{distributionDate ? distributionDate.month : "Month"}</span>
+                                          <span className="day-number">{distributionDate ? distributionDate.day : "DD"}</span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
                   
-                  <ViewRDS selectedBarangay={activeBarangay} distributionId= {ViewDistribution} setDistributionDate={setDistributionDate} setPage={setPage}/>
+                  <ViewRDS selectedBarangay={activeBarangay} distributionId= {ViewDistribution} setDistributionDate={setDistributionDate} page= {page} setPage={setPage} />
                 
               </div>
 
