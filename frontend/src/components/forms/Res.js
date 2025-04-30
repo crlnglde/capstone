@@ -148,14 +148,31 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
 
         {/* Address, DOB, Occupation, Income */}
         <div className="row">
-          <div className="col address">
+        <div className="col address">
+          {isEditing ? (
+            <>
+              <input
+                type="text"
+                value={formData.purok || ""}
+                onChange={(e) => handleChange("purok", e.target.value)}
+                placeholder="Purok"
+              />
+              <input
+                type="text"
+                value={formData.barangay || ""}
+                onChange={(e) => handleChange("barangay", e.target.value)}
+                placeholder="Barangay"
+              />
+            </>
+          ) : (
             <input
               type="text"
               value={`${formData.purok || ""}, ${formData.barangay || ""}`}
               disabled
             />
-            <label>Home Address</label>
-          </div>
+          )}
+          <label>Home Address</label>
+        </div>
           <div className="col">
             <input
               type="date"

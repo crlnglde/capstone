@@ -118,6 +118,7 @@ app.post("/add-residents", async (req, res) => {
       education,
       income,
       dependents: formattedDependents,
+      status: "active"
     });
 
     await newResident.save();
@@ -201,6 +202,27 @@ app.put('/update-resident/:memId', async (req, res) => {
   } catch (error) {
       console.error('Error:', error); 
       res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.post("/update-resident/:memId/history", async (req, res) => {
+  try {
+    const { memId } = req.params;
+    const historyEntry = req.body;
+
+    const result = await Resident.updateOne(
+      { memId },
+      { $push: { editHistory: historyEntry } }
+    );
+
+    if (result.modifiedCount === 0) {
+      return res.status(404).json({ message: "Resident not found or not updated" });
+    }
+
+    res.status(200).json({ message: "Edit history saved successfully" });
+  } catch (error) {
+    console.error("Failed to save edit history:", error);
+    res.status(500).json({ message: "Server error" });
   }
 });
 

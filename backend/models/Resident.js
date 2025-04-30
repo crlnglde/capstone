@@ -4,7 +4,11 @@ const ResidentsSchema = new mongoose.Schema({
     memId: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
+    },    
+    status: {
+        type: String,
+        enum: ["active", "inactive"] 
     },
     firstName: {
         type: String,
@@ -61,6 +65,14 @@ const ResidentsSchema = new mongoose.Schema({
             sex: { type: String, required: true, enum: ["Male", "Female"] },
             education: { type: String, default: null },
             occupationSkills: { type: String, default: null }
+        }
+    ],
+    editHistory: [
+        {
+            type: { type: String, enum: ["Add", "Update", "Remove"], required: true },
+            timestamp: { type: Date, required: true },
+            username: { type: String, required: true },
+            changes: { type: Object, required: true }
         }
     ]
 });
