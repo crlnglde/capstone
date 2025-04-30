@@ -77,6 +77,16 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
     }));
   };
 
+  const barangays = [
+    'Abuno', 'Acmac-Mariano Badelles Sr.', 'Bagong Silang', 'Bonbonon', 'Bunawan', 'Buru-un', 'Dalipuga',
+    'Del Carmen', 'Digkilaan', 'Ditucalan', 'Dulag', 'Hinaplanon', 'Hindang', 'Kabacsanan', 'Kalilangan',
+    'Kiwalan', 'Lanipao', 'Luinab', 'Mahayahay', 'Mainit', 'Mandulog', 'Maria Cristina', 'Pala-o',
+    'Panoroganan', 'Poblacion', 'Puga-an', 'Rogongon', 'San Miguel', 'San Roque', 'Santa Elena',
+    'Santa Filomena', 'Santiago', 'Santo Rosario', 'Saray', 'Suarez', 'Tambacan', 'Tibanga', 'Tipanoy',
+    'Tomas L. Cabili (Tominobo Proper)', 'Upper Tominobo', 'Tubod', 'Ubaldo Laya', 'Upper Hinaplanon',
+    'Villa Verde'
+  ];
+
 
   return (
     <div className="resvw">
@@ -160,12 +170,17 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
                 onChange={(e) => handleChange("purok", e.target.value)}
                 placeholder="Purok"
               />
-              <input
-                type="text"
+             <select
                 value={formData.barangay || ""}
                 onChange={(e) => handleChange("barangay", e.target.value)}
-                placeholder="Barangay"
-              />
+              >
+                <option value="" disabled>Select Barangay</option>
+                {barangays.map((barangay, index) => (
+                  <option key={index} value={barangay}>
+                    {barangay}
+                  </option>
+                ))}
+              </select>
             </>
           ) : (
             <input

@@ -75,7 +75,9 @@ const ResidentsSchema = new mongoose.Schema({
             changes: { type: Object, required: true }
         }
     ]
-});
+},
+{ timestamps: true }
+);
 
 const ResidentsModel = mongoose.model("residents", ResidentsSchema);
 

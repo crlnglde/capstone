@@ -165,7 +165,8 @@ const AddAffFam = ({disBarangay, disCode, setStep}) => {
                     try {
                         const parsed = JSON.parse(localData);
                         const cachedResidents = parsed.filter(resident => resident.barangay === barangay);
-                        setResidents(cachedResidents);
+                        const activeResidents = cachedResidents.filter(resident => resident.status === "active");
+                        setResidents(activeResidents);
                     } catch (e) {
                         console.error("Failed to parse cached residents:", e);
                     }
@@ -178,7 +179,8 @@ const AddAffFam = ({disBarangay, disCode, setStep}) => {
                         console.warn(`No residents found for '${barangay}'`);
                         setResidents([]);
                     } else {
-                        setResidents(response.data);
+                        const activeResidents = response.data.filter(resident => resident.status === "active");
+                        setResidents(activeResidents);
                     }
                     } catch (err) {
                         console.error("Error fetching residents:", err);

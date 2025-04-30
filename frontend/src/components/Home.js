@@ -71,9 +71,10 @@ useEffect(() => {
     if (localData) {
       try {
         const parsed = JSON.parse(localData);
-        residentsData = parsed;
-        setResidents(parsed);
-        updateStats(parsed);
+        const data = parsed;
+        residentsData = data.filter(resident => resident.status === "active");
+        setResidents(residentsData);
+        updateStats(residentsData);
       } catch (e) {
         console.error("Failed to parse local residents data", e);
       }
@@ -82,7 +83,7 @@ useEffect(() => {
     // Then attempt to fetch fresh data from server
     try {
       const response = await axios.get("http://localhost:3003/get-residents");
-      residentsData = response.data;
+      residentsData = response.data.filter(resident => resident.status === "active");
       setResidents(residentsData);
       updateStats(residentsData);
       localStorage.setItem("residents", JSON.stringify(residentsData)); // Optional: Update localStorage
