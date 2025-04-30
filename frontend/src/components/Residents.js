@@ -201,7 +201,7 @@ const fetchExistingResidents = async () => {
                   income: row['income'] ? parseFloat(row['income']) : 0,
                   dependents: row['dependents'] ? JSON.parse(row['dependents']).map(dep => ({
                     ...dep,
-                    sex: dep.sex === "M" ? "Male" : dep.sex === "F" ? "Female" : dep.sex
+                    sex: dep.sex === "M" ? "Male" : dep.sex === "F" ? "Female" : dep.sex === "O"? "Others" : dep.sex
                   })) : [],
                 };
               }).filter(item => item !== null);
@@ -1199,6 +1199,7 @@ const fetchExistingResidents = async () => {
                             <option value="">Select Sex</option>
                             <option value="M">Male</option>
                             <option value="F">Female</option>
+                            <option value="O">Others</option>
                           </select>
                         </div>
                       </div>
@@ -1384,6 +1385,7 @@ const fetchExistingResidents = async () => {
                                           </option>
                                           <option value="Male">Male</option>
                                           <option value="Female">Female</option>
+                                          <option value="Others">Others</option>
                                         </select>
                                       </div>            
                                     </div>

@@ -144,6 +144,7 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
             >
               <option value="M">M</option>
               <option value="F">F</option>
+              <option value="O">O</option>
             </select>
           </div>
 
@@ -320,12 +321,13 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
                           handleDependentChange(index, "sex", e.target.value)
                         }
                       >
-                        <option value={dependent.sex}>
-                          {dependent.sex === "Male" ? "M" : "F"}
-                        </option>
-                        <option value={dependent.sex === "Male" ? "Female" : "Male"}>
-                          {dependent.sex === "Male" ? "F" : "M"}
-                        </option>
+                          <option value={dependent.sex}>
+                            {dependent.sex === "Male" ? "M" : dependent.sex === "Female" ? "F" : "O"}
+                          </option>
+                          <option value="Male">M</option>
+                          <option value="Female">F</option>
+                          <option value="Others">O</option>
+
                       </select>
                     ) : (
                      <div className="static-cell">{dependent.sex}</div>

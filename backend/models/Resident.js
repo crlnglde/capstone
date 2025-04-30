@@ -28,7 +28,7 @@ const ResidentsSchema = new mongoose.Schema({
     sex: { 
         type: String, 
         required: true, 
-        enum: ["M", "F"] 
+        enum: ["M", "F", "O"] 
     },
     purok: {
         type: String,
@@ -62,7 +62,7 @@ const ResidentsSchema = new mongoose.Schema({
             name: { type: String, required: true },
             relationToHead: { type: String, required: true },
             age: { type: Number, required: true },
-            sex: { type: String, required: true, enum: ["Male", "Female"] },
+            sex: { type: String, required: true, enum: ["Male", "Female", "Others"] },
             education: { type: String, default: null },
             occupationSkills: { type: String, default: null }
         }
