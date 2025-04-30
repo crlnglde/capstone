@@ -46,6 +46,8 @@ const EditRDS = () => {
   };
 
   const handleSaveSignature = (imageURL) => {
+    const confirmSubmit = window.confirm("Confirm Signature");
+    if (!confirmSubmit) return;
     console.log("selected family", selectedFamily)
     console.log("selectedFamily._id:", selectedFamily._id, typeof selectedFamily._id);
 
@@ -176,6 +178,7 @@ const EditRDS = () => {
   }, [distributionData]);
   
   const handleSignature= async () => {
+
     setConfirmDialog({
       show: true,
       type: "add",

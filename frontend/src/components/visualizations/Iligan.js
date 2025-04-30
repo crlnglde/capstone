@@ -156,6 +156,11 @@ const MapDisaster = () => {
         console.log("No disasters found, clearing map data.");
       }
     }, [filteredData, disasterTypeFilter, disasterMonthFilter, barangay, year]);    
+
+    useEffect(() => {
+      console.log("barangays", filteredDisastersByBarangay)
+    },[filteredData]);
+  
     
 
   // Define a function to style each feature
@@ -247,7 +252,6 @@ const MapDisaster = () => {
     });
   };
 
-
   return (
     <div className="choropleth-map-container">
       
@@ -338,26 +342,17 @@ const MapDisaster = () => {
         <h2>Disaster Insights</h2>
         <p>
           {filteredData.length > 0 ?
-            (disasterTypeFilter === "All" ?
+            (currentFilter.disasterType === "All" ?
               <span>
                 There is a noticeable concentration of <strong style={{ color:"white"}}>disasters</strong> in specific barangays.
                 You may want to focus on these areas for disaster preparedness and response strategies. Stay alert and be prepared for the unexpected!
               </span> :
               <span>
-              <strong style={{ color: getColorForBubble(disasterTypeFilter) }}>
-                {disasterTypeFilter}
+              <strong >
+                {currentFilter.disasterType.toUpperCase()}
               </strong> shows a noticeable concentration in the following barangays:
               <strong>
-                {Object.entries(filteredDisastersByBarangay)
-                  .map(([barangay, disasterTypes]) => {
-                    if (disasterTypes[disasterTypeFilter] > 0) {
-                      return barangay;
-                    }
-                    return null;
-                  })
-                  .filter(Boolean)
-                  .join(", ")
-                }
+                {Object.keys(filteredDisastersByBarangay).join(", ")}
               </strong>. You may want to focus on these areas for disaster preparedness and response strategies. Stay alert and be prepared for the unexpected!
             </span>            
             ) :

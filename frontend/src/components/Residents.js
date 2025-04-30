@@ -39,9 +39,8 @@ const Residents = ({ setNavbarTitle }) => {
   const [dependents, setDependents] = useState([""]);
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [prevRes, setPrevRes] = useState([]);
 
-
-  
   const [role, setRole] = useState(() => {
     const savedRole = localStorage.getItem('role');
     return savedRole ? savedRole.toLowerCase() : null;
@@ -603,27 +602,158 @@ const fetchExistingResidents = async () => {
                 },
                 body: JSON.stringify(updatedResidentData),
               });
-        
-              if (response.ok) {
-                const data = await response.json();
-                setSelectedResident(data);
-                fetchResidents();
-        
-                setNotification({ type: "success", title: "Update Successful", message: "Resident data updated successfully!" });
-                setTimeout(() => setNotification(null), 3000);
-              } else {
-                const errorData = await response.json();
-                setNotification({ type: "error", title: "Update Error", message: errorData.message || "Error updating resident data" });
-                setTimeout(() => setNotification(null), 3000);
-              }
-            } catch (error) {
-              console.error('Error saving data:', error);
-              setNotification({ type: "error", title: "Save Error", message: "An error occurred while saving the data." });
-              setTimeout(() => setNotification(null), 3000);
+      
+                if (response.ok) {
+                    const data = await response.json();
+
+                          // Record final saved changes
+                    const prevData = sanitizeResidentData(prevRes); // This is the original before update
+                    console.log("previous", prevData.bdate)
+                    const newData = updatedResidentData;
+                    console.log("new", newData.bdate)
+
+                    const normalizeDate = (date) => {
+                      try {
+                        // Strip time and return only the date in YYYY-MM-DD format
+                        return new Date(date).toISOString().split("T")[0]; // Format to YYYY-MM-DD
+                      } catch {
+                        return date; // If invalid date, return the original value
+                      }
+                    };
+                    
+                    const changedFields = Object.keys(newData).reduce((acc, key) => {
+                      if (key === "dependents" || key === "editHistory") return acc; // skip, handled below
+                      
+                      const prevVal = (key === "bdate") ? normalizeDate(prevData[key]) : prevData[key];
+                      const newVal = (key === "bdate") ? normalizeDate(newData[key]) : newData[key];
+                      
+                      if (newVal !== prevVal) {
+                        acc[key] = {
+                          before: prevData[key],
+                          after: newData[key],
+                        };
+                      }
+                      return acc;
+                    }, {});                    
+
+                   // --- Compare dependents ---
+                    const prevDependents = prevData.dependents || [];
+                    const newDependents = newData.dependents || [];
+
+                    console.log("prev: ", prevDependents)
+                    console.log("new: ", newDependents)
+                    const dependentsChanges = [];
+
+                    const normalize = (val) => (val ?? "").toString().trim().toLowerCase();
+
+                    // Check modified or removed dependents
+                    prevDependents.forEach((prevDep) => {
+                      const matching = newDependents.find(
+                        (nd) =>
+                          normalize(nd.name) === normalize(prevDep.name) &&
+                          normalize(nd.relationToHead) === normalize(prevDep.relationToHead)
+                      );
+                    
+                      if (matching) {
+                        const changes = {};
+                    
+                        if (matching.age !== prevDep.age)
+                          changes.age = { before: prevDep.age, after: matching.age };
+                    
+                        if (normalize(matching.sex) !== normalize(prevDep.sex))
+                          changes.sex = { before: prevDep.sex, after: matching.sex };
+                    
+                        if (normalize(matching.education) !== normalize(prevDep.education))
+                          changes.education = {
+                            before: prevDep.education,
+                            after: matching.education,
+                          };
+                    
+                        if (
+                          normalize(matching.occupationSkills) !==
+                          normalize(prevDep.occupationSkills)
+                        )
+                          changes.occupationSkills = {
+                            before: prevDep.occupationSkills,
+                            after: matching.occupationSkills,
+                          };
+                    
+                        if (Object.keys(changes).length > 0) {
+                          dependentsChanges.push({
+                            name: prevDep.name,
+                            relation: prevDep.relationToHead,
+                            type: "modified",
+                            changes,
+                          });
+                        }
+                      } else {
+                        dependentsChanges.push({
+                          name: prevDep.name,
+                          relation: prevDep.relationToHead,
+                          type: "removed",
+                        });
+                      }
+                    });
+                    
+                    // Check added dependents
+                    newDependents.forEach((newDep) => {
+                      const matching = prevDependents.find(
+                        (pd) =>
+                          normalize(pd.name) === normalize(newDep.name) &&
+                          normalize(pd.relationToHead) === normalize(newDep.relationToHead)
+                      );
+                      if (!matching) {
+                        dependentsChanges.push({
+                          name: newDep.name,
+                          relation: newDep.relationToHead,
+                          type: "added",
+                          data: newDep,
+                        });
+                      }
+                    });
+                    
+                    if (dependentsChanges.length > 0) {
+                      changedFields.dependents = dependentsChanges;
+                    }
+
+                    // --- Save to localStorage if there are any changes ---
+                    if (Object.keys(changedFields).length > 0) {
+                      const username = localStorage.getItem("username") || "Unknown User";
+                      const log = {
+                        type: "Update",
+                        memId: newData.memId,
+                        timestamp: new Date().toISOString(),
+                        username: username,
+                        changes: changedFields,
+                      };
+
+                      const existingLog = JSON.parse(localStorage.getItem("changelog")) || [];
+                      localStorage.setItem("changelog", JSON.stringify([...existingLog, log]));
+
+                      await fetch(`http://localhost:3003/update-resident/${newData.memId}/history`, {
+                        method: "POST",
+                        headers: {
+                          "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(log),
+                      });
+                    }
+                    
+                    setSelectedResident(data); 
+                    fetchResidents();
+                    alert('Resident data updated successfully!');
+                } else {
+                    const errorData = await response.json();
+                    alert(errorData.message || 'Error updating resident data');
+                }
+              } catch (error) {
+                  console.error('Error saving data:', error);
+                  alert('An error occurred while saving the data');
             }
           }; 
 
           const toggleEdit = () => {
+            setPrevRes(structuredClone(selectedResident));
             setIsEditing(!isEditing);
           };
 
