@@ -74,7 +74,7 @@ const Disaster = ({ setNavbarTitle }) => {
 
 
   useEffect(() => {
-    let title = `Disaster > ${activeTab === "list" ? "List" : "Visualization"}`;
+    let title = `Disaster `;
 
     if (activeTab === "list" && step === 2) {
         const stepTitles = {
@@ -180,7 +180,8 @@ useEffect(() => {
         transformAndSetDisasters(disasterData);
 
       } else {
-        console.error("Expected an array but got", response.data);
+        setNotification({ type: "error", title: "Data Format Error", message: `Expected an array but got: ${JSON.stringify(response.data)}` });
+        setTimeout(() => setNotification(null), 3000);
       }}
       else{
             // Load from localStorage first (if available)
@@ -195,7 +196,8 @@ useEffect(() => {
             parsedLocal = JSON.parse(localData);
             if (!Array.isArray(parsedLocal)) parsedLocal = [];
           } catch (e) {
-            console.error("Failed to parse local disasters data", e);
+            setNotification({ type: "error", title: "Parse Error", message: `Failed to parse local disasters data: ${e.message || e}` });
+            setTimeout(() => setNotification(null), 3000);
           }
         }
   
@@ -204,7 +206,8 @@ useEffect(() => {
             parsedOffline = JSON.parse(offlineData);
             if (!Array.isArray(parsedOffline)) parsedOffline = [];
           } catch (e) {
-            console.error("Failed to parse offline disaster data", e);
+            setNotification({ type: "error", title: "Parse Error", message: `Failed to parse offline disaster data: ${e.message || e}` });
+            setTimeout(() => setNotification(null), 3000);
           }
         }
   
@@ -214,7 +217,8 @@ useEffect(() => {
         transformAndSetDisasters(disasterData);
       }
     } catch (error) {
-      console.error("Error fetching disasters data:", error);
+      setNotification({ type: "error", title: "Fetch Error", message: `Error fetching disasters data: ${error.message || error}` });
+      setTimeout(() => setNotification(null), 3000);
     }
   };
 

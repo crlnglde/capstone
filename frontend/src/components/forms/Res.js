@@ -9,9 +9,12 @@ import ICImage from '../../pic/IC.png';
 import cswdImage from '../../pic/cswd.jpg';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
+import ConfirmationDialog from "../again/Confirmation";
+
 
 const RES = ({ residentData, isEditing, setResidentData }) => {
   const [formData, setFormData] = useState(residentData);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
   // Keep formData in sync with incoming residentData when it's updated externally
   useEffect(() => {

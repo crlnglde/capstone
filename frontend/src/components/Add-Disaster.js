@@ -7,6 +7,7 @@ import DstrGif from "../pic/disaster.gif"
 import DAFAC from "./forms/DAFAC";
 import Loading from "./again/Loading";
 import Notification from "./again/Notif";
+import ConfirmationDialog from "./again/Confirmation";
 
 const disasterTypeMapping = {
     "Typhoon": "D1",
@@ -50,6 +51,17 @@ const AddDisaster = () => {
 
     const [loading, setLoading] = useState(false);
     const [notification, setNotification] = useState(null); 
+    const [confirmDialog, setConfirmDialog] = useState({
+    show: false,
+    type: "",       // 'save', 'delete', 'add'
+    title: "",
+    message: "",
+    onConfirm: null,
+    });
+
+    const handleCancelConfirm = () => {
+        setConfirmDialog({ ...confirmDialog, show: false });
+      };
 
     //new
     const generateDisasterCode = (type, date) => {
@@ -342,68 +354,76 @@ const AddDisaster = () => {
      //modified
      const handleFinalSubmit = async (e) => {
         e.preventDefault();
-
+      
         // On first click, set isSubmitted to true to trigger validation
         setHasClickedNext(true);
-
+      
         // Check if all required fields are filled
         const isValid = validateFields();
         if (!isValid) {
-            setNotification({ type: "error", title: "Invalid Form", message: "Please fill out all required fields before submitting." });
-            setTimeout(() => setNotification(null), 3000);
-            return;
+          setNotification({ type: "error", title: "Invalid Form", message: "Please fill out all required fields before submitting." });
+          setTimeout(() => setNotification(null), 3000);
+          return;
         }
-
-        const confirmSubmit = window.confirm("Are you sure you want to record new disaster?");
-        if (!confirmSubmit) return;
-
-        if(navigator.onLine){
-            syncData();
-        } else{
-
-            const disasterData = JSON.parse(localStorage.getItem("disasterData")) || null;
-            const residentData = JSON.parse(localStorage.getItem("savedForms")) || [];
-
-            const barangayName = disasterData.selectedBarangays || "Unknown Barangay";
-
-            const groupedByBarangay = {
+      
+        setConfirmDialog({
+          show: true,
+          type: "add",  // or "save" depending on your styling
+          title: "Confirm Record",
+          message: "Are you sure you want to record new disaster?",
+          onConfirm: async () => {
+            setConfirmDialog(prev => ({ ...prev, show: false })); // Close the dialog
+      
+            if (navigator.onLine) {
+              syncData();
+            } else {
+              const disasterData = JSON.parse(localStorage.getItem("disasterData")) || null;
+              const residentData = JSON.parse(localStorage.getItem("savedForms")) || [];
+      
+              const barangayName = disasterData.selectedBarangays || "Unknown Barangay";
+      
+              const groupedByBarangay = {
                 [barangayName]: residentData.filter(res => res.barangay === barangayName)
-            };
-            
-            // Prepare barangays array
-            let barangays = Object.entries(groupedByBarangay).map(([barangayName, residents]) => ({
+              };
+      
+              // Prepare barangays array
+              let barangays = Object.entries(groupedByBarangay).map(([barangayName, residents]) => ({
                 name: barangayName,
                 affectedFamilies: [],
-            }));
-
-            const _id = `temp-${Date.now()}`;
-
-            const disasterDocument = {
+              }));
+      
+              const _id = `temp-${Date.now()}`;
+      
+              const disasterDocument = {
                 _id,
                 disasterCode,
                 disasterType,
                 disasterStatus,
                 disasterDateTime: new Date(date),
                 barangays
-            };
-
-            // Load existing offline disasters first
-            const existingOfflineDisasters = JSON.parse(localStorage.getItem('offlineDisasterData')) || [];
-
-            // Add the new disasterDocument
-            const updatedOfflineDisasters = [...existingOfflineDisasters, disasterDocument];
-
-            // Save back to localStorage
-            localStorage.setItem('offlineDisasterData', JSON.stringify(updatedOfflineDisasters));
-
-            setNotification({ type: "info", title: "Offline", message: "You're offline. Data saved locally and will sync when you're back online." });
-            setTimeout(() => {
+              };
+      
+              // Load existing offline disasters first
+              const existingOfflineDisasters = JSON.parse(localStorage.getItem('offlineDisasterData')) || [];
+      
+              // Add the new disasterDocument
+              const updatedOfflineDisasters = [...existingOfflineDisasters, disasterDocument];
+      
+              // Save back to localStorage
+              localStorage.setItem('offlineDisasterData', JSON.stringify(updatedOfflineDisasters));
+      
+              setNotification({ type: "info", title: "Offline", message: "You're offline. Data saved locally and will sync when you're back online." });
+      
+              setTimeout(() => {
                 setNotification(null);
-                setLoading(false); 
+                setLoading(false);
                 navigate("/disaster");
-            }, 1000); 
-        }
-    };    
+              }, 1000);
+            }
+          }
+        });
+      };
+      
 
     const Step1 = (
         <form className="add-form" onSubmit={handleFinalSubmit}>
@@ -885,6 +905,18 @@ const AddDisaster = () => {
           onClose={() => setNotification(null)}  // Close notification when user clicks ✖
         />
       )}
+
+        {confirmDialog.show && (
+            <ConfirmationDialog
+            type={confirmDialog.type}
+            title={confirmDialog.title}
+            message={confirmDialog.message}
+            onConfirm={confirmDialog.onConfirm}
+            onCancel={handleCancelConfirm}
+            />
+        )}
+
+      
 
 
         <div className="dash-btn">

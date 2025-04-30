@@ -8,7 +8,7 @@ import DAFAC from "../forms/DAFAC";
 import Modal from "../Modal";
 import Loading from "../again/Loading";
 import Notification from "../again/Notif";
-
+import ConfirmationDialog from "../again/Confirmation";
 
 const AddAffFam = ({disBarangay, disCode, setStep}) => {
 
@@ -47,6 +47,17 @@ const AddAffFam = ({disBarangay, disCode, setStep}) => {
 
     const [loading, setLoading] = useState(false);
     const [notification, setNotification] = useState(null); 
+    const [confirmDialog, setConfirmDialog] = useState({
+        show: false,
+        type: "",       // 'save', 'delete', 'add'
+        title: "",
+        message: "",
+        onConfirm: null,
+      });
+    
+      const handleCancelConfirm = () => {
+        setConfirmDialog({ ...confirmDialog, show: false });
+      };
 
     const [isOnline, setIsOnline] = useState(navigator.onLine);
     const [D, setD] = useState([]);
@@ -386,83 +397,89 @@ const AddAffFam = ({disBarangay, disCode, setStep}) => {
         
     
         const handleFinalSubmit = () => {
-            const confirmSubmit = window.confirm("Are you sure you want to submit the forms?");
-            if (!confirmSubmit) return;
 
-            if (navigator.onLine) {
-                syncData();
-            } else {
-                const residentData = JSON.parse(localStorage.getItem("savedForms")) || [];
-            
-                const updatedForms = residentData.map(form => ({
-                    ...form,
-                    disasterCode: disasterCode, // make sure disasterCode is available
-                }));
-            
-                // Get all offline disasters
-                const disasterData = JSON.parse(localStorage.getItem("offlineDisasterData")) || [];
-            
-                const disasterIndex = disasterData.findIndex(d => d.disasterCode === disasterCode);
-                console.log("offline index", disasterIndex)
-
-                if (disasterIndex !== -1) {
-                    // Disaster exists
-                    const existingDisaster = disasterData[disasterIndex];
-            
-                    // For each updated form, find the correct barangay and add to affectedFamilies
-                    residentData.forEach(form => {
-                        const barangayIndex = existingDisaster.barangays.findIndex(b => b.name === form.barangay);
-                        if (barangayIndex !== -1) {
-                            existingDisaster.barangays[barangayIndex].affectedFamilies.push(form);
-                        } else {
-                            // If barangay not found, you can optionally create it
-                            existingDisaster.barangays.push({
-                                name: form.barangay,
-                                affectedFamilies: [form]
+            setConfirmDialog({
+                show: true,
+                type: "confirm", // or customize this type for your dialog styling
+                title: "Submit Forms",
+                message: "Are you sure you want to submit the forms?",
+                onConfirm: async () => {
+                    if (navigator.onLine) {
+                        syncData();
+                    } else {
+                        const residentData = JSON.parse(localStorage.getItem("savedForms")) || [];
+                    
+                        const updatedForms = residentData.map(form => ({
+                            ...form,
+                            disasterCode: disasterCode, // make sure disasterCode is available
+                        }));
+                    
+                        // Get all offline disasters
+                        const disasterData = JSON.parse(localStorage.getItem("offlineDisasterData")) || [];
+                    
+                        const disasterIndex = disasterData.findIndex(d => d.disasterCode === disasterCode);
+                        console.log("offline index", disasterIndex)
+        
+                        if (disasterIndex !== -1) {
+                            // Disaster exists
+                            const existingDisaster = disasterData[disasterIndex];
+                    
+                            // For each updated form, find the correct barangay and add to affectedFamilies
+                            residentData.forEach(form => {
+                                const barangayIndex = existingDisaster.barangays.findIndex(b => b.name === form.barangay);
+                                if (barangayIndex !== -1) {
+                                    existingDisaster.barangays[barangayIndex].affectedFamilies.push(form);
+                                } else {
+                                    // If barangay not found, you can optionally create it
+                                    existingDisaster.barangays.push({
+                                        name: form.barangay,
+                                        affectedFamilies: [form]
+                                    });
+                                }
                             });
+                    
+                            // Update the disaster back in the array
+                            disasterData[disasterIndex] = existingDisaster;
+                    
+                            // Save back to localStorage
+                            localStorage.setItem("offlineDisasterData", JSON.stringify(disasterData));
+                    
+                            // Clear saved forms
+                            localStorage.removeItem("savedForms");
+                    
+                            setNotification({ type: "info", title: "Offline", message: "You're offline. Data saved locally and will sync when you're back online." });
+                            setTimeout(() => {
+                                setNotification(null);
+                                setStep(1);
+                                setLoading(false);
+                            }, 2000);
+                    
+                        } else {
+                            // Disaster doesn't exist - continue your original behavior
+                            const existing = JSON.parse(localStorage.getItem("AffectedForms") || "[]");
+        
+                            console.log("existing", existing)
+                            console.log("updated", updatedForms)
+                    
+                            const combined = [...existing, ...updatedForms];
+        
+                            console.log("combined", combined)
+                    
+                            localStorage.setItem("AffectedForms", JSON.stringify(combined));
+                            localStorage.removeItem("savedForms");
+                    
+                            setNotification({ type: "info", title: "Offline", message: "You're offline. Data saved locally and will sync when you're back online." });
+                            setTimeout(() => {
+                                setNotification(null);
+                                setStep(1);
+                                setLoading(false);
+                            }, 2000);
                         }
-                    });
-            
-                    // Update the disaster back in the array
-                    disasterData[disasterIndex] = existingDisaster;
-            
-                    // Save back to localStorage
-                    localStorage.setItem("offlineDisasterData", JSON.stringify(disasterData));
-            
-                    // Clear saved forms
-                    localStorage.removeItem("savedForms");
-            
-                    setNotification({ type: "info", title: "Offline", message: "You're offline. Data saved locally and will sync when you're back online." });
-                    setTimeout(() => {
-                        setNotification(null);
-                        setStep(1);
-                        setLoading(false);
-                    }, 2000);
-            
-                } else {
-                    // Disaster doesn't exist - continue your original behavior
-                    const existing = JSON.parse(localStorage.getItem("AffectedForms") || "[]");
-
-                    console.log("existing", existing)
-                    console.log("updated", updatedForms)
-            
-                    const combined = [...existing, ...updatedForms];
-
-                    console.log("combined", combined)
-            
-                    localStorage.setItem("AffectedForms", JSON.stringify(combined));
-                    localStorage.removeItem("savedForms");
-            
-                    setNotification({ type: "info", title: "Offline", message: "You're offline. Data saved locally and will sync when you're back online." });
-                    setTimeout(() => {
-                        setNotification(null);
-                        setStep(1);
-                        setLoading(false);
-                    }, 2000);
+        
+                        window.location.reload();
+                    }    
                 }
-
-                window.location.reload();
-            }            
+            })        
         };
 
         //search
@@ -533,6 +550,16 @@ const AddAffFam = ({disBarangay, disCode, setStep}) => {
           onClose={() => setNotification(null)}  // Close notification when user clicks ✖
         />
       )}
+
+        {confirmDialog.show && (
+            <ConfirmationDialog
+              type={confirmDialog.type}
+              title={confirmDialog.title}
+              message={confirmDialog.message}
+              onConfirm={confirmDialog.onConfirm}
+              onCancel={handleCancelConfirm}
+            />
+          )}
 
         <div className="afffam-residents-table">
 

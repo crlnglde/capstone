@@ -45,12 +45,13 @@
     border-radius: 4px;
 }
 
-button:hover {
+.search-container .search-btn:hover,
+.search-container .search-filter-btn:hover {
     background-color: #233c96;
     transform: scale(1.05);
 }
 
-.search-filter-btn:hover {
+.search-container .search-filter-btn:hover {
     color: white; /* Ensure text color turns white on hover */
 }
 
