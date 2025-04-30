@@ -6,7 +6,9 @@ import moment from "moment";
 import { LuClipboardPlus } from "react-icons/lu";
 import { GiConfirmed } from "react-icons/gi";
 import { RiEdit2Line } from "react-icons/ri";
-import { FaLock } from "react-icons/fa";
+import { FaLock, FaMale, FaFemale  } from "react-icons/fa";
+import { IoMale, IoFemaleSharp, IoMaleFemale  } from "react-icons/io5";
+
 import StackedBarChart from "./visualizations/Line-gr";
 import DonutGraph from './visualizations/Donut'
 import PieChart from "./visualizations/Pie";
@@ -614,7 +616,10 @@ useEffect(() => {
                 gridTemplateColumns: '1fr 2fr',
                 gap: '2rem',
                 height: '100%',
-                padding: '20px'
+                paddingTop: 0,
+                paddingRight: '20px',
+                paddingBottom: '20px',
+                paddingLeft: '20px'
               }}
             >
               {/* Left Column - Donut + Pie */}
@@ -625,7 +630,7 @@ useEffect(() => {
                   flexDirection: 'column',
                   justifyContent: 'space-between', // makes them evenly distributed
                   height: '100%', // Ensures it stretches fully
-                  gap: '46px'
+                  gap: '15px'
                 }}
               >
                 <div className="chart-box" style={{ flex: 1 }}>
@@ -748,29 +753,79 @@ useEffect(() => {
               <div className="viewmore-pop">
 
               <div className="vm-form-group">
+
                 <label>Sex Breakdown</label>
-                <div className="vm-input-group">
-                  <span className="icon"><i className="fa-solid fa-user"></i></span>
-                  <span className="label">
-                    Male: {selectedDisaster.sexBreakdown.males}  | Female: {selectedDisaster.sexBreakdown.females}  | Others: {selectedDisaster.sexBreakdown.others}
-                  </span>
+                <div className="vm-input-group sex">
+                  
+                  <div className="a">
+                    <span className="icon"><IoMale /></span>
+                    <span className="label">
+                      Male: {selectedDisaster.sexBreakdown.males} 
+                    </span>
+                  </div>
+                  
+                  <div className="a">
+                    <span className="icon"><IoFemaleSharp /></span>
+                    <span className="label">
+                      Female: {selectedDisaster.sexBreakdown.females}
+                    </span>
+                  </div>
+
+                  
+                  <div className="a">
+                    <span className="icon"><IoMaleFemale /></span>
+                    <span className="label">
+                      Others: {selectedDisaster.sexBreakdown.others}
+                    </span>
+                  </div>         
+
                 </div>
 
                 {/* Breakdown by Age Groups */}
-                <div className="vm-input-group" style={{ marginTop: '8px' }}>
-                  <span className="label" style={{ fontSize: '0.9em' }}>
-                    Senior (60+): Male: {selectedDisaster.sexBreakdown.maleSenior}   | Female: {selectedDisaster.sexBreakdown.femaleSenior}   | Others: {selectedDisaster.sexBreakdown.othersSenior}
-                  </span>
-                </div>
-                <div className="vm-input-group">
-                  <span className="label" style={{ fontSize: '0.9em' }}>
-                    Adult (18-59): Male: {selectedDisaster.sexBreakdown.maleAdult}   | Female: {selectedDisaster.sexBreakdown.femaleAdult}  | Others: {selectedDisaster.sexBreakdown.othersAdult}
-                  </span>
-                </div>
-                <div className="vm-input-group">
-                  <span className="label" style={{ fontSize: '0.9em' }}>
-                    Minor (0-17): Male: {selectedDisaster.sexBreakdown.maleMinor}  | Female: {selectedDisaster.sexBreakdown.femaleMinor}  | Others: {selectedDisaster.sexBreakdown.othersMinor}
-                  </span>
+                <div className="vm-input-group1">
+
+                    <div className="vm-input-group2">
+                      <div className="aa"> 
+
+                        <label> Senior (60+): </label>
+
+                        <div className="vm-input-group" style={{ fontSize: '0.9em' }}>
+                          <span class="label"> Male: {selectedDisaster.sexBreakdown.maleSenior}   | 
+                            Female: {selectedDisaster.sexBreakdown.femaleSenior}   | 
+                            Others: {selectedDisaster.sexBreakdown.othersSenior}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="vm-input-group2">
+                      <div className="aa"> 
+
+                      <label> Adults (18-59): </label>
+
+                        <div className="vm-input-group" style={{ fontSize: '0.9em' }}>
+                            <span class="label"> Male: {selectedDisaster.sexBreakdown.maleAdult}   | 
+                              Female: {selectedDisaster.sexBreakdown.femaleAdult}  | 
+                              Others: {selectedDisaster.sexBreakdown.othersAdult}
+                            </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="vm-input-group2">
+                      <div className="aa"> 
+
+                        <label> Minor (0-17): </label>
+
+                        <div className="vm-input-group" style={{ fontSize: '0.9em' }}>
+                          <span class="label"> Male: {selectedDisaster.sexBreakdown.maleMinor}  | 
+                            Female: {selectedDisaster.sexBreakdown.femaleMinor}  | 
+                            Others: {selectedDisaster.sexBreakdown.othersMinor}
+                          </span>
+                        </div>
+                      </div>
+
+                    </div>
                 </div>
               </div>
 

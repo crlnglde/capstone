@@ -153,12 +153,37 @@ const DonutGraph = () => {
     }],
   };
 
+  const CustomLegend = ({ data }) => {
+    const labels = data.labels;
+    const backgroundColors = data.datasets[0].backgroundColor;
+  
+    return (
+      <div className="custom-legend">
+        {labels.map((label, idx) => (
+          <div key={label} className="legend-item">
+            <span
+              className="legend-color"
+              style={{ backgroundColor: backgroundColors[idx] }}
+            ></span>
+            <span>{label}</span>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   const options = {
     responsive: true,
     plugins: {
-      legend: { display: true, position: 'bottom' },
+      legend: {
+        display: false, // Hide Chart.js built-in legend
+      },
+    },
+    layout: {
+      padding: { bottom: 10 },
     },
   };
+  
 
   return (
     <div className="donut-graph-container">
@@ -173,6 +198,8 @@ const DonutGraph = () => {
         <div className="donut-wrapper">
           <Doughnut data={data} options={options} />
         </div>
+
+        <CustomLegend data={data} />
       </div>
 
       <div className="donut-text-overlay">

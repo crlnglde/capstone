@@ -88,7 +88,7 @@ const FDR= ({ report, distribution }) => {
                 </h2>
 
                 <div className= "sheet-title">
-                    <h2>SPORADIC Report</h2>
+                    <h2>Final Disaster Report</h2>
                 </div>
             </div>
 
