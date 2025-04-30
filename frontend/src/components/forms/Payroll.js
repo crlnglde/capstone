@@ -129,6 +129,7 @@ const Payroll= ({ report}) => {
                         <th></th>
                         <th>AMOUNT DUE</th>
                         <th>SIGNATURE</th>
+                        <th></th>
                     </tr>
                     </thead>
                     <tbody>
@@ -145,12 +146,14 @@ const Payroll= ({ report}) => {
                                 <td></td>
                                 <td>{emp.amount.toLocaleString()}</td>
                                 <td></td>
+                                <td>{index + 1}</td>
                             </tr>
                         ))}
                         {/* Add empty rows to ensure a total of 15 */}
                         {Array.from({ length: emptyRows }).map((_, index) => (
                             <tr key={`empty-${index}`}>
                                 <td>{employees.length + index + 1}</td>
+                                <td></td> 
                                 <td></td> 
                                 <td></td> 
                                 <td></td> 
@@ -173,6 +176,7 @@ const Payroll= ({ report}) => {
                             <td></td>
                             <td></td>
                             <td>{employees.reduce((sum, emp) => sum + emp.amount, 0).toLocaleString()}</td>
+                            <td></td>
                             <td></td>
                         </tr>
                     </tfoot>

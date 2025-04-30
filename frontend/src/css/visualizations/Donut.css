@@ -95,8 +95,7 @@
     align-items: center;
     justify-content: center;
     margin: 0px auto;
-    
-    height: 150px;
+    height: 120px;
     position: inherit;
   }
 
@@ -125,6 +124,38 @@
     color: white;
 }
 
- 
 
-  
+/* Donut.css */
+.donut-wrapper canvas {
+  max-width: 100% !important;
+}
+
+.chartjs-legend {
+  display: flex !important;
+  justify-content: center;
+  flex-wrap: nowrap !important;
+}
+
+.custom-legend {
+  display: flex;
+  justify-content: center;
+  flex-wrap: nowrap; /* prevent wrapping */
+  gap: 20px;
+  padding: 5px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+  margin: 0;
+  font-size: 13px;
+}
+
+.legend-color {
+  width: 15px;
+  height: 15px;
+  border-radius: 3px;
+  display: inline-block;
+}

@@ -149,12 +149,34 @@ const dafacStatusStats = useMemo(() => {
     }],
   };
 
+  const CustomLegend = ({ data }) => {
+    const labels = data.labels;
+    const backgroundColors = data.datasets[0].backgroundColor;
+  
+    return (
+      <div className="custom-legend">
+        {labels.map((label, idx) => (
+          <div key={label} className="legend-item">
+            <span
+              className="legend-color"
+              style={{ backgroundColor: backgroundColors[idx] }}
+            ></span>
+            <span>{label}</span>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   const options = {
     responsive: true,
     plugins: {
       legend: {
-        position: "bottom",
+        display: false, // Hide Chart.js built-in legend
       },
+    },
+    layout: {
+      padding: { bottom: 10 },
     },
   };
 
@@ -169,6 +191,8 @@ const dafacStatusStats = useMemo(() => {
         <div className="pie-wrapper">
           <Pie data={data} options={options} />
         </div>
+
+        <CustomLegend data={data} />
       </div>
       
       <div className="pie-text-overlay">

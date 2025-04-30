@@ -95,13 +95,15 @@ body {
 .payroll-table th:nth-child(7),
 .payroll-table th:nth-child(8),
 .payroll-table th:nth-child(9),
+.payroll-table th:nth-child(12),
 
 .payroll-table td:nth-child(1),
 .payroll-table td:nth-child(6),
 .payroll-table td:nth-child(7),
 .payroll-table td:nth-child(8),
-.payroll-table td:nth-child(9) {
-    width: 40px; /* Narrower blank columns */
+.payroll-table td:nth-child(9),
+.payroll-table td:nth-child(12) {
+    width: 30px; /* Narrower blank columns */
     text-align: center; /* Center align */
 }
 

@@ -110,7 +110,7 @@
     color: white;
 }
   
-  canvas {
+.bar-graph-container canvas {
     width: 100% !important;   /* Ensure the canvas stretches to container */
     height: auto !important; /* Maintain aspect ratio */
   }
