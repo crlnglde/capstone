@@ -11,8 +11,12 @@ import Notification from "./again/Notif";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import ResidentsVis from "./visualizations/ResidentsVis";
 import { FiDownload } from "react-icons/fi";
+import ToggleSwitch from "./again/ToggleButton";
+import { FaHistory } from "react-icons/fa";
 
 import ConfirmationDialog from "./again/Confirmation";
+import HistoryModal from "./again/HistoryModal";
+import ResidentModal from "./again/ResidentModal";
 
 const Residents = ({ setNavbarTitle }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -37,9 +41,10 @@ const Residents = ({ setNavbarTitle }) => {
   const [occupation, setOccupation] = useState('');
   const [phone, setPhone] = useState('');
   const [dependents, setDependents] = useState([""]);
-
+  const [openModalType, setOpenModalType] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [prevRes, setPrevRes] = useState([]);
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
 
   const [role, setRole] = useState(() => {
     const savedRole = localStorage.getItem('role');
@@ -67,13 +72,44 @@ const Residents = ({ setNavbarTitle }) => {
     onConfirm: null,
   });
 
-
-
   const [activeTab, setActiveTab] = useState("list");
   const [step, setStep] = useState(1);
-
   const [isEditing, setIsEditing] = useState(false);
+  const [isHistoryModalOpen, setHistoryModalOpen] = useState(false);
   const [residentData, setResidentData] = useState({ ...selectedResident });
+  const [history, setHistory] = useState([]);
+
+   // Toggle the history modal
+   const openHistoryModal = () => {
+    if (selectedResident && selectedResident.editHistory) {
+      setHistory(
+        selectedResident.editHistory.map(entry => {
+          // Mapping the changes object to a more user-friendly format
+          const formattedChanges = Object.keys(entry.changes).map(field => ({
+            field,
+            before: entry.changes[field].before,
+            after: entry.changes[field].after
+          }));
+  
+          return {
+            date: new Date(entry.timestamp).toLocaleString(),
+            action: entry.type,
+            user: entry.username,
+            changes: formattedChanges
+          };
+        })
+      );
+    } else {
+      setHistory([]); // If no history, reset to empty array
+    }
+    setHistoryModalOpen(true);
+  };
+  
+
+   const closeHistoryModal = () => {
+    setHistoryModalOpen(false);
+    setOpenModalType("resident");
+  };
 
 
     useEffect(() => {
@@ -411,7 +447,7 @@ const fetchExistingResidents = async () => {
     } catch (error) {
       console.error("Error fetching residents data:", error);
     }
-  };
+  };  
   
   useEffect(() => {
     fetchResidents();  // Fetch residents data when the component mounts
@@ -466,14 +502,17 @@ const fetchExistingResidents = async () => {
   const handleAddResidentClick = () => {
     setModalType("add");
     setIsModalOpen(true);
+    setOpenModalType("addup");
   };
 
   const handleUploadCsvClick = () => {
     setModalType("upload");
     setIsModalOpen(true);
+    setOpenModalType("addup");
   };
 
   const handleViewMore = (resident) => {
+    setOpenModalType("resident");
     setSelectedResident(resident);
     setModalType("view");
     setIsEditing(false); 
@@ -488,9 +527,12 @@ const fetchExistingResidents = async () => {
     
   };
 
-  const closeModal = () => setIsModalOpen(false);
-
-
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setHistoryModalOpen(false);
+    setOpenModalType("");
+  };
+  
   //for search
   const handleSearchChange = (event) => {
     const query = event.target.value.toLowerCase();
@@ -733,7 +775,7 @@ const fetchExistingResidents = async () => {
                       await fetch(`http://localhost:3003/update-resident/${newData.memId}/history`, {
                         method: "POST",
                         headers: {
-                          "Content-Type": "application/json",
+                          "Content-Type": "application/json", 
                         },
                         body: JSON.stringify(log),
                       });
@@ -742,6 +784,7 @@ const fetchExistingResidents = async () => {
                     setSelectedResident(data); 
                     fetchResidents();
                     alert('Resident data updated successfully!');
+                    setOpenModalType('');
                 } else {
                     const errorData = await response.json();
                     alert(errorData.message || 'Error updating resident data');
@@ -982,7 +1025,6 @@ const fetchExistingResidents = async () => {
               </>
 
         ):(  
-
           <div className="residdents-visualizations">
             <div className="header-container">
               <h2 className="header-title">Visualizations</h2>  
@@ -1036,435 +1078,473 @@ const fetchExistingResidents = async () => {
               </div>
             </div>
 
-
-
             <ResidentsVis  ref={residentsVisRef} selectedBarangay={selectedBarangay}/>
           </div>
 
         )}  
-
-
-
       </div>
 
+      {(openModalType === "addup") && (
+        <Modal isOpen={isModalOpen} onClose={closeModal} title={modalType === "add" ? "Add Resident" : modalType === "upload" ? "Upload Resident CSV" :  ""}>
 
-      <Modal isOpen={isModalOpen} onClose={closeModal} title={modalType === "add" ? "Add Resident" : modalType === "upload" ? "Upload Resident CSV" :  "Resident Details"}>
+              {notification && (
+                <Notification
+                  type={notification.type}
+                  title={notification.title} 
+                  message={notification.message}
+                  onClose={() => setNotification(null)}
+                />
+              )}
 
-      {notification && (
-        <Notification
-          type={notification.type}
-          title={notification.title} 
-          message={notification.message}
-          onClose={() => setNotification(null)}
-        />
-      )}
+              {confirmDialog.show && (
+                <ConfirmationDialog
+                  type={confirmDialog.type}
+                  title={confirmDialog.title}
+                  message={confirmDialog.message}
+                  onConfirm={confirmDialog.onConfirm}
+                  onCancel={handleCancelConfirm}
+                />
+              )}
 
-      {confirmDialog.show && (
-        <ConfirmationDialog
-          type={confirmDialog.type}
-          title={confirmDialog.title}
-          message={confirmDialog.message}
-          onConfirm={confirmDialog.onConfirm}
-          onCancel={handleCancelConfirm}
-        />
-      )}
+              {isUploading && <Loading message="Uploading..." />}
 
+              {modalType === "add" && (
+                <div>
+                    <form className="add-form" onSubmit={handleSubmit}>
 
+                      {/*head*/}
+                      <label>Family Head</label>
 
-      {isUploading && <Loading message="Uploading..." />}
-
-
-            {modalType === "add" && (
-              <div>
-                  <form className="add-form" onSubmit={handleSubmit}>
-
-                    {/*head*/}
-                    <label>Family Head</label>
-
-                    <div className="res-pop-form">
-                      {/*brgy*/}
-                      <div className="form-group">
-                        <div className="input-group">
-                          <span className="icon"><i className="fa-solid fa-location-dot"></i></span>
-                          <select
-                            id="barangayFilter"
-                            value={barangay}
-                            onChange={(e) => setBarangay(e.target.value)} 
-                          >
-                            <option value="">Barangay</option>
-                            {barangays.map((barangay, index) => (
-                              <option key={index} value={barangay}>
-                                {barangay}
-                              </option>
-                            ))}
-                          </select>
+                      <div className="res-pop-form">
+                        {/*brgy*/}
+                        <div className="form-group">
+                          <div className="input-group">
+                            <span className="icon"><i className="fa-solid fa-location-dot"></i></span>
+                            <select
+                              id="barangayFilter"
+                              value={barangay}
+                              onChange={(e) => setBarangay(e.target.value)} 
+                            >
+                              <option value="">Barangay</option>
+                              {barangays.map((barangay, index) => (
+                                <option key={index} value={barangay}>
+                                  {barangay}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
+                        {/*prk*/}
+                        <div className="form-group">
+                          <div className="input-group">
+                            <span className="icon"><i className="fa-solid fa-road"></i></span>
+                            <input 
+                              type="text" 
+                              value={purok} 
+                              onChange={(e) => setPurok(e.target.value)} 
+                              placeholder="Purok" 
+                              required 
+                            />
+                          </div>
                         </div>
                       </div>
-                      {/*prk*/}
-                      <div className="form-group">
-                        <div className="input-group">
-                          <span className="icon"><i className="fa-solid fa-road"></i></span>
-                          <input 
-                            type="text" 
-                            value={purok} 
-                            onChange={(e) => setPurok(e.target.value)} 
-                            placeholder="Purok" 
-                            required 
-                          />
+            
+                      <div className="res-pop-form">
+                        {/*fname*/}
+                        <div className="form-group">
+                          <div className="input-group">
+                            <span className="icon"><i className="fa-solid fa-user"></i></span>
+                            <input 
+                              type="text" 
+                              value={familyHeadFirstName} 
+                              onChange={(e) => setFamilyHeadFirstName(e.target.value)}
+                              placeholder="First Name" 
+                              required 
+                            />
+                          </div>
+                        </div>
+                        {/*mname*/}
+                        <div className="form-group">
+                          <div className="input-group">
+                            <span className="icon"><i className="fa-solid fa-user"></i></span>
+                            <input 
+                              type="text" 
+                              value={familyHeadMiddleName} //wala pa na change 
+                              onChange={(e) => setFamilyHeadMiddleName(e.target.value)} //wala pa na change
+                              placeholder="Middle Name" 
+                            />  
+                          </div>
+                        </div>
+                        {/*lname*/}            
+                        <div className="form-group">
+                          <div className="input-group">
+                            <span className="icon"><i className="fa-solid fa-user"></i></span>
+                            <input 
+                              type="text" 
+                              value={familyHeadLastName} 
+                              onChange={(e) => setFamilyHeadLastName(e.target.value)} 
+                              placeholder="Last Name" 
+                              required 
+                            />
+                          </div>
                         </div>
                       </div>
-                    </div>
-          
-                    <div className="res-pop-form">
-                      {/*fname*/}
-                      <div className="form-group">
-                        <div className="input-group">
-                          <span className="icon"><i className="fa-solid fa-user"></i></span>
-                          <input 
-                            type="text" 
-                            value={familyHeadFirstName} 
-                            onChange={(e) => setFamilyHeadFirstName(e.target.value)}
-                            placeholder="First Name" 
-                            required 
-                          />
-                        </div>
-                      </div>
-                      {/*mname*/}
-                      <div className="form-group">
-                        <div className="input-group">
-                          <span className="icon"><i className="fa-solid fa-user"></i></span>
-                          <input 
-                            type="text" 
-                            value={familyHeadMiddleName} //wala pa na change 
-                            onChange={(e) => setFamilyHeadMiddleName(e.target.value)} //wala pa na change
-                            placeholder="Middle Name" 
-                          />  
-                        </div>
-                      </div>
-                      {/*lname*/}            
-                      <div className="form-group">
-                        <div className="input-group">
-                          <span className="icon"><i className="fa-solid fa-user"></i></span>
-                          <input 
-                            type="text" 
-                            value={familyHeadLastName} 
-                            onChange={(e) => setFamilyHeadLastName(e.target.value)} 
-                            placeholder="Last Name" 
-                            required 
-                          />
-                        </div>
-                      </div>
-                    </div>
-                   
-                    <div className="res-pop-form">
-                      {/*Sex*/}
-                      <div className="form-group">
-                        <div className="input-group">
-                          <span className="icon"><i className="fa-solid fa-mars-and-venus"></i></span>
-                          <select  value={familyHeadSex} onChange={(e) => setSex(e.target.value)} >
-                            <option value="">Select Sex</option>
-                            <option value="M">Male</option>
-                            <option value="F">Female</option>
-                          </select>
-                        </div>
-                      </div>
-                      
-                       {/*Bdate*/}
-                      <div className="form-group">
-                        <div className="input-group">
-                          <span className="icon"><i className="fa-solid fa-calendar"></i></span>
-                          <input 
-                            type="date"  
-                            value={birthdate} 
-                            onChange={(e) => setBdate(e.target.value)}
-                            placeholder="Date of Birth" 
-                            required 
-                          />
-                        </div>
-                      </div>
-
-                      {/*Age*/}
-                      <div className="form-group">
-                        <div className="input-group">
-                          <span className="icon"><i className="fa-solid fa-hourglass-half"></i></span>
-                          <input 
-                            type="number" 
-                            value={familyHeadAge} 
-                            onChange={(e) => setAge(e.target.value)}
-                            placeholder="Age" 
-                            required 
-                          />
-                        </div>
-                      </div>                      
-                      
-                       {/*educAt*/}
-                       <div className="form-group">
-                        <div className="input-group">
-                          <span className="icon"><i className="fa-solid fa-user-graduate"></i></span>
-                          <select 
-                            value={education} 
-                            onChange={(e) => setEducation(e.target.value)} 
-                            required
-                            className="form-control"
-                          >
-                            <option value="">Select Educational Attainment</option>
-                            <option value="Elementary Level">Elementary Level</option>
-                            <option value="Elementary Graduate">Elementary Graduate</option>
-                            <option value="Junior High School level">Junior High School level</option>
-                            <option value="Junior High School Graduate">Junior High School Graduate</option>
-                            <option value="Senior High School Level">Senior High School Level</option>
-                            <option value="Senior High School Graduate">Senior High School Graduate</option>
-                            <option value="College Level">College Level</option>
-                            <option value="Bachelor's Degree">Bachelor's Degree</option>
-                            <option value="Master's Degree">Master's Degree</option>
-                            <option value="Doctorate Degree">Doctorate Degree</option>
-                            <option value="Vocational">Vocational</option>
-                          </select>
-                        </div>
-                      </div>         
-                     
-                    </div>
                     
-                    <div className="res-pop-form"> 
+                      <div className="res-pop-form">
+                        {/*Sex*/}
+                        <div className="form-group">
+                          <div className="input-group">
+                            <span className="icon"><i className="fa-solid fa-mars-and-venus"></i></span>
+                            <select  value={familyHeadSex} onChange={(e) => setSex(e.target.value)} >
+                              <option value="">Select Sex</option>
+                              <option value="M">Male</option>
+                              <option value="F">Female</option>
+                            </select>
+                          </div>
+                        </div>
+                        
+                        {/*Bdate*/}
+                        <div className="form-group">
+                          <div className="input-group">
+                            <span className="icon"><i className="fa-solid fa-calendar"></i></span>
+                            <input 
+                              type="date"  
+                              value={birthdate} 
+                              onChange={(e) => setBdate(e.target.value)}
+                              placeholder="Date of Birth" 
+                              required 
+                            />
+                          </div>
+                        </div>
+
+                        {/*Age*/}
+                        <div className="form-group">
+                          <div className="input-group">
+                            <span className="icon"><i className="fa-solid fa-hourglass-half"></i></span>
+                            <input 
+                              type="number" 
+                              value={familyHeadAge} 
+                              onChange={(e) => setAge(e.target.value)}
+                              placeholder="Age" 
+                              required 
+                            />
+                          </div>
+                        </div>                      
+                        
+                        {/*educAt*/}
+                        <div className="form-group">
+                          <div className="input-group">
+                            <span className="icon"><i className="fa-solid fa-user-graduate"></i></span>
+                            <select 
+                              value={education} 
+                              onChange={(e) => setEducation(e.target.value)} 
+                              required
+                              className="form-control"
+                            >
+                              <option value="">Select Educational Attainment</option>
+                              <option value="Elementary Level">Elementary Level</option>
+                              <option value="Elementary Graduate">Elementary Graduate</option>
+                              <option value="Junior High School level">Junior High School level</option>
+                              <option value="Junior High School Graduate">Junior High School Graduate</option>
+                              <option value="Senior High School Level">Senior High School Level</option>
+                              <option value="Senior High School Graduate">Senior High School Graduate</option>
+                              <option value="College Level">College Level</option>
+                              <option value="Bachelor's Degree">Bachelor's Degree</option>
+                              <option value="Master's Degree">Master's Degree</option>
+                              <option value="Doctorate Degree">Doctorate Degree</option>
+                              <option value="Vocational">Vocational</option>
+                            </select>
+                          </div>
+                        </div>         
+                      
+                      </div>
+                      
+                      <div className="res-pop-form"> 
 
 
-                      {/*Income*/}
-                      <div className="form-group">
-                        <div className="input-group">
-                          <span className="icon"><i className="fa-solid fa-dollar-sign"></i></span>
-                          <input 
-                            type="number" 
-                            value={income} 
-                            onChange={(e) => setIncome(e.target.value)}
-                            placeholder="Monthly Income" 
-                            required 
-                          />
+                        {/*Income*/}
+                        <div className="form-group">
+                          <div className="input-group">
+                            <span className="icon"><i className="fa-solid fa-dollar-sign"></i></span>
+                            <input 
+                              type="number" 
+                              value={income} 
+                              onChange={(e) => setIncome(e.target.value)}
+                              placeholder="Monthly Income" 
+                              required 
+                            />
+                          </div>
+                        </div>
+
+                        {/*Occupation*/}
+                        <div className="form-group">
+                          <div className="input-group">
+                            <span className="icon"><i className="fa-solid fa-person-digging"></i></span>
+                            <input 
+                              type="text" 
+                              value={occupation} 
+                              onChange={(e) => setOccupation(e.target.value)}
+                              placeholder="Occupation" 
+                              required 
+                            />
+                          </div>
+                        </div>
+
+                        {/*Phone*/}
+                        <div className="form-group">
+                          <div className="input-group">
+                            <span className="icon"><i className="fa-solid fa-phone"></i></span>
+                            <input 
+                              type="number" 
+                              value={phone} 
+                              onChange={(e) => setPhone(e.target.value)} 
+                              placeholder="Contact Number" 
+                              required 
+                            />
+                          </div>
                         </div>
                       </div>
 
-                      {/*Occupation*/}
-                      <div className="form-group">
-                        <div className="input-group">
-                          <span className="icon"><i className="fa-solid fa-person-digging"></i></span>
-                          <input 
-                            type="text" 
-                            value={occupation} 
-                            onChange={(e) => setOccupation(e.target.value)}
-                            placeholder="Occupation" 
-                            required 
-                          />
-                        </div>
-                      </div>
+                      {/*Dependent*/}
+                      <div className="res-pop-form1"> 
 
-                      {/*Phone*/}
-                      <div className="form-group">
-                        <div className="input-group">
-                          <span className="icon"><i className="fa-solid fa-phone"></i></span>
-                          <input 
-                            type="number" 
-                            value={phone} 
-                            onChange={(e) => setPhone(e.target.value)} 
-                            placeholder="Contact Number" 
-                            required 
-                          />
-                        </div>
-                      </div>
-                    </div>
+                          {/* Member Section */}
+                          <div className="res-pop-form1">
+                          <label>Family Dependents</label>
 
-                    {/*Dependent*/}
-                    <div className="res-pop-form1"> 
-
-                        {/* Member Section */}
-                        <div className="res-pop-form1">
-                         <label>Family Dependents</label>
-
-                          {dependents.map((member, index) => (
-                            <div key={index} className="member-input-group">
-                              <div className="res-pop-form2">
-                                <div className="res-pop-form1">
-                                  <div className="res-pop-form"> 
-                                    {/*Name*/}
-                                    <div className="form-group"> 
-                                      <div className="input-group">
-                                        <span className="icon">
-                                          <i className="fa-solid fa-users"></i>
-                                        </span>
-                                        <input
-                                          type="text"
-                                          placeholder={`Member ${index + 1} Name`}
-                                          value={member.name || ''}
-                                          onChange={(e) => handleMemberChange(index, 'name', e.target.value)}
-                                          required
-                                        />
-                                      </div>
-                                      
-                                    </div>
-
-                                    {/*Relation to FamHead*/}
-                                    <div className="form-group"> 
-                                      <div className="input-group">
-                                        <span className="icon">
-                                          <i className="fa-solid fa-user-tag"></i>
-                                        </span>
-                                        <input
-                                          type="text"
-                                          placeholder="Relation to Family Head"
-                                          value={member.relation || ''}
-                                          onChange={(e) => handleMemberChange(index, 'relation', e.target.value)}
-                                          required
-                                        />
-                                      </div>
-                                    </div>
-                                  </div>
-                                  
-                                  <div className="res-pop-form">
-                                    {/*Age*/}
-                                    <div className="form-group">
-                                        <div className="input-group">
-                                        <span className="icon">
-                                          <i className="fa-solid fa-hourglass-half"></i>
-                                        </span>
-                                        <input
-                                          type="number"
-                                          placeholder="Age"
-                                          value={member.age || ''}
-                                          onChange={(e) => handleMemberChange(index, 'age', e.target.value)}
-                                          required
-                                        />
-                                      </div>
-                                    </div>
-
-                                    {/*Sex*/}
-                                    <div className="form-group"> 
-                                      <div className="input-group">
-                                        <span className="icon">
-                                          <i className="fa-solid fa-venus-mars"></i>
-                                        </span>
-                                        <select
-                                          value={member.sex || ''}
-                                          onChange={(e) => handleMemberChange(index, 'sex', e.target.value)}
-                                          required
-                                        >
-                                          <option value="" disabled>
-                                            Select Sex
-                                          </option>
-                                          <option value="Male">Male</option>
-                                          <option value="Female">Female</option>
-                                        </select>
-                                      </div>            
-                                    </div>
-                                  </div>
-
-                                  <div className="res-pop-form">
-                                    {/*EducAt*/}
-                                    <div className="form-group">
-                                      <div className="input-group">
-                                        <span className="icon">
-                                          <i className="fa-solid fa-school"></i>
-                                        </span>
-                                        <select
-                                          value={member.education || ''}
-                                          onChange={(e) => handleMemberChange(index, 'education', e.target.value)}
-                                          required
-                                          className="form-control"
-                                        >
-                                          <option value="">Select Educational Attainment</option>
-                                          <option value="Elementary Level">Elementary Level</option>
-                                          <option value="Elementary Graduate">Elementary Graduate</option>
-                                          <option value="Junior High School level">Junior High School level</option>
-                                          <option value="Junior High School Graduate">Junior High School Graduate</option>
-                                          <option value="Senior High School Level">Senior High School Level</option>
-                                          <option value="Senior High School Graduate">Senior High School Graduate</option>
-                                          <option value="College Level">College Level</option>
-                                          <option value="Bachelor's Degree">Bachelor's Degree</option>
-                                          <option value="Master's Degree">Master's Degree</option>
-                                          <option value="Doctorate Degree">Doctorate Degree</option>
-                                          <option value="Vocational">Vocational</option>
-                                        </select>
-                                      </div>
-                                    </div>
-                                    {/*Occupation*/}
-                                    <div className="form-group"> 
-                                      <div className="input-group">
-                                        <span className="icon">
-                                          <i className="fa-solid fa-briefcase"></i>
-                                        </span>
-                                        <input
-                                          type="text"
-                                          placeholder="Occupation / Skills"
-                                          value={member.skills || ''}
-                                          onChange={(e) => handleMemberChange(index, 'skills', e.target.value)}
-                                          required
-                                        />
-                                      </div>            
-                                    </div>
-                                  </div>
-                                </div>
-
-                              
+                            {dependents.map((member, index) => (
+                              <div key={index} className="member-input-group">
                                 <div className="res-pop-form2">
-                                  
-                                  <button
-                                      type="button"
-                                      className="remove-btn"
-                                      onClick={() => handleRemoveMember(index)}
-                                    >
-                                      <i className="fa-solid fa-circle-xmark"></i>
-                                    </button>
+                                  <div className="res-pop-form1">
+                                    <div className="res-pop-form"> 
+                                      {/*Name*/}
+                                      <div className="form-group"> 
+                                        <div className="input-group">
+                                          <span className="icon">
+                                            <i className="fa-solid fa-users"></i>
+                                          </span>
+                                          <input
+                                            type="text"
+                                            placeholder={`Member ${index + 1} Name`}
+                                            value={member.name || ''}
+                                            onChange={(e) => handleMemberChange(index, 'name', e.target.value)}
+                                            required
+                                          />
+                                        </div>
+                                        
+                                      </div>
+
+                                      {/*Relation to FamHead*/}
+                                      <div className="form-group"> 
+                                        <div className="input-group">
+                                          <span className="icon">
+                                            <i className="fa-solid fa-user-tag"></i>
+                                          </span>
+                                          <input
+                                            type="text"
+                                            placeholder="Relation to Family Head"
+                                            value={member.relation || ''}
+                                            onChange={(e) => handleMemberChange(index, 'relation', e.target.value)}
+                                            required
+                                          />
+                                        </div>
+                                      </div>
+                                    </div>
+                                    
+                                    <div className="res-pop-form">
+                                      {/*Age*/}
+                                      <div className="form-group">
+                                          <div className="input-group">
+                                          <span className="icon">
+                                            <i className="fa-solid fa-hourglass-half"></i>
+                                          </span>
+                                          <input
+                                            type="number"
+                                            placeholder="Age"
+                                            value={member.age || ''}
+                                            onChange={(e) => handleMemberChange(index, 'age', e.target.value)}
+                                            required
+                                          />
+                                        </div>
+                                      </div>
+
+                                      {/*Sex*/}
+                                      <div className="form-group"> 
+                                        <div className="input-group">
+                                          <span className="icon">
+                                            <i className="fa-solid fa-venus-mars"></i>
+                                          </span>
+                                          <select
+                                            value={member.sex || ''}
+                                            onChange={(e) => handleMemberChange(index, 'sex', e.target.value)}
+                                            required
+                                          >
+                                            <option value="" disabled>
+                                              Select Sex
+                                            </option>
+                                            <option value="Male">Male</option>
+                                            <option value="Female">Female</option>
+                                          </select>
+                                        </div>            
+                                      </div>
+                                    </div>
+
+                                    <div className="res-pop-form">
+                                      {/*EducAt*/}
+                                      <div className="form-group">
+                                        <div className="input-group">
+                                          <span className="icon">
+                                            <i className="fa-solid fa-school"></i>
+                                          </span>
+                                          <select
+                                            value={member.education || ''}
+                                            onChange={(e) => handleMemberChange(index, 'education', e.target.value)}
+                                            required
+                                            className="form-control"
+                                          >
+                                            <option value="">Select Educational Attainment</option>
+                                            <option value="Elementary Level">Elementary Level</option>
+                                            <option value="Elementary Graduate">Elementary Graduate</option>
+                                            <option value="Junior High School level">Junior High School level</option>
+                                            <option value="Junior High School Graduate">Junior High School Graduate</option>
+                                            <option value="Senior High School Level">Senior High School Level</option>
+                                            <option value="Senior High School Graduate">Senior High School Graduate</option>
+                                            <option value="College Level">College Level</option>
+                                            <option value="Bachelor's Degree">Bachelor's Degree</option>
+                                            <option value="Master's Degree">Master's Degree</option>
+                                            <option value="Doctorate Degree">Doctorate Degree</option>
+                                            <option value="Vocational">Vocational</option>
+                                          </select>
+                                        </div>
+                                      </div>
+                                      {/*Occupation*/}
+                                      <div className="form-group"> 
+                                        <div className="input-group">
+                                          <span className="icon">
+                                            <i className="fa-solid fa-briefcase"></i>
+                                          </span>
+                                          <input
+                                            type="text"
+                                            placeholder="Occupation / Skills"
+                                            value={member.skills || ''}
+                                            onChange={(e) => handleMemberChange(index, 'skills', e.target.value)}
+                                            required
+                                          />
+                                        </div>            
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                
+                                  <div className="res-pop-form2">
+                                    
+                                    <button
+                                        type="button"
+                                        className="remove-btn"
+                                        onClick={() => handleRemoveMember(index)}
+                                      >
+                                        <i className="fa-solid fa-circle-xmark"></i>
+                                      </button>
+                                  </div>
                                 </div>
+
+                                <hr />
                               </div>
+                            ))}
 
-                              <hr />
-                            </div>
-                          ))}
+                          </div>
 
-                        </div>
+                          <button type="button" className="add-more-btn" onClick={handleAddMember}>
+                              + Add More Member
+                          </button>
+                      </div>
 
-                        <button type="button" className="add-more-btn" onClick={handleAddMember}>
-                            + Add More Member
-                        </button>
-                    </div>
+                      <button type="submit" className="submit-btn" disabled={isUploading}>
+                        {isUploading ? <i className="fa fa-spinner fa-spin"></i> : "Save"}
+                      </button>
+                    </form>
+                  
+                </div>
+              )}
 
+              {modalType === "upload" && (
+                <div>
+                  <form onSubmit={handleFileUpload} className="upload-form">
+                    <input type="file" accept=".csv" onChange={handleFileChange} />
                     <button type="submit" className="submit-btn" disabled={isUploading}>
                       {isUploading ? <i className="fa fa-spinner fa-spin"></i> : "Save"}
                     </button>
                   </form>
-                
-              </div>
-            )}
-
-            {modalType === "upload" && (
-              <div>
-                <form onSubmit={handleFileUpload} className="upload-form">
-                  <input type="file" accept=".csv" onChange={handleFileChange} />
-                  <button type="submit" className="submit-btn" disabled={isUploading}>
-                    {isUploading ? <i className="fa fa-spinner fa-spin"></i> : "Save"}
-                  </button>
-                </form>
-              </div>
-            )}      
-
-            {modalType === "view" && selectedResident && (
-              <div>
-
-                <div className="button-container">
-                  <button onClick={isEditing ? handleSave : toggleEdit}>
-                    {isEditing ? "Save" : "Edit"}
-                  </button>
-                  <button onClick={handleDeleteClick}>Delete</button>
                 </div>
+              )}      
+        </Modal>
+      )}
 
-                <RES 
-                  residentData={selectedResident} 
-                  isEditing={isEditing} 
-                  setResidentData={setSelectedResident}
-                />
+        {(openModalType === "resident") && (
+          <div className="modal-wrapper">
+          
+              <ResidentModal  
+                isOpen={isModalOpen} 
+                onClose={closeModal} 
+                title={modalType === "view" ?  "Resident Details" : " "}
+                withHistory={isHistoryModalOpen}  
+              >
 
+                  {notification && (
+                    <Notification
+                      type={notification.type}
+                      title={notification.title} 
+                      message={notification.message}
+                      onClose={() => setNotification(null)}
+                    />
+                  )}
+
+                  {confirmDialog.show && (
+                    <ConfirmationDialog
+                      type={confirmDialog.type}
+                      title={confirmDialog.title}
+                      message={confirmDialog.message}
+                      onConfirm={confirmDialog.onConfirm}
+                      onCancel={handleCancelConfirm}
+                    />
+                  )}
+
+                  {modalType === "view" && selectedResident && (
+                    <div>
+                      <div className="row-wrapper">
+                            <div className="hisBut">
+                                <button onClick={openHistoryModal}> 
+                                  <FaHistory />
+                                </button>
+                            </div>
+
+                        <div className="button-container">
+                          <button onClick={isEditing ? handleSave : toggleEdit}>
+                            {isEditing ? "Save" : "Edit"}
+                          </button>
+
+                          <button onClick={handleDeleteClick}>Delete</button>
+                        </div>
+                      </div>
+
+                      <RES 
+                        residentData={selectedResident} 
+                        isEditing={isEditing} 
+                        setResidentData={setSelectedResident}
+                      />
+                    </div>
+                  )}
+              </ResidentModal>
+        
+
+            {isHistoryModalOpen && (
+              <div className="history-wrapper">
+                <HistoryModal isOpen={openHistoryModal} onClose={closeHistoryModal} history={history}  />
               </div>
             )}
-
-      </Modal>
-
+            
+          </div>
+        )}
     </div>
   );
 };

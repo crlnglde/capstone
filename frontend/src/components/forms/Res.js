@@ -3,18 +3,19 @@ import { v4 as uuidv4 } from "uuid";
 import { useReactToPrint } from "react-to-print";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
-
 import "../../css/forms/Res.css";
 import ICImage from '../../pic/IC.png';
 import cswdImage from '../../pic/cswd.jpg';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 import ConfirmationDialog from "../again/Confirmation";
+import ToggleSwitch from "../again/ToggleButton";
 
 
 const RES = ({ residentData, isEditing, setResidentData }) => {
   const [formData, setFormData] = useState(residentData);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [isCanvasVisible, setIsCanvasVisible] = useState(false);
 
   // Keep formData in sync with incoming residentData when it's updated externally
   useEffect(() => {
@@ -22,16 +23,16 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
   }, [residentData]);
 
   console.log("res", residentData)
-  const handleChange = (field, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-    setResidentData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
+    const handleChange = (field, value) => {
+      setFormData((prev) => ({
+        ...prev,
+        [field]: value,
+      }));
+      setResidentData((prev) => ({
+        ...prev,
+        [field]: value,
+      }));
+    };
 
   const handleDependentChange = (index, field, value) => {
     const updatedDependents = [...formData.dependents];
@@ -77,14 +78,37 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
     }));
   };
 
+  const handleStatusChange = () => {
+    const newStatus = formData.status === "active" ? "inactive" : "active";
+    handleChange("status", newStatus);  // Update status using handleChange
+  };
+  
+
+  // Format to ₱ with commas, no decimals
+  const formatPeso = (value) => {
+    if (value === "" || isNaN(value)) return "";
+    const intVal = Math.floor(Number(value));
+    return `₱${intVal.toLocaleString("en-PH")}`;
+  };
+
+  // Remove formatting and update form state
+  const handleIncomeChange = (inputValue) => {
+    // Remove everything except digits
+    const numeric = inputValue.replace(/[^\d]/g, "");
+    const number = parseInt(numeric, 10);
+    handleChange("income", isNaN(number) ? "" : number);
+  };
+  console.log(formData.status); 
 
   return (
     <div className="resvw">
+
       <form className="res-form">
         {/* Head of the Family */}
         <div className="form-header">
           <span>Head of the Family</span>
-          <span className="contact">
+
+          <div className="contact">
             <label>Contact No.: </label>
             <input
               type="text"
@@ -92,7 +116,14 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
               onChange={(e) => handleChange("phone", e.target.value)}
               disabled={!isEditing}
             />
-          </span>
+          </div>
+
+          <ToggleSwitch
+            isChecked={formData.status === "active"}
+            onToggle={isEditing ? handleStatusChange : null}
+            disabled={!isEditing}
+          />
+
         </div>
 
         {/* Name and Basic Details */}
@@ -154,27 +185,39 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
         <div className="col address">
           {isEditing ? (
             <>
-              <input
-                type="text"
-                value={formData.purok || ""}
-                onChange={(e) => handleChange("purok", e.target.value)}
-                placeholder="Purok"
-              />
-              <input
-                type="text"
-                value={formData.barangay || ""}
-                onChange={(e) => handleChange("barangay", e.target.value)}
-                placeholder="Barangay"
-              />
-            </>
+              <div style={{ display: "flex", gap: "10px" }}>
+                <div style={{ display: "flex", flexDirection: "column", flex: 1, width: "120px" }}>
+                  <input
+                    type="text"
+                    value={formData.purok || ""}
+                    onChange={(e) => handleChange("purok", e.target.value)}
+                    placeholder="Purok"
+                  />
+                  <label>Purok</label>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", flex: 1,width: "120px" }}>
+                  <input
+                    type="text"
+                    value={formData.barangay || ""}
+                    onChange={(e) => handleChange("barangay", e.target.value)}
+                    placeholder="Barangay"
+                  />
+                  <label>Barangay</label>
+                </div>
+              </div>
+          </>
           ) : (
-            <input
-              type="text"
-              value={`${formData.purok || ""}, ${formData.barangay || ""}`}
-              disabled
-            />
+            <>
+         
+              <input
+                type="text"
+                value={`${formData.purok || ""}, ${formData.barangay || ""}`}
+                disabled
+              />
+              <label>Home Address</label>
+            </>
           )}
-          <label>Home Address</label>
+          
         </div>
           <div className="col">
             <input
@@ -196,11 +239,9 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
           </div>
           <div className="col">
             <input
-              type="number"
-              min="0"
-              step="0.01"
-              value={formData.income || ""}
-              onChange={(e) => handleChange("income", e.target.value)}
+              type="text"
+              value={formatPeso(formData.income)}
+              onChange={(e) => handleIncomeChange(e.target.value)}
               disabled={!isEditing}
             />
             <label>Monthly Income</label>
