@@ -47,6 +47,10 @@ useEffect(() => {
         const cachedResidents = selectedBarangay
           ? parsed.filter(resident => resident.barangay === selectedBarangay)
           : parsed;
+
+        const newResidents = cachedResidents. filter(resident => resident.status === "active");
+
+        setResidents(newResidents);
         setResidents(cachedResidents);
       } catch (e) {
         console.error("Failed to parse cached residents:", e);
@@ -66,7 +70,9 @@ useEffect(() => {
         ? data.filter(resident => resident.barangay === selectedBarangay)
         : data;
 
-      setResidents(filteredResidents);
+      const newResidents = filteredResidents. filter(resident => resident.status === "active");
+
+      setResidents(newResidents);
     } catch (error) {
       console.error("Error fetching residents:", error);
     }

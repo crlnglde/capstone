@@ -100,6 +100,17 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
   };
   console.log(formData.status); 
 
+  const barangays = [
+    'Abuno', 'Acmac-Mariano Badelles Sr.', 'Bagong Silang', 'Bonbonon', 'Bunawan', 'Buru-un', 'Dalipuga',
+    'Del Carmen', 'Digkilaan', 'Ditucalan', 'Dulag', 'Hinaplanon', 'Hindang', 'Kabacsanan', 'Kalilangan',
+    'Kiwalan', 'Lanipao', 'Luinab', 'Mahayahay', 'Mainit', 'Mandulog', 'Maria Cristina', 'Pala-o',
+    'Panoroganan', 'Poblacion', 'Puga-an', 'Rogongon', 'San Miguel', 'San Roque', 'Santa Elena',
+    'Santa Filomena', 'Santiago', 'Santo Rosario', 'Saray', 'Suarez', 'Tambacan', 'Tibanga', 'Tipanoy',
+    'Tomas L. Cabili (Tominobo Proper)', 'Upper Tominobo', 'Tubod', 'Ubaldo Laya', 'Upper Hinaplanon',
+    'Villa Verde'
+  ];
+
+
   return (
     <div className="resvw">
 
@@ -165,6 +176,7 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
             >
               <option value="M">M</option>
               <option value="F">F</option>
+              <option value="O">O</option>
             </select>
           </div>
 
@@ -346,12 +358,13 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
                           handleDependentChange(index, "sex", e.target.value)
                         }
                       >
-                        <option value={dependent.sex}>
-                          {dependent.sex === "Male" ? "M" : "F"}
-                        </option>
-                        <option value={dependent.sex === "Male" ? "Female" : "Male"}>
-                          {dependent.sex === "Male" ? "F" : "M"}
-                        </option>
+                          <option value={dependent.sex}>
+                            {dependent.sex === "Male" ? "M" : dependent.sex === "Female" ? "F" : "O"}
+                          </option>
+                          <option value="Male">M</option>
+                          <option value="Female">F</option>
+                          <option value="Others">O</option>
+
                       </select>
                     ) : (
                      <div className="static-cell">{dependent.sex}</div>
