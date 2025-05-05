@@ -55,6 +55,8 @@ const Residents = ({ setNavbarTitle }) => {
 
 
   const [totalResidents, setTotalResidents] = useState(0);
+  const [activeFamilies, setActiveFamilies] = useState(0);
+  const [inactiveResidents, setTotalInactiveResidents] = useState(0);
   const [totalFamilies, setTotalFamilies] = useState(0);
 
   const [notification, setNotification] = useState(null);
@@ -199,7 +201,7 @@ const fetchExistingResidents = async () => {
                   income: row['income'] ? parseFloat(row['income']) : 0,
                   dependents: row['dependents'] ? JSON.parse(row['dependents']).map(dep => ({
                     ...dep,
-                    sex: dep.sex === "M" ? "Male" : dep.sex === "F" ? "Female" : dep.sex
+                    sex: dep.sex === "M" ? "Male" : dep.sex === "F" ? "Female" : dep.sex === "O"? "Others" : dep.sex
                   })) : [],
                 };
               }).filter(item => item !== null);
@@ -391,6 +393,7 @@ const fetchExistingResidents = async () => {
   
       const families = new Set(residentsData.map(resident => resident.FamilyHead));
       setTotalFamilies(families.size);
+      
     }
   
     try {
@@ -430,10 +433,19 @@ const fetchExistingResidents = async () => {
   };
 
   useEffect(() => {
-    const totalFilteredResidents = filteredResidents.reduce((sum, resident) => {
+
+    const activeData= filteredResidents.filter(resident => resident.status === "active");
+    const inactiveData= filteredResidents.filter(resident => resident.status === "inactive");
+    
+    const totalFilteredResidents = activeData.reduce((sum, resident) => {
       return sum + 1 + resident.dependents.length;
     }, 0);
+    const totalInactiveFilteredResidents = inactiveData.reduce((sum, resident) => {
+      return sum + 1 + resident.dependents.length;
+    }, 0);
+
     setTotalResidents(totalFilteredResidents);
+    setTotalInactiveResidents(totalInactiveFilteredResidents);
 
     const familiesSet = new Set(filteredResidents.map(resident => resident.FamilyHead));
     setTotalFamilies(familiesSet.size);
@@ -442,8 +454,13 @@ const fetchExistingResidents = async () => {
 
 
   const residentCount = selectedBarangay
-  ? filteredResidents.length
-  : residents.length;
+  ? filteredResidents.filter(r => r.status === "active").length
+  : residents.filter(r => r.status === "active").length;
+
+  const residentInactiveCount = selectedBarangay
+  ? filteredResidents.filter(r => r.status === "inactive").length
+  : residents.filter(r => r.status === "inactive").length;
+
   
 
   const handleAddMember = () => {
@@ -880,7 +897,7 @@ const fetchExistingResidents = async () => {
                   <div className="res-top-col">
                     <div className="resident-count-card">
                       <div className="rcc-label">
-                        <label>Total Residents</label>
+                        <label>Active Residents</label>
                       </div>
 
                       <p><i className="fa-solid fa-people-group"></i>{totalResidents}</p>
@@ -888,11 +905,28 @@ const fetchExistingResidents = async () => {
 
                     <div className="resident-count-card">
                       <div className="rcc-label">
-                        <label>Total Families</label>
+                        <label>Inactive Residents</label>
+                      </div>
+
+                      <p><i className="fa-solid fa-people-group"></i>{inactiveResidents}</p>
+                    </div>
+
+                    <div className="resident-count-card">
+                      <div className="rcc-label">
+                        <label>Active Families</label>
                       </div>
                       
                       <p><i className="fa-solid fa-people-roof"></i>{residentCount}</p>
                     </div>
+
+                    <div className="resident-count-card">
+                      <div className="rcc-label">
+                        <label>Inactive Families</label>
+                      </div>
+                      
+                      <p><i className="fa-solid fa-people-roof"></i>{residentInactiveCount}</p>
+                    </div>
+
                   </div>
 
                   <div className="dstr-search">
@@ -1165,6 +1199,7 @@ const fetchExistingResidents = async () => {
                             <option value="">Select Sex</option>
                             <option value="M">Male</option>
                             <option value="F">Female</option>
+                            <option value="O">Others</option>
                           </select>
                         </div>
                       </div>
@@ -1350,6 +1385,7 @@ const fetchExistingResidents = async () => {
                                           </option>
                                           <option value="Male">Male</option>
                                           <option value="Female">Female</option>
+                                          <option value="Others">Others</option>
                                         </select>
                                       </div>            
                                     </div>
