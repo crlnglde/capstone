@@ -1,0 +1,257 @@
+/* HistoryModal.css */
+
+/* Overlay */
+.history-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 75%;
+  /*width: 100vw;*/
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeInOverlay 0.3s ease;
+}
+
+/* Modal content */
+.history-modal-content {
+  background: #fff;
+  padding: 20px;
+  width: auto;
+  height: 100%;
+  max-width: 1200px;
+  max-height: 80vh;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  position: relative;
+  animation: fadeInModal 0.3s ease;
+  overflow-y: none;
+  left: 130px;
+}
+
+/* Title */
+.history-modal-title {
+  font-size: 28px;
+  font-weight: bold;
+  color: #333;
+  padding: 0px 20px 10px 0px;
+  margin: 0 0 10px 0;
+  border-bottom: 4px solid #0A194E;
+  display: flex;
+}
+
+/* Close button */
+.history-modal-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  font-size: 30px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: #333;
+  transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.history-modal-close:hover {
+  color: #0A194E;
+  transform: scale(1.1);
+  background-color: transparent;
+}
+
+/* Modal body */
+.history-modal-body {
+  overflow-y: auto;
+  height: calc(100% - 30px);
+}
+
+/* History list */
+.history-list {
+  list-style-type: none;
+  padding: 10px 10px 0px 0;
+}
+
+.history-item {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+  width: 100%;
+  max-height: 100px; /* Set an initial max-height */
+  overflow: hidden;
+  position: relative;
+  transition: max-height 0.3s ease-in-out; 
+  padding-bottom: 10px;
+  background-color: aliceblue;
+  border-radius: 10px;
+}
+
+      .history-item.expanded {
+        max-height: 100%; /* Allows the item to expand fully */
+      }
+
+      .history-item .history-content {
+        font-size: 14px;
+        color: #555;
+        line-height: 1.5;
+      }
+
+      .history-item .change-field {
+        font-size: 14px;
+        font-weight: bold;
+        color: #0A194E; /* Change field color */
+        background-color: #f1f1f100; /* Light background for the field */
+        padding: 5px 0;
+        border-radius: 4px;
+        text-transform: uppercase; 
+      }
+      
+      .history-item .changes-list {
+        list-style-type: none;
+        padding: 0px;
+        margin: 0;
+      }
+
+      .history-item .history-content p {
+        margin-bottom: 10px;
+      }
+
+      .history-item .ellipsis {
+        position: absolute;
+        bottom: 10px; /* Always at the bottom */
+        right: 10px;
+        color: #535353;
+        cursor: pointer;
+        font-size: 12px;
+        transition: color 0.3s ease;
+        width: 100%;
+        z-index: 2; /* Ensure the ellipsis stays above the content */
+        display: flex;
+        justify-content: flex-end;
+      }
+
+      .history-item .ellipsis:hover {
+        color: #333333; /* Change color on hover */
+      }
+
+      .history-item .changes {
+        display: none;
+      }
+
+      .history-item .changes ul {
+        padding-left: 20px;
+      }
+      
+      .history-item .changes li {
+        margin-bottom: 5px;
+      }
+
+      .history-item.expanded .changes {
+        display: block;
+      }
+
+      .history-item .summary {
+        margin-bottom: 10px;
+      }
+
+      .history-item .history-content {
+        flex-grow: 1; /* Ensure content takes up the available space */
+        padding: 10px 10px 30px 10px;
+        display: flex;
+        flex-direction: column;
+
+      }
+
+      .history-item .summary,
+      .history-item .changes {
+        margin-bottom: 10px;
+      }
+
+
+.history-item .changes-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.history-item div {
+  font-size: 14px;
+  color: #555;
+  line-height: 1.5;
+}
+
+
+.history-item strong {
+  color: #0A194E;
+}
+
+.history-item ul li {
+  font-size: 14px; 
+  color: #555; 
+  margin-bottom: 10px;
+}
+
+/* Shifting animation */
+.history-modal-content.shifted-left {
+  margin-right: 474px;
+}
+
+/* Close button for the modal header */
+.history-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.history-modal-header h2 {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+}
+
+.close-btn {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 24px;
+  color: #333;
+}
+
+.close-btn:hover {
+  color: #0A194E; /* Change color on hover */
+  transform: scale(1.1);
+}
+
+/* Adjusting modal content to ensure proper spacing */
+.history-modal-content {
+  padding: 20px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  position: relative;
+  max-height: 80vh;
+  width: 100%;
+  left: 20%;
+  top: 0px;
+  z-index: 1001;
+}
+
+/* Keyframes for modal fade-in */
+@keyframes fadeInOverlay {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInModal {
+  0% {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
