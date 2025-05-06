@@ -5,7 +5,7 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 
 const Payroll= ({ report}) => {
 
-    console.log("report",report)
+    //console.log("report",report)
 
     const employees = [];
 

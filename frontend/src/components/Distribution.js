@@ -12,7 +12,7 @@ import { syncRDSData } from "../components/sync/syncDistribution";
 import { syncEditedData } from "../components/sync/syncEditedDist";
 import Notification from "./again/Notif";
 import ConfirmationDialog from "./again/Confirmation";
-import SignaturePad from "./Signature";
+import Pagination from "./again/Pagination";
 
 const disasterTypeMapping = {
   "D1": "Typhoon",
@@ -229,7 +229,7 @@ const Distribution = ({ setNavbarTitle }) => {
   };
 
   const handleEdit = (distributionId) => {
-    console.log("id",distributionId)
+    //console.log("id",distributionId)
     setIsEditMode(true)
     setStep(2);
     localStorage.setItem("distributionId", distributionId);
@@ -328,7 +328,7 @@ const Distribution = ({ setNavbarTitle }) => {
             console.error("Error fetching from server:", error);
           }
         } else {
-          console.log("hehe");
+          //console.log("hehe");
 
           let parsed = [];
     
@@ -370,7 +370,7 @@ const Distribution = ({ setNavbarTitle }) => {
           }
     
           setDistribution(parsed);
-          console.log(parsed)
+          //console.log(parsed)
         }
       };
     
@@ -388,7 +388,7 @@ const Distribution = ({ setNavbarTitle }) => {
 
     const pendingDistributions = getPendingDistributions();
     const doneDistributions = getDoneDistributions();
-    console.log(doneDistributions);
+    //console.log(doneDistributions);
 
     const handleDoneClick = async (disasterCode) => {
       setConfirmDialog({
@@ -420,7 +420,7 @@ const Distribution = ({ setNavbarTitle }) => {
   const handleSearchChange = (event) => {
     const query = event.target.value.toLowerCase();
     setSearchQuery(query);
-    console.log("Search Query: ", query);
+    //console.log("Search Query: ", query);
   };
 
   const filteredDistribution = useMemo(() => {
@@ -832,31 +832,25 @@ const validateFields = () => {
                     </table>
                   </div>
 
-                      {/* Pagination Controls */}
-                      <div className="btn-container">
-                        <button className="nav-button prev" onClick={handlePrevHistory} disabled={historyPage === 1}>
-                          <i className="fa-solid fa-angle-left"></i>
-                        </button>
-                        <button className="nav-button next" onClick={handleNextHistory} disabled={historyPage === totalDistributionHistoryPages}>
-                          <i className="fa-solid fa-angle-right"></i>
-                        </button>
-                      </div>
-
+                  {/* Pagination Controls */}
+                  <div className="btn-container">
+                    {totalPages > 1 && (
+                        <div className="pagination-wrapper">
+                            <Pagination currentPage={historyPage} totalPages={totalDistributionHistoryPages} onPageChange={setHistoryPage} />
+                        </div>
+                    )}
+                  </div>
                 </div>
-
               </div>
             </>
             ) : (
-
               <div className="rds-form-container">
-
                 <div className="back">
                   <button className="backButton" onClick={handleBackClick}>
                     <i className="fa-solid fa-chevron-left"></i>
                     Back
                   </button>
                 </div>
-
 
                 {isEditMode ? (
                     <EditRDS />

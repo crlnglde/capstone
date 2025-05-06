@@ -10,8 +10,8 @@ const Filter = ({ disasters, setAvailableBarangays, onFilter, filters, graphType
 
 
   const [selectedValues, setSelectedValues] = useState({
-    year: "",
-    month: "",
+    year: "All",
+    month: "All",
     barangay: userRole === "daycare worker" && userBarangay ? userBarangay : "All",
     disasterType: "All",
     disasterDate: "",
@@ -47,22 +47,40 @@ const Filter = ({ disasters, setAvailableBarangays, onFilter, filters, graphType
         filterData[filter.key]="All";
       }
     });
-    console.log("Applied Filters:", filterData);
+    //console.log("Applied Filters:", filterData);
     onFilter(filterData);
     setShowFilter(false);
   };
 
   const clearFilter = () => {
-    setSelectedValues({
-      year: "",
-      month: "",
+    const newSelectedValues = {
+      year: "All",
+      month: "All",
       barangay: "All",
       disasterType: "All",
       disasterDate: "",
       disasterCode: "All",
+    };
+  
+    // Set selected values to "All" or empty
+    setSelectedValues(newSelectedValues);
+  
+    // Manually apply the filter (as if applyFilter is called)
+    let filterData = {};
+    filters.forEach(filter => {
+      if (newSelectedValues[filter.key] !== "") {
+        filterData[filter.key] = newSelectedValues[filter.key];
+      } else {
+        filterData[filter.key] = "All";
+      }
     });
-    onFilter({});
+  
+    //console.log("Applied Filters:", filterData);
+    onFilter(filterData);
+  
+    setShowFilter(false); // If you want to hide the filter after applying
   };
+  
 
   const getFilterOrder = () => {
     switch (graphType) {
@@ -105,7 +123,7 @@ const Filter = ({ disasters, setAvailableBarangays, onFilter, filters, graphType
   };
 
   const getAvailableDisasterCodes = () => {
-    console.log("Filtering disasters...");
+    //console.log("Filtering disasters...");
     return disasters
       .filter((d) => {
         const yearMatch = selectedValues.year === "All" || new Date(d.disasterDateTime).getFullYear() == selectedValues.year;
@@ -114,7 +132,7 @@ const Filter = ({ disasters, setAvailableBarangays, onFilter, filters, graphType
           selectedValues.barangay === "All" ||
           d.barangays.some(b => b.name === selectedValues.barangay);
         
-        console.log(`Checking disaster: ${d.disasterCode}`, { yearMatch, typeMatch, barangayMatch });
+        //console.log(`Checking disaster: ${d.disasterCode}`, { yearMatch, typeMatch, barangayMatch });
   
         return yearMatch && typeMatch && barangayMatch;
       })

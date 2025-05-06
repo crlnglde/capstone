@@ -36,7 +36,7 @@ const PieChart = () => {
     ];
     
     const handleDonutFilter = (filterData) => {
-      console.log("Received Filter Data:", filterData);
+      //console.log("Received Filter Data:", filterData);
       setYear(filterData.year || "All");
       setBarangay(filterData.barangay || "All");
       setDisasterType(filterData.disasterType || "All");
@@ -63,7 +63,7 @@ const PieChart = () => {
     }, []);
 
     const filteredDisasters = useMemo(() => {
-      console.log("Original Disasters", disasters);
+      //console.log("Original Disasters", disasters);
     
       if (disasters.length === 0) return [];
 
@@ -90,13 +90,13 @@ const PieChart = () => {
         const matchesType = disasterType === "All" || disaster.disasterType === disasterType;
         const matchesCode = (!disasterCode || disasterCode.includes("All")) || disasterCode.includes(disaster.disasterCode); // <-- Match disasterCode
     
-        console.log({
+        /*console.log({
           disasterCode: disaster.disasterCode,
           matchesBarangay,
           matchesYear,
           matchesType,
           matchesCode,
-        });
+        });*/
     
         return matchesBarangay && matchesYear && matchesType && matchesCode;
       });
@@ -104,7 +104,7 @@ const PieChart = () => {
 
   const defaultDafacStatuses = ["Pending", "Confirmed"]; 
 
-  console.log("Filtered Disasters", filteredDisasters);
+  //console.log("Filtered Disasters", filteredDisasters);
 
 // Calculate dafacStatus stats with barangay filter
 const dafacStatusStats = useMemo(() => {

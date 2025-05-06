@@ -196,11 +196,12 @@
 
 .barangay-button {
     padding: 8px 12px;
-    background-color: #0a194ebb;
-    color: rgba(255, 255, 255, 0.837);
+    background-color: #0a194e00;
+    color: rgba(12, 12, 12, 0.837);
     border: none;
     border-radius: 10px 10px 0 0;
     cursor: pointer;
+    font-size: 1.6rem;
 }
 
 .barangay-button.active{
@@ -210,6 +211,7 @@
 
 .barangay-button:hover {
     background-color: #0056b3;
+    color: white;
 }
 
 .res-submit-btn {

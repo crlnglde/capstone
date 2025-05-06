@@ -26,7 +26,7 @@ export const syncDisasterData = async (setNotification) => {
                 }
             });
             
-                console.log("hehe")
+                //console.log("hehe")
             const updateResponse = await fetch(`http://localhost:3003/update-disaster/${disasterCode}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
@@ -39,7 +39,7 @@ export const syncDisasterData = async (setNotification) => {
 
         } else {
 
-            console.log("haha")
+            //console.log("haha")
             // Disaster does not exist, create new disaster
             const disasterDocument = {
                 disasterCode,

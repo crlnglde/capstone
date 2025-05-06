@@ -35,7 +35,7 @@ const DonutGraph = () => {
   ];
   
   const handleDonutFilter = (filterData) => {
-    console.log("Received Filter Data:", filterData);
+    //console.log("Received Filter Data:", filterData);
     setYear(filterData.year || "All");
     setBarangay(filterData.barangay || "All");
     setDisasterType(filterData.disasterType || "All");
@@ -59,7 +59,7 @@ const DonutGraph = () => {
     fetchDisasters();
   }, []);
 
-  console.log(disasters)
+  //console.log(disasters)
 
   const latestDisaster = useMemo(() => {
     if (disasters.length === 0) return null;
@@ -95,20 +95,20 @@ const DonutGraph = () => {
       const matchesYear = year === "All" || disasterYear === year;
       const matchesType = disasterType === "All" || disaster.disasterType === disasterType;
   
-      console.log({
+      /*console.log({
         disasterCode: disaster.disasterCode,
         matchesCode,
         matchesBarangay,
         matchesYear,
         matchesType
-      });
+      });*/
   
       return matchesCode && matchesBarangay && matchesYear && matchesType;
     });
   }, [disasters, disasterCode, barangay, year, disasterType]);
   
 
-  console.log("Filtered Disasters", filteredDisasters)
+  //console.log("Filtered Disasters", filteredDisasters)
 
   // Calculate casualties stats
   const casualtyStats = useMemo(() => {

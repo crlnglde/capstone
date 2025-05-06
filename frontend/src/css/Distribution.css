@@ -117,6 +117,10 @@
       background-color: #0A194E;
     }
 
+
+    .distribution .pagination-wrapper{
+      margin: 0;
+    }
         .header-title {
           margin: 0; /* Remove default margin */
           font-size:25px;
@@ -164,7 +168,8 @@
 
 
       .distribution-table .distab{
-        height: 450px;
+        height: 420px;
+        padding: 0 0 10px 0;
       }
 
       .distribution-table table{
@@ -202,7 +207,25 @@
         font-weight: 500;
         padding: 10px;
         border-bottom: 1px solid #ddd;
+        height: 40px;
       }
+
+          .distribution .dash-viewmore-btn {
+            background-color: transparent;
+            border: 2px solid transparent;
+            color: #333;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+          }
+          
+            .distribution .dash-viewmore-btn:hover {
+              background-color: rgba(0, 0, 0, 0);
+              border-color: #00000000;
+              color: #0a1695;
+              transform: translateY(-6 px);
+            }
 
         .distribution-table .btn-container{
           display: flex;
@@ -296,7 +319,10 @@
               padding: 20px;
               background: #fff;
               border-radius: 8px;
-              align-items: center
+              align-items: center;
+              overflow-y: auto;
+              height: 100%;
+              max-height: 60vh;
             }
             
             .modal-form label {

@@ -22,7 +22,7 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
     setFormData(residentData);
   }, [residentData]);
 
-  console.log("res", residentData)
+  //console.log("res", residentData)
     const handleChange = (field, value) => {
       setFormData((prev) => ({
         ...prev,
@@ -53,7 +53,7 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
       name: "",
       relationToHead: "",
       age: "",
-      sex: "Male", 
+      sex: "", 
       education: "",
       occupationSkills: "",
     };
@@ -98,7 +98,7 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
     const number = parseInt(numeric, 10);
     handleChange("income", isNaN(number) ? "" : number);
   };
-  console.log(formData.status); 
+  //console.log(formData.status); 
 
   const barangays = [
     'Abuno', 'Acmac-Mariano Badelles Sr.', 'Bagong Silang', 'Bonbonon', 'Bunawan', 'Buru-un', 'Dalipuga',
@@ -174,6 +174,7 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
               onChange={(e) => handleChange("sex", e.target.value)}
               disabled={!isEditing}
             >
+              <option value=""></option>
               <option value="M">M</option>
               <option value="F">F</option>
               <option value="O">O</option>
@@ -198,7 +199,7 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
           {isEditing ? (
             <>
               <div style={{ display: "flex", gap: "10px" }}>
-                <div style={{ display: "flex", flexDirection: "column", flex: 1, width: "120px" }}>
+                <div style={{ display: "flex", flexDirection: "column", flex: 1, width: "100px" }}>
                   <input
                     type="text"
                     value={formData.purok || ""}
@@ -207,13 +208,20 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
                   />
                   <label>Purok</label>
                 </div>
-                <div style={{ display: "flex", flexDirection: "column", flex: 1,width: "120px" }}>
-                  <input
-                    type="text"
-                    value={formData.barangay || ""}
-                    onChange={(e) => handleChange("barangay", e.target.value)}
-                    placeholder="Barangay"
-                  />
+                <div style={{ display: "flex", flexDirection: "column", flex: 1,width: "110px" }}>
+                <select
+                  value={formData.barangay || ""}
+                  onChange={(e) => handleChange("barangay", e.target.value)}
+                >
+                  <option value="" disabled>
+                    Select Barangay
+                  </option>
+                  {barangays.map((barangay, index) => (
+                    <option key={index} value={barangay}>
+                      {barangay}
+                    </option>
+                  ))}
+                </select>
                   <label>Barangay</label>
                 </div>
               </div>
@@ -231,7 +239,7 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
           )}
           
         </div>
-          <div className="col">
+          <div className="col bdate">
             <input
               type="date"
               value={formData.bdate ? formData.bdate.split("T")[0] : ""}
@@ -249,7 +257,7 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
             />
             <label>Occupation</label>
           </div>
-          <div className="col">
+          <div className="col income">
             <input
               type="text"
               value={formatPeso(formData.income)}
@@ -359,7 +367,7 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
                         }
                       >
                           <option value={dependent.sex}>
-                            {dependent.sex === "Male" ? "M" : dependent.sex === "Female" ? "F" : "O"}
+                            {dependent.sex === "Male" ? "M" : dependent.sex === "Female" ? "F" : dependent.sex === "Others" ? "O" : "Sex"}
                           </option>
                           <option value="Male">M</option>
                           <option value="Female">F</option>
@@ -378,6 +386,7 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
                         handleDependentChange(index, "education", e.target.value)
                         }
                       >
+                        <option value="">Select Educational Attainment</option>
                         <option value="Elementary Level">Elementary Level</option>
                         <option value="Elementary Graduate">Elementary Graduate</option>
                         <option value="Junior High School level">Junior High School level</option>
