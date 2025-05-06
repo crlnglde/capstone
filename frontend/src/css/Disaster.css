@@ -543,13 +543,15 @@
       border: none;
       border-radius: 5px;
       background-color: #f9f9f900;
-      padding: 0px 10px 0px 0px;
+      padding: 0px 0px 0px 0px;
       justify-content: space-between;
+      gap: 15px;
+      width: 100%;
     }
 
     .viewmore-pop .vm-input-group2 {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       border: none;
       border-radius: 5px;
       background-color: #f9f9f900;
@@ -563,11 +565,14 @@
       align-items: flex-start;
     }
 
+    .aa .vm-input-group.a {
+      width:100%;
+    }
+
     .aa label{
       display: flex;
       align-items: center;
-      width: 200px;
-
+      width: 100%;
       font-size: 12px;
       color: #333;
       justify-content: flex-start;
@@ -633,6 +638,10 @@
   
 }
 
+.disaster .pagination-wrapper{
+  margin: 0;
+}
+
   .disasters-table table thead tr{
     /*background-color: rgb(10 25 78 / 69%);*/
     color: rgb(0, 0, 0);
@@ -675,7 +684,7 @@
         }
         
 
-      .dash-viewmore-btn {
+      .disaster .dash-viewmore-btn{
         background-color: transparent;  
         border: 2px solid transparent; 
         color: #333; 
@@ -685,11 +694,11 @@
         cursor: pointer; 
       }
     
-      .dash-viewmore-btn:hover {
-        background-color: rgba(0, 0, 0, 0.1);  /* Light background color on hover */
+      .disaster .dash-viewmore-btn:hover {
+        background-color: rgba(0, 0, 0, 0);  /* Light background color on hover */
         border-color: #00000000;  /* Add subtle border color when hovered */
-        color: #000;  /* Change text color on hover for better contrast */
-        transform: translateY(-2px);  /* Slight lift effect on hover */
+        color: #0a1695;  /* Change text color on hover for better contrast */
+        transform: translateY(-6  px);  /* Slight lift effect on hover */
       }
 
 .disasters-table p {

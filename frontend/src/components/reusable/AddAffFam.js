@@ -9,6 +9,7 @@ import Modal from "../Modal";
 import Loading from "../again/Loading";
 import Notification from "../again/Notif";
 import ConfirmationDialog from "../again/Confirmation";
+import Pagination from "../again/Pagination";
 
 const AddAffFam = ({disBarangay, disCode, setStep}) => {
 
@@ -38,8 +39,8 @@ const AddAffFam = ({disBarangay, disCode, setStep}) => {
     const [error, setError] = useState("");
 
     const [currentPage, setCurrentPage] = useState(1); // State for current page
-    const rowsPerPage = 10;
-    const totalPages = Math.ceil(affectedFamilies.length / rowsPerPage);
+    const rowsPerPage = 5;
+    const totalPages = Math.ceil(residents.length / rowsPerPage);
 
     const [activeResident, setActiveResident] = useState(null);
 
@@ -62,7 +63,6 @@ const AddAffFam = ({disBarangay, disCode, setStep}) => {
     const [isOnline, setIsOnline] = useState(navigator.onLine);
     const [D, setD] = useState([]);
     
-
     useEffect(() => {
         const handleOnline = () => setIsOnline(true);
         const handleOffline = () => setIsOnline(false);
@@ -85,7 +85,6 @@ const AddAffFam = ({disBarangay, disCode, setStep}) => {
         return () => window.removeEventListener('online', syncData);
         }, []);
     
-
        const closeModal = () => {
             setIsModalOpen(false); // Close modal
           };
@@ -94,14 +93,11 @@ const AddAffFam = ({disBarangay, disCode, setStep}) => {
             setActiveResident(resident); // Set the active resident
             handleOpenModal("dafac"); // Open the modal with "add" type
         };
-
        
         const handleOpenModal = (type) => {
             setModalType(type);
             setIsModalOpen(true);
         };
-        
-        
 
         const validateFields = () => {
             const missingFields = [];
@@ -121,8 +117,6 @@ const AddAffFam = ({disBarangay, disCode, setStep}) => {
             }
         };
 
-    
-    
         const handleDateChange = (e) => {
             setDate(e.target.value);
             if (hasClickedNext) {
@@ -196,7 +190,7 @@ const AddAffFam = ({disBarangay, disCode, setStep}) => {
             }
         }, [disBarangay]); // Runs only when disBarangay changes  
 
-        console.log(residents);
+        //console.log(residents);
         
         useEffect(() => {
             const fetchAffectedFamilies = async () => {
@@ -247,18 +241,18 @@ const AddAffFam = ({disBarangay, disCode, setStep}) => {
                     // Try fallback to localStorage
                     const localData = localStorage.getItem("offlineDisaster")
                     const savedForms = localStorage.getItem("AffectedForms");
-                    console.log("affected forms", savedForms)
+                    //console.log("affected forms", savedForms)
                     
                     const dData = JSON.parse(localData);
-                    console.log("offline", dData)
+                    //console.log("offline", dData)
                     const savedFormData = JSON.parse(savedForms || "[]");
                     const disasterData = dData.find(d => d.disasterCode === disCode);
-                    console.log("saved form", savedFormData)
-                    console.log("offline disasters", disasterData)
+                    //console.log("saved form", savedFormData)
+                    //console.log("offline disasters", disasterData)
 
                     
                     if (disasterData) {
-                        console.log("disasterData", disasterData)
+                        //console.log("disasterData", disasterData)
 
                         try {
                             if (!disasterData) {
@@ -274,20 +268,20 @@ const AddAffFam = ({disBarangay, disCode, setStep}) => {
         
                             const barangayData = disasterData.barangays?.find(b => b.name === disBarangay);
                             setSelectedBarangays(barangayData?.name || "");
-                            console.log("barangay data", barangayData)
+                            //console.log("barangay data", barangayData)
         
                             let residentsList = barangayData?.affectedFamilies || [];
 
-                            console.log(disCode)
-                            console.log(disBarangay)
+                            //console.log(disCode)
+                            //console.log(disBarangay)
                             const unsyncedResidents = savedFormData.filter(form =>
                                 form.disasterCode === disCode && form.barangay === disBarangay
                             );
 
-                            console.log(unsyncedResidents)
+                            //console.log(unsyncedResidents)
 
                             if (unsyncedResidents.length > 0) {
-                                console.log("Including unsynced residents from savedform:", unsyncedResidents);
+                                //console.log("Including unsynced residents from savedform:", unsyncedResidents);
                                 // Optional: Mark unsynced entries for UI feedback
                                 const flaggedUnsynced = unsyncedResidents.map(u => ({ ...u, unsynced: true }));
                                 residentsList = [...residentsList, ...flaggedUnsynced];
@@ -320,7 +314,7 @@ const AddAffFam = ({disBarangay, disCode, setStep}) => {
             fetchAffectedFamilies();
         }, [disCode, disBarangay]);
 
-        console.log(affectedFamilies)
+        //console.log(affectedFamilies)
         
         
         useEffect(() => {
@@ -333,7 +327,7 @@ const AddAffFam = ({disBarangay, disCode, setStep}) => {
                 selectedBarangays
             };
             localStorage.setItem('disasterData', JSON.stringify(disasterData));  // Store all relevant data
-            console.log('Disaster Data saved to localStorage:', disasterData);
+            //console.log('Disaster Data saved to localStorage:', disasterData);
         }, [disasterCode, disasterType, date, selectedBarangays]);
 
         const syncData = async () => {
@@ -420,7 +414,7 @@ const AddAffFam = ({disBarangay, disCode, setStep}) => {
                         const disasterData = JSON.parse(localStorage.getItem("offlineDisasterData")) || [];
                     
                         const disasterIndex = disasterData.findIndex(d => d.disasterCode === disasterCode);
-                        console.log("offline index", disasterIndex)
+                        //console.log("offline index", disasterIndex)
         
                         if (disasterIndex !== -1) {
                             // Disaster exists
@@ -460,12 +454,12 @@ const AddAffFam = ({disBarangay, disCode, setStep}) => {
                             // Disaster doesn't exist - continue your original behavior
                             const existing = JSON.parse(localStorage.getItem("AffectedForms") || "[]");
         
-                            console.log("existing", existing)
-                            console.log("updated", updatedForms)
+                            //console.log("existing", existing)
+                            //console.log("updated", updatedForms)
                     
                             const combined = [...existing, ...updatedForms];
         
-                            console.log("combined", combined)
+                            //console.log("combined", combined)
                     
                             localStorage.setItem("AffectedForms", JSON.stringify(combined));
                             localStorage.removeItem("savedForms");
@@ -488,7 +482,7 @@ const AddAffFam = ({disBarangay, disCode, setStep}) => {
         const handleSearchChange = (event) => {
             const query = event.target.value.trim().toLowerCase();
             setSearchQuery(query);
-            console.log("Search Query: ", query); // Debugging the query
+            //console.log("Search Query: ", query); // Debugging the query
           };
 
         const filteredResidents = useMemo(() => {
@@ -535,7 +529,7 @@ const AddAffFam = ({disBarangay, disCode, setStep}) => {
             currentPage * rowsPerPage
           );
 
-          console.log("displayed", displayResidents)
+          //console.log("displayed", displayResidents)
         
   return (
     <div className="AddAffFam">
@@ -571,7 +565,7 @@ const AddAffFam = ({disBarangay, disCode, setStep}) => {
                 className={`barangay-button ${activeBarangay === disBarangay ? 'active' : ''}`}
                 //onClick={() => handleBarangayClick(disBarangay)}
                 >
-                    {disBarangay}
+                    Barangay {disBarangay}
                 </button>
             </div>
 
@@ -598,7 +592,6 @@ const AddAffFam = ({disBarangay, disCode, setStep}) => {
                         <table>
                             <thead>
                                 <tr>
-                                <th>Barangay</th>
                                     <th>Purok</th>
                                     <th>Family Head</th>
                                     <th>Age</th>
@@ -607,7 +600,7 @@ const AddAffFam = ({disBarangay, disCode, setStep}) => {
                                     <th>Contact No.</th>
                                     <th>Education</th>
                                     <th>Dependents</th>
-                                    <th>Answer</th>
+                                    <th>Generate Form</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -615,7 +608,6 @@ const AddAffFam = ({disBarangay, disCode, setStep}) => {
                                 {displayResidents.length > 0 ? (
                                     displayResidents.map((resident, index) => (
                                         <tr key={resident.id}>
-                                            <td>{resident.barangay}</td>
                                             <td>{resident.purok}</td>
                                             <td>{resident.firstName} {resident.middleName} {resident.lastName}</td> 
                                             <td>{resident.age}</td> 
@@ -653,7 +645,7 @@ const AddAffFam = ({disBarangay, disCode, setStep}) => {
                                     ))
                                   ) : (
                                     <tr>
-                                      <td colSpan="6">No residents found.</td>
+                                      <td colSpan="9">No residents found.</td>
                                     </tr>
                                   )}
                             </tbody>
@@ -663,21 +655,11 @@ const AddAffFam = ({disBarangay, disCode, setStep}) => {
                     )}
 
                     <div className="res-button-container">
-                    <button 
-                        className="nav-button prev" 
-                        onClick={handlePrev}
-                        disabled={currentPage === 1}
-                    >
-                        <i className="fa-solid fa-angle-left"></i>
-                    </button>
-
-                    <button 
-                        className="nav-button next" 
-                        onClick={handleNext}
-                        disabled={currentPage === totalPages}
-                    >
-                        <i className="fa-solid fa-angle-right"></i>
-                    </button>
+                        {totalPages > 1 && (
+                            <div className="pagination-wrapper">
+                                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+                            </div>
+                        )}
                     </div>
 
 
@@ -685,7 +667,7 @@ const AddAffFam = ({disBarangay, disCode, setStep}) => {
                     <div className="dstr-bgay-btn">
 
                         <button className="bgy-submit-btn" onClick={handleFinalSubmit} >
-                            <i class="fa-solid fa-floppy-disk"></i>Submit
+                            <i className="fa-solid fa-floppy-disk"></i>Submit
                         </button>
 
                     </div>

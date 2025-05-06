@@ -44,7 +44,7 @@ const RDS= () => {
   const handleSaveSignature = (signatureData) => {
     if (!selectedFamily || !selectedFamily._id) return; 
 
-    console.log("Signature Image URL fo Database:", signatureData);
+    //console.log("Signature Image URL fo Database:", signatureData);
   
     setFamilies((prevFamilies) => 
       prevFamilies.map((family) => 
@@ -160,7 +160,7 @@ const RDS= () => {
       
         if (navigator.onLine) {
     
-          console.log(payload)
+          //console.log(payload)
           try {
             await axios.post("http://localhost:3003/save-distribution", payload);
             setNotification({ type: "success", title: "Save Successful", message: "Distribution data saved successfully!" });

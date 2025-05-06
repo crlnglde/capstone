@@ -27,10 +27,10 @@ const ViewRDS = ({selectedBarangay, distributionId, setDistributionDate, page, s
       } else{
 
         const localData = JSON.parse(localStorage.getItem("distributions") || "[]");
-        console.log(localData)
+        //console.log(localData)
         if (localData){
           data = localData.find(dist => dist._id === distributionId);
-          console.log(data)
+          //console.log(data)
         }
       }
 
@@ -60,7 +60,7 @@ const ViewRDS = ({selectedBarangay, distributionId, setDistributionDate, page, s
   }, [distributionId, selectedBarangay]);
 
   const updateDistributionDate = (index, data) => {
-    console.log("data", data)
+    //console.log("data", data)
     if (data[index]) {
       const date = new Date(data[index].dateDistributed);
       setDistributionDate({
@@ -73,7 +73,7 @@ const ViewRDS = ({selectedBarangay, distributionId, setDistributionDate, page, s
 
   useEffect(() => {
     if (page === 0) {
-      console.log("Resetting to first distribution data.");
+      //console.log("Resetting to first distribution data.");
       const newPage = 0;
       setCurrentPage(newPage);
       updateDistributionDate(newPage, distributionData);

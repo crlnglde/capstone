@@ -213,7 +213,7 @@ const fetchExistingResidents = async () => {
                 return;
               }
       
-              console.log("📂 Parsed CSV Data:", data);
+              //console.log("📂 Parsed CSV Data:", data);
       
               const existingResidents = await fetchExistingResidents();
               const formattedData = data.map((row, index) => {
@@ -242,7 +242,7 @@ const fetchExistingResidents = async () => {
                 };
               }).filter(item => item !== null);
       
-              console.log("✅ Formatted Data Ready for API:", formattedData);
+              //console.log("✅ Formatted Data Ready for API:", formattedData);
       
               const newResidents = formattedData.filter(newResident => {
                 return !existingResidents.some(existing => existing.memId === newResident.memId);
@@ -418,7 +418,7 @@ const fetchExistingResidents = async () => {
     
     if (localData) {
       const residentsData = JSON.parse(localData);
-      console.log("Loaded from localStorage:", residentsData);
+      //console.log("Loaded from localStorage:", residentsData);
       setResidents(residentsData);
   
       // Calculate total residents and total families
@@ -554,7 +554,7 @@ const fetchExistingResidents = async () => {
   const handleSearchChange = (event) => {
     const query = event.target.value.toLowerCase();
     setSearchQuery(query);
-    console.log("Search Query: ", query); // Debugging the query
+    //console.log("Search Query: ", query); // Debugging the query
   };
 
 
@@ -651,7 +651,7 @@ const fetchExistingResidents = async () => {
             setIsEditing(false); 
         
             const updatedResidentData = sanitizeResidentData(selectedResident);
-            console.log("Updated data:", updatedResidentData);
+            //console.log("Updated data:", updatedResidentData);
         
             try {
               const response = await fetch(`http://localhost:3003/update-resident/${updatedResidentData.memId}`, {
@@ -667,9 +667,9 @@ const fetchExistingResidents = async () => {
 
                           // Record final saved changes
                     const prevData = sanitizeResidentData(prevRes); // This is the original before update
-                    console.log("previous", prevData.bdate)
+                    //console.log("previous", prevData.bdate)
                     const newData = updatedResidentData;
-                    console.log("new", newData.bdate)
+                    //console.log("new", newData.bdate)
 
                     const normalizeDate = (date) => {
                       try {
@@ -699,8 +699,8 @@ const fetchExistingResidents = async () => {
                     const prevDependents = prevData.dependents || [];
                     const newDependents = newData.dependents || [];
 
-                    console.log("prev: ", prevDependents)
-                    console.log("new: ", newDependents)
+                    //console.log("prev: ", prevDependents)
+                    //console.log("new: ", newDependents)
                     const dependentsChanges = [];
 
                     const normalize = (val) => (val ?? "").toString().trim().toLowerCase();
@@ -800,15 +800,36 @@ const fetchExistingResidents = async () => {
                     
                     setSelectedResident(data); 
                     fetchResidents();
-                    alert('Resident data updated successfully!');
-                    setOpenModalType('');
+
+                    setNotification({
+                      type: "success",
+                      title: "Success",
+                      message: "Resident data updated successfully!"
+                    });                    
+
+                    setTimeout(() => {
+                      setNotification(null);
+                      setOpenModalType('');
+                    }, 1000);
+
+                    
                 } else {
                     const errorData = await response.json();
-                    alert(errorData.message || 'Error updating resident data');
+                    setNotification({
+                      type: "error",
+                      title: "Error",
+                      message: errorData.message || 'Error updating resident data'
+                    });
+                    
                 }
               } catch (error) {
                   console.error('Error saving data:', error);
-                  alert('An error occurred while saving the data');
+                  setNotification({
+                    type: "error",
+                    title: "Error",
+                    message: 'An error occurred while saving the data'
+                  });
+                  
             }
           }; 
 
@@ -896,6 +917,26 @@ const fetchExistingResidents = async () => {
   return (
     <div className="residents">
 
+      
+        {notification && (
+          <Notification
+            type={notification.type}
+            title={notification.title} 
+            message={notification.message}
+            onClose={() => setNotification(null)}
+          />
+        )}
+
+        {confirmDialog.show && (
+          <ConfirmationDialog
+            type={confirmDialog.type}
+            title={confirmDialog.title}
+            message={confirmDialog.message}
+            onConfirm={confirmDialog.onConfirm}
+            onCancel={handleCancelConfirm}
+          />
+        )}
+
         {step !== 2 && (
         <div className="toggle-container">
           <button
@@ -948,60 +989,58 @@ const fetchExistingResidents = async () => {
 
                     <div className="resident-count-card">
                       <div className="rcc-label">
-                        <label>Inactive Residents</label>
-                      </div>
-
-                      <p><i className="fa-solid fa-people-group"></i>{inactiveResidents}</p>
-                    </div>
-
-                    <div className="resident-count-card">
-                      <div className="rcc-label">
                         <label>Active Families</label>
                       </div>
                       
                       <p><i className="fa-solid fa-people-roof"></i>{residentCount}</p>
                     </div>
+                    
+                    <div className="resident-count-card inactive-card">
+                      <div className="rcc-label">
+                        <label>Inactive Residents</label>
+                      </div>
+                      <p><i className="fa-solid fa-people-group"></i>{inactiveResidents}</p>
+                    </div>
 
-                    <div className="resident-count-card">
+                    <div className="resident-count-card inactive-card">
                       <div className="rcc-label">
                         <label>Inactive Families</label>
                       </div>
-                      
                       <p><i className="fa-solid fa-people-roof"></i>{residentInactiveCount}</p>
                     </div>
-
                   </div>
 
-                  <div className="dstr-search">
-                    <div className="dstr-search-container">
-                      <i className="fa-solid fa-magnifying-glass"></i>
-                      <input 
-                        type="text" 
-                        placeholder="Search..." 
-                        onChange={handleSearchChange} 
-                        className="search-bar"
-                      />
+                  <div className="res-top-col2">
+                    <div className="res-search">
+                      <div className="res-search-container">
+                        <i className="fa-solid fa-magnifying-glass"></i>
+                        <input 
+                          type="text" 
+                          placeholder="Search..." 
+                          onChange={handleSearchChange} 
+                          className="search-bar"
+                        />
+                      </div>
                     </div>
+              
+                    {role !== "daycare worker" && (
+                      <div className="res-filter-container">
+                        <label htmlFor="barangayFilter"><i className="fa-solid fa-filter"></i> Filter: </label>
+                        <select
+                          id="barangayFilter"
+                          value={selectedBarangay}
+                          onChange={handleFilterChange}
+                        >
+                          <option value="">All Barangays</option>
+                          {barangays.map((barangay, index) => (
+                            <option key={index} value={barangay}>
+                              {barangay}
+                            </option>
+                          ))}
+                        </select> 
+                      </div>
+                    )}
                   </div>
-            
-                  {role !== "daycare worker" && (
-                    <div className="res-filter-container">
-                      <label htmlFor="barangayFilter"><i className="fa-solid fa-filter"></i> Filter: </label>
-                      <select
-                        id="barangayFilter"
-                        value={selectedBarangay}
-                        onChange={handleFilterChange}
-                      >
-                        <option value="">All Barangays</option>
-                        {barangays.map((barangay, index) => (
-                          <option key={index} value={barangay}>
-                            {barangay}
-                          </option>
-                        ))}
-                      </select> 
-                    </div>
-                  )}
-
 
                 </div>
 
@@ -1025,19 +1064,19 @@ const fetchExistingResidents = async () => {
                       {tableResidents.length > 0 ? (
                           tableResidents.map((resident, index) => (
                             <tr key={index}>
-                              <td>{resident.barangay}</td> {/* barangay */}
-                              <td>{resident.purok}</td> {/* Purok */}
-                              <td>{resident.firstName} {resident.middleName} {resident.lastName}</td> {/* Family Head (name) */}
-                              <td>{resident.age}</td> {/* Family Head's Age */}
-                              <td>{resident.sex}</td> {/* Family Head's Sex */}
-                              <td>{resident.occupation}</td> {/* Occupation */}
-                              <td>{resident.phone}</td> {/* Contact No. */}
-                              <td>{resident.education || "Not Provided"}</td> {/* Education */}
+                              <td>{resident.barangay}</td> 
+                              <td>{resident.purok}</td>
+                              <td>{resident.firstName} {resident.middleName} {resident.lastName}</td> 
+                              <td>{resident.age}</td> 
+                              <td>{resident.sex}</td> 
+                              <td>{resident.occupation}</td> 
+                              <td>{resident.phone}</td> 
+                              <td>{resident.education || "Not Provided"}</td> 
                               
                               <td> 
-                              <button className="res-viewmore-btn" onClick={() => handleViewMore(resident)}>
-                                <i className="fa-solid fa-ellipsis"></i>
-                              </button>
+                                <button className="res-viewmore-btn" onClick={() => handleViewMore(resident)}>
+                                  <i className="fa-solid fa-ellipsis"></i>
+                                </button>
                               </td>
                             </tr>
                           ))
@@ -1223,19 +1262,20 @@ const fetchExistingResidents = async () => {
                           </div>
                         </div>
                       </div>
-                    </div>
+                    
                    
-                    <div className="res-pop-form">
-                      {/*Sex*/}
-                      <div className="form-group">
-                        <div className="input-group">
-                          <span className="icon"><i className="fa-solid fa-mars-and-venus"></i></span>
-                          <select  value={familyHeadSex} onChange={(e) => setSex(e.target.value)} >
-                            <option value="">Select Sex</option>
-                            <option value="M">Male</option>
-                            <option value="F">Female</option>
-                            <option value="O">Others</option>
-                          </select>
+                      <div className="res-pop-form">
+                        {/*Sex*/}
+                        <div className="form-group">
+                          <div className="input-group">
+                            <span className="icon"><i className="fa-solid fa-mars-and-venus"></i></span>
+                            <select  value={familyHeadSex} onChange={(e) => setSex(e.target.value)} >
+                              <option value="">Select Sex</option>
+                              <option value="M">Male</option>
+                              <option value="F">Female</option>
+                              <option value="O">Others</option>
+                            </select>
+                          </div>
                         </div>
                         
                         {/*Bdate*/}
@@ -1291,12 +1331,9 @@ const fetchExistingResidents = async () => {
                             </select>
                           </div>
                         </div>         
-                      
                       </div>
-                      
+
                       <div className="res-pop-form"> 
-
-
                         {/*Income*/}
                         <div className="form-group">
                           <div className="input-group">
@@ -1339,6 +1376,7 @@ const fetchExistingResidents = async () => {
                           </div>
                         </div>
                       </div>
+
 
                       {/*Dependent*/}
                       <div className="res-pop-form1"> 
@@ -1473,7 +1511,6 @@ const fetchExistingResidents = async () => {
 
                                 
                                   <div className="res-pop-form2">
-                                    
                                     <button
                                         type="button"
                                         className="remove-btn"
@@ -1498,7 +1535,7 @@ const fetchExistingResidents = async () => {
                       <button type="submit" className="submit-btn" disabled={isUploading}>
                         {isUploading ? <i className="fa fa-spinner fa-spin"></i> : "Save"}
                       </button>
-                    </form>
+                  </form>
                   
                 </div>
               )}

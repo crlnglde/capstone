@@ -93,7 +93,7 @@ const BarGraph = ({ isBarGraph }) => {
     fetchDistributions();
   }, []);
 
-  console.log(distributions)
+  //console.log(distributions)
 
   useEffect(() => {
     if (!disasterCodeFilter || !disasters.length) return;
@@ -103,20 +103,20 @@ const BarGraph = ({ isBarGraph }) => {
   
     setSelectedDisaster(selectedDisaster);
 
-    console.log("hehe", distributions)
+    //console.log("hehe", distributions)
   
     const affectedFamiliesCount = selectedDisaster.barangays
       .filter(barangay => !barangayFilter || barangay.name === barangayFilter)
       .reduce((sum, barangay) => sum + (barangay.affectedFamilies?.length || 0), 0);
   
-    console.log("code filter", disasterCodeFilter)
-    console.log("barangays", barangayFilter)
+    //console.log("code filter", disasterCodeFilter)
+    //console.log("barangays", barangayFilter)
     const allDistributions = distributions
       .filter(d => d.disasterCode === disasterCodeFilter)
       .flatMap(d => d.barangays)
       .filter(barangay => !barangayFilter || barangay.name === barangayFilter)
       .flatMap(barangay => barangay.distribution || []);
-    console.log("haha", allDistributions)
+    //console.log("haha", allDistributions)
   
     const labels = allDistributions.map((distribution, index) => {
       const date = new Date(distribution.dateDistributed);
@@ -156,7 +156,7 @@ const BarGraph = ({ isBarGraph }) => {
     });
   }, [disasterCodeFilter, barangayFilter, disasters, distributions]);
   
-  console.log(chartData)
+  //console.log(chartData)
   
   const availableDisasterCodes = useMemo(() => {
     return Array.from(new Set(disasters.map(d => d.disasterCode)));

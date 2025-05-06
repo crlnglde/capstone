@@ -63,7 +63,7 @@ const Reports = ({setNavbarTitle}) => {
       }
     }, [location.pathname, setNavbarTitle]);
 
-    console.log(reports)
+    //console.log(reports)
 
 
   useEffect(() => {
@@ -712,7 +712,7 @@ const Reports = ({setNavbarTitle}) => {
         setFilteredReports(reports);
         return;
       }
-      console.log("Filter selected:", filter);
+      //console.log("Filter selected:", filter);
     
       let filteredData = reports.filter((report) => {
         const reportDate = new Date(report.date);
@@ -728,7 +728,7 @@ const Reports = ({setNavbarTitle}) => {
         return true;
       });
     
-      console.log("Filtered Reports:", filteredData);
+      //console.log("Filtered Reports:", filteredData);
       setFilteredReports(filteredData);
     };
 
@@ -751,7 +751,7 @@ const Reports = ({setNavbarTitle}) => {
         // Function to transform data per barangay (only for download)
         const transformDataForDownload = async () => {
           try {
-            const response = await axios.get("http://172.20.10.2:3003/get-disasters");
+            const response = await axios.get("http://localhost:3003/get-disasters");
             const disasterData = response.data;
         
             const transformed = disasterData.flatMap(disaster =>

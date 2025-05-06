@@ -16,8 +16,8 @@ import ConfirmationDialog from "../again/Confirmation";
 const DAFAC= ({ activeResident, disasterData, setIsModalOpen, mode}) => {
   const formRef = useRef(null);
 
-  console.log("Active Resident", activeResident)
-  console.log("DisasterData", disasterData)
+  //console.log("Active Resident", activeResident)
+  //console.log("DisasterData", disasterData)
   const [currentDate, setCurrentDate] = useState("");
 
       const [loading, setLoading] = useState(false);
@@ -733,7 +733,7 @@ const DAFAC= ({ activeResident, disasterData, setIsModalOpen, mode}) => {
                         value={formData.costDamage || ""}
                         onChange={(e) => {
                           const newValue = e.target.value;
-                          console.log("Input Value: ", newValue);
+                          //console.log("Input Value: ", newValue);
                           setFormData(prev => ({
                             ...prev,
                             costDamage: newValue === "" ? "" : parseInt(newValue)

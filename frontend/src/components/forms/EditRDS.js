@@ -48,8 +48,8 @@ const EditRDS = () => {
   const handleSaveSignature = (imageURL) => {
     const confirmSubmit = window.confirm("Confirm Signature");
     if (!confirmSubmit) return;
-    console.log("selected family", selectedFamily)
-    console.log("selectedFamily._id:", selectedFamily._id, typeof selectedFamily._id);
+    //console.log("selected family", selectedFamily)
+    //console.log("selectedFamily._id:", selectedFamily._id, typeof selectedFamily._id);
 
     if (!selectedFamily || !selectedFamily._id) return; 
 
@@ -69,7 +69,7 @@ const EditRDS = () => {
     setIsUpdated(true);
 
     handleCloseModal();
-    console.log(distributionData)
+    //console.log(distributionData)
   };
 
 
@@ -92,7 +92,7 @@ const EditRDS = () => {
     const storedId = localStorage.getItem("distributionId");
     if (storedId) {
       setDistributionId(storedId);
-      console.log("distributionId updated from localStorage:", storedId);
+      //console.log("distributionId updated from localStorage:", storedId);
     }
   }, []);
 
@@ -130,7 +130,7 @@ const EditRDS = () => {
                 break;
               }
 
-              console.log("data", data)
+              //console.log("data", data)
             }
           } catch (e) {
             console.error("Failed to parse local distributions data", e);
@@ -188,7 +188,7 @@ const EditRDS = () => {
         if(navigator.onLine) { 
           const updatedFamilies = distributionData.families;
     
-          console.log(distributionId);
+          //console.log(distributionId);
       
           const response = await axios.put(`http://localhost:3003/update-distribution/${distributionId}`, {
             families: updatedFamilies
@@ -217,16 +217,16 @@ const EditRDS = () => {
 
         try {
 
-          console.log(distributionData)
+          //console.log(distributionData)
           const editedDist = {
             ...distributionData
           };
   
-          console.log("edited dist", editedDist)
+          //console.log("edited dist", editedDist)
         
           // Get offlineDistributions
           const offlineData = JSON.parse(localStorage.getItem("offlineDistributions")) || [];
-          console.log("Offline Data", offlineData)
+          //console.log("Offline Data", offlineData)
   
           const index = offlineData.findIndex(dist => 
             dist.disasterCode === distributionData.disasterCode &&
@@ -235,13 +235,13 @@ const EditRDS = () => {
             dist.distributionId === distributionData.distributionId
           );
           
-          console.log("index", index)
-          console.log("Offline Data", offlineData)
-          console.log("Distribution Data")
-          console.log(distributionData.disasterCode)
-          console.log(distributionData.barangayName)
-          console.log(selectedFamily.familyHead)
-          console.log(distributionData.distributionId)
+          //console.log("index", index)
+          //console.log("Offline Data", offlineData)
+          //console.log("Distribution Data")
+          //console.log(distributionData.disasterCode)
+          //console.log(distributionData.barangayName)
+          //console.log(selectedFamily.familyHead)
+          //console.log(distributionData.distributionId)
         
           if (index !== -1) {
             // 🔁 It exists → update the existing one

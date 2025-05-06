@@ -70,6 +70,15 @@
             padding: 15px 20px;
             border-radius: 10px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+          }
+
+          .AddAffFam .res-button-container{
+            padding: 20px 20px 0 20px;
+          }
+
+          .afffam .pagination-wrapper{
+            margin: 0;
           }
 
           .afffam-residents-table .upper{
@@ -78,6 +87,7 @@
 
           .afffam-residents-table .upper .dstr-search {
               margin-left: auto; /* Pushes the search bar to the right */
+              height: 40px;
           }
 
           .icon-text-wrapper {

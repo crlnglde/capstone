@@ -23,6 +23,7 @@ const ResidentsVis = forwardRef(({ selectedBarangay }, ref) => {
   const [residents, setResidents] = useState([]);
   const [maleCount, setTotalMale] = useState(0);
   const [femaleCount, setTotalFemale] = useState(0);
+  const [othersCount, setTotalOthers] = useState(0);
   const [minorCount, setMinorCount] = useState(0);
   const [adultCount, setAdultCount] = useState(0);
   const [seniorCount, setSeniorCount] = useState(0);
@@ -35,7 +36,7 @@ const ResidentsVis = forwardRef(({ selectedBarangay }, ref) => {
 
   const internalRef = useRef();
 
-console.log(selectedBarangay)
+//console.log(selectedBarangay)
 useEffect(() => {
   const fetchExistingResidents = async () => {
     const localData = localStorage.getItem("residents");
@@ -84,6 +85,7 @@ useEffect(() => {
   useEffect(() => {
     let maleCount = 0;
     let femaleCount = 0;
+    let othersCount = 0;
 
     let minorCount = 0;
     let adultCount = 0;
@@ -96,6 +98,7 @@ useEffect(() => {
        // Count gender
       if (resident.sex === "M") maleCount++;
       if (resident.sex === "F") femaleCount++;
+      if (resident.sex === "O") othersCount++;
 
        // Categorize resident age
        const residentAge = resident.age; // Assuming 'age' is available
@@ -184,6 +187,7 @@ useEffect(() => {
       resident.dependents.forEach(dep => {
         if (dep.sex === "Male") maleCount++;
         if (dep.sex === "Female") femaleCount++;
+        if (dep.sex === "Others") othersCount++;
 
         const dependentAge = dep.age; // Assuming 'age' is available
         if (dependentAge >= 0 && dependentAge <= 17) minorCount++;
@@ -215,6 +219,7 @@ useEffect(() => {
 
     setTotalMale(maleCount);
     setTotalFemale(femaleCount);
+    setTotalOthers(othersCount);
     setMinorCount(minorCount);
     setAdultCount(adultCount);
     setSeniorCount(seniorCount);
@@ -259,6 +264,7 @@ useEffect(() => {
         ["Seniors", seniorCount],
         ["Male", maleCount],
         ["Female", femaleCount],
+        ["Others", othersCount],
       ];
       const summarySheet = XLSX.utils.aoa_to_sheet(summaryData);
       XLSX.utils.book_append_sheet(wb, summarySheet, "Demographics");
@@ -326,6 +332,7 @@ useEffect(() => {
         ["Gender Distribution"],
         ["Male", maleCount],
         ["Female", femaleCount],
+        ["Others", othersCount],
         [],
         ["Educational Attainment"],
         ...Object.entries(education).map(([level, count]) => [level, count]),
@@ -493,12 +500,11 @@ useEffect(() => {
 
             <Pie
             data={{
-                labels: ["Male", "Female"],
+                labels: ["Male", "Female", "Non-binary"],
                 datasets: [
                     {
-                    data: [maleCount, femaleCount],
-                    backgroundColor: ["#3B82F6", "#F472B6"], // Blue & Pink
-
+                    data: [maleCount, femaleCount, othersCount],
+                    backgroundColor: ["#3B82F6", "#F472B6", "#C084FC"],
                     borderColor: "#fff",
                     borderWidth: 2,
                 },

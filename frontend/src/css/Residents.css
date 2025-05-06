@@ -79,7 +79,7 @@
     display: flex;
     justify-content: space-between;
     padding: 20px 20px 0 20px;
-    align-items: flex-start;
+    align-items: flex-end;
   }
 
   .res-top-col{
@@ -89,17 +89,27 @@
     align-items: flex-start;
     gap: 20px;
   }
-      .res-filter-container {
 
+  .res-top-col2{
+    display: flex;
+    gap: 10px;
+  }
+
+      .res-filter-container {
+        display: flex;
         font-size: 1.1em;
         border: 1px solid #ccc;
         border-radius: 5px;
-        gap: 10px;
+        gap: 0px;
         padding: 0 10px 0 10px;
+        width: 200px;
       }
       
       .res-filter-container label {
         font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 5px;
       }
       
       .res-filter-container select {
@@ -109,6 +119,7 @@
         outline: none;
         background-color: #fff;
         transition: border-color 0.3s ease;
+        width: 150px;
       }
 
       .res-filter-container option {
@@ -128,6 +139,32 @@
       .res-filter-container select option {
         padding: 10px;
       }
+
+      .res-search {
+        display: flex;
+        padding: 0 0 0px 0;
+        gap: 10px;
+    }
+
+      .res-search-container {
+        display: flex;
+        align-items: center;
+        border: 2px solid #ccc;
+        border-radius: 10px;
+        display: flex;
+        margin-left: auto;
+        padding: 0 10px 0 10px;
+        width: 204px;
+    }
+
+    .res-search input {
+      width: 300px;
+      padding: 8px;
+      border: none;
+      font-size: 16px;
+      background-color: #ffffff00;
+      outline: none;
+  }
       
       .resident-count-card {
         background-color: #f1f1f1;
@@ -144,6 +181,17 @@
         padding: 10px;
         border-radius: 8px 8px 0 0;
         letter-spacing: 2px;
+      }
+
+      .inactive-card .rcc-label {
+        background-color:#475277;
+        color: #a33;
+      }
+
+      .resident-count-card.inactive-card i{
+        color: #475277;
+        margin: 0px 10px 0px 0px;
+        font-size: 20px;
       }
 
       .resident-count-card label{
@@ -411,6 +459,11 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 100%;
+  max-height: 70vh;
+  padding: 10px 10px 0 0;
 }
 
 .res-pop-form2{

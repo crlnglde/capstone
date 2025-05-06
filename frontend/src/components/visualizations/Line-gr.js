@@ -36,8 +36,13 @@ const disasterColors = {
   };
   
 
-  const monthLabels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", 
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const monthLabels = [ "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"];
+
+    const monthAbbrLabels = [
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+      ];
 
 
 const StackedBarChart = () => {
@@ -108,12 +113,12 @@ const StackedBarChart = () => {
 
         const datasets = disasterTypes.map(type => ({
             label: type,
-            data: monthLabels.map((_, monthIndex) => dataByMonthAndType[monthIndex][type]),
+            data: monthAbbrLabels.map((_, monthIndex) => dataByMonthAndType[monthIndex][type]),
             backgroundColor: disasterColors[type],
         }));
 
         return {
-            labels: monthLabels,
+            labels: monthAbbrLabels,
             datasets
         };
     }, [disasters, selectedYear, selectedBarangays]);
@@ -202,21 +207,52 @@ const StackedBarChart = () => {
             }
         });
 
-        const mostAffectedBarangay = Object.entries(barangayCounts).reduce((max, [name, count]) =>
-            count > max.count ? { name, count } : max, { name: "", count: 0 });
+        // Most affected barangays
+        const maxBarangayCount = Math.max(...Object.values(barangayCounts));
+        const barangaysWithMaxOccurrences = Object.entries(barangayCounts)
+            .filter(([name, count]) => count === maxBarangayCount)
+            .map(([name]) => name);
 
-        const mostCommonType = Object.entries(typeCounts).reduce((max, [type, count]) =>
-            count > max.count ? { type, count } : max, { type: "", count: 0 });
+        const mostAffectedBarangay = barangaysWithMaxOccurrences.length === 1 ? 
+            barangaysWithMaxOccurrences[0] : 
+            barangaysWithMaxOccurrences.join(", ");
 
-        const monthWithMostDisasters = Object.entries(monthCounts).reduce((max, [month, count]) =>
-            count > max.count ? { month: Number(month), count } : max, { month: "", count: 0 });
+        // Most common disaster types
+        const maxDisasterCount = Math.max(...Object.values(typeCounts));
+        const typesWithMaxDisasters = Object.entries(typeCounts)
+            .filter(([type, count]) => count === maxDisasterCount)
+            .map(([type]) => type);
+
+        const mostCommonType = typesWithMaxDisasters.length === 1 ? 
+            typesWithMaxDisasters[0] : 
+            typesWithMaxDisasters.join(", ");
+
+        //Most Common Months
+        const maxDisasters = Math.max(...Object.values(monthCounts));
+
+        const monthsWithMostDisasters = Object.entries(monthCounts)
+            .filter(([month, count]) => count === maxDisasters)
+            .map(([month]) => month);
+
+        const monthNamesWithMostDisasters = monthsWithMostDisasters.map(monthIndex => monthLabels[monthIndex]);
+
+        let formattedMonths = '';
+        if (monthNamesWithMostDisasters.length === 2) {
+            formattedMonths = `${monthNamesWithMostDisasters[0]} and ${monthNamesWithMostDisasters[1]}`;
+        } else if (monthNamesWithMostDisasters.length > 2) {
+            const allButLast = monthNamesWithMostDisasters.slice(0, -1).join(", ");
+            const last = monthNamesWithMostDisasters[monthNamesWithMostDisasters.length - 1];
+            formattedMonths = `${allButLast}, and ${last}`;
+        } else {
+            formattedMonths = monthNamesWithMostDisasters[0];
+        }
 
         return {
             totalOccurrences,
-            mostAffectedBarangay: mostAffectedBarangay.name,
-            mostAffectedCount: mostAffectedBarangay.count,
-            mostCommonType: mostCommonType.type,
-            monthWithMostDisasters: monthLabels[monthWithMostDisasters.month] || ""
+            mostAffectedBarangay,
+            mostAffectedCount: maxBarangayCount,
+            mostCommonType,
+            monthWithMostDisasters: formattedMonths
         };
     }, [disasters, selectedYear, selectedBarangays]);
 
@@ -229,8 +265,8 @@ const StackedBarChart = () => {
                 
                 <div className="filters">
 
-                    <div class="select-wrapper">
-                        <select class="styled-select" value={selectedYear} onChange={e => setSelectedYear(e.target.value)}>
+                    <div className="select-wrapper">
+                        <select className="styled-select" value={selectedYear} onChange={e => setSelectedYear(e.target.value)}>
                             {availableYears.map(year => (
                                 <option key={year} value={year}>{year}</option>
                             ))}
@@ -264,20 +300,27 @@ const StackedBarChart = () => {
                 {disasterInsights.totalOccurrences === 0 ? (
                     <p>No disaster data available.</p>
                 ) : (
-                    <div>
-                    <p><strong>Total occurrences:</strong> {disasterInsights.totalOccurrences}</p>
+                    <div className="Line-ins">
                     {user.role === "daycare worker" ? (
-                        <>
-                            <p><strong>Most common disaster type:</strong> {disasterInsights.mostCommonType}</p>
-                            <p><strong>Month with highest disasters:</strong> {disasterInsights.monthWithMostDisasters}</p>
-                        </>
+                        <div className="flex-row">
+                             <p><strong>Total Occurrences:</strong> {disasterInsights.totalOccurrences}</p>
+                            <p><strong>Most Frequent Disaster:</strong> {disasterInsights.mostCommonType}</p>
+                            <p><strong>Most Affected Month:</strong> {disasterInsights.monthWithMostDisasters}</p>
+                        </div>
                     ) : (
-                        <>
-                            <p><strong>Most affected barangay:</strong> {disasterInsights.mostAffectedBarangay} ({disasterInsights.mostAffectedCount} occurrences)</p>
-                            <p><strong>Month with highest disasters:</strong> {disasterInsights.monthWithMostDisasters}</p>
-                        </>
+                        <div className="flex-columns">
+                            <div className="flex-row">
+                                <p><strong>Total occurrences:</strong> {disasterInsights.totalOccurrences}</p>
+                                <p><strong>Most Frequent Disaster:</strong> {disasterInsights.mostCommonType}</p>
+                            </div>
+                            <div className="flex-row">
+                                <p><strong>Top Affected Barangay:</strong> {disasterInsights.mostAffectedBarangay} ({disasterInsights.mostAffectedCount} occurrences)</p>
+                                <p><strong>Most Affected Month:</strong> {disasterInsights.monthWithMostDisasters}</p>
+                            </div>
+                        </div>
                     )}
                 </div>
+                
                 )}
             </div>
         </div>
