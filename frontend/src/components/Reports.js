@@ -751,21 +751,61 @@ const Reports = ({setNavbarTitle}) => {
         // Function to transform data per barangay (only for download)
         const transformDataForDownload = async () => {
           try {
-            const response = await axios.get("http://172.20.10.2:3003/get-disasters");
+            const response = await axios.get("http://localhost:3003/get-disasters");
             const disasterData = response.data;
         
             const transformed = disasterData.flatMap(disaster =>
               (disaster.barangays || []).map(brgy => {
-                let maleCount = 0, femaleCount = 0, is4ps = 0, isPWD = 0, isPreg = 0, isIps = 0, isSolo = 0;
+                let maleCount = 0, femaleCount = 0, othersCount = 0, is4ps = 0, isPWD = 0, isPreg = 0, isIps = 0, isSolo = 0;
+                let maleSenior = 0, femaleSenior = 0, othersSenior= 0;
+                let maleAdult = 0, femaleAdult = 0, othersAdult=0;
+                let maleMinor = 0, femaleMinor = 0, othersMinor=0 ;
+                let minor=0, adult=0, senior=0; 
         
                 (brgy.affectedFamilies || []).forEach(family => {
                   if (family.sex === "M") maleCount++;
                   if (family.sex === "F") femaleCount++;
+                  if (family.sex === "O") othersCount++;
         
                   (family.dependents || []).forEach(dependent => {
                     if (dependent.sex === "Male") maleCount++;
                     if (dependent.sex === "Female") femaleCount++;
+                    if (dependent.sex === "Others") othersCount++;
+
+                    if (family.age !== undefined && family.age !== null) {
+                      if (family.sex === "M") {
+                        if (family.age >= 60) maleSenior++;
+                        else if (family.age >= 18) maleAdult++;
+                        else maleMinor++;
+                      } else if (family.sex === "F") {
+                        if (family.age >= 60) femaleSenior++;
+                        else if (family.age >= 18) femaleAdult++;
+                        else femaleMinor++;
+                      } else if (family.sex === "O") {
+                        if (family.age >= 60) othersSenior++;
+                        else if (family.age >= 18) othersAdult++;
+                        else othersMinor++;
+                      }
+                    }
+
+
+                    if (dependent.age !== undefined && dependent.age !== null) {
+                      if (dependent.sex === "Male") {
+                        if (dependent.age >= 60) maleSenior++;
+                        else if (dependent.age >= 18) maleAdult++;
+                        else maleMinor++;
+                      } else if (dependent.sex === "Female") {
+                        if (dependent.age >= 60) femaleSenior++;
+                        else if (dependent.age >= 18) femaleAdult++;
+                        else femaleMinor++;
+                      } else if (family.sex === "O") {
+                        if (family.age >= 60) othersSenior++;
+                        else if (family.age >= 18) othersAdult++;
+                        else othersMinor++;
+                      }
+                    }
                   });
+
         
                   if (family.is4ps) is4ps++;
                   if (family.isPWD) isPWD++;
@@ -787,7 +827,10 @@ const Reports = ({setNavbarTitle}) => {
                   affectedPersons: brgy.affectedFamilies?.reduce(
                     (sum, fam) => sum + 1 + (fam.dependents?.length || 0), 0
                   ) ?? 0,
-                  sexBreakdown: `M: ${maleCount} | F: ${femaleCount}`,
+                  sexBreakdown: `M: ${maleCount} | F: ${femaleCount} | O: ${othersCount}`,
+                  minor:`M: ${maleMinor} | F: ${femaleMinor} | O: ${othersMinor}`,
+                  adult:`M: ${maleAdult} | F: ${femaleAdult} | O: ${othersMinor}`,
+                  senior:`M: ${maleSenior} | F: ${femaleSenior} | O: ${othersSenior}`,
                   isPreg,
                   is4ps,
                   isPWD,
@@ -810,6 +853,9 @@ const Reports = ({setNavbarTitle}) => {
               "No. of Affected Families": item.affectedFamilies,
               "No. of Affected People": item.affectedPersons,
               "Sex Breakdown": item.sexBreakdown,
+              "Minors": item.minor,
+              "Adults": item.adult,
+              "Seniors": item.senior,
               "No. of Pregnant Women/Lactating Mothers": item.isPreg,
               "No. of 4P's": item.is4ps,
               "No. of PWDs": item.isPWD,
