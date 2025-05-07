@@ -60,7 +60,7 @@ useEffect(() => {
 
     // Try fetching fresh data
     try {
-      const response = await axios.get("http://localhost:3003/get-residents");
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/get-residents`);
       const data = response.data;
 
       // Save fresh data to localStorage

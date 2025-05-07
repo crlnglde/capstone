@@ -191,7 +191,7 @@ const [step, setStep] = useState(1);
                     let data=[];
 
                     if(navigator.onLine){
-                        const response = await fetch(`http://localhost:3003/get-disaster/${disCode}`);
+                        const response = await fetch(`${process.env.REACT_APP_API_URL}/get-disaster/${disCode}`);
                         data = await response.json();
                     } else{
 
@@ -261,7 +261,7 @@ const [step, setStep] = useState(1);
                     try {
                         if (navigator.onLine) {
                             const response = await axios.put(
-                              `http://localhost:3003/update-dafac-status/${disCode}/${disBarangay}/${familyId}`
+                              `${process.env.REACT_APP_API_URL}/update-dafac-status/${disCode}/${disBarangay}/${familyId}`
                             );
                         
                             setNotification({

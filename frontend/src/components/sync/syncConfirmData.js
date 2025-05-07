@@ -4,7 +4,7 @@ export async function syncConfirmData(setNotification) {
     for (const update of offlineUpdates) {
       try {
         const response = await fetch(
-            `http://localhost:3003/update-dafac-status/${update.disCode}/${update.disBarangay}/${update.familyId}`,
+            `${process.env.REACT_APP_API_URL}/update-dafac-status/${update.disCode}/${update.disBarangay}/${update.familyId}`,
             {
               method: "PUT",
               headers: {

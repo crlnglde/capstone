@@ -44,9 +44,9 @@ function App() {
   const fetchData = async () => {
     try {
         const [residentsRes, disastersRes, distributionsRes] = await Promise.all([
-            axios.get("http://localhost:3003/get-residents"),
-            axios.get("http://localhost:3003/get-disasters"),
-            axios.get("http://localhost:3003/get-distributions"),
+            axios.get(`${process.env.REACT_APP_API_URL}/get-residents`),
+            axios.get(`${process.env.REACT_APP_API_URL}/get-disasters`),
+            axios.get(`${process.env.REACT_APP_API_URL}/get-distributions`),
         ]);
         localStorage.setItem("residents", JSON.stringify(residentsRes.data));
         localStorage.setItem("disasters", JSON.stringify(disastersRes.data));

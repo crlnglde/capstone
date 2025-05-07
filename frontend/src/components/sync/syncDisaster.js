@@ -14,7 +14,7 @@ export const syncDAFACData = async (setNotification) => {
             return acc;
         }, {});
 
-        const checkResponse = await fetch(`http://localhost:3003/get-disaster/${disasterCode}`);
+        const checkResponse = await fetch(`${process.env.REACT_APP_API_URL}/get-disaster/${disasterCode}`);
         const existingDisaster = await checkResponse.json();
 
         if (!checkResponse.ok) throw new Error("Failed to fetch disaster data");
@@ -54,7 +54,7 @@ export const syncDAFACData = async (setNotification) => {
             };
         });
 
-        const updateResponse = await fetch(`http://localhost:3003/update-disaster/${disasterCode}`, {
+        const updateResponse = await fetch(`${process.env.REACT_APP_API_URL}/update-disaster/${disasterCode}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ barangays: updatedBarangays }),

@@ -190,7 +190,7 @@ const addResidentsToTop = (newResidents) => {
 
 const fetchExistingResidents = async () => {
   try {
-    const response = await axios.get("http://localhost:3003/get-residents");
+    const response = await axios.get(`${process.env.REACT_APP_API_URL}/get-residents`);
     return response.data; 
   } catch (error) {
     console.error("Error fetching residents:", error);
@@ -311,7 +311,7 @@ const fetchExistingResidents = async () => {
               try {
                 await new Promise((resolve) => setTimeout(resolve, 2000)); // UX delay
       
-                const response = await axios.post("http://localhost:3003/add-csvresidents", { residents: newResidents });
+                const response = await axios.post(`${process.env.REACT_APP_API_URL}/add-csvresidents`, { residents: newResidents });
       
                 console.log("✅ Server Response:", response.data);
       
@@ -419,7 +419,7 @@ const fetchExistingResidents = async () => {
         try {
           await new Promise((resolve) => setTimeout(resolve, 2000));
   
-          const response = await axios.post("http://localhost:3003/add-residents", formattedData);
+          const response = await axios.post(`${process.env.REACT_APP_API_URL}/add-residents`, formattedData);
   
           setNotification({ type: "success", message: "Resident added successfully!" });
   
@@ -487,7 +487,7 @@ const fetchExistingResidents = async () => {
     }
   
     try {
-      const response = await axios.get("http://localhost:3003/get-residents");
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/get-residents`);
       localStorage.setItem('residents', JSON.stringify(response.data));
   
       // If you're online, update the UI with fresh data too
@@ -708,7 +708,7 @@ const fetchExistingResidents = async () => {
             //console.log("Updated data:", updatedResidentData);
         
             try {
-              const response = await fetch(`http://localhost:3003/update-resident/${updatedResidentData.memId}`, {
+              const response = await fetch(`${process.env.REACT_APP_API_URL}/update-resident/${updatedResidentData.memId}`, {
                 method: 'PUT',
                 headers: {
                   'Content-Type': 'application/json',
@@ -843,7 +843,7 @@ const fetchExistingResidents = async () => {
                       const existingLog = JSON.parse(localStorage.getItem("changelog")) || [];
                       localStorage.setItem("changelog", JSON.stringify([...existingLog, log]));
 
-                      await fetch(`http://localhost:3003/update-resident/${newData.memId}/history`, {
+                      await fetch(`${process.env.REACT_APP_API_URL}/update-resident/${newData.memId}/history`, {
                         method: "POST",
                         headers: {
                           "Content-Type": "application/json", 
@@ -914,7 +914,7 @@ const fetchExistingResidents = async () => {
             if (!selectedResident) return;
           
             try {
-              const response = await axios.delete(`http://localhost:3003/delete-resident/${selectedResident.memId}`);
+              const response = await axios.delete(`${process.env.REACT_APP_API_URL}/delete-resident/${selectedResident.memId}`);
               if (response.status === 200) {
                 setNotification({ type: "success", title: "Delete Successful", message: "Resident deleted successfully." });
                 setTimeout(() => setNotification(null), 3000);

@@ -30,7 +30,7 @@ const BarGraph = ({ isBarGraph }) => {
         }
       }
       try {
-        const response = await axios.get("http://localhost:3003/get-disasters");
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/get-disasters`);
         const disasterData = response.data.filter(disaster => disaster.disasterStatus === "Current");
         setDisasters(disasterData);
   
@@ -77,7 +77,7 @@ const BarGraph = ({ isBarGraph }) => {
     
       // Fetch from server for fresh data
       try {
-        const response = await axios.get("http://localhost:3003/get-distribution", {
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/get-distribution`, {
           params: { disasterCode, barangay, status }
         });
     
