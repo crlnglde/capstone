@@ -7,8 +7,8 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 const SPORADIC = ({ report, distribution }) => {
     const [totalAssistance, setTotalAssistance] = useState(0);
     const [totalEstimatedCost, setTotalEstimatedCost] = useState(0);
-    console.log("Families", report);
-    console.log("Distribution", distribution);
+    //console.log("Families", report);
+    //console.log("Distribution", distribution);
 
     // Extract barangays array from the distribution prop
     const barangays = distribution?.[0]?.barangays ?? [];

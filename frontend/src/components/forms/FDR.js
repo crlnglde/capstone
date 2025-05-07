@@ -7,8 +7,8 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 
 const FDR= ({ report, distribution }) => {
 
-    console.log("FDR ditribution: ", distribution)
-    console.log("Report: ", report)
+    //console.log("FDR ditribution: ", distribution)
+    //console.log("Report: ", report)
 
     const [totalDependents, setTotalDependents] = useState(0);
     const [totalPersonsAffected, setTotalPersonsAffected] = useState(0);

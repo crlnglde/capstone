@@ -9,6 +9,7 @@ import "../../css/reusable/AffFam.css";
 import Loading from "../again/Loading";
 import Notification from "../again/Notif";
 import ConfirmationDialog from "../again/Confirmation";
+import Pagination from "../again/Pagination";
 
 const EditAffFam = ({disBarangay, disCode, setStep}) => {
 
@@ -38,7 +39,7 @@ const EditAffFam = ({disBarangay, disCode, setStep}) => {
     const [error, setError] = useState("");
 
     const [currentPage, setCurrentPage] = useState(1); // State for current page
-    const rowsPerPage = 10;
+    const rowsPerPage = 5;
     const totalPages = Math.ceil(residents.length / rowsPerPage);
 
     const [activeResident, setActiveResident] = useState(null);
@@ -325,7 +326,7 @@ const EditAffFam = ({disBarangay, disCode, setStep}) => {
                     setLoading(true);
                 
                     if (navigator.onLine) {
-                        console.log("hihi")
+                        //console.log("hihi")
                         syncData();
                     } else {
                         const savedForms = JSON.parse(localStorage.getItem("savedForms") || "[]");
@@ -356,7 +357,7 @@ const EditAffFam = ({disBarangay, disCode, setStep}) => {
                             }
 
                             if (formUpdated){
-                                console.log("hehe")
+                                //console.log("hehe")
                             }
 
                             if (!formUpdated) {
@@ -409,7 +410,7 @@ const EditAffFam = ({disBarangay, disCode, setStep}) => {
     const handleSearchChange = (event) => {
         const query = event.target.value.trim().toLowerCase();
         setSearchQuery(query);
-        console.log("Search Query: ", query);
+        //console.log("Search Query: ", query);
     };
 
     const filteredResidents = useMemo(() => {
@@ -479,7 +480,7 @@ const EditAffFam = ({disBarangay, disCode, setStep}) => {
                         className={`barangay-button ${activeBarangay === disBarangay ? 'active' : ''}`}
                         //onClick={() => handleBarangayClick(disBarangay)}
                     >
-                        {disBarangay}
+                        Barangay {disBarangay}
                     </button>
                 </div>
 
@@ -508,7 +509,6 @@ const EditAffFam = ({disBarangay, disCode, setStep}) => {
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Barangay</th>
                                     <th>Purok</th>
                                     <th>Family Head</th>
                                     <th>Age</th>
@@ -517,7 +517,7 @@ const EditAffFam = ({disBarangay, disCode, setStep}) => {
                                     <th>Contact No.</th>
                                     <th>Education</th>
                                     <th>Dependents</th>
-                                    <th>Generate Form</th>
+                                    <th>Edit DAFAC Form</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -525,7 +525,6 @@ const EditAffFam = ({disBarangay, disCode, setStep}) => {
                                 {displayResidents.length > 0 ? (
                                     displayResidents.map((resident, index) => (
                                         <tr key={resident.id}>
-                                            <td>{disBarangay}</td>
                                             <td>{resident.purok}</td>
                                             <td>{resident.firstName} {resident.middleName} {resident.lastName}</td> 
                                             <td>{resident.age}</td> 
@@ -545,38 +544,28 @@ const EditAffFam = ({disBarangay, disCode, setStep}) => {
                                             <td>
                                                 
                                             <button className="res-submit-btn"disabled={resident.dafacStatus === "Confirmed"} onClick={() => handleResidentSelect(resident)}>
-                                                <i class="fa-solid fa-pen-to-square" ></i>
+                                                <i className="fa-solid fa-pen-to-square" ></i>
                                             </button>
                                             </td>
                                         </tr>
                                     ))
                                   ) : (
                                     <tr>
-                                      <td colSpan="6">No residents found.</td>
+                                      <td colSpan="9">No record found.</td>
                                     </tr>
                                   )}
                             </tbody>
                         </table>
                     ) : (
-                        <p>No residents found for {activeBarangay}.</p>
+                        <p>No affected families available to edit.</p>
                     )}
 
                     <div className="res-button-container">
-                    <button 
-                        className="nav-button prev" 
-                        onClick={handlePrev}
-                        disabled={currentPage === 1}
-                    >
-                        <i className="fa-solid fa-angle-left"></i>
-                    </button>
-
-                    <button 
-                        className="nav-button next" 
-                        onClick={handleNext}
-                        disabled={currentPage === totalPages}
-                    >
-                        <i className="fa-solid fa-angle-right"></i>
-                    </button>
+                        {totalPages > 1 && (
+                            <div className="pagination-wrapper">
+                                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+                            </div>
+                        )}
                     </div>
 
 
@@ -584,7 +573,7 @@ const EditAffFam = ({disBarangay, disCode, setStep}) => {
                     <div className="dstr-bgay-btn">
 
                         <button className="bgy-submit-btn" onClick={handleFinalSubmit}>
-                            <i class="fa-solid fa-floppy-disk"></i>Submit
+                            <i className="fa-solid fa-floppy-disk"></i>Submit
                         </button>
 
                     </div>

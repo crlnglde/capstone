@@ -42,9 +42,9 @@ const MapDisaster = () => {
   ];
 
   const handleFilter = useCallback((filterData) => {
-    console.log("Received Filter Data:", filterData);
+    //console.log("Received Filter Data:", filterData);
     setCurrentFilter(filterData) ;
-    console.log("Original Disasters Data:", disasters); 
+    //console.log("Original Disasters Data:", disasters); 
     
     if (!filterData) return;
 
@@ -58,24 +58,24 @@ const MapDisaster = () => {
 
         const disasterYear = disasterDate.getFullYear().toString();
         const disasterMonth = new Date(disaster.disasterDateTime).toLocaleString('en-US', { month: 'short' });
-        console.log(`Checking: Year(${disasterYear}), Month(${disasterMonth}), Type(${disaster.disasterType})`);
+        //console.log(`Checking: Year(${disasterYear}), Month(${disasterMonth}), Type(${disaster.disasterType})`);
 
         const matchYear = filterData.year === "All" || disasterYear === filterData.year;
         const matchMonth = filterData.month === "All" || disasterMonth === filterData.month;
         const matchType = filterData.disasterType === "All" || disaster.disasterType === filterData.disasterType;
         const matchBarangay = filterData.barangay === "All" || (disaster.barangays && disaster.barangays.some(b => b.name === filterData.barangay));
 
-        console.log(`Match Conditions: Year: ${matchYear}, Month: ${matchMonth}, Type: ${matchType}, Barangay: ${matchBarangay}`);
+        //console.log(`Match Conditions: Year: ${matchYear}, Month: ${matchMonth}, Type: ${matchType}, Barangay: ${matchBarangay}`);
 
         return matchYear && matchMonth && matchType && matchBarangay;
     });
 
-    console.log("Filtered Data:", filtered);
+    //console.log("Filtered Data:", filtered);
     setFilteredData(filtered);
 }, [disasters]);
 
 
-  console.log("Original Disasters Data:", disasters);
+  //console.log("Original Disasters Data:", disasters);
 
 
   (console.log("filtered data", filteredData))
@@ -148,17 +148,17 @@ const MapDisaster = () => {
       if (filteredData.length > 0) {
         const newFilteredData = countFilteredDisastersByBarangayAndType(filteredData, currentFilter.barangay);
     setFilteredDisastersByBarangay(newFilteredData);
-    console.log("Updated filteredDisastersByBarangay:", newFilteredData);
+    //console.log("Updated filteredDisastersByBarangay:", newFilteredData);
         setFilteredDisastersByBarangay(newFilteredData);
-        console.log("Updated filteredDisastersByBarangay:", newFilteredData);
+        //console.log("Updated filteredDisastersByBarangay:", newFilteredData);
       } else {
         setFilteredDisastersByBarangay({}); // Ensure state updates to an empty object
-        console.log("No disasters found, clearing map data.");
+        //console.log("No disasters found, clearing map data.");
       }
     }, [filteredData, disasterTypeFilter, disasterMonthFilter, barangay, year]);    
 
     useEffect(() => {
-      console.log("barangays", filteredDisastersByBarangay)
+      //console.log("barangays", filteredDisastersByBarangay)
     },[filteredData]);
   
     

@@ -8,7 +8,7 @@ import { GiConfirmed } from "react-icons/gi";
 import { RiEdit2Line } from "react-icons/ri";
 import { FaLock, FaMale, FaFemale  } from "react-icons/fa";
 import { IoMale, IoFemaleSharp, IoMaleFemale  } from "react-icons/io5";
-
+import Pagination from "./again/Pagination";
 import StackedBarChart from "./visualizations/Line-gr";
 import DonutGraph from './visualizations/Donut'
 import PieChart from "./visualizations/Pie";
@@ -565,21 +565,11 @@ useEffect(() => {
       
               {/*Pagination*/}
               <div className="res-button-container">
-                <button
-                  className="nav-button prev"
-                  onClick={handlePrevDisaster}
-                  disabled={disasterPage === 1}
-                >
-                  <i className="fa-solid fa-angle-left"></i>
-                </button>
-
-                <button
-                  className="nav-button next"
-                  onClick={handleNextDisaster}
-                  disabled={disasterPage === totalDisasterPages}
-                >
-                  <i className="fa-solid fa-angle-right"></i>
-                </button>
+                  {totalPages > 1 && (
+                      <div className="pagination-wrapper">
+                          <Pagination currentPage={disasterPage} totalPages={totalPages} onPageChange={setDisasterPage} />
+                      </div>
+                  )}
               </div>
 
             </div>
@@ -633,10 +623,10 @@ useEffect(() => {
                   gap: '15px'
                 }}
               >
-                <div className="chart-box" style={{ flex: 1 }}>
+                <div className="chart-box" style={{ /*flex: 1*/ height: '100%' }}>
                   <DonutGraph barangay={selectedBarangay} year={selectedYear} />
                 </div>
-                <div className="chart-box" style={{ flex: 1 }}>
+                <div className="chart-box" style={{ /*flex: 1*/ height: '100%' }}>
                   <PieChart barangay={selectedBarangay} year={selectedYear} />
                 </div>
               </div>
@@ -789,8 +779,8 @@ useEffect(() => {
 
                         <label> Senior (60+): </label>
 
-                        <div className="vm-input-group" style={{ fontSize: '0.9em' }}>
-                          <span class="label"> Male: {selectedDisaster.sexBreakdown.maleSenior}   | 
+                        <div className="vm-input-group a" style={{ fontSize: '0.9em' }}>
+                          <span className="label"> Male: {selectedDisaster.sexBreakdown.maleSenior}   | 
                             Female: {selectedDisaster.sexBreakdown.femaleSenior}   | 
                             Others: {selectedDisaster.sexBreakdown.othersSenior}
                           </span>
@@ -803,8 +793,8 @@ useEffect(() => {
 
                       <label> Adults (18-59): </label>
 
-                        <div className="vm-input-group" style={{ fontSize: '0.9em' }}>
-                            <span class="label"> Male: {selectedDisaster.sexBreakdown.maleAdult}   | 
+                        <div className="vm-input-group a" style={{ fontSize: '0.9em' }}>
+                            <span className="label"> Male: {selectedDisaster.sexBreakdown.maleAdult}   | 
                               Female: {selectedDisaster.sexBreakdown.femaleAdult}  | 
                               Others: {selectedDisaster.sexBreakdown.othersAdult}
                             </span>
@@ -817,8 +807,8 @@ useEffect(() => {
 
                         <label> Minor (0-17): </label>
 
-                        <div className="vm-input-group" style={{ fontSize: '0.9em' }}>
-                          <span class="label"> Male: {selectedDisaster.sexBreakdown.maleMinor}  | 
+                        <div className="vm-input-group a" style={{ fontSize: '0.9em' }}>
+                          <span className="label"> Male: {selectedDisaster.sexBreakdown.maleMinor}  | 
                             Female: {selectedDisaster.sexBreakdown.femaleMinor}  | 
                             Others: {selectedDisaster.sexBreakdown.othersMinor}
                           </span>

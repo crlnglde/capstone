@@ -59,13 +59,46 @@ const AddDisaster = () => {
     onConfirm: null,
     });
 
+    const [role, setRole] = useState(() => {
+        const savedRole = localStorage.getItem('role');
+        return savedRole ? savedRole.toLowerCase() : null;
+    });
+
+    const [selectedBarangay, setSelectedBarangay] = useState(() => {
+        const savedBarangay = localStorage.getItem('barangay');
+        return savedBarangay || "";
+    });  
+
+
+    useEffect(() => {
+        if (role === 'daycare worker' && selectedBarangay) {
+          setSelectedBarangays([selectedBarangay]);
+        }
+      }, [role, selectedBarangay]);
+
+      const handleBarangayChange = (barangay) => {
+        if (role === 'daycare worker') return; // prevent changes if role is 'daycare worker'
+        
+        setSelectedBarangays((prev) => {
+            if (prev.includes(barangay)) {
+                // Remove the barangay from the array
+                return prev.filter(item => item !== barangay);
+            } else {
+                // Add the barangay to the array
+                return [...prev, barangay];
+            }
+        });
+    };
+    
+      
+
     const handleCancelConfirm = () => {
         setConfirmDialog({ ...confirmDialog, show: false });
       };
 
     //new
     const generateDisasterCode = (type, date) => {
-        console.log(date)
+        //console.log(date)
         if (!(date instanceof Date)) {
             date = new Date(date); // Convert string to Date object
         }
@@ -120,7 +153,6 @@ const AddDisaster = () => {
             return true;
         }
     };
-
 
     const handleNextClick = (e) => {
         e.preventDefault();
@@ -188,9 +220,8 @@ const AddDisaster = () => {
             selectedBarangays
         };
         localStorage.setItem('disasterData', JSON.stringify(disasterData));  // Store all relevant data
-        console.log('Disaster Data saved to localStorage:', disasterData);
+        //console.log('Disaster Data saved to localStorage:', disasterData);
     }, [disasterCode, disasterType, date, selectedBarangays]);
-
 
     // Save selected barangays to localStorage whenever they change
     useEffect(() => {
@@ -278,7 +309,7 @@ const AddDisaster = () => {
                     dafacStatus: resident.dafacStatus || "",
                 })),
             })); */}
-            console.log("Barangays",barangays);
+            //console.log("Barangays",barangays);
     
             // Check if disaster already exists
             const checkResponse = await fetch(`${process.env.REACT_APP_API_URL}/get-disaster/${disasterCode}`);
@@ -301,7 +332,6 @@ const AddDisaster = () => {
                     }
                 });
                                 
-                    console.log("hehe")
                 const updateResponse = await fetch(`${process.env.REACT_APP_API_URL}/update-disaster/${disasterCode}`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
@@ -314,7 +344,7 @@ const AddDisaster = () => {
 
             } else {
 
-                console.log("haha")
+                //console.log("haha")
                 // Disaster does not exist, create new disaster
                 const disasterDocument = {
                     disasterCode,
@@ -519,7 +549,8 @@ const AddDisaster = () => {
                                         name="barangay"
                                         value={barangay}
                                         checked={selectedBarangays.includes(barangay)} // Check if barangay is selected
-                                        onChange={() => setSelectedBarangays(barangay)}// Handle change
+                                        onChange={() => handleBarangayChange(barangay)}
+                                        disabled={role === 'daycare worker' && barangay !== selectedBarangay}
                                         />
                                         <label htmlFor={barangay.replace(/\s+/g, '-').toLowerCase()}>{barangay}</label>
                                     </div>
@@ -577,7 +608,7 @@ const AddDisaster = () => {
         const handleSearchChange = (event) => {
             const query = event.target.value.toLowerCase();
             setSearchQuery(query);
-            console.log("Search Query: ", query);
+            //console.log("Search Query: ", query);
         };
 
         const filteredResidents = useMemo(() => {
@@ -655,7 +686,7 @@ const AddDisaster = () => {
                         <table>
                             <thead>
                                 <tr>
-                                <th>Barangay</th>
+                                    <th>Barangay</th>
                                     <th>Purok</th>
                                     <th>Family Head</th>
                                     <th>Age</th>
@@ -692,7 +723,7 @@ const AddDisaster = () => {
                                             <td>
                                                 
                                             <button className="res-submit-btn" onClick={() => handleResidentSelect(resident)}  disabled={isResidentSaved(resident)}>
-                                                <i class="fa-solid fa-pen-to-square"></i>
+                                                <i className="fa-solid fa-pen-to-square"></i>
                                             </button>
                                             </td>
                                         </tr>
@@ -731,7 +762,7 @@ const AddDisaster = () => {
                     <div className="dstr-bgay-btn">
 
                         <button className="bgy-submit-btn" onClick={handleFinalSubmit} >
-                            <i class="fa-solid fa-floppy-disk"></i>Submit
+                            <i className="fa-solid fa-floppy-disk"></i>Submit
                         </button>
 
                     </div>
@@ -753,7 +784,7 @@ const AddDisaster = () => {
         setIsLoading(true);
         setError(""); // Clear previous errors
        
-        console.log(barangay);
+        //console.log(barangay);
 
         if(navigator.onLine){
             try {
@@ -782,7 +813,7 @@ const AddDisaster = () => {
                 resident.barangay === barangay
               );
 
-              console.log("residents", residentData)
+              //console.log("residents", residentData)
             }
 
             setResidents(residentData)
@@ -796,8 +827,7 @@ const AddDisaster = () => {
                 await fetchResidents(activeBarangay);
             })();
         }   
-
-        console.log(residents)
+        //console.log(residents)
     }, [activeBarangay]);
     
     //remove
@@ -870,7 +900,7 @@ const AddDisaster = () => {
         // Save the updated data back to localStorage
         localStorage.setItem("residentData", JSON.stringify(updatedData));
    
-        console.log("Updated family data:", updatedData);
+        //console.log("Updated family data:", updatedData);
         setNotification({
             type: "success",
             title: "Success",
@@ -915,9 +945,6 @@ const AddDisaster = () => {
             onCancel={handleCancelConfirm}
             />
         )}
-
-      
-
 
         <div className="dash-btn">
 

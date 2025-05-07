@@ -3,35 +3,36 @@ import { v4 as uuidv4 } from "uuid";
 import { useReactToPrint } from "react-to-print";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
-
 import "../../css/forms/Res.css";
 import ICImage from '../../pic/IC.png';
 import cswdImage from '../../pic/cswd.jpg';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 import ConfirmationDialog from "../again/Confirmation";
+import ToggleSwitch from "../again/ToggleButton";
 
 
 const RES = ({ residentData, isEditing, setResidentData }) => {
   const [formData, setFormData] = useState(residentData);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [isCanvasVisible, setIsCanvasVisible] = useState(false);
 
   // Keep formData in sync with incoming residentData when it's updated externally
   useEffect(() => {
     setFormData(residentData);
   }, [residentData]);
 
-  console.log("res", residentData)
-  const handleChange = (field, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-    setResidentData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
+  //console.log("res", residentData)
+    const handleChange = (field, value) => {
+      setFormData((prev) => ({
+        ...prev,
+        [field]: value,
+      }));
+      setResidentData((prev) => ({
+        ...prev,
+        [field]: value,
+      }));
+    };
 
   const handleDependentChange = (index, field, value) => {
     const updatedDependents = [...formData.dependents];
@@ -52,7 +53,7 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
       name: "",
       relationToHead: "",
       age: "",
-      sex: "Male", 
+      sex: "", 
       education: "",
       occupationSkills: "",
     };
@@ -77,6 +78,28 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
     }));
   };
 
+  const handleStatusChange = () => {
+    const newStatus = formData.status === "active" ? "inactive" : "active";
+    handleChange("status", newStatus);  // Update status using handleChange
+  };
+  
+
+  // Format to ₱ with commas, no decimals
+  const formatPeso = (value) => {
+    if (value === "" || isNaN(value)) return "";
+    const intVal = Math.floor(Number(value));
+    return `₱${intVal.toLocaleString("en-PH")}`;
+  };
+
+  // Remove formatting and update form state
+  const handleIncomeChange = (inputValue) => {
+    // Remove everything except digits
+    const numeric = inputValue.replace(/[^\d]/g, "");
+    const number = parseInt(numeric, 10);
+    handleChange("income", isNaN(number) ? "" : number);
+  };
+  //console.log(formData.status); 
+
   const barangays = [
     'Abuno', 'Acmac-Mariano Badelles Sr.', 'Bagong Silang', 'Bonbonon', 'Bunawan', 'Buru-un', 'Dalipuga',
     'Del Carmen', 'Digkilaan', 'Ditucalan', 'Dulag', 'Hinaplanon', 'Hindang', 'Kabacsanan', 'Kalilangan',
@@ -90,11 +113,13 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
 
   return (
     <div className="resvw">
+
       <form className="res-form">
         {/* Head of the Family */}
         <div className="form-header">
           <span>Head of the Family</span>
-          <span className="contact">
+
+          <div className="contact">
             <label>Contact No.: </label>
             <input
               type="text"
@@ -102,7 +127,14 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
               onChange={(e) => handleChange("phone", e.target.value)}
               disabled={!isEditing}
             />
-          </span>
+          </div>
+
+          <ToggleSwitch
+            isChecked={formData.status === "active"}
+            onToggle={isEditing ? handleStatusChange : null}
+            disabled={!isEditing}
+          />
+
         </div>
 
         {/* Name and Basic Details */}
@@ -142,6 +174,7 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
               onChange={(e) => handleChange("sex", e.target.value)}
               disabled={!isEditing}
             >
+              <option value=""></option>
               <option value="M">M</option>
               <option value="F">F</option>
               <option value="O">O</option>
@@ -165,34 +198,48 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
         <div className="col address">
           {isEditing ? (
             <>
+              <div style={{ display: "flex", gap: "10px" }}>
+                <div style={{ display: "flex", flexDirection: "column", flex: 1, width: "100px" }}>
+                  <input
+                    type="text"
+                    value={formData.purok || ""}
+                    onChange={(e) => handleChange("purok", e.target.value)}
+                    placeholder="Purok"
+                  />
+                  <label>Purok</label>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", flex: 1,width: "110px" }}>
+                <select
+                  value={formData.barangay || ""}
+                  onChange={(e) => handleChange("barangay", e.target.value)}
+                >
+                  <option value="" disabled>
+                    Select Barangay
+                  </option>
+                  {barangays.map((barangay, index) => (
+                    <option key={index} value={barangay}>
+                      {barangay}
+                    </option>
+                  ))}
+                </select>
+                  <label>Barangay</label>
+                </div>
+              </div>
+          </>
+          ) : (
+            <>
+         
               <input
                 type="text"
-                value={formData.purok || ""}
-                onChange={(e) => handleChange("purok", e.target.value)}
-                placeholder="Purok"
+                value={`${formData.purok || ""}, ${formData.barangay || ""}`}
+                disabled
               />
-             <select
-                value={formData.barangay || ""}
-                onChange={(e) => handleChange("barangay", e.target.value)}
-              >
-                <option value="" disabled>Select Barangay</option>
-                {barangays.map((barangay, index) => (
-                  <option key={index} value={barangay}>
-                    {barangay}
-                  </option>
-                ))}
-              </select>
+              <label>Home Address</label>
             </>
-          ) : (
-            <input
-              type="text"
-              value={`${formData.purok || ""}, ${formData.barangay || ""}`}
-              disabled
-            />
           )}
-          <label>Home Address</label>
+          
         </div>
-          <div className="col">
+          <div className="col bdate">
             <input
               type="date"
               value={formData.bdate ? formData.bdate.split("T")[0] : ""}
@@ -210,13 +257,11 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
             />
             <label>Occupation</label>
           </div>
-          <div className="col">
+          <div className="col income">
             <input
-              type="number"
-              min="0"
-              step="0.01"
-              value={formData.income || ""}
-              onChange={(e) => handleChange("income", e.target.value)}
+              type="text"
+              value={formatPeso(formData.income)}
+              onChange={(e) => handleIncomeChange(e.target.value)}
               disabled={!isEditing}
             />
             <label>Monthly Income</label>
@@ -322,7 +367,7 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
                         }
                       >
                           <option value={dependent.sex}>
-                            {dependent.sex === "Male" ? "M" : dependent.sex === "Female" ? "F" : "O"}
+                            {dependent.sex === "Male" ? "M" : dependent.sex === "Female" ? "F" : dependent.sex === "Others" ? "O" : "Sex"}
                           </option>
                           <option value="Male">M</option>
                           <option value="Female">F</option>
@@ -341,6 +386,7 @@ const RES = ({ residentData, isEditing, setResidentData }) => {
                         handleDependentChange(index, "education", e.target.value)
                         }
                       >
+                        <option value="">Select Educational Attainment</option>
                         <option value="Elementary Level">Elementary Level</option>
                         <option value="Elementary Graduate">Elementary Graduate</option>
                         <option value="Junior High School level">Junior High School level</option>

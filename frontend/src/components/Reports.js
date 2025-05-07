@@ -63,7 +63,7 @@ const Reports = ({setNavbarTitle}) => {
       }
     }, [location.pathname, setNavbarTitle]);
 
-    console.log(reports)
+    //console.log(reports)
 
 
   useEffect(() => {
@@ -712,7 +712,7 @@ const Reports = ({setNavbarTitle}) => {
         setFilteredReports(reports);
         return;
       }
-      console.log("Filter selected:", filter);
+      //console.log("Filter selected:", filter);
     
       let filteredData = reports.filter((report) => {
         const reportDate = new Date(report.date);
@@ -728,7 +728,7 @@ const Reports = ({setNavbarTitle}) => {
         return true;
       });
     
-      console.log("Filtered Reports:", filteredData);
+      //console.log("Filtered Reports:", filteredData);
       setFilteredReports(filteredData);
     };
 

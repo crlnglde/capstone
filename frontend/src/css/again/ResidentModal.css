@@ -1,0 +1,75 @@
+/*ResidentModal.css*/
+
+.res-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeInOverlay 0.3sease;
+  /*top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;*/
+  }
+  
+  .res-modal-overlay .res-modal-content {
+    background: #fff;
+    /*border-radius: 12px;*/
+    padding: 20px;
+    width: auto;
+    max-width: 1200px;
+    max-height: 80vh;
+    height: 100%;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    position: relative;
+    animation: fadeInModal 0.3sease;
+    overflow-y: auto;
+    left: 130px;
+  }
+
+  .res-modal-title {
+    font-size: 28px;
+    font-weight: bold;
+    color: #333;
+    padding: 0px 20px 10px 0px;
+    margin:  0 0 10px 0;
+    border-bottom: 4px solid #0A194E;
+    display: flex;
+  }
+  
+  .res-modal-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 30px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: #333;
+    transition: color 0.3sease, transform 0.2sease;
+  }
+
+  .res-modal-close:hover {
+    color: #0A194E; 
+    transform: scale(1.1); 
+    background-color: transparent;
+  }
+
+  .children{
+    display: flex;
+  }
+
+  .res-modal-content.shifted-left {
+    margin-right: 474px;
+  }
+  
+  

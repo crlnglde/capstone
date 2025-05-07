@@ -16,10 +16,10 @@ const SignaturePad = ({family, onSave, onClose}) => {
   const saveSignature = () => {
     if (sigCanvas.current && !sigCanvas.current.isEmpty()) {
       const signatureData = sigCanvas.current.toDataURL("image/png");
-      console.log("Signature Image URL:", signatureData);
+      //console.log("Signature Image URL:", signatureData);
       onSave(signatureData); // Send signature back to editrds pero change ni to save to database
     } else {
-      console.log("No signature detected. Please sign before saving.");
+      //console.log("No signature detected. Please sign before saving.");
       setNotification({ type: "error", title: "Signature Required", message: "Please provide a signature before saving." });
       setTimeout(() => setNotification(null), 3000);      
     }

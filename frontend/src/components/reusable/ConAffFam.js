@@ -5,6 +5,7 @@ import Papa from 'papaparse';
 import moment from "moment";
 import Modal from "../Modal";
 import DAFAC from "../forms/DAFAC";
+import Pagination from "../again/Pagination";
 import "../../css/reusable/AffFam.css";
 import Loading from "../again/Loading";
 import Notification from "../again/Notif";
@@ -30,9 +31,7 @@ const [step, setStep] = useState(1);
     const [errorMessage, setErrorMessage] = useState("");
     const [hasClickedNext, setHasClickedNext] = useState(false);
 
-
     const [barangayData, setBarangayData] = useState({});// To store all collected data per barangay
-
 
     const [affectedFamilies, setAffectedFamilies] = useState([]);
     const [residents, setResidents] = useState([]);
@@ -40,7 +39,8 @@ const [step, setStep] = useState(1);
     const [error, setError] = useState("");
 
     const [currentPage, setCurrentPage] = useState(1); // State for current page
-    const rowsPerPage = 10;
+
+    const rowsPerPage = 5;
     const totalPages = Math.ceil(residents.length / rowsPerPage);
 
     const [activeResident, setActiveResident] = useState(null);
@@ -199,9 +199,9 @@ const [step, setStep] = useState(1);
                         if (localData) {
                           const parsedData = JSON.parse(localData); // 🛠️ Parse it first
                           data = parsedData.find(d => d.disasterCode === disCode);
-                          console.log(data);
+                          //console.log(data);
                         }
-                        console.log(data)
+                        //console.log(data)
                     }
         
                     if (!data || !data.barangays) {
@@ -326,7 +326,7 @@ const [step, setStep] = useState(1);
     const handleSearchChange = (event) => {
         const query = event.target.value.trim().toLowerCase();
         setSearchQuery(query);
-        console.log("Search Query: ", query);
+        //console.log("Search Query: ", query);
     };
 
     const filteredResidents = useMemo(() => {
@@ -396,7 +396,7 @@ const [step, setStep] = useState(1);
                         className={`barangay-button ${activeBarangay === disBarangay ? 'active' : ''}`}
                         //onClick={() => handleBarangayClick(disBarangay)}
                     >
-                        {disBarangay}
+                        Barangay {disBarangay}
                     </button>
                 </div>
 
@@ -424,7 +424,6 @@ const [step, setStep] = useState(1);
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Barangay</th>
                                     <th>Purok</th>
                                     <th>Family Head</th>
                                     <th>Age</th>
@@ -446,7 +445,6 @@ const [step, setStep] = useState(1);
                                         const isConfirmed = resident.dafacStatus === "Confirmed" || isOfflineConfirmed;
                                     return (
                                         <tr key={resident.id}>
-                                            <td>{disBarangay}</td>
                                             <td>{resident.purok}</td>
                                             <td>{resident.firstName} {resident.middleName} {resident.lastName}</td> 
                                             <td>{resident.age}</td> 
@@ -511,26 +509,18 @@ const [step, setStep] = useState(1);
                             </tbody>
                         </table>
                     ) : (
-                        <p>No residents found for {activeBarangay}.</p>
+                        <p>No affected families were found in the record.</p>
                     )}
 
                     <div className="res-button-container">
-                    <button 
-                        className="nav-button prev" 
-                        onClick={handlePrev}
-                        disabled={currentPage === 1}
-                    >
-                        <i className="fa-solid fa-angle-left"></i>
-                    </button>
-
-                    <button 
-                        className="nav-button next" 
-                        onClick={handleNext}
-                        disabled={currentPage === totalPages}
-                    >
-                        <i className="fa-solid fa-angle-right"></i>
-                    </button>
+                        {totalPages > 1 && (
+                            <div className="pagination-wrapper">
+                                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+                            </div>
+                        )}
                     </div>
+
+
 
                     
                 </div>

@@ -29,7 +29,7 @@
 }
 
 .graph-container {
-  height: 470px;
+  height: 480px;
   padding: 0 20px 20px 20px;
 
 }
@@ -42,7 +42,7 @@
   border-radius: 0px 0px 20px 20px;
   text-align: left;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  
+  height: 80px;
   width: -webkit-fill-available;
 }
 
@@ -54,12 +54,54 @@
 }
 
 .line-text-overlay p {
-  margin: 10px 0 0;
+  margin: 0px 0 0 0;
   font-size: 15px;
   color: white;
 }
+    .Line-ins {
+      display: flex;
+      flex-direction: column;
+      gap: 10px; /* Add some spacing between elements */
+    }
 
+    /* For roles other than daycare worker */
+    .flex-columns {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
 
+    .flex-row {
+      display: flex;
+      flex-wrap: wrap; /* Allow wrapping if content overflows */
+      gap: 20px; 
+      width: 100%;
+    }
+
+    .flex-row > p {
+      flex: 1; /* Each <p> tag will take up equal space */
+      margin: 0; /* Remove any default margin */
+  }
+
+  .Line-ins .flex-row > p {
+    flex: 1; /* This ensures each <p> in the row takes up equal width */
+}
+
+    /* For daycare worker role: display everything in one row */
+    .Line-ins .flex-row {
+      display: flex;
+      justify-content: space-between;;
+      gap: 20px;
+      width: 100%;
+    }
+
+    /* Responsive design (optional) */
+    @media (max-width: 768px) {
+      .flex-row {
+          flex-direction: column;
+          gap: 10px;
+      }
+    }
 
 .select-wrapper {
   position: relative;

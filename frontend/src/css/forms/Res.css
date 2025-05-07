@@ -26,6 +26,10 @@
 
       .res-form .form-header .contact {
         text-align: right;
+        display: flex;
+        width: 60%;
+        justify-content: flex-end;
+        align-items: center;
       }
 
         .res-form .form-header .contact label {
@@ -110,6 +114,10 @@
                     gap: 5px; 
                     flex-wrap: nowrap; /* Prevents wrapping */
                 }
+
+                .col.age{
+                  justify-content: flex-end;
+                }
                 
                 .col.gender label,
                 .col.age label {
@@ -138,6 +146,11 @@
 
       .address {
         flex: 2;
+      }
+
+      .col.income{
+        display: flex;
+        width: 100px;
       }
 
     .res-form .family-table {

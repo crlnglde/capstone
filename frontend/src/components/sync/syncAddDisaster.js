@@ -26,8 +26,8 @@ export const syncDisasterData = async (setNotification) => {
                 }
             });
             
-                console.log("hehe")
             const updateResponse = await fetch(`${process.env.REACT_APP_API_URL}/update-disaster/${disasterCode}`, {
+
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ barangays: updatedBarangays })
@@ -39,7 +39,7 @@ export const syncDisasterData = async (setNotification) => {
 
         } else {
 
-            console.log("haha")
+            //console.log("haha")
             // Disaster does not exist, create new disaster
             const disasterDocument = {
                 disasterCode,
