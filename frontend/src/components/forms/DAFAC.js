@@ -310,147 +310,158 @@ const DAFAC= ({ activeResident, disasterData, setIsModalOpen, mode}) => {
       title: "Confirm Save",
       message: "Are you sure you want to save this form?",
       onConfirm: async() =>{
-         //const affectedData = JSON.parse(localStorage.getItem("AffectedForms")) || [];
-    const savedData = JSON.parse(localStorage.getItem("savedForms")) || [];
+        setLoading(true); // Start loading
+        setConfirmDialog({ show: false });
+        
+        const savedData = JSON.parse(localStorage.getItem("savedForms")) || [];
 
-    { /* // Check if a matching form already exists in AffectedForms
-      const existingIndex = affectedData.findIndex((entry) =>
-        entry.barangay === formData.barangay &&
-        entry.firstName === formData.firstName &&
-        entry.middleName === formData.middleName &&
-        entry.lastName === formData.lastName &&
-        entry.bdate === formData.bdate
-      );
+        { /* // Check if a matching form already exists in AffectedForms
+          const existingIndex = affectedData.findIndex((entry) =>
+            entry.barangay === formData.barangay &&
+            entry.firstName === formData.firstName &&
+            entry.middleName === formData.middleName &&
+            entry.lastName === formData.lastName &&
+            entry.bdate === formData.bdate
+          );
+      
+          if (existingIndex !== -1) {
+            // If it exists in AffectedForms, update it there
+            affectedData[existingIndex] = {
+              ...affectedData[existingIndex],
+              ...formData
+            };
+            localStorage.setItem("AffectedForms", JSON.stringify(affectedData));
+          } else {
+            // If it doesn't exist in AffectedForms, add it to savedForms
+            const formDataWithId = { id: uuidv4(), ...formData };
+            savedData.push(formDataWithId);
+            localStorage.setItem("savedForms", JSON.stringify(savedData));
+          }*/}
   
-      if (existingIndex !== -1) {
-        // If it exists in AffectedForms, update it there
-        affectedData[existingIndex] = {
-          ...affectedData[existingIndex],
-          ...formData
-        };
-        localStorage.setItem("AffectedForms", JSON.stringify(affectedData));
-      } else {
-        // If it doesn't exist in AffectedForms, add it to savedForms
         const formDataWithId = { id: uuidv4(), ...formData };
         savedData.push(formDataWithId);
         localStorage.setItem("savedForms", JSON.stringify(savedData));
-      }*/}
-  
-      const formDataWithId = { id: uuidv4(), ...formData };
-      savedData.push(formDataWithId);
-      localStorage.setItem("savedForms", JSON.stringify(savedData));
     
-      try {
-        setLoading(true); // Start loading
-    
-        await new Promise((resolve) => setTimeout(resolve, 2000)); // Simulated delay
-    
-        if (!formRef.current) {
+        try {
+      
+          await new Promise((resolve) => setTimeout(resolve, 2000)); // Simulated delay
+      
+          setLoading(false); // Hide loading before capturing the form
+      
+          // **Wait for UI to update before capturing**
+          setTimeout(async () => {
+
+            if (!formRef.current) {
+              setNotification({
+                type: "error",
+                title: "Form Error",
+                message: "Form reference is not available.",
+              });
+        
+              setTimeout(() => {
+                setNotification(null);
+              }, 3000);
+        
+              setLoading(false); // Ensure loading is turned off before returning
+              return;
+            }
+
+            // Convert form to canvas
+            const canvas = await html2canvas(formRef.current, {
+              scale: 2, // Increase resolution
+              useCORS: true, // Prevent cross-origin issues
+            });
+      
+            const imgData = canvas.toDataURL("image/png");
+      
+            // Generate PDF
+            const pdf = new jsPDF("p", "mm", "a4");
+            const imgWidth = 210; // A4 width in mm
+            const imgHeight = (canvas.height * imgWidth) / canvas.width; // Maintain aspect ratio
+      
+            pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+      
+            console.log("Saving PDF...");
+            pdf.save("DAFAC_Form.pdf"); // Trigger download
+      
+            setNotification({
+              type: "success",
+              title: "Success",
+              message: "Form data saved successfully",
+            });
+      
+            setTimeout(() => {
+              setNotification(null);
+              setIsModalOpen(false);
+            }, 2000);
+
+          }, 100); // **Wait 100ms to allow UI to refresh**
+        } catch (error) {
+          console.error("Error generating PDF:", error);
+      
+          setLoading(false); // Ensure loading is turned off in case of an error
+      
+          let errorTitle = "Error";
+          let errorMessage =
+            "An error occurred while generating the PDF. Please try again.";
+      
+          if (!error.response) {
+            errorTitle = "Network Error";
+            errorMessage =
+              "Please check your internet connection and try again.";
+          } else if (error.response.status === 400) {
+            errorTitle = "Invalid Data";
+            errorMessage =
+              "There is an issue with the provided data. Please check and try again.";
+          } else if (error.response.status === 401 || error.response.status === 403) {
+            errorTitle = "Unauthorized Access";
+            errorMessage = "You do not have permission to perform this action.";
+          } else if (error.response.status === 500) {
+            errorTitle = "Server Error";
+            errorMessage =
+              "An error occurred on the server. Please try again later.";
+          } else if (error.message.includes("Failed to update disaster data")) {
+            errorTitle = "Update Failed";
+            errorMessage =
+              "An error occurred while updating the disaster data. Please try again.";
+          }
+      
           setNotification({
             type: "error",
-            title: "Form Error",
-            message: "Form reference is not available.",
+            title: errorTitle,
+            message: errorMessage,
           });
-    
+      
           setTimeout(() => {
             setNotification(null);
           }, 3000);
-    
-          setLoading(false); // Ensure loading is turned off before returning
-          return;
         }
-    
-        setLoading(false); // Hide loading before capturing the form
-    
-        // **Wait for UI to update before capturing**
-        setTimeout(async () => {
-          // Convert form to canvas
-          const canvas = await html2canvas(formRef.current, {
-            scale: 2, // Increase resolution
-            useCORS: true, // Prevent cross-origin issues
-          });
-    
-          const imgData = canvas.toDataURL("image/png");
-    
-          // Generate PDF
-          const pdf = new jsPDF("p", "mm", "a4");
-          const imgWidth = 210; // A4 width in mm
-          const imgHeight = (canvas.height * imgWidth) / canvas.width; // Maintain aspect ratio
-    
-          pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
-    
-          console.log("Saving PDF...");
-          pdf.save("DAFAC_Form.pdf"); // Trigger download
-    
-          setNotification({
-            type: "success",
-            title: "Success",
-            message: "Form data saved successfully",
-          });
-    
-          setTimeout(() => {
-            setIsModalOpen(false);
-          }, 2000);
-        }, 100); // **Wait 100ms to allow UI to refresh**
-      } catch (error) {
-        console.error("Error generating PDF:", error);
-    
-        setLoading(false); // Ensure loading is turned off in case of an error
-    
-        let errorTitle = "Error";
-        let errorMessage =
-          "An error occurred while generating the PDF. Please try again.";
-    
-        if (!error.response) {
-          errorTitle = "Network Error";
-          errorMessage =
-            "Please check your internet connection and try again.";
-        } else if (error.response.status === 400) {
-          errorTitle = "Invalid Data";
-          errorMessage =
-            "There is an issue with the provided data. Please check and try again.";
-        } else if (error.response.status === 401 || error.response.status === 403) {
-          errorTitle = "Unauthorized Access";
-          errorMessage = "You do not have permission to perform this action.";
-        } else if (error.response.status === 500) {
-          errorTitle = "Server Error";
-          errorMessage =
-            "An error occurred on the server. Please try again later.";
-        } else if (error.message.includes("Failed to update disaster data")) {
-          errorTitle = "Update Failed";
-          errorMessage =
-            "An error occurred while updating the disaster data. Please try again.";
-        }
-    
-        setNotification({
-          type: "error",
-          title: errorTitle,
-          message: errorMessage,
-        });
-    
-        setTimeout(() => {
-          setNotification(null);
-        }, 3000);
-      }
       }
     })
+
+
   };
   
-  
-
   return (
     <div className="dafac">
 
-          {confirmDialog.show && (
-            <ConfirmationDialog
-              type={confirmDialog.type}
-              title={confirmDialog.title}
-              message={confirmDialog.message}
-              onConfirm={confirmDialog.onConfirm}
-              onCancel={handleCancelConfirm}
-            />
-          )}
+        {confirmDialog.show && (
+          <ConfirmationDialog
+            type={confirmDialog.type}
+            title={confirmDialog.title}
+            message={confirmDialog.message}
+            onConfirm={confirmDialog.onConfirm}
+            onCancel={handleCancelConfirm}
+          />
+        )}
 
+        {notification && 
+          <Notification 
+            type={notification.type} 
+            title={notification.title} 
+            message={notification.message} 
+          />
+        }
 
       <div ref={formRef}  className="dafac-container">
 
@@ -478,12 +489,10 @@ const DAFAC= ({ activeResident, disasterData, setIsModalOpen, mode}) => {
                 <img src={cswdImage} alt="Logo" />
             </div>
         </div>
-    
-        
+
         <div className="form-container">
 
         {loading && <Loading />}
-        {notification && <Notification type={notification.type} title={notification.title} message={notification.message} />}
 
             <form className="relief-form">
 
@@ -874,11 +883,10 @@ const DAFAC= ({ activeResident, disasterData, setIsModalOpen, mode}) => {
             </form>
         </div>
                  
-
       </div>
         {mode !== "confirm" && (
           <button type="submit" className="submit-btn" onClick={handleSave}>
-                                  Save
+            Save
           </button>
         )}
     </div>

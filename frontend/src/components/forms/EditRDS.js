@@ -46,30 +46,38 @@ const EditRDS = () => {
   };
 
   const handleSaveSignature = (imageURL) => {
-    const confirmSubmit = window.confirm("Confirm Signature");
-    if (!confirmSubmit) return;
-    //console.log("selected family", selectedFamily)
-    //console.log("selectedFamily._id:", selectedFamily._id, typeof selectedFamily._id);
+    setConfirmDialog({
+      show: true,
+      type: "add",
+      title: "Confirm Signature",
+      message: "Are you sure you want to confirm the signature?",
+      onConfirm: async() => {
+        //console.log("selected family", selectedFamily)
+        //console.log("selectedFamily._id:", selectedFamily._id, typeof selectedFamily._id);
 
-    if (!selectedFamily || !selectedFamily._id) return; 
+        if (!selectedFamily || !selectedFamily._id) return; 
 
-    setSignature((prev) => ({
-      ...prev,
-      [selectedFamily._id]: imageURL,
-    }));
+        setSignature((prev) => ({
+          ...prev,
+          [selectedFamily._id]: imageURL,
+        }));
 
-    setDistributionData((prevData) => ({
-      ...prevData,
-      families: prevData.families.map(family =>
-      (console.log("family._id in loop:", family._id, typeof family._id),
-        family._id === selectedFamily._id ? { ...family, signature: imageURL, status: "Done" } : family
-      ))
-    }));
+        setDistributionData((prevData) => ({
+          ...prevData,
+          families: prevData.families.map(family =>
+            family._id === selectedFamily._id 
+              ? { ...family, signature: imageURL, status: "Done" } 
+              : family
+          )
+        }));
 
-    setIsUpdated(true);
+        setIsUpdated(true);
 
-    handleCloseModal();
-    //console.log(distributionData)
+        handleCloseModal();
+        //console.log(distributionData)
+      }
+    })  
+    
   };
 
 
@@ -175,10 +183,12 @@ const EditRDS = () => {
     if (isUpdated) {
       handleSignature();
     }
-  }, [distributionData]);
+  }, [isUpdated]);
+  
   
   const handleSignature= async () => {
-
+    if(navigator.onLine) { 
+      const updatedFamilies = distributionData.families;
     setConfirmDialog({
       show: true,
       type: "add",
@@ -203,8 +213,9 @@ const EditRDS = () => {
             setTimeout(() => setNotification(null), 3000);
           }
         }
+
       }
-    })
+    }
   }
 
   const handleSaveDistribution = async () => {
@@ -310,16 +321,6 @@ const EditRDS = () => {
         />
       )}
 
-          {confirmDialog.show && (
-            <ConfirmationDialog
-              type={confirmDialog.type}
-              title={confirmDialog.title}
-              message={confirmDialog.message}
-              onConfirm={confirmDialog.onConfirm}
-              onCancel={handleCancelConfirm}
-            />
-          )}
-
         <div className="rds-header">
           <div className="header-logo">
             <img src={ICImage} alt="Logo" />
@@ -414,7 +415,7 @@ const EditRDS = () => {
               type={confirmDialog.type}
               title={confirmDialog.title}
               message={confirmDialog.message}
-              onConfirm={confirmDialog.onConfirm}
+              onConfirm={confirmDialog.onConfirm} 
               onCancel={handleCancelConfirm}
             />
           )}

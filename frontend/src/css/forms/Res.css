@@ -6,7 +6,7 @@
 
   width: 1000px; /* or whatever fixed width you want */
   max-width: 1000px;
-  overflow-x:auto;
+  overflow:hidden;
 }
 
   .res-form {
@@ -14,6 +14,7 @@
     font-family: Arial, sans-serif;
     padding: 10px;
     border: none;
+
   }
 
     .res-form  .form-header {

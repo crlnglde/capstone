@@ -128,7 +128,6 @@ const AddAffFam = ({disBarangay, disCode, setStep}) => {
             if (hasClickedNext) validateFields();
         }, [disasterType, date, selectedBarangays]);
         
-    
         const isResidentSaved = (resident) => {
             const savedData = JSON.parse(localStorage.getItem("savedForms")) || [];
             
@@ -335,7 +334,6 @@ const AddAffFam = ({disBarangay, disCode, setStep}) => {
             const residentData = JSON.parse(localStorage.getItem("savedForms")) || [];
         
             if (!disasterData || residentData.length === 0) return;
-        
             try {
                 const { disasterCode } = disasterData;
         
@@ -378,28 +376,51 @@ const AddAffFam = ({disBarangay, disCode, setStep}) => {
                 localStorage.removeItem("disasterData");
         
                 setNotification({ type: "success", title: "Saved", message: "Data saved successfully." });
-        
                 setTimeout(() => {
+                    setLoading(false); 
                     setNotification(null);
-                    setStep(1); // Redirect to step 1
-                    setLoading(false); // Stop loading
-                }, 2000); 
+                    setStep(1); 
+                }, 1000); 
 
             } catch (error) {
                 console.error("Sync failed:", error);
                 setNotification({ type: "error", title: "Sync Failed", message: error.message });
             }
         };
-        
-    
-        const handleFinalSubmit = () => {
 
+        const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
+
+        useEffect(() => {
+          const checkSavedForms = () => {
+            const savedForms = JSON.parse(localStorage.getItem("savedForms")) || [];
+            setIsSubmitDisabled(savedForms.length === 0);
+          };
+        
+          checkSavedForms(); // Check on component mount
+        
+          // Optional: Monitor localStorage every second for updates
+          const interval = setInterval(checkSavedForms, 1000);
+        
+          return () => clearInterval(interval); // Clean up on unmount
+        }, []);
+        
+
+        useEffect(() => {
+            const residentData = JSON.parse(localStorage.getItem("savedForms")) || [];
+            setIsSubmitDisabled(residentData.length === 0);
+          }, []);
+          
+
+        const handleFinalSubmit = () => {
             setConfirmDialog({
                 show: true,
-                type: "confirm", // or customize this type for your dialog styling
+                type: "confirm",
                 title: "Submit Forms",
                 message: "Are you sure you want to submit the forms?",
                 onConfirm: async () => {
+
+                    setConfirmDialog({ show: false });
+
                     if (navigator.onLine) {
                         syncData();
                     } else {
@@ -534,28 +555,28 @@ const AddAffFam = ({disBarangay, disCode, setStep}) => {
   return (
     <div className="AddAffFam">
 
-      <div className="AddAffFam-container">
-      
-      {loading && <Loading />}  {/* Show loading spinner */}
-      
-      {notification && (
-        <Notification
-          type={notification.type}
-          title={notification.title}
-          message={notification.message}
-          onClose={() => setNotification(null)}  // Close notification when user clicks ✖
-        />
-      )}
+        {notification && (
+            <Notification
+                type={notification.type}
+                title={notification.title}
+                message={notification.message}
+                onClose={() => setNotification(null)}  // Close notification when user clicks ✖
+            />
+        )}
 
         {confirmDialog.show && (
             <ConfirmationDialog
-              type={confirmDialog.type}
-              title={confirmDialog.title}
-              message={confirmDialog.message}
-              onConfirm={confirmDialog.onConfirm}
-              onCancel={handleCancelConfirm}
+                type={confirmDialog.type}
+                title={confirmDialog.title}
+                message={confirmDialog.message}
+                onConfirm={confirmDialog.onConfirm}
+                onCancel={handleCancelConfirm}
             />
-          )}
+        )}
+
+      <div className="AddAffFam-container">
+      
+      {loading && <Loading />}  {/* Show loading spinner */}
 
         <div className="afffam-residents-table">
 
@@ -665,8 +686,7 @@ const AddAffFam = ({disBarangay, disCode, setStep}) => {
 
                     {/*new*/}
                     <div className="dstr-bgay-btn">
-
-                        <button className="bgy-submit-btn" onClick={handleFinalSubmit} >
+                        <button className="bgy-submit-btn" onClick={handleFinalSubmit} disabled={isSubmitDisabled}>
                             <i className="fa-solid fa-floppy-disk"></i>Submit
                         </button>
 

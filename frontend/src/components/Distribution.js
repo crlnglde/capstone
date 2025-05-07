@@ -652,48 +652,53 @@ const validateFields = () => {
                     </div>
 
                     <div className="container">
-                    {displayedDisasters.length > 0 ? (
-                      displayedDisasters.map((disaster, index) => (
-                        <div key={index} className="transactionItem"> 
-                          <div className="dateBox">
-                            <span className="date">{new Date(disaster.disasterDateTime).getDate()}</span>
-                            <span className="month">{new Date(disaster.disasterDateTime).toLocaleString('default', { month: 'short' })}</span>
+                      {displayedDisasters.length > 0 ? (
+                        displayedDisasters.map((disaster, index) => (
+                          <div key={index} className="transactionItem"> 
+
+                            <div className="dateBox">
+                              <span className="date">{new Date(disaster.disasterDateTime).getDate()}</span>
+                              <span className="month">{new Date(disaster.disasterDateTime).toLocaleString('default', { month: 'short' })}</span>
+                            </div>
+
+                            <div className="details">
+                              <span className="title">{disaster.disasterType}</span>
+                              <span className="subtitle">{disaster.disasterCode}</span>
+                            </div>
+
+                            {/* Display affected barangays properly */}
+                              {disaster.barangays && disaster.barangays.length > 0 && (
+                                <div className="brgy">
+                                  <span className="subtitle">
+                                    {disaster.barangays.map((barangay, bIndex) => (
+                                      <span key={bIndex}>{barangay.name}{bIndex !== disaster.barangays.length - 1 ? ", " : ""}</span>
+                                    ))}
+                                  </span>
+                                </div>
+                              )}
+
+                            <div className="actions">
+                              <button className="addButton" onClick={() => {
+                                localStorage.setItem("selectedDisasterCode", disaster.disasterCode);
+                                openModal(disaster);
+                              }}>
+                                Add RDS
+                              </button>
+                              <button className="doneButton" onClick={() => handleDoneClick(disaster.disasterCode)}>
+                                Done
+                              </button>
+                            </div>
                           </div>
-                          <div className="details">
-                            <span className="title">{disaster.disasterType}</span>
-                            <span className="subtitle">{disaster.disasterCode}</span>
-                          </div>
-                          {/* Display affected barangays properly */}
-                            {disaster.barangays && disaster.barangays.length > 0 && (
-                              <div className="brgy">
-                                <span className="subtitle">
-                                  {disaster.barangays.map((barangay, bIndex) => (
-                                    <span key={bIndex}>{barangay.name}{bIndex !== disaster.barangays.length - 1 ? ", " : ""}</span>
-                                  ))}
-                                </span>
-                              </div>
-                            )}
-                          <div className="actions">
-                          <button className="addButton" onClick={() => {
-                              localStorage.setItem("selectedDisasterCode", disaster.disasterCode);
-                              openModal(disaster);
-                            }}>
-                              Add RDS
-                            </button>
-                            <button className="doneButton" onClick={() => handleDoneClick(disaster.disasterCode)}>
-                              Done
-                            </button>
-                          </div>
-                        </div>
-                        ) )): (
-                          <tr>
-                            <td colSpan="5">No disasters found.</td>
-                          </tr>
+                        ))
+                      ): (
+                        /*<tr>
+                          <td colSpan="5">No disasters found.</td>
+                        </tr>*/
+                        <div>No disasters found.</div>
                       )}
                     </div>
 
                     <div className="btn-container">
-
                       <button 
                         className="nav-button prev" 
                         onClick={handlePrevDisasters} 
@@ -701,7 +706,6 @@ const validateFields = () => {
                       >
                         <i className="fa-solid fa-angle-left"></i>
                       </button>
-
 
                       <button 
                         className="nav-button next" 
@@ -824,7 +828,7 @@ const validateFields = () => {
                         ))
                       ) : (
                         <tr>
-                          <td colSpan="5">No disasters found.</td>
+                          <td colSpan="4">No disasters found.</td>
                         </tr>
                       )}
                     </tbody>

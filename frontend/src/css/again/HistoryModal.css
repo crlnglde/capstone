@@ -4,7 +4,7 @@
 .history-modal-overlay {
   position: fixed;
   top: 0;
-  left: 75%;
+  left: 79%;
   /*width: 100vw;*/
   height: 100vh;
   display: flex;
@@ -228,8 +228,9 @@
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
   position: relative;
   max-height: 80vh;
+  max-width: 230px;
   width: 100%;
-  left: 20%;
+  left: 0;
   top: 0px;
   z-index: 1001;
 }

@@ -32,7 +32,7 @@
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
     position: relative;
     animation: fadeInModal 0.3sease;
-    overflow-y: auto;
+    overflow: hidden;
     left: 130px;
   }
 
