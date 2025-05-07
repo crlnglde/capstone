@@ -13,7 +13,7 @@ const Distribution = require ('../backend/models/Distribution')
 const app = express();
 const port = 3003;
 
-app.use(cors());
+app.use(cors({ origin: '*' }));
 app.use(express.json());  
 app.use(express.urlencoded({ extended: true }));  
 
@@ -55,6 +55,7 @@ mongoose.connection.once('open', () => {
 
 // Login Route
 app.post("/login", async (req, res) => {
+  console.log('Login attempt', req.body);
   try {
     const { username, password } = req.body;
 

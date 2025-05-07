@@ -103,7 +103,7 @@ const EditRDS = () => {
   
       if (navigator.onLine) {
         try {
-          const response = await axios.get(`http://localhost:3003/get-distribution/${distributionId}`);
+          const response = await axios.get(`${process.env.REACT_APP_API_URL}/get-distribution/${distributionId}`);
           data = response.data;
         } catch (err) {
           console.error("Error fetching from backend:", err);
@@ -190,7 +190,7 @@ const EditRDS = () => {
     
           console.log(distributionId);
       
-          const response = await axios.put(`http://localhost:3003/update-distribution/${distributionId}`, {
+          const response = await axios.put(`${process.env.REACT_APP_API_URL}/update-distribution/${distributionId}`, {
             families: updatedFamilies
           });
       

@@ -24,7 +24,7 @@ const HomeMap = () => {
       }
 
       try {
-        const response = await axios.get("http://localhost:3003/get-disasters");
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/get-disasters`);
         const disasterData = response.data;
         setDisasters(disasterData); // Store disasters data in state
       } catch (error) {

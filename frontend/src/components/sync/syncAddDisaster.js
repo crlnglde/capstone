@@ -6,7 +6,7 @@ export const syncDisasterData = async (setNotification) => {
     try {
         const { disasterCode, disasterType, disasterStatus, disasterDateTime, barangays } = disasterData[0];
 
-        const checkResponse = await fetch(`http://localhost:3003/get-disaster/${disasterCode}`);
+        const checkResponse = await fetch(`${process.env.REACT_APP_API_URL}/get-disaster/${disasterCode}`);
         const existingDisaster = await checkResponse.json();
     
         if (checkResponse.ok && existingDisaster) {
@@ -27,7 +27,7 @@ export const syncDisasterData = async (setNotification) => {
             });
             
                 console.log("hehe")
-            const updateResponse = await fetch(`http://localhost:3003/update-disaster/${disasterCode}`, {
+            const updateResponse = await fetch(`${process.env.REACT_APP_API_URL}/update-disaster/${disasterCode}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ barangays: updatedBarangays })
@@ -49,7 +49,7 @@ export const syncDisasterData = async (setNotification) => {
                 barangays
             };            
 
-            const createResponse = await fetch("http://localhost:3003/add-disaster", {
+            const createResponse = await fetch(`${process.env.REACT_APP_API_URL}/add-disaster`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(disasterDocument)

@@ -176,7 +176,7 @@ useEffect(() => {
     // Fetch updated data from API
     try {
       if (navigator.onLine){
-        const response = await axios.get("http://localhost:3003/get-disasters");
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/get-disasters`);
       if (Array.isArray(response.data)) {
         disasterData = response.data;
         transformAndSetDisasters(disasterData);

@@ -22,7 +22,7 @@ const ViewRDS = ({selectedBarangay, distributionId, setDistributionDate, page, s
 
       if (navigator.onLine){
 
-        const response = await axios.get(`http://localhost:3003/get-disdistribution/${distributionId}`);
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/get-disdistribution/${distributionId}`);
         data = response.data;
       } else{
 

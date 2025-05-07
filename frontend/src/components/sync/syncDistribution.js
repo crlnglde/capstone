@@ -11,7 +11,7 @@ export const syncRDSData = async (setNotification) => {
       // Sync newly created distributions
       if (offlineData.length > 0) {
         for (const distribution of offlineData) {
-          await fetch("http://localhost:3003/save-distribution", {
+          await fetch(`${process.env.REACT_APP_API_URL}/save-distribution`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",

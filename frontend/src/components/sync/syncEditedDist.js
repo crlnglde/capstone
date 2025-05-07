@@ -6,7 +6,7 @@ export const syncEditedData = async (setNotification) => {
       // Sync edited distributions
       if (editedData.length > 0) {
         for (const distribution of editedData) {
-          await fetch(`http://localhost:3003/update-distribution/${distribution.distributionId}`, {
+          await fetch(`${process.env.REACT_APP_API_URL}/update-distribution/${distribution.distributionId}`, {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",

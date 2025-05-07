@@ -82,7 +82,7 @@ useEffect(() => {
 
     // Then attempt to fetch fresh data from server
     try {
-      const response = await axios.get("http://localhost:3003/get-residents");
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/get-residents`);
       residentsData = response.data.filter(resident => resident.status === "active");
       setResidents(residentsData);
       updateStats(residentsData);
@@ -114,7 +114,7 @@ useEffect(() => {
       setTotalDisasters(parsed.length);
     }
     try {
-      const response = await axios.get("http://localhost:3003/get-disasters");
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/get-disasters`);
       const disasterData = response.data;
       setDisasters(disasterData); // Store disasters data in state
 

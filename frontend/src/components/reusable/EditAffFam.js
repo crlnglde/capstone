@@ -149,7 +149,7 @@ const EditAffFam = ({disBarangay, disCode, setStep}) => {
 
                  if(navigator.onLine){
                     // Try fetching from the server
-                    const response = await axios.get(`http://localhost:3003/get-disaster/${disCode}`);
+                    const response = await axios.get(`${process.env.REACT_APP_API_URL}/get-disaster/${disCode}`);
                     const disasterData = response.data;
         
                     setDisasterCode(disasterData.disasterCode);
@@ -259,7 +259,7 @@ const EditAffFam = ({disBarangay, disCode, setStep}) => {
                     return acc;
                 }, {});
         
-                const checkResponse = await fetch(`http://localhost:3003/get-disaster/${disasterCode}`);
+                const checkResponse = await fetch(`${process.env.REACT_APP_API_URL}/get-disaster/${disasterCode}`);
                 const existingDisaster = await checkResponse.json();
         
                 if (!checkResponse.ok) throw new Error("Failed to fetch disaster data");
@@ -288,7 +288,7 @@ const EditAffFam = ({disBarangay, disCode, setStep}) => {
                     };
                 });
         
-                const updateResponse = await fetch(`http://localhost:3003/update-disaster/${disasterCode}`, {
+                const updateResponse = await fetch(`${process.env.REACT_APP_API_URL}/update-disaster/${disasterCode}`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ barangays: updatedBarangays }),
