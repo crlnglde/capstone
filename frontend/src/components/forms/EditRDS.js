@@ -189,34 +189,35 @@ const EditRDS = () => {
   const handleSignature= async () => {
     if(navigator.onLine) { 
       const updatedFamilies = distributionData.families;
-    setConfirmDialog({
-      show: true,
-      type: "add",
-      title: "Confirm Signature",
-      message: "Are you sure you want to confirm the signature?",
-      onConfirm: async() => {
-        if(navigator.onLine) { 
-          const updatedFamilies = distributionData.families;
-    
-          //console.log(distributionId);
+      setConfirmDialog({
+        show: true,
+        type: "add",
+        title: "Confirm Signature",
+        message: "Are you sure you want to confirm the signature?",
+        onConfirm: async() => {
+          if(navigator.onLine) { 
+            const updatedFamilies = distributionData.families;
       
-          const response = await axios.put(`${process.env.REACT_APP_API_URL}/update-distribution/${distributionId}`, {
-            families: updatedFamilies
-          });
-      
-          if (response.status === 200) {
-            setNotification({ type: "success", title: "Signature Saved", message: "Signature saved successfully!" });
-            setTimeout(() => setNotification(null), 3000);
-            setIsUpdated(false);  
-          } else {
-            setNotification({ type: "error", title: "Save Error", message: "Failed to save distribution data." });
-            setTimeout(() => setNotification(null), 3000);
+            //console.log(distributionId);
+        
+            const response = await axios.put(`${process.env.REACT_APP_API_URL}/update-distribution/${distributionId}`, {
+              families: updatedFamilies
+            });
+        
+            if (response.status === 200) {
+              setNotification({ type: "success", title: "Signature Saved", message: "Signature saved successfully!" });
+              setTimeout(() => setNotification(null), 3000);
+              setIsUpdated(false);  
+            } else {
+              setNotification({ type: "error", title: "Save Error", message: "Failed to save distribution data." });
+              setTimeout(() => setNotification(null), 3000);
+            }
           }
         }
-
-      }
+      })
     }
-  }
+  };
+
 
   const handleSaveDistribution = async () => {
     setConfirmDialog({
