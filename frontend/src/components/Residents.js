@@ -86,18 +86,72 @@ const Residents = ({ setNavbarTitle }) => {
     if (selectedResident && selectedResident.editHistory) {
       setHistory(
         selectedResident.editHistory.map(entry => {
-          // Mapping the changes object to a more user-friendly format
-          const formattedChanges = Object.keys(entry.changes).map(field => ({
-            field,
-            before: entry.changes[field].before,
-            after: entry.changes[field].after
-          }));
+          let formattedDependentsChanges = [];
   
+          // Check if dependents is part of the changes
+          if (entry.changes.dependents && Array.isArray(entry.changes.dependents)) {
+            formattedDependentsChanges = entry.changes.dependents.map(dependent => {
+              if (dependent.type === 'added' && dependent.data) {
+                // For added dependents, display the after values only
+                console.log(dependent.name);
+                return {
+                  field: `Dependent`,
+                  name: dependent.name,
+                  type: dependent.type,
+                  details: Object.keys(dependent.data).map(field => ({
+                    field: field,
+                    before: '', // No "Before" for added dependents
+                    after: dependent.data[field],
+                  })),
+                };
+              }
+  
+              if (dependent.type === 'modified' && dependent.changes) {
+                // For modified dependents, display both before and after values
+                return {
+                  field: `Dependent`,
+                  name: dependent.name,
+                  type: dependent.type,
+                  details: Object.keys(dependent.changes).map(changeKey => ({
+                    field: changeKey,
+                    before: dependent.changes[changeKey].before,
+                    after: dependent.changes[changeKey].after,
+                  })),
+                };
+              }
+
+              // Handle "removed" dependents
+              if (dependent.type === 'removed') {
+                return {
+                  field: `Dependent`,
+                  name: dependent.name,
+                  type: dependent.type,
+                  details: [{ field: 'Removed', before: '', after: '' }],
+                };
+              }
+  
+              return null; // If neither added nor modified, return null
+            }).filter(dependentChange => dependentChange !== null); // Remove null entries
+          }
+  
+          // Format the rest of the changes (excluding dependents)
+          const formattedChanges = Object.keys(entry.changes).map(field => {
+            if (field !== 'dependents') {
+              return {
+                field,
+                before: entry.changes[field].before,
+                after: entry.changes[field].after,
+              };
+            }
+            return null;
+          }).filter(change => change !== null);
+  
+          // Merge dependents changes with other changes
           return {
             date: new Date(entry.timestamp).toLocaleString(),
             action: entry.type,
             user: entry.username,
-            changes: formattedChanges
+            changes: [...formattedChanges, ...formattedDependentsChanges]
           };
         })
       );
@@ -107,7 +161,7 @@ const Residents = ({ setNavbarTitle }) => {
     setHistoryModalOpen(true);
   };
   
-
+  
    const closeHistoryModal = () => {
     setHistoryModalOpen(false);
     setOpenModalType("resident");
@@ -1583,7 +1637,7 @@ const fetchExistingResidents = async () => {
                   )}
 
                   {modalType === "view" && selectedResident && (
-                    <div>
+                    <div className="res-view">
                       <div className="row-wrapper">
                             <div className="hisBut">
                                 <button onClick={openHistoryModal}> 

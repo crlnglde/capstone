@@ -78,7 +78,7 @@ const MapDisaster = () => {
   //console.log("Original Disasters Data:", disasters);
 
 
-  (console.log("filtered data", filteredData))
+  //(console.log("filtered data", filteredData))
   
   useEffect(() => {
     if (disasters.length > 0) {

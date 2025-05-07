@@ -32,26 +32,22 @@ const Sidebar = ({ isMinimized, setIsMinimized, setLoading }) => {
   };
 
   const handleLogout = () => {
-    if (setLoading) {
-      setLoading(true);
-    }
+    setLoading(true); 
   
     setTimeout(() => {
-      const userRole = localStorage.getItem("role"); // get current role first
-  
+      const userRole = localStorage.getItem("role");
       localStorage.removeItem("token"); 
       localStorage.removeItem("role"); 
       localStorage.removeItem("username");
       localStorage.removeItem("residents");
-  
+      localStorage.clear();
       if (userRole === "daycare worker") {
-        localStorage.removeItem("barangay"); // only if the role is daycare
+        localStorage.removeItem("barangay");
       }
   
       window.location.href = "/";
     }, 1000);
   };
-  
 
   const linkClass = ({ isActive }) => (isActive ? "active" : "");
 

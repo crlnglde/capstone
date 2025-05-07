@@ -686,6 +686,12 @@ select:focus, select:not(:focus):valid {
           margin: 0 0 20px 0;
         }
 
+        .residents .res-view{
+          overflow-y: auto;
+          height: 75vh;
+          max-height: 80vh;
+        }
+
         .residents .row-wrapper .button-container {
           display: flex;
           justify-content: flex-end;
@@ -714,12 +720,12 @@ select:focus, select:not(:focus):valid {
         }
         
         /* Delete Button */
-        .button-container button:last-child {
+        .residents .button-container button:last-child {
           background-color: #e53935;
           color: white;
         }
         
-        .button-container button:last-child:hover {
+        .residents .button-container button:last-child:hover {
           background-color: #c62828;
         }        
         

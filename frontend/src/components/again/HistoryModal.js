@@ -55,8 +55,39 @@ const HistoryModal = ({ isOpen, onClose, history }) => {
                               <div className="change-field">
                                 <strong>{change.field}</strong>
                               </div>
-                              <div><strong>Before:</strong> {change.before}</div>
-                              <div><strong>After:</strong> {change.after}</div>
+
+                              <div><strong>Name:</strong> {change.name}</div>
+
+                               {/* Display Dependent Type */}
+                               {change.type && (
+                                <div><strong>Type:</strong> {change.type}</div>
+                              )}
+
+                              {/* Render details for dependents */}
+                              {change.details && change.details.length > 0 ? (
+                                <ul className="dependent-changes">
+                                  {change.details.map((detail, detailIndex) => (
+                                    <li key={detailIndex}>
+ 
+                                      {/* If added, show only After */}
+                                      {change.type === 'added' ? (
+                                        <div><strong>{detail.field}:</strong> {detail.after}</div>
+                                      ) : (
+                                        <>
+                                          <div><strong>{detail.field}:</strong></div>
+                                          <div><strong>Before:</strong> {detail.before}</div>
+                                          <div><strong>After:</strong> {detail.after}</div>
+                                        </>
+                                      )}
+                                    </li>
+                                  ))}
+                                </ul>
+                              ) : (
+                                <>
+                                  <div><strong>Before:</strong> {change.before}</div>
+                                  <div><strong>After:</strong> {change.after}</div>
+                                </>
+                              )}
                             </li>
                           ))
                         ) : (

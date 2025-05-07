@@ -38,7 +38,7 @@ function App() {
   });
 
   const [navbarTitle, setNavbarTitle] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState(null); 
 
   const fetchData = async () => {
@@ -62,9 +62,9 @@ function App() {
     }
   }, []);
 
-  useEffect(() => {
+{ /*useEffect(() => {
     setTimeout(() => setLoading(false), 200);
-  }, []);
+  }, []);*/}
 
   return (
     <div className="app">

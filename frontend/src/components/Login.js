@@ -38,7 +38,7 @@ const Login = () => {
         if (token) {
             navigate("/home"); // Redirect if already logged in
         }
-    }, [navigate]);
+      }, [navigate]);
 
       const togglePasswordVisibility = () => {
         setShowPassword((prevShowPassword) => !prevShowPassword);
@@ -69,50 +69,77 @@ const Login = () => {
               localStorage.setItem("role", response.data.user.role);
               localStorage.setItem("username", response.data.user.username);
       
-              const decodedToken = jwtDecode(response.data.token);
-              const expireTime = decodedToken.exp * 1000;
-      
-              setNotification({
-                type: "success",
-                title: "Login Successful",
-                message: "Welcome!",
-              });
-      
-              navigate("/home");
-      
+
               setTimeout(() => {
-                localStorage.clear();
-                navigate("/login");
-              }, expireTime - Date.now());
+                setLoading(false); // Stop loading
+              
+                // Then show notification
+                setNotification({
+                  type: "success",
+                  title: "Login Successful",
+                  message: "Welcome!",
+                });
+              
+                // Then redirect after notification is visible (e.g., 1.5 seconds)
+                setTimeout(() => {
+                  navigate("/home");
+              
+                  // Set logout timeout based on token
+                  const decodedToken = jwtDecode(response.data.token);
+                  const expireTime = decodedToken.exp * 1000;
+              
+                  setTimeout(() => {
+                    localStorage.clear();
+                    navigate("/login");
+                  }, expireTime - Date.now());
+                }, 1000);
+              
+              }, 2000);
+
             } else {
               console.error("Unknown role:", role);
-              setNotification({
-                type: "error",
-                title: "Login Failed",
-                message: "Unknown role. Please contact admin.",
-              });
-              setLoading(false);
+              setTimeout(() => {
+                setLoading(false);
+                setNotification({
+                  type: "error",
+                  title: "Login Failed",
+                  message: "Unknown role. Please contact admin.",
+                });
+                setTimeout(() => {
+                  setNotification(null);
+                }, 3000);
+              }, 1000); 
             }
           } else {
             console.error("Missing token or role in response");
-            setNotification({
-              type: "error",
-              title: "Login Failed",
-              message: "Unexpected response from server. Please try again.",
-            });
-            setLoading(false);
+            setTimeout(() => {
+              setLoading(false);
+              setNotification({
+                type: "error",
+                title: "Login Failed",
+                message: "Unexpected response from server. Please try again.",
+              });
+              setTimeout(() => {
+                setNotification(null);
+              }, 3000);
+            }, 1000); 
+
           }
         } catch (error) {
           console.error("Error logging in:", error);
-          setNotification({
-            type: "error",
-            title: "Login Failed",
-            message: "Invalid credentials. Please try again.",
-          });
+
           setTimeout(() => {
-            setNotification(null);
             setLoading(false);
-          }, 500);
+            setNotification({
+              type: "error",
+              title: "Login Failed",
+              message: "Invalid credentials. Please try again.",
+            });
+            setTimeout(() => {
+              setNotification(null);
+            }, 3000);
+          
+          }, 1000);
         }
       };
       
@@ -144,6 +171,19 @@ const Login = () => {
 
     return (
       <div className="login">
+
+        
+        {loading && <Loading />} {/* Show loading spinner */}
+
+        {notification && (
+            <Notification
+                type={notification.type}
+                title={notification.title}
+                message={notification.message}
+                onClose={() => setNotification(null)} // Close notification
+            />
+        )}
+
         <div className="loginBox">
               {/* Left Panel */}
           <div className="leftPanel">
@@ -257,18 +297,6 @@ const Login = () => {
             </motion.div>
           </motion.div>
         </div>
-
-        {loading && <Loading />} {/* Show loading spinner */}
-
-        {notification && (
-            <Notification
-                type={notification.type}
-                title={notification.title}
-                message={notification.message}
-                onClose={() => setNotification(null)} // Close notification
-            />
-        )}
-
       </div>
     );
   };
