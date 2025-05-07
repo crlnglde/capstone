@@ -53,7 +53,7 @@ const PieChart = () => {
         }
         
         try {
-          const response = await axios.get("http://localhost:3003/get-disasters");
+          const response = await axios.get(`${process.env.REACT_APP_API_URL}/get-disasters`);
           setDisasters(response.data);
         } catch (error) {
           console.error("Error fetching disasters data:", error);

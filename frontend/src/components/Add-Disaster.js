@@ -312,7 +312,7 @@ const AddDisaster = () => {
             //console.log("Barangays",barangays);
     
             // Check if disaster already exists
-            const checkResponse = await fetch(`http://localhost:3003/get-disaster/${disasterCode}`);
+            const checkResponse = await fetch(`${process.env.REACT_APP_API_URL}/get-disaster/${disasterCode}`);
             const existingDisaster = await checkResponse.json();
     
             if (checkResponse.ok && existingDisaster) {
@@ -332,8 +332,7 @@ const AddDisaster = () => {
                     }
                 });
                                 
-                    //console.log("hehe")
-                const updateResponse = await fetch(`http://localhost:3003/update-disaster/${disasterCode}`, {
+                const updateResponse = await fetch(`${process.env.REACT_APP_API_URL}/update-disaster/${disasterCode}`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ barangays: updatedBarangays })
@@ -355,7 +354,7 @@ const AddDisaster = () => {
                     barangays
                 };
     
-                const createResponse = await fetch("http://localhost:3003/add-disaster", {
+                const createResponse = await fetch(`${process.env.REACT_APP_API_URL}/add-disaster`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(disasterDocument)
@@ -789,7 +788,7 @@ const AddDisaster = () => {
 
         if(navigator.onLine){
             try {
-                const response = await axios.get(`http://localhost:3003/get-brgyresidents?barangay=${barangay}`);
+                const response = await axios.get(`${process.env.REACT_APP_API_URL}/get-brgyresidents?barangay=${barangay}`);
                 if (response.data.length === 0) {
                     console.log(`No residents found for '${barangay}'`);
                 }

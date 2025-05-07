@@ -126,7 +126,7 @@ const Reports = ({setNavbarTitle}) => {
   
       // Try to fetch fresh data
       try {
-        const response = await axios.get("http://localhost:3003/get-disasters");
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/get-disasters`);
         const data = response.data;
   
         const aggregatedReports = transformDisasters(data);
@@ -154,7 +154,7 @@ const Reports = ({setNavbarTitle}) => {
 
     const fetchDistribution = async () => {
       try {
-        const response = await axios.get("http://localhost:3003/get-distribution");
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/get-distribution`);
         const distributionData = response.data;
         setDistribution(distributionData);
       } catch (error) {
@@ -751,7 +751,7 @@ const Reports = ({setNavbarTitle}) => {
         // Function to transform data per barangay (only for download)
         const transformDataForDownload = async () => {
           try {
-            const response = await axios.get("http://localhost:3003/get-disasters");
+            const response = await axios.get(`${process.env.REACT_APP_API_URL}/get-disasters`);
             const disasterData = response.data;
         
             const transformed = disasterData.flatMap(disaster =>

@@ -54,7 +54,7 @@ const Login = () => {
             password: password.trim(),
           };
       
-          const response = await axios.post("http://localhost:3003/login", userdata);
+          const response = await axios.post(`${process.env.REACT_APP_API_URL}/login`, userdata);
       
           if (response.data.token && response.data.user.role) {
             const role = response.data.user.role.toLowerCase();

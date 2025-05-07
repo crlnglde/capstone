@@ -84,7 +84,7 @@ const RDS= () => {
       let disasterData=[];
 
       if (navigator.onLine){
-        const response = await axios.get("http://localhost:3003/get-disasters");
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/get-disasters`);
         disasterData = response.data;
       }else{
         const localData = localStorage.getItem("disasters");
@@ -162,7 +162,7 @@ const RDS= () => {
     
           //console.log(payload)
           try {
-            await axios.post("http://localhost:3003/save-distribution", payload);
+            await axios.post(`${process.env.REACT_APP_API_URL}/save-distribution`, payload);
             setNotification({ type: "success", title: "Save Successful", message: "Distribution data saved successfully!" });
             setTimeout(() => setNotification(null), 3000);
     

@@ -270,7 +270,7 @@ const Distribution = ({ setNavbarTitle }) => {
           setDisasters(recentDisasters);
         }
         try {
-          const response = await axios.get("http://localhost:3003/get-disasters");
+          const response = await axios.get(`${process.env.REACT_APP_API_URL}/get-disasters`);
           const disasterData = response.data;
     
           // Filter disasters that happened **after** three days ago
@@ -322,7 +322,7 @@ const Distribution = ({ setNavbarTitle }) => {
       const fetchDistribution = async () => {
         if (navigator.onLine) {
           try {
-            const response = await axios.get("http://localhost:3003/get-distribution");
+            const response = await axios.get(`${process.env.REACT_APP_API_URL}/get-distribution`);
             setDistribution(response.data);
           } catch (error) {
             console.error("Error fetching from server:", error);
@@ -400,7 +400,7 @@ const Distribution = ({ setNavbarTitle }) => {
           setConfirmDialog(prev => ({ ...prev, show: false })); // Close the dialog
     
           try {
-            const response = await axios.put(`http://localhost:3003/update-status/${disasterCode}`);
+            const response = await axios.put(`${process.env.REACT_APP_API_URL}/update-status/${disasterCode}`);
     
             setNotification({ type: "success", title: "Success", message: response.data.message });
             setTimeout(() => setNotification(null), 3000);
