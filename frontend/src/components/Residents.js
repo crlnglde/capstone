@@ -277,6 +277,9 @@ const fetchExistingResidents = async () => {
       
                 return {
                   memId: row['memId'] ? row['memId'].trim() : `MEM${Date.now() + index}`,
+                  status: ["active", "inactive"].includes(row['status']?.trim().toLowerCase()) 
+                      ? row['status'].trim().toLowerCase() 
+                      : "active",
                   firstName: row['firstName']?.trim() || '',
                   middleName: row['middleName']?.trim() || '',
                   lastName: row['lastName']?.trim() || '',
