@@ -288,6 +288,7 @@ const [step, setStep] = useState(1);
                               title: "Offline",
                               message: "You are offline. Action saved and will sync automatically!",
                             });
+                            setRefresh((prev) => !prev);
                           }
                     }catch (error) {
                         console.error("Error confirming DAFAC status:", error);
@@ -311,6 +312,7 @@ const [step, setStep] = useState(1);
         
                         setNotification({ type: "error", title: errorTitle, message: errorMessage });
                     } finally {
+                        setConfirmDialog({ show: false });
                         setTimeout(() => {
                         setNotification(null); // Hide notification after 3 seconds
                         }, 3000);
