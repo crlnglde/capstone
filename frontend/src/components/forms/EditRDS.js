@@ -159,7 +159,6 @@ const EditRDS = () => {
           distributionId: data.distribution?._id,
           families: data.distribution?.families || []
         });
-        console.log("Distribution:", data);
       } catch (err) {
         console.error("Error setting distribution data:", err);
         setError("Failed to fetch data");
@@ -180,56 +179,43 @@ const EditRDS = () => {
 
   // Inside your component
   useEffect(() => {
-    if (isUpdated) {
-      handleSignature();
+
+    if(navigator.onLine){
+      if (isUpdated) {
+        handleSignature();
+      }
     }
   }, [isUpdated]);
   
-  
+
   const handleSignature= async () => {
+
     if(navigator.onLine) { 
       const updatedFamilies = distributionData.families;
-      setConfirmDialog({
-        show: true,
-        type: "add",
-        title: "Confirm Signature",
-        message: "Are you sure you want to confirm the signature?",
-        onConfirm: async() => {
-          if(navigator.onLine) { 
-            const updatedFamilies = distributionData.families;
-      
-            //console.log(distributionId);
-        
-            const response = await axios.put(`${process.env.REACT_APP_API_URL}/update-distribution/${distributionId}`, {
-              families: updatedFamilies
-            });
-        
-            if (response.status === 200) {
-              setNotification({ type: "success", title: "Signature Saved", message: "Signature saved successfully!" });
-              setTimeout(() => setNotification(null), 3000);
-              setIsUpdated(false);  
-            } else {
-              setNotification({ type: "error", title: "Save Error", message: "Failed to save distribution data." });
-              setTimeout(() => setNotification(null), 3000);
-            }
-          }
-        }
-      })
+
+      console.log(distributionId);
+  
+      const response = await axios.put(`http://localhost:3003/update-distribution/${distributionId}`, {
+        families: updatedFamilies
+      });
+  
+      if (response.status === 200) {
+        setNotification({ type: "success", title: "Signature Saved", message: "Signature saved successfully!" });
+        setTimeout(() => setNotification(null), 3000);
+        setIsUpdated(false);  
+      } else {
+        setNotification({ type: "error", title: "Save Error", message: "Failed to save distribution data." });
+        setTimeout(() => setNotification(null), 3000);
+      }
     }
-  };
+
+  }
 
 
   const handleSaveDistribution = async () => {
-    setConfirmDialog({
-      show: true,
-      type: "submit",
-      title: "Submit Form",
-      message: "Are you sure you want to submit this form?",
-      onConfirm: async () => {
-
         try {
 
-          //console.log(distributionData)
+          console.log(distributionData)
           const editedDist = {
             ...distributionData
           };
@@ -301,8 +287,6 @@ const EditRDS = () => {
           setTimeout(() => setNotification(null), 3000);
   
         }
-      }
-    })
   };  
   
 
